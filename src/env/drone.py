@@ -2,7 +2,7 @@ import multiprocessing
 import numpy as np
 import xml.etree.ElementTree as etxml
 
-from env.PID import *
+from common.PID import *
 
 import pybullet as p
 from pybullet_utils import bullet_client
