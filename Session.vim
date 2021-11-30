@@ -7,15 +7,12 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +55 pybullet_swarming/env/twin.py
-badd +49 examples/simulate_swarm.py
-badd +40 examples/swarm_crazyflie_test.py
-badd +23 examples/simulate_single.py
-badd +40 examples/single_crazyflie_test.py
+badd +10 pybullet_swarming/env/twin.py
+badd +0 examples/simulate_swarm.py
 argglobal
 %argdel
 $argadd ./
-edit examples/single_crazyflie_test.py
+edit examples/simulate_swarm.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -33,11 +30,11 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 27 - ((25 * winheight(0) + 22) / 44)
+let s:l = 2 - ((1 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-27
+2
 normal! 0
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
