@@ -2,20 +2,20 @@ let SessionLoad = 1
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/Sandboxes/swarming_mauro
+cd ~/Sandboxes/pybullet_swarming
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +262 src/mainSAC.py
 badd +70 src/env/aviary.py
 badd +167 src/env/drone.py
 badd +44 src/env/environment.py
-badd +69 src/cloud.py
+badd +64 src/cloud.py
+badd +1 src/control_check.py
 argglobal
 %argdel
 $argadd ./
-edit src/cloud.py
+edit src/env/environment.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -33,13 +33,13 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 69 - ((39 * winheight(0) + 22) / 44)
+let s:l = 44 - ((30 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-69
-normal! 022|
-if exists(':tcd') == 2 | tcd ~/Sandboxes/swarming_mauro | endif
+44
+normal! 0
+if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
