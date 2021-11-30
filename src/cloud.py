@@ -55,19 +55,14 @@ if __name__ == '__main__':
         states = env.get_state()
 
         if i < 1000:
-            print('1')
             velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
         elif i < 2000:
-            print('2')
             velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([2., 0., 2.]))
         elif i < 3000:
-            print('3')
             velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([2., 2., 2.]))
         elif i < 4000:
-            print('4')
             velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 2., 2.]))
         elif i < 10000:
-            print('5')
             velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
 
         env.step(velocity_setpoints)
