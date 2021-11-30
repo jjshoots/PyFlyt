@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from env.environment import *
+from utility.shebangs import  *
 
 class Cloud():
     """
@@ -42,6 +43,7 @@ class Cloud():
 
 
 if __name__ == '__main__':
+    check_venv()
     env = Environment(
         drone_dir='models/vehicles/',
         num_envs=1,
