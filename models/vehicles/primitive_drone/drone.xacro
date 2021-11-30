@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="drone">
+
+    <xacro:include filename="materials.xacro" />
+
+    <!-- #region XACRO_MACROS -->
+
+    <!-- #region CONSTANTS -->
+    <xacro:property name="dronelength" value="0.2" />
+    <xacro:property name="dronewidth" value="0.4" />
+    <xacro:property name="droneheight" value="0.1" />
+    <xacro:property name="dronemass" value="0.05" />
+    <xacro:property name="propradius" value="0.2" />
+    <xacro:property name="propheight" value="0.01" />
+    <xacro:property name="camerasize" value="0.08" />
+    <!-- #endregion -->
+
+    <!-- #region MAKE_BOX -->
+    <xacro:macro name="make_box" params="length width height mass material originxyz originrpy">
+        <visual>
+            <origin rpy="${originrpy}" xyz="${originxyz}"/>
+            <geometry>
+                <box size="${length} ${width} ${height}"/>
+            </geometry>
+            <material name="${material}"/>
+        </visual>
+        <collision>
+            <origin rpy="${originrpy}" xyz="${originxyz}"/>
+            <geometry>
+                <box size="${length} ${width} ${height}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia
+                ixx="${1/12 * mass * (height*height + length*length)}"
+                iyy="${1/12 * mass * (width*width + length*length)}"
+                izz="${1/12 * mass * (width*width + height*height)}"
+                ixy="0"
+                ixz="0"
+                iyz="0"
+            />
+        </inertial>
+    </xacro:macro>
+    <!-- #endregion -->
+
+    <!-- #region MAKE_CYLINDER -->
+    <xacro:macro name="make_cylinder" params="length radius mass material originxyz originrpy">
+        <visual>
+            <origin rpy="${originrpy}" xyz="${originxyz}"/>
+            <geometry>
+                <cylinder length="${length}" radius="${radius}"/>
+            </geometry>
+            <material name="${material}"/>
+        </visual>
+        <collision>
+            <origin xyz="${originxyz}" rpy="${originrpy}"/>
+            <geometry>
+                <cylinder length="${length}" radius="${length}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia
+                ixx="${1/12 * mass * (3*radius*radius + length*length)}"
+                iyy="${1/12 * mass * (3*radius*radius + length*length)}"
+                izz="${1/2 * mass * radius*radius}"
+                ixy="0"
+                ixz="0"
+                iyz="0"
+            />
+        </inertial>
+    </xacro:macro>
+    <!-- #endregion -->
+
+    <!-- #endregion -->
+
+    <!-- ROBOT BEGINS HERE -->
+    <!-- ROBOT BEGINS HERE -->
+    <!-- ROBOT BEGINS HERE -->
+
+    <!-- #region BASE -->
+    <link name="base_link">
+        <xacro:make_box length="${dronelength}" width="${dronewidth}" height="${droneheight}" mass="${dronemass}" material="grey" originxyz="0 0 0" originrpy="0 0 0"/>
+    </link>
+    <!-- #endregion -->
+
+    <!-- #region propS -->
+    <!-- #region FRONT_LEFT_prop -->
+    <link name="front_left_prop">
+        <xacro:make_cylinder length="${propheight}" radius="${propradius}" mass="${dronemass}" material="black" originxyz="0.0051 0 0" originrpy="0 0 0"/>
+    </link>
+
+    <joint name="base_to_front_left_prop" type="fixed">
+        <parent link="base_link"/>
+        <child link="front_left_prop"/>
+        <!-- joint of child is xyz away from parent -->
+        <origin xyz="0.25 0.25 ${droneheight/2 + propheight}"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <!-- #endregion -->
+
+    <!-- #region FRONT_RIGHT_prop -->
+    <link name="front_right_prop">
+        <xacro:make_cylinder length="${propheight}" radius="${propradius}" mass="${dronemass}" material="black" originxyz="0.0051 0 0" originrpy="0 0 0"/>
+    </link>
+
+    <joint name="base_to_front_right_prop" type="fixed">
+        <parent link="base_link"/>
+        <child link="front_right_prop"/>
+        <!-- joint of child is xyz away from parent -->
+        <origin xyz="0.25 -0.25 ${droneheight/2 + propheight}"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <!-- #endregion -->
+
+    <!-- #region BACK_LEFT_prop -->
+    <link name="back_left_prop">
+        <xacro:make_cylinder length="${propheight}" radius="${propradius}" mass="${dronemass}" material="black" originxyz="-0.0051 0 0" originrpy="0 0 0"/>
+    </link>
+
+    <joint name="base_to_back_left_prop" type="fixed">
+        <parent link="base_link"/>
+        <child link="back_left_prop"/>
+        <!-- joint of child is xyz away from parent -->
+        <origin xyz="-0.25 0.25 ${droneheight/2 + propheight}"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <!-- #endregion -->
+
+    <!-- #region BACK_RIGHT_prop -->
+    <link name="back_right_prop">
+        <xacro:make_cylinder length="${propheight}" radius="${propradius}" mass="${dronemass}" material="black" originxyz="-0.0051 0 0" originrpy="0 0 0"/>
+    </link>
+
+    <joint name="base_to_back_right_prop" type="fixed">
+        <parent link="base_link"/>
+        <child link="back_right_prop"/>
+        <!-- joint of child is xyz away from parent -->
+        <origin xyz="-0.25 -0.25 ${droneheight/2 + propheight}"/>
+        <axis xyz="1 0 0"/>
+    </joint>
+    <!-- #endregion -->
+    <!-- #endregion -->
+
+    <!-- #region CAMERA -->
+    <link name="camera">
+        <xacro:make_box length="${camerasize}" width="${camerasize}" height="${camerasize}" mass="0" material="white" originxyz="0 0 ${camerasize/2}" originrpy="0 0 0"/>
+    </link>
+
+    <joint name="base_to_camera" type="fixed">
+        <axis xyz="0 ${camerasize/2} 0" />
+        <origin xyz="0 ${dronelength/2} ${-droneheight/2-camerasize}" rpy="0 0 1.57"/>
+        <parent link="base_link"/>
+        <child link="camera"/>
+    </joint>
+    <!-- #endregion -->
+
+</robot>

@@ -1,0 +1,23 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.0.1262)
+
+newmtl RailroadTies
+kd 0.27451 0.235294 0.196078
+ks 1 1 1
+d 1
+illum 1
+
+newmtl RailSides
+kd 0.392157 0.392157 0.392157
+ks 1 1 1
+d 1
+Ns 36
+illum 2
+
+newmtl RailTops
+kd 0.784314 0.784314 0.784314
+ks 1 1 1
+d 1
+Ns 36
+illum 2
+
