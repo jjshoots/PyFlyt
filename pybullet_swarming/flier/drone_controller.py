@@ -12,9 +12,9 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.motion_commander import MotionCommander
 from cflib.utils import uri_helper
 
-from common.PID import PID
+from pybullet_swarming.common.PID import PID
 
-class drone_controller():
+class Drone_Controller():
     """controller for a single drone"""
     def __init__(self, URI, in_swarm=False):
         self.period = 1/40.

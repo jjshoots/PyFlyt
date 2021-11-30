@@ -3,7 +3,7 @@ import time
 import numpy as np
 from signal import signal, SIGINT
 
-from flier.swarm_controller import swarm_controller
+from pybullet_swarming.flier.swarm_controller import *
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     URIs.append('radio://0/10/2M/E7E7E7E7E6')
 
     print('go')
-    swarm = swarm_controller(URIs)
+    swarm = Swarm_Controller(URIs)
     swarm.set_pos_control(True)
 
     for i in range(swarm.num_drones):

@@ -7,16 +7,18 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +70 src/cloud.py
-badd +1 src/control_check.py
-badd +70 src/env/aviary.py
-badd +167 src/env/drone.py
-badd +44 src/env/environment.py
-badd +0 src/utility/shebangs.py
+badd +48 examples/simulate_cloud.py
+badd +1 pybullet_swarming/env/environment.py
+badd +1 pybullet_swarming/env/aviary.py
+badd +10 pybullet_swarming/env/drone.py
+badd +36 pybullet_swarming/twin/twin.py
+badd +12 pybullet_swarming/flier/swarm_controller.py
+badd +15 pybullet_swarming/flier/drone_controller.py
+badd +1 examples/single_crazyflie_test.py
 argglobal
 %argdel
 $argadd ./
-edit src/utility/shebangs.py
+edit examples/single_crazyflie_test.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -34,12 +36,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 2 - ((1 * winheight(0) + 22) / 44)
+let s:l = 19 - ((18 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-2
-normal! 010|
+19
+normal! 054|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'

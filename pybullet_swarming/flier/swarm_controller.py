@@ -3,11 +3,11 @@ import numpy as np
 
 from typing import List
 
-from flier.drone_controller import drone_controller
+from pybullet_swarming.flier.drone_controller import *
 
-class swarm_controller():
+class Swarm_Controller():
     def __init__(self, URIs: List[str]):
-        self.UAVs = [drone_controller(URI, in_swarm=True) for URI in URIs]
+        self.UAVs = [Drone_Controller(URI, in_swarm=True) for URI in URIs]
         time.sleep(3)
         print(f'Swarm with {self.num_drones} drones ready to go...')
 
@@ -26,6 +26,11 @@ class swarm_controller():
             pos_est.append(UAV.position_estimate - UAV.position_offset)
 
         return np.stack(pos_est, axis=0)
+
+
+    @property
+    def states(self):
+        return self.position_estimate
 
 
     def set_pos_control(self, setting):

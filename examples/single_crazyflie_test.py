@@ -3,7 +3,7 @@ import time
 import numpy as np
 from signal import signal, SIGINT
 
-from flier.drone_controller import drone_controller
+from pybullet_swarming.flier.drone_controller import Drone_Controller
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     # here we attempt to control 1 drone
     # the URI corresponds to the 1 drone
-    UAV = drone_controller('radio://0/10/2M/E7E7E7E7E7')
+    UAV = Drone_Controller('radio://0/10/2M/E7E7E7E7E3')
 
     # start the flight controller and put into pos control
     UAV.set_pos_control(True)

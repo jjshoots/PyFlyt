@@ -2,8 +2,8 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-from env.environment import *
-from utility.shebangs import  *
+from pybullet_swarming.env.environment import *
+from pybullet_swarming.utility.shebangs import  *
 
 class Cloud():
     """
@@ -44,17 +44,28 @@ class Cloud():
 
 if __name__ == '__main__':
     check_venv()
-    env = Environment(
-        drone_dir='models/vehicles/',
-        num_envs=1,
-        max_steps=1000,
-        render=True
-        )
+
+     # spawn drones
+    drones_per_len = 4
+    drones_per_height = 1
+
+    lin_range = [-.2, .2]
+    lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
+    height_range = [.1, .1]
+    height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)
+
+    grid_x, grid_y, grid_z = np.meshgrid(lin_range, lin_range, height_range)
+    grid_x, grid_y, grid_z = grid_x.flatten(), grid_y.flatten(), grid_z.flatten()
+
+    start_pos = np.stack([grid_x, grid_y, grid_z], axis=-1)
+    start_orn = np.zeros_like(start_pos)
+
+    env = Environment(start_pos=start_pos, start_orn=start_orn)
 
     cloud_control = Cloud()
 
     for i in range(10000):
-        states = env.get_state()
+        states = env.states
 
         if i < 1000:
             velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))

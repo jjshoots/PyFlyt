@@ -5,7 +5,7 @@ import argparse
 import yaml
 import wandb
 
-from ai_lib.helpers import *
+from pybullet_swarming.ai.helpers import *
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
