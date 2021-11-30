@@ -1,9 +1,15 @@
-import math
+import os
+import time
 import numpy as np
-import matplotlib.pyplot as plt
+from signal import signal, SIGINT
 
-from pybullet_swarming.env.environment import *
 from pybullet_swarming.utility.shebangs import  *
+from pybullet_swarming.env.twin import Twin
+
+def shutdown_handler(*_):
+    print("ctrl-c invoked")
+    os._exit(1)
+
 
 class Cloud():
     """
@@ -17,7 +23,7 @@ class Cloud():
 
 
     def get_velocity_targets(self, uav_states, target_pos):
-        uav_pos = uav_states[:, -1, :]
+        uav_pos = uav_states[:, :-1]
 
         # compute repellant
         implicit = np.expand_dims(uav_pos, axis=1)
@@ -36,17 +42,17 @@ class Cloud():
         influence = repellant + attraction
 
         target = np.zeros((influence.shape[0], 4), dtype=float)
-        target[:, :2] = influence[:, :2]
-        target[:, -1] = influence[:, -1]
+        target[:, :-1] = influence
 
         return target
 
 
 if __name__ == '__main__':
     check_venv()
+    signal(SIGINT, shutdown_handler)
 
-     # spawn drones
-    drones_per_len = 4
+    # here we spawn drones in a 4x4x1 grid
+    drones_per_len = 2
     drones_per_height = 1
 
     lin_range = [-.2, .2]
@@ -60,22 +66,24 @@ if __name__ == '__main__':
     start_pos = np.stack([grid_x, grid_y, grid_z], axis=-1)
     start_orn = np.zeros_like(start_pos)
 
-    env = Environment(start_pos=start_pos, start_orn=start_orn)
+    swarm = Twin(start_pos=start_pos, start_orn=start_orn)
 
     cloud_control = Cloud()
 
     for i in range(10000):
-        states = env.states
+        states = swarm.states
 
+        setpoints = np.zeros((swarm.num_drones, 4))
         if i < 1000:
-            velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
+            setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
         elif i < 2000:
-            velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([2., 0., 2.]))
+            setpoints = cloud_control.get_velocity_targets(states, np.array([2., 0., 2.]))
         elif i < 3000:
-            velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([2., 2., 2.]))
+            setpoints = cloud_control.get_velocity_targets(states, np.array([2., 2., 2.]))
         elif i < 4000:
-            velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 2., 2.]))
+            setpoints = cloud_control.get_velocity_targets(states, np.array([0., 2., 2.]))
         elif i < 10000:
-            velocity_setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
+            setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
 
-        env.step(velocity_setpoints)
+        swarm.set_setpoints(setpoints)
+        swarm.step()

@@ -1,8 +1,8 @@
 import os
-import time
 import numpy as np
 from signal import signal, SIGINT
 
+from pybullet_swarming.utility.shebangs import  *
 from pybullet_swarming.flier.swarm_controller import *
 
 def shutdown_handler(*_):
@@ -11,7 +11,7 @@ def shutdown_handler(*_):
 
 
 if __name__ == '__main__':
-
+    check_venv()
     signal(SIGINT, shutdown_handler)
 
     # here we attempt to control 2 drones in a swarm
@@ -24,33 +24,22 @@ if __name__ == '__main__':
     URIs.append('radio://0/10/2M/E7E7E7E7E5')
     URIs.append('radio://0/10/2M/E7E7E7E7E6')
 
+    # arm all drones
     print('go')
     swarm = Swarm_Controller(URIs)
     swarm.set_pos_control(True)
-
-    for i in range(swarm.num_drones):
-        mask = [0 for _ in range(swarm.num_drones)]
-        mask[i] = 1
-        swarm.go(mask)
-        time.sleep(2)
-
-    swarm.go([0] * 6)
-    time.sleep(2)
     swarm.go([1] * 6)
-    time.sleep(2)
+    swarm.sleep(2)
 
-    # initial position target
+    # initial position target (relative to local start position)
+    # disable pos control for velocity control
     print('setpoint')
     setpoints = [np.array([0., 0., 1., 0.])] * swarm.num_drones
     setpoints = np.stack(setpoints, axis=0)
     swarm.set_setpoints(setpoints)
-    time.sleep(5)
+    swarm.sleep(5)
 
     # stop the swarm
-    print('stopp')
+    print('stop')
     swarm.go([0] * swarm.num_drones)
-    time.sleep(10)
-
-    # end the swarm
-    print('end')
     swarm.end()

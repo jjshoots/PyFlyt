@@ -102,6 +102,11 @@ class Drone_Controller():
         else:
             self.setpoint = setpoint
 
+
+    def sleep(self, seconds: float):
+        time.sleep(seconds)
+
+
     def _control(self):
         """control loop, NOT to be called in main"""
         while True:
@@ -117,31 +122,6 @@ class Drone_Controller():
 
 
             time.sleep(self.period)
-
-
-    def _control2(self):
-        """control loop, NOT to be called in main"""
-        with MotionCommander(self.scf, default_height=.2) as mc:
-            while True:
-                if self.running:
-                    if self.pos_control:
-                        velocity_setpoint = self.pos_controller.step(self.position_estimate, self.setpoint)
-
-                        # rotate the setpoint
-                        s = math.sin(self.position_estimate[3])
-                        c = math.cos(self.position_estimate[3])
-                        x = velocity_setpoint[0]
-                        y = velocity_setpoint[1]
-                        velocity_setpoint[0], velocity_setpoint[1] = x*c + y*s, y*c - x*s
-
-                        mc.start_linear_motion(*velocity_setpoint)
-                    else:
-                        mc.start_linear_motion(*self.setpoint)
-                else:
-                    mc.start_linear_motion(0., 0., -.05, 0.)
-
-
-                time.sleep(self.period)
 
 
     def _log_callback(self, timestamp, data, logconf):

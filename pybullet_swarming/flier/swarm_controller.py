@@ -63,3 +63,6 @@ class Swarm_Controller():
         for setpoint, UAV in zip(setpoints, self.UAVs):
             UAV.set_setpoint(setpoint)
 
+
+    def sleep(self, seconds: float):
+        time.sleep(seconds)
