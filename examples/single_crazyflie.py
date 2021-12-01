@@ -11,7 +11,6 @@ def shutdown_handler(*_):
 
 
 if __name__ == '__main__':
-
     check_venv()
     signal(SIGINT, shutdown_handler)
 
@@ -22,19 +21,15 @@ if __name__ == '__main__':
     # start the flight controller and put into pos control
     UAV.set_pos_control(True)
     UAV.start()
-    UAV.sleep(1)
 
-    print('hover')
     # send the drone to hover 0.5 meters
     UAV.set_setpoint(np.array([0., 0., .5, 0.]))
     UAV.sleep(5)
 
-    print('land')
     # send the drone back doen
     UAV.set_setpoint(np.array([0., 0., 0., 0.]))
     UAV.sleep(5)
 
-    print('stop')
     # stop the drone flight controller
     UAV.stop()
     UAV.sleep(5)

@@ -25,21 +25,18 @@ if __name__ == '__main__':
     URIs.append('radio://0/10/2M/E7E7E7E7E6')
 
     # arm all drones
-    print('go')
     swarm = Swarm_Controller(URIs)
     swarm.set_pos_control(True)
     swarm.go([1] * 6)
     swarm.sleep(2)
 
-    # initial position target (relative to local start position)
+    # initial position target (relative to local start positions)
     # disable pos control for velocity control
-    print('setpoint')
     setpoints = [np.array([0., 0., 1., 0.])] * swarm.num_drones
     setpoints = np.stack(setpoints, axis=0)
     swarm.set_setpoints(setpoints)
     swarm.sleep(5)
 
     # stop the swarm
-    print('stop')
     swarm.go([0] * swarm.num_drones)
     swarm.end()
