@@ -51,7 +51,7 @@ if __name__ == '__main__':
     check_venv()
     signal(SIGINT, shutdown_handler)
 
-    # here we spawn drones in a 4x4x1 grid
+    # here we spawn drones in a 2x2x1 grid
     drones_per_len = 2
     drones_per_height = 1
 
