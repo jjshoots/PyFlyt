@@ -21,6 +21,7 @@ class Simulator():
 
         # keep track of runtime
         self.steps = 0
+        self.step()
 
 
     def set_setpoints(self, setpoints: np.ndarray):
