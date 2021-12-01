@@ -3,7 +3,7 @@ import numpy as np
 from signal import signal, SIGINT
 
 from pybullet_swarming.utility.shebangs import  *
-from pybullet_swarming.env.simulator import Simulator
+from pybullet_swarming.environment.simulator import Simulator
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")

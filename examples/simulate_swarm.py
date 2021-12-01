@@ -3,7 +3,7 @@ import numpy as np
 from signal import signal, SIGINT
 
 from pybullet_swarming.utility.shebangs import  *
-from pybullet_swarming.env.simulator import Simulator
+from pybullet_swarming.environment.simulator import Simulator
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     start_pos = np.stack([grid_x, grid_y, grid_z], axis=-1)
     start_orn = np.zeros_like(start_pos)
 
-    swarm = Twin(start_pos=start_pos, start_orn=start_orn)
+    swarm = Simulator(start_pos=start_pos, start_orn=start_orn)
 
     # make the drone fly in horizontal x with 1 rad/s yawrate
     setpoints = [1., 0., 0., 1.]

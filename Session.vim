@@ -7,16 +7,16 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +30 pybullet_swarming/env/aviary.py
-badd +8 pybullet_swarming/env/simulator.py
-badd +22 examples/simulate_single.py
-badd +37 examples/single_crazyflie.py
-badd +33 examples/swarm_crazyflie.py
+badd +6 examples/simulate_single.py
+badd +14 examples/single_crazyflie.py
+badd +14 examples/swarm_crazyflie.py
 badd +21 readme.md
+badd +11 examples/show_obj.py
+badd +32 examples/simulate_swarm.py
 argglobal
 %argdel
 $argadd ./
-edit readme.md
+edit examples/simulate_swarm.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -34,12 +34,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 21 - ((20 * winheight(0) + 22) / 44)
+let s:l = 32 - ((31 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-21
-normal! 0109|
+32
+normal! 021|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
