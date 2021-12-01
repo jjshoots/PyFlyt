@@ -1,4 +1,5 @@
 import os
+import math
 import time
 import numpy as np
 from signal import signal, SIGINT
@@ -18,7 +19,8 @@ class Cloud():
     def __init__(self):
         self.repellant_scale = .01
         self.repellant_distance = .3
-        self.attraction_scale = 1000.
+        self.attraction_scale = 100.
+        self.attraction_power = 2.
         self.peak_per_axis_velocity = .5
 
 
@@ -36,7 +38,8 @@ class Cloud():
         repellant = np.clip(repellant, -self.peak_per_axis_velocity, self.peak_per_axis_velocity)
 
         # compute attraction
-        difference = self.attraction_scale * -(uav_pos - np.expand_dims(target_pos, axis=0))
+        difference = uav_pos - np.expand_dims(target_pos, axis=0)
+        difference = self.attraction_scale * -np.sign(difference) * np.abs(difference ** self.attraction_power)
         attraction = np.clip(difference, -self.peak_per_axis_velocity, self.peak_per_axis_velocity)
 
         influence = repellant + attraction
@@ -52,10 +55,10 @@ if __name__ == '__main__':
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 2x2x1 grid
-    drones_per_len = 2
+    drones_per_len = 1
     drones_per_height = 1
 
-    lin_range = [-.2, .2]
+    lin_range = [-3, 3]
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
     height_range = [.1, .1]
     height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)
@@ -70,20 +73,13 @@ if __name__ == '__main__':
 
     cloud_control = Cloud()
 
-    for i in range(10000):
+    for i in range(40000):
         states = swarm.states
 
-        setpoints = np.zeros((swarm.num_drones, 4))
-        if i < 1000:
-            setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
-        elif i < 2000:
-            setpoints = cloud_control.get_velocity_targets(states, np.array([2., 0., 2.]))
-        elif i < 3000:
-            setpoints = cloud_control.get_velocity_targets(states, np.array([2., 2., 2.]))
-        elif i < 4000:
-            setpoints = cloud_control.get_velocity_targets(states, np.array([0., 2., 2.]))
-        elif i < 10000:
-            setpoints = cloud_control.get_velocity_targets(states, np.array([0., 0., 2.]))
+        radius = 5
+        c = radius * math.cos(i / 2500)
+        s = radius * math.sin(i / 2500)
+        setpoints = cloud_control.get_velocity_targets(states, np.array([c, s, 2.]))
 
         swarm.set_setpoints(setpoints)
         swarm.step()

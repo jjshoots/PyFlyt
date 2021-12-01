@@ -15,10 +15,10 @@ if __name__ == '__main__':
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 2x2x1 grid
-    drones_per_len = 2
+    drones_per_len = 4
     drones_per_height = 1
 
-    lin_range = [-.2, .2]
+    lin_range = [-2, 2]
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
     height_range = [1., 1.]
     height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)

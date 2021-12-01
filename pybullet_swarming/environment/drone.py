@@ -1,19 +1,19 @@
 import math
 import numpy as np
-import multiprocessing
 import xml.etree.ElementTree as etxml
 
 from pybullet_utils import bullet_client
 
 from pybullet_swarming.common.PID import *
 
-class Drone(multiprocessing.Process):
-    def __init__(self, p: bullet_client.BulletClient, start_pos: np.ndarray, start_orn: np.ndarray):
-        multiprocessing.Process.__init__(self)
-
+class Drone():
+    def __init__(self, p: bullet_client.BulletClient, start_pos: np.ndarray, start_orn: np.ndarray, ctrl_hz=48., sim_hz=240.):
         # default physics looprate is 240 Hz
         self.p = p
-        self.period = 1. / 240.
+        self.sim_period = 1. / sim_hz
+        self.ctrl_period = 1. / ctrl_hz
+        self.update_ratio = int(sim_hz / ctrl_hz)
+        self.steps = 0
         drone_dir = 'models/vehicles/cf2x.urdf'
 
         """ SPAWN """
@@ -35,25 +35,25 @@ class Drone(multiprocessing.Process):
 
         # All the params for the drone
         URDF_TREE = etxml.parse(drone_dir).getroot()
-        self.mass = float(URDF_TREE[1][0][1].attrib['value'])
-        self.ixx = float(URDF_TREE[1][0][2].attrib['ixx'])
-        self.iyy = float(URDF_TREE[1][0][2].attrib['iyy'])
-        self.izz = float(URDF_TREE[1][0][2].attrib['izz'])
-        self.arm = float(URDF_TREE[0].attrib['arm'])
+        # self.mass = float(URDF_TREE[1][0][1].attrib['value'])
+        # self.ixx = float(URDF_TREE[1][0][2].attrib['ixx'])
+        # self.iyy = float(URDF_TREE[1][0][2].attrib['iyy'])
+        # self.izz = float(URDF_TREE[1][0][2].attrib['izz'])
+        # self.arm = float(URDF_TREE[0].attrib['arm'])
         self.thrust2weight = float(URDF_TREE[0].attrib['thrust2weight'])
         self.kf = float(URDF_TREE[0].attrib['kf'])
         self.km = float(URDF_TREE[0].attrib['km'])
-        self.max_speed_kmh = float(URDF_TREE[0].attrib['max_speed_kmh'])
-        self.gnd_eff_coeff = float(URDF_TREE[0].attrib['gnd_eff_coeff'])
-        self.prop_radius = float(URDF_TREE[0].attrib['prop_radius'])
-        self.drag_coeff_xy = float(URDF_TREE[0].attrib['drag_coeff_xy'])
-        self.drag_coeff_z = float(URDF_TREE[0].attrib['drag_coeff_z'])
-        self.dw_coeff_1 = float(URDF_TREE[0].attrib['dw_coeff_1'])
-        self.dw_coeff_2 = float(URDF_TREE[0].attrib['dw_coeff_2'])
-        self.dw_coeff_3 = float(URDF_TREE[0].attrib['dw_coeff_3'])
-        self.length = float(URDF_TREE[1][2][1][0].attrib['length'])
-        self.radius = float(URDF_TREE[1][2][1][0].attrib['radius'])
-        self.collision_z_offset = [float(s) for s in URDF_TREE[1][2][0].attrib['xyz'].split(' ')][2]
+        # self.max_speed_kmh = float(URDF_TREE[0].attrib['max_speed_kmh'])
+        # self.gnd_eff_coeff = float(URDF_TREE[0].attrib['gnd_eff_coeff'])
+        # self.prop_radius = float(URDF_TREE[0].attrib['prop_radius'])
+        # self.drag_coeff_xy = float(URDF_TREE[0].attrib['drag_coeff_xy'])
+        # self.drag_coeff_z = float(URDF_TREE[0].attrib['drag_coeff_z'])
+        # self.dw_coeff_1 = float(URDF_TREE[0].attrib['dw_coeff_1'])
+        # self.dw_coeff_2 = float(URDF_TREE[0].attrib['dw_coeff_2'])
+        # self.dw_coeff_3 = float(URDF_TREE[0].attrib['dw_coeff_3'])
+        # self.length = float(URDF_TREE[1][2][1][0].attrib['length'])
+        # self.radius = float(URDF_TREE[1][2][1][0].attrib['radius'])
+        # self.collision_z_offset = [float(s) for s in URDF_TREE[1][2][0].attrib['xyz'].split(' ')][2]
 
         # the joint IDs corresponding to motorID 1234
         self.motor_id = np.array([0, 2, 1, 3])
@@ -78,7 +78,7 @@ class Drone(multiprocessing.Process):
 
         # outputs normalized body torque commands
         self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
-        self.Ki_ang_vel = np.array([1e-9, 1e-9, 5e-7])
+        self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
         self.Kd_ang_vel = np.array([0., 0., 0.])
         self.lim_ang_vel = np.array([1., 1., 1.])
 
@@ -95,8 +95,8 @@ class Drone(multiprocessing.Process):
         self.lim_lin_vel = np.array([.6, .6])
 
         # height controllers
-        z_pos_PID = PID(3., 0., 0., 5., self.period)
-        z_vel_PID = PID(0.2, .005, 0., 1., self.period)
+        z_pos_PID = PID(3., 0., 0., 5., self.ctrl_period)
+        z_vel_PID = PID(0.2, 1.25, 0., 1., self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
 
@@ -105,9 +105,10 @@ class Drone(multiprocessing.Process):
 
     def reset(self):
         self.set_mode(0)
-        self.state = None
-        self.rpm = np.array([0., 0., 0., 0.])
-        self.setpoint = np.array([0., 0., 0., 0.])
+        self.state = np.zeros((4, 3))
+        self.setpoint = np.zeros((4))
+        self.rpm = np.zeros((4))
+        self.pwm = np.zeros((4))
 
         for PID in self.PIDs:
             PID.reset()
@@ -132,7 +133,7 @@ class Drone(multiprocessing.Process):
 
     def pwm2rpm(self, pwm):
         """ model the motor using first order ODE, y' = T/tau * (setpoint - y) """
-        self.rpm += (self.period / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
+        self.rpm += (self.sim_period / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
 
         return self.rpm
 
@@ -183,16 +184,16 @@ class Drone(multiprocessing.Process):
 
         self.mode = mode
         if mode == 0 or mode == 2:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.period)
+            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
             self.PIDs = [ang_vel_PID]
         elif mode == 1 or mode == 3:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.period)
-            ang_pos_PID = PID(self.Kp_ang_pos, self.Ki_ang_pos, self.Kd_ang_pos, self.lim_ang_pos, self.period)
+            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
+            ang_pos_PID = PID(self.Kp_ang_pos, self.Ki_ang_pos, self.Kd_ang_pos, self.lim_ang_pos, self.ctrl_period)
             self.PIDs = [ang_vel_PID, ang_pos_PID]
         elif mode == 4 or mode == 5 or mode == 6:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.period)
-            ang_pos_PID = PID(self.Kp_ang_pos[:2], self.Ki_ang_pos[:2], self.Kd_ang_pos[:2], self.lim_ang_pos[:2], self.period)
-            lin_vel_PID = PID(self.Kp_lin_vel, self.Ki_lin_vel, self.Kd_lin_vel, self.lim_lin_vel, self.period)
+            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
+            ang_pos_PID = PID(self.Kp_ang_pos[:2], self.Ki_ang_pos[:2], self.Kd_ang_pos[:2], self.lim_ang_pos[:2], self.ctrl_period)
+            lin_vel_PID = PID(self.Kp_lin_vel, self.Ki_lin_vel, self.Kd_lin_vel, self.lim_lin_vel, self.ctrl_period)
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID]
 
 
@@ -232,14 +233,24 @@ class Drone(multiprocessing.Process):
             z_output = np.clip(z_output, 0, 1)
 
         # mix the commands
-        command = np.array([*output, z_output])
+        self.pwm = self.cmd2pwm(np.array([*output, z_output]))
 
-        self.rpm2forces(self.pwm2rpm(self.cmd2pwm(command)))
+
+    def update_forces(self):
+        self.rpm2forces(self.pwm2rpm(self.pwm))
 
 
     def update(self):
         """
         updates state and control
         """
+        # update states according to sim rate
         self.update_state()
-        self.update_control()
+
+        # update control only when needed
+        self.steps += 1
+        if self.steps % self.update_ratio == 0:
+            self.update_control()
+
+        # update motor outputs constantly
+        self.update_forces()

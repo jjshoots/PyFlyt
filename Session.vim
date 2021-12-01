@@ -12,14 +12,16 @@ badd +14 examples/single_crazyflie.py
 badd +14 examples/swarm_crazyflie.py
 badd +21 readme.md
 badd +11 examples/show_obj.py
-badd +32 examples/simulate_swarm.py
-badd +71 examples/cloud_test.py
+badd +48 examples/simulate_swarm.py
+badd +58 examples/cloud_test.py
 badd +24 pybullet_swarming/environment/simulator.py
-badd +59 pybullet_swarming/environment/aviary.py
+badd +89 pybullet_swarming/environment/aviary.py
+badd +110 pybullet_swarming/environment/drone.py
+badd +30 pybullet_swarming/common/PID.py
 argglobal
 %argdel
 $argadd ./
-edit pybullet_swarming/environment/simulator.py
+edit pybullet_swarming/environment/aviary.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -37,12 +39,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 39 - ((24 * winheight(0) + 22) / 44)
+let s:l = 36 - ((35 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-39
-normal! 09|
+36
+normal! 028|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'

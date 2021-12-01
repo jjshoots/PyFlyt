@@ -20,7 +20,7 @@ class PID():
     def step(self, state, setpoint):
         error = setpoint - state
 
-        self.integral =  np.clip(self.integral + self.Ki * error, -self.limits, self.limits)
+        self.integral =  np.clip(self.integral + self.Ki * error * self.period, -self.limits, self.limits)
 
         derivative = self.Kd * (error - self.prev_error) / self.period
         self.prev_error = error

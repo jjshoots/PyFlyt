@@ -33,7 +33,7 @@ class Aviary(bullet_client.BulletClient):
         self.planeId = self.loadURDF(
             "plane.urdf",
             useFixedBase=True,
-            globalScaling=np.random.rand() * 20. + 1.
+            globalScaling=1.
         )
 
         # spawn drones
