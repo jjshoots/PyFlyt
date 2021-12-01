@@ -12,10 +12,11 @@ badd +8 pybullet_swarming/env/simulator.py
 badd +22 examples/simulate_single.py
 badd +37 examples/single_crazyflie.py
 badd +33 examples/swarm_crazyflie.py
+badd +33 readme.md
 argglobal
 %argdel
 $argadd ./
-edit pybullet_swarming/env/aviary.py
+edit readme.md
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -33,12 +34,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 30 - ((21 * winheight(0) + 22) / 44)
+let s:l = 33 - ((32 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-30
-normal! 0
+33
+normal! 092|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
