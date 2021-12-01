@@ -3,7 +3,7 @@
 This is a library for running swarming algorithms on both real crazyflies and simulated ones.
 This repo's `master` branch is still under development.
 
-Inspired by [the original pybullet drones by utiasDSL](https://github.com/utiasDSL/gym-pybullet-drones). But more modular, modifiable, and incorporates a companion module for interfacing with a real Crazyflie drone swarm using the Crazyradio PA module. Built for AVAILab, Coventry University.
+Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones). But more modular, modifiable, and incorporates a companion module for interfacing with a real Crazyflie drone swarm using the Crazyradio PA module. Built for AVAILab, Coventry University.
 
 ## Installation
 Code is written and tested using _Python 3.8_ with `venv` and tested on Windows 10 and Ubuntu 20.04 LTS.
@@ -18,7 +18,7 @@ pip3 install -e .
 ```
 
 ## Examples
-There are multiple template scripts available in `examples/`:
+There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py`.
 
 #### `simulate_single.py`
 Simulates a single drone in the pybullet env.
