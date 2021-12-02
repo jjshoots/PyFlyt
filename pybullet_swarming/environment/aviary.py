@@ -41,6 +41,8 @@ class Aviary(bullet_client.BulletClient):
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
             self.drones.append(Drone(self, start_pos=start_pos, start_orn=start_orn))
 
+        self.go = [1] * self.num_drones
+
 
     @property
     def num_drones(self):
@@ -59,6 +61,11 @@ class Aviary(bullet_client.BulletClient):
         states = np.stack(states, axis=0)
 
         return states
+
+
+    def set_go(self, settings):
+        assert len(settings) == len(self.go), 'incorrect go length'
+        self.go = settings
 
 
     def set_mode(self, flight_mode):
@@ -88,7 +95,9 @@ class Aviary(bullet_client.BulletClient):
 
             # print(f'RTF: {self.period / (elapsed + 1e-6)}')
 
-        for drone in self.drones: drone.update()
+        for drone, go in zip(self.drones, self.go):
+            if go:
+                drone.update()
 
         self.stepSimulation()
         self.step_count += 1

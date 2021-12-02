@@ -18,6 +18,7 @@ class Simulator():
         # instantiate the digital twin
         self.env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True)
         self.env.set_mode(6)
+        self.env.set_go([0] * self.env.num_drones)
 
         # keep track of runtime
         self.steps = 0
@@ -50,6 +51,10 @@ class Simulator():
     def sleep(self, seconds: float):
         for _ in range(int(seconds / self.env.period)):
             self.step()
+
+
+    def go(self, settings):
+        self.env.set_go(settings)
 
 
     @property

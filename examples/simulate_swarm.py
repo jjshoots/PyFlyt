@@ -15,12 +15,12 @@ if __name__ == '__main__':
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 2x2x1 grid
-    drones_per_len = 4
-    drones_per_height = 1
+    drones_per_len = 3
+    drones_per_height = 2
 
-    lin_range = [-2, 2]
+    lin_range = [-1, 1]
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
-    height_range = [1., 1.]
+    height_range = [1., 2.]
     height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)
 
     grid_x, grid_y, grid_z = np.meshgrid(lin_range, lin_range, height_range)
@@ -29,7 +29,9 @@ if __name__ == '__main__':
     start_pos = np.stack([grid_x, grid_y, grid_z], axis=-1)
     start_orn = np.zeros_like(start_pos)
 
+    # spawn in the drones according to the positions and enable all of them
     swarm = Simulator(start_pos=start_pos, start_orn=start_orn)
+    swarm.go([1] * swarm.num_drones)
 
     # make the drone fly in horizontal x with 1 rad/s yawrate
     setpoints = [1., 0., 0., 1.]
@@ -45,4 +47,8 @@ if __name__ == '__main__':
 
     # send the setpoint for 5 seconds
     swarm.set_setpoints(setpoints)
+    swarm.sleep(4)
+
+    # disarm all drones
+    swarm.go([0] * swarm.num_drones)
     swarm.sleep(4)

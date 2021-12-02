@@ -100,5 +100,5 @@ def get_base_prefix_compat():
 
 def check_venv():
     if not get_base_prefix_compat() != sys.prefix:
-        time.sleep(10)
+        # time.sleep(10)
         warnings.warn('Not in venv.')

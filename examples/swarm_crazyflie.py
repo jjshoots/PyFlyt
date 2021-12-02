@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # arm all drones
     swarm = Swarm_Controller(URIs)
-    swarm.set_pos_control(True)
+    # swarm.set_pos_control(True)
     swarm.go([1] * 6)
     swarm.sleep(2)
 
