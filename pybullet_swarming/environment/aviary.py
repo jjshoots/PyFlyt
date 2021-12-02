@@ -20,7 +20,15 @@ class Aviary(bullet_client.BulletClient):
         self.start_orn = start_orn
 
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
+
         self.render = render
+        self.rtf_print_interval = 24
+        self.rtf_debug_line = self.addUserDebugText( \
+                    text='RTF here', \
+                    textPosition=[0, 0, 0], \
+                    textColorRGB=[1, 0, 0]
+                    )
+
         self.reset()
 
 
@@ -93,7 +101,20 @@ class Aviary(bullet_client.BulletClient):
             time.sleep(max(self.period - elapsed, 0.))
             self.now = time.time()
 
-            # print(f'RTF: {self.period / (elapsed + 1e-6)}')
+            # calculate real time factor
+            RTF = self.period / (elapsed + 1e-6)
+
+            if self.step_count % self.rtf_print_interval == 0:
+                # handle case where sometimes elapsed becomes 0
+                if elapsed != 0.:
+                    self.rtf_debug_line = self.addUserDebugText( \
+                                            text=f'RTF: {str(RTF)[:7]}', \
+                                            textPosition=[0, 0, 0], \
+                                            textColorRGB=[1, 0, 0], \
+                                            replaceItemUniqueId=self.rtf_debug_line
+                                            )
+
+            # print(f'RTF: {RTF}')
 
         for drone, go in zip(self.drones, self.go):
             if go:

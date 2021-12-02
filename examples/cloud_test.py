@@ -58,7 +58,7 @@ if __name__ == '__main__':
     drones_per_len = 4
     drones_per_height = 1
 
-    lin_range = [-3, 3]
+    lin_range = [-.8, .8]
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
     height_range = [.1, .1]
     height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)
