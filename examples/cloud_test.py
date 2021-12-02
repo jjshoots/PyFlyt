@@ -70,6 +70,7 @@ if __name__ == '__main__':
     start_orn = np.zeros_like(start_pos)
 
     swarm = Simulator(start_pos=start_pos, start_orn=start_orn)
+    swarm.go([1] * swarm.num_drones)
 
     cloud_control = Cloud()
 

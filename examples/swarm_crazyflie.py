@@ -19,16 +19,16 @@ if __name__ == '__main__':
     URIs = []
     URIs.append('radio://0/10/2M/E7E7E7E7E1')
     URIs.append('radio://0/10/2M/E7E7E7E7E2')
-    URIs.append('radio://0/10/2M/E7E7E7E7E3')
+    # URIs.append('radio://0/10/2M/E7E7E7E7E3')
     URIs.append('radio://0/10/2M/E7E7E7E7E4')
     URIs.append('radio://0/10/2M/E7E7E7E7E5')
     URIs.append('radio://0/10/2M/E7E7E7E7E6')
+    URIs.append('radio://0/10/2M/E7E7E7E7E7')
 
     # arm all drones
     swarm = Swarm_Controller(URIs)
     # swarm.set_pos_control(True)
     swarm.go([1] * 6)
-    swarm.sleep(2)
 
     # initial position target (relative to local start positions)
     # disable pos control for velocity control

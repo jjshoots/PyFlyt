@@ -18,7 +18,9 @@ if __name__ == '__main__':
     start_pos = np.array([[0., 0., 1.]])
     start_orn = np.array([[0., 0., 0.]])
     env = Simulator(start_pos=start_pos, start_orn=start_orn)
+    env.go([1])
 
     # fly horizontally with x velocity 1 and rotate at 1 rad/s yaw for 5 seconds
     env.set_setpoints(np.array([[1., 0., 0., 1.]]))
     env.sleep(5)
+    env.go([0])
