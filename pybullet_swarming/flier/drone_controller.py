@@ -34,9 +34,13 @@ class Drone_Controller():
         self.pos_controller = PID(Kp, Ki, Kd, 1., self.period)
 
         # make connection
-        cflib.crtp.init_drivers()
-        self.scf = SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache'))
-        self.scf.open_link()
+        self.scf = None
+        try:
+            cflib.crtp.init_drivers()
+            self.scf = SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache'))
+            self.scf.open_link()
+        except:
+            print(f'Failed to open link with Flier on {URI}')
 
         # logging thread
         self.logging_thread = LogConfig(name='Position', period_in_ms=10)
