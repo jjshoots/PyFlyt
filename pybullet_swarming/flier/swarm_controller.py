@@ -17,6 +17,7 @@ class Swarm_Controller():
             don't have to worry about drone numbering,
             assignment is solved using Hungarian algorithm.
             Only the last value of start_orn (yaw) is used.
+            Position control automatically set if this is supplied.
     """
     def __init__(self, URIs: List[str], start_pos=None, start_orn=None):
         self.UAVs = [Drone_Controller(URI, in_swarm=True) for URI in URIs]
@@ -39,6 +40,7 @@ class Swarm_Controller():
             # send setpoints
             setpoints = np.concatenate((start_pos, start_orn[:, -1]), axis=-1)
             self.set_setpoints(setpoints)
+            self.UAVs.set_pos_control(True)
 
         time.sleep(1)
         print(f'Swarm with {self.num_drones} drones ready to go...')
