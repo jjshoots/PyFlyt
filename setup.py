@@ -8,6 +8,7 @@ setup(name='pybullet_swarming',
         'matplotlib',
         'pybullet',
         'cflib',
-        'cfclient'
+        'cfclient',
+        'scipy'
         ]
 )

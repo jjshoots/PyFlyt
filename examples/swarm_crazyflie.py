@@ -17,18 +17,19 @@ if __name__ == '__main__':
     # here we attempt to control 2 drones in a swarm
     # each URI corresponds to one drone
     URIs = []
-    URIs.append('radio://0/10/2M/E7E7E7E7E1')
-    URIs.append('radio://0/10/2M/E7E7E7E7E2')
-    # URIs.append('radio://0/10/2M/E7E7E7E7E3')
-    URIs.append('radio://0/10/2M/E7E7E7E7E4')
-    URIs.append('radio://0/10/2M/E7E7E7E7E5')
-    URIs.append('radio://0/10/2M/E7E7E7E7E6')
-    URIs.append('radio://0/10/2M/E7E7E7E7E7')
+    URIs.append('radio://0/30/2M/E7E7E7E7E0')
+    URIs.append('radio://0/30/2M/E7E7E7E7E1')
+    URIs.append('radio://0/30/2M/E7E7E7E7E2')
+    URIs.append('radio://0/30/2M/E7E7E7E7E3')
+    URIs.append('radio://0/30/2M/E7E7E7E7E4')
+    URIs.append('radio://0/30/2M/E7E7E7E7E5')
+    URIs.append('radio://0/30/2M/E7E7E7E7E6')
+    URIs.append('radio://0/30/2M/E7E7E7E7E7')
 
     # arm all drones
     swarm = Swarm_Controller(URIs)
     # swarm.set_pos_control(True)
-    swarm.go([1] * 6)
+    swarm.go([1] * swarm.num_drones)
 
     # initial position target (relative to local start positions)
     # disable pos control for velocity control

@@ -38,9 +38,6 @@ class Drone_Controller():
         self.scf = SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache'))
         self.scf.open_link()
 
-        # security
-        self.scf.cf.param.add_update_callback(group="deck", name="bcFlow2", cb=self._flow_callback)
-
         # logging thread
         self.logging_thread = LogConfig(name='Position', period_in_ms=10)
         self.logging_thread.add_variable('stateEstimate.x', 'float')
@@ -59,15 +56,14 @@ class Drone_Controller():
         self.control_thread.start()
 
         # delay a bit to let things stabilize if not in swarm
+        print(f'Flier on {URI} ready to rock and roll...')
         if not in_swarm:
             time.sleep(3)
-            print('Drone ready to go...')
 
 
 
     def start(self):
         """starts the control loop"""
-
         self.pos_controller.reset()
         if self.pos_control:
             self.setpoint = copy.deepcopy(self.position_estimate)
@@ -88,6 +84,7 @@ class Drone_Controller():
         self.running = False
         self.logging_thread.stop()
         self.scf.close_link()
+
 
 
     def set_pos_control(self, setting):
@@ -131,7 +128,3 @@ class Drone_Controller():
         self.position_estimate[2] = data['stateEstimate.z']
         self.position_estimate[3] = data['stateEstimate.yaw'] / 180. * math.pi
 
-
-    def _flow_callback(self, name, value_str):
-        """flow deck callback, NOT to be called in main"""
-        self.flow_deck_attached = int(value_str)

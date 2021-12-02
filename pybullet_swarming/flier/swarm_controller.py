@@ -1,15 +1,49 @@
 import time
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 from typing import List
 
 from pybullet_swarming.flier.drone_controller import *
 
 class Swarm_Controller():
-    def __init__(self, URIs: List[str]):
+    """
+    Class for controlling a swarm of Crazyflie UAVs.
+    Realistically, only about 5 drones per dongle supported.
+        Requied: URIs
+        - correspond to list of URIs for the drones.
+        Optional: start_pos and start_orn
+        - correspond to desired initial positions of drones
+            don't have to worry about drone numbering,
+            assignment is solved using Hungarian algorithm.
+            Only the last value of start_orn (yaw) is used.
+    """
+    def __init__(self, URIs: List[str], start_pos=None, start_orn=None):
         self.UAVs = [Drone_Controller(URI, in_swarm=True) for URI in URIs]
-        time.sleep(3)
+        time.sleep(1)
+
+        # if start pos is given, reassign to get drones to their positions automatically
+        if start_pos is not None and start_orn is not None:
+            assert start_pos.shape == start_orn.shape, 'start_pos must have same shape as start_orn'
+            assert len(start_pos) == self.num_drones, 'must have same number of drones as number of drones'
+            assert start_pos[0].shape == 3, 'start pos must have only xyz, start orn must have only pqr'
+
+            # compute cost matrix
+            cost = (np.expand_dims(self.states, axis=1) - np.expand_dims(start_pos, axis=0)) ** 2
+            cost = np.sum(cost, axis=-1)
+
+            # compute optimal assignment using Hungarian algo
+            _, reassignment = linear_sum_assignment(cost)
+            self.UAVs = self.UAVs[reassignment]
+
+            # send setpoints
+            setpoints = np.concatenate((start_pos, start_orn[:, -1]), axis=-1)
+            self.set_setpoints(setpoints)
+
+        time.sleep(1)
         print(f'Swarm with {self.num_drones} drones ready to go...')
+        time.sleep(1)
+
 
 
     @property
@@ -54,6 +88,7 @@ class Swarm_Controller():
         """disarms each drone and closes all connections"""
         for UAV in self.UAVs:
             UAV.end()
+        time.sleep(1)
 
 
     def set_setpoints(self, setpoints: np.ndarray):
