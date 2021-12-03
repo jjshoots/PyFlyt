@@ -35,12 +35,12 @@ class Swarm_Controller():
 
             # compute optimal assignment using Hungarian algo
             _, reassignment = linear_sum_assignment(cost)
-            self.UAVs = self.UAVs[reassignment]
+            self.UAVs = [self.UAVs[i] for i in reassignment]
 
             # send setpoints
-            setpoints = np.concatenate((start_pos, start_orn[:, -1]), axis=-1)
+            setpoints = np.concatenate((start_pos, np.expand_dims(start_orn[:, -1], axis=-1)), axis=-1)
             self.set_setpoints(setpoints)
-            self.UAVs.set_pos_control(True)
+            self.set_pos_control(True)
 
         time.sleep(1)
         print(f'Swarm with {self.num_drones} drones ready to go...')

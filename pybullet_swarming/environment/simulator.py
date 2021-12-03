@@ -23,13 +23,41 @@ class Simulator():
         # keep track of runtime
         self.steps = 0
 
-        # tex_id = self.env.loadTexture('/models/diamond4.png')
+        # texturing
+        tex_id = self.env.loadTexture('/models/diamond4.png')
         # self.env.changeVisualShape(self.env.planeId, -1, textureUniqueId=tex_id)
+
+        for drone in self.env.drones:
+            self.env.changeVisualShape(drone.Id, -1, textureUniqueId=tex_id)
+
+
+    def reshuffle(self, new_pos, new_orn):
+        """
+        reshuffle the drones given a new start_pos such that all drones map to the new start_pos cleanly
+        """
+        # if start pos is given, reassign to get drones to their positions automatically
+        if new_pos is not None and new_orn is not None:
+            assert new_pos.shape == new_orn.shape, 'start_pos must have same shape as start_orn'
+            assert len(new_pos) == self.num_drones, 'must have same number of drones as number of drones'
+            assert new_pos[0].shape[0] == 3, 'start pos must have only xyz, start orn must have only pqr'
+
+            # compute cost matrix
+            cost = abs(np.expand_dims(self.states[:, :3], axis=1) - np.expand_dims(new_pos, axis=0))
+            cost = np.sum(cost, axis=-1)
+
+            # compute optimal assignment using Hungarian algo
+            _, reassignment = linear_sum_assignment(cost)
+            self.env.drones = [self.env.drones[i] for i in reassignment]
+
+            # send setpoints
+            setpoints = np.concatenate((new_pos, np.expand_dims(new_orn[:, -1], axis=-1)), axis=-1)
+            self.set_setpoints(setpoints)
+            self.set_pos_control(True)
 
 
     def set_setpoints(self, setpoints: np.ndarray):
         """
-        setpoints is a num_drones x 4 array, where the 4 corresponds to vx, vy, vz, vr
+        setpoints is a num_drones x 4 array, where the 4 corresponds to x, y, z, r or vx, vy, vz, vr
         """
         # the setpoints in the digital twin has the last two dims flipped
         temp = copy.deepcopy(setpoints[:, -2])

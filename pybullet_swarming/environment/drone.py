@@ -101,7 +101,7 @@ class Drone():
         self.lim_lin_pos = np.array([1., 1.])
 
         # height controllers
-        z_pos_PID = PID(3., 0., 0., 5., self.ctrl_period)
+        z_pos_PID = PID(3., 0., 0., 1., self.ctrl_period)
         z_vel_PID = PID(0.2, 1.25, 0., 1., self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
@@ -120,6 +120,7 @@ class Drone():
             PID.reset()
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
+        self.update_state()
 
 
     def rpm2forces(self, rpm):
