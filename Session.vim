@@ -11,15 +11,16 @@ badd +21 examples/simulate_single.py
 badd +34 examples/simulate_swarm.py
 badd +27 pybullet_swarming/environment/simulator.py
 badd +47 pybullet_swarming/environment/aviary.py
-badd +86 pybullet_swarming/environment/drone.py
+badd +95 pybullet_swarming/environment/drone.py
 badd +30 pybullet_swarming/common/PID.py
 badd +83 pybullet_swarming/flier/swarm_controller.py
 badd +61 examples/simulate_cube.py
-badd +29 readme.md
+badd +28 readme.md
+badd +75 examples/cloud_test.py
 argglobal
 %argdel
 $argadd ./
-edit readme.md
+edit examples/cloud_test.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -37,12 +38,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 28 - ((27 * winheight(0) + 22) / 44)
+let s:l = 75 - ((33 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-28
-normal! 022|
+75
+normal! 017|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'

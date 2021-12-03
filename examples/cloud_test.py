@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     lin_range = [-.8, .8]
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
-    height_range = [.1, .1]
+    height_range = [.001, .001]
     height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)
 
     grid_x, grid_y, grid_z = np.meshgrid(lin_range, lin_range, height_range)
@@ -70,7 +70,9 @@ if __name__ == '__main__':
     start_orn = np.zeros_like(start_pos)
 
     swarm = Simulator(start_pos=start_pos, start_orn=start_orn)
+    swarm.set_pos_control(False)
     swarm.go([1] * swarm.num_drones)
+    swarm.sleep(1)
 
     cloud_control = Cloud()
 
