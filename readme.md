@@ -37,6 +37,3 @@ Flies a real Crazyflie, check out the [documentation](https://www.bitcraze.io/do
 
 #### `swarm_crazyflie.py`
 Flies a real Crazyflie swarm, same as the previous example, but now takes in a list of URIs.
-
-#### `cloud_test.py`
-Quick and dirty simulated swarm cloud control.

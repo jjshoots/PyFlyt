@@ -10,11 +10,12 @@ set shortmess=aoO
 badd +26 pybullet_swarming/environment/simulator.py
 badd +22 pybullet_swarming/environment/drone.py
 badd +63 pybullet_swarming/flier/swarm_controller.py
-badd +26 examples/cube_scratch.py
+badd +72 examples/cube_scratch.py
+badd +1 readme.md
 argglobal
 %argdel
 $argadd ./
-edit examples/cube_scratch.py
+edit readme.md
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -32,12 +33,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 72 - ((37 * winheight(0) + 23) / 46)
+let s:l = 39 - ((38 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-72
-normal! 017|
+39
+normal! 0
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
