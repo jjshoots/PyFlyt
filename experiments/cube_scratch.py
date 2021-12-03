@@ -20,8 +20,7 @@ if __name__ == '__main__':
 
     # here we spawn drones in a circle
     theta = np.arange(0, 2 * math.pi, 2 * math.pi / (dim_drones ** 3))
-    distance = 4.
-
+    distance = 2.
     x = distance * np.cos(theta)
     y = distance * np.sin(theta)
     z = np.ones_like(x) * 0.05
@@ -33,8 +32,8 @@ if __name__ == '__main__':
                       )
 
     # form the cube coordinates
-    offset = np.array([[0., 0., 1.]])
-    linear_offset = np.array([[1., 0., 0.]])
+    offset = np.array([[0., 0., 0.8]])
+    linear_offset = np.array([[0.3, 0., 0.]])
 
     lin_range = np.array([-.4, .4])
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=dim_drones)
@@ -51,23 +50,34 @@ if __name__ == '__main__':
     r = 1. / 1000.
     c, s = math.cos(1. * r), math.sin(1. * r)
     Rx = np.array([[1., 0., 0.], [0., c, -s], [0., s, c]])
-    c, s = math.cos(2. * r), math.sin(2. * r)
+    c, s = math.cos(1.4 * r), math.sin(2. * r)
     Ry = np.array([[c, 0., s], [0., 1., 0.], [-s, 0., c]])
-    c, s = math.cos(3. * r), math.sin(3. * r)
+    c, s = math.cos(1.7 * r), math.sin(3. * r)
     Rz = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
 
     R1 = Rx @ Ry @ Rz
 
-    # define linear_offset rotation per timestep, only around z axis
-    r = 1. / 1000.
-    c, s = math.cos(r), math.sin(r)
-    R2 = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
+    # define offset rotation per timestep
+    r = 1. / 2000.
+    c, s = math.cos(1. * r), math.sin(1. * r)
+    Rx = np.array([[1., 0., 0.], [0., c, -s], [0., s, c]])
+    c, s = math.cos(1.4 * r), math.sin(2. * r)
+    Ry = np.array([[c, 0., s], [0., 1., 0.], [-s, 0., c]])
+    c, s = math.cos(1.7 * r), math.sin(3. * r)
+    Rz = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
+
+    R2 = Rx @ Ry @ Rz
 
     # start the drones
-    swarm.sleep(5)
     swarm.set_pos_control(True)
-    swarm.reshuffle(cube+offset+linear_offset, np.zeros((swarm.num_drones, 3)))
-    swarm.go([1] * swarm.num_drones)
+    cost = swarm.reshuffle(cube+offset+linear_offset, np.zeros((swarm.num_drones, 3)))
+    settings = np.zeros(swarm.num_drones)
+    for _ in range(swarm.num_drones):
+        i = np.argmax(cost)
+        settings[i] = 1
+        cost[i] = -100.
+        swarm.go(settings)
+        swarm.sleep(1)
     swarm.sleep(10)
 
     for i in range(100000):

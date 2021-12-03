@@ -19,33 +19,36 @@ class Swarm_Controller():
             Only the last value of start_orn (yaw) is used.
             Position control automatically set if this is supplied.
     """
-    def __init__(self, URIs: List[str], start_pos=None, start_orn=None):
+    def __init__(self, URIs: List[str]):
         self.UAVs = [Drone_Controller(URI, in_swarm=True) for URI in URIs]
-        time.sleep(1)
-
-        # if start pos is given, reassign to get drones to their positions automatically
-        if start_pos is not None and start_orn is not None:
-            assert start_pos.shape == start_orn.shape, 'start_pos must have same shape as start_orn'
-            assert len(start_pos) == self.num_drones, 'must have same number of drones as number of drones'
-            assert start_pos[0].shape == 3, 'start pos must have only xyz, start orn must have only pqr'
-
-            # compute cost matrix
-            cost = abs(np.expand_dims(self.states, axis=0) - np.expand_dims(start_pos, axis=1))
-            cost = np.sum(cost, axis=-1)
-
-            # compute optimal assignment using Hungarian algo
-            _, reassignment = linear_sum_assignment(cost)
-            self.UAVs = [self.UAVs[i] for i in reassignment]
-
-            # send setpoints
-            setpoints = np.concatenate((start_pos, np.expand_dims(start_orn[:, -1], axis=-1)), axis=-1)
-            self.set_setpoints(setpoints)
-            self.set_pos_control(True)
-
         time.sleep(1)
         print(f'Swarm with {self.num_drones} drones ready to go...')
         time.sleep(1)
 
+
+    def reshuffle(self, new_pos, new_orn):
+        """
+        reshuffle the drones given a new start_pos such that all drones map to the new start_pos cleanly
+        """
+        assert new_pos.shape == new_orn.shape, 'start_pos must have same shape as start_orn'
+        assert len(new_pos) == self.num_drones, 'must have same number of drones as number of drones'
+        assert new_pos[0].shape == 3, 'start pos must have only xyz, start orn must have only pqr'
+
+        # compute cost matrix
+        cost = abs(np.expand_dims(self.states, axis=0) - np.expand_dims(new_pos, axis=1))
+        cost = np.sum(cost, axis=-1)
+
+        # compute optimal assignment using Hungarian algo
+        _, reassignment = linear_sum_assignment(cost)
+        self.UAVs = [self.UAVs[i] for i in reassignment]
+
+        # send setpoints
+        setpoints = np.concatenate((new_pos, np.expand_dims(new_orn[:, -1], axis=-1)), axis=-1)
+        self.set_setpoints(setpoints)
+        self.set_pos_control(True)
+
+        cost = np.choose(reassignment, cost.T)
+        return cost
 
 
     @property
