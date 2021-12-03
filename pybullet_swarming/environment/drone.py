@@ -83,7 +83,7 @@ class Drone():
         self.lim_ang_vel = np.array([1., 1., 1.])
 
         # outputs angular rate
-        self.Kp_ang_pos = np.array([.5, .5, 0.])
+        self.Kp_ang_pos = np.array([.5, .5, 1.])
         self.Ki_ang_pos = np.array([0., 0., 0.])
         self.Kd_ang_pos = np.array([0., 0., 0.])
         self.lim_ang_pos = np.array([2., 2., 2.])
@@ -91,8 +91,14 @@ class Drone():
         # outputs angular position
         self.Kp_lin_vel = np.array([7., 7.])
         self.Ki_lin_vel = np.array([0., 0.])
-        self.Kd_lin_vel = np.array([1., 1.])
+        self.Kd_lin_vel = np.array([3., 3.])
         self.lim_lin_vel = np.array([.6, .6])
+
+        # outputs angular position
+        self.Kp_lin_pos = np.array([1., 1.])
+        self.Ki_lin_pos = np.array([0., 0.])
+        self.Kd_lin_pos = np.array([0., 0.])
+        self.lim_lin_pos = np.array([1., 1.])
 
         # height controllers
         z_pos_PID = PID(3., 0., 0., 5., self.ctrl_period)
@@ -180,6 +186,7 @@ class Drone():
             4 - u, v, vr, z
             5 - u, v, vr, vz
             6 - vx, vy, vr, vz
+            7 - x, y, r, z
         """
 
         self.mode = mode
@@ -195,6 +202,12 @@ class Drone():
             ang_pos_PID = PID(self.Kp_ang_pos[:2], self.Ki_ang_pos[:2], self.Kd_ang_pos[:2], self.lim_ang_pos[:2], self.ctrl_period)
             lin_vel_PID = PID(self.Kp_lin_vel, self.Ki_lin_vel, self.Kd_lin_vel, self.lim_lin_vel, self.ctrl_period)
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID]
+        elif mode == 7:
+            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
+            ang_pos_PID = PID(self.Kp_ang_pos, self.Ki_ang_pos, self.Kd_ang_pos, self.lim_ang_pos, self.ctrl_period)
+            lin_vel_PID = PID(self.Kp_lin_vel, self.Ki_lin_vel, self.Kd_lin_vel, self.lim_lin_vel, self.ctrl_period)
+            lin_pos_PID = PID(self.Kp_lin_pos, self.Ki_lin_pos, self.Kd_lin_pos, self.lim_lin_pos, self.ctrl_period)
+            self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID, lin_pos_PID]
 
 
     def update_control(self):
@@ -214,20 +227,32 @@ class Drone():
         elif self.mode == 6:
             c = math.cos(self.state[1, -1])
             s = math.sin(self.state[1, -1])
-            rotation_matrix = np.array([[c, -s], [s, c]]).T
-            rotated_setpoint = np.matmul(rotation_matrix, self.setpoint[:2])
+            rot_mat = np.array([[c, -s], [s, c]]).T
+            output = np.matmul(rot_mat, self.setpoint[:2])
 
-            output = self.PIDs[2].step(self.state[2][:2], rotated_setpoint)
+            output = self.PIDs[2].step(self.state[2][:2], output)
             output = np.array([-output[1], output[0]])
             output = self.PIDs[1].step(self.state[1][:2], output)
             output = self.PIDs[0].step(self.state[0], np.array([*output, self.setpoint[2]]))
+        elif self.mode == 7:
+            output = self.PIDs[3].step(self.state[3][:2], self.setpoint[:2])
+
+            c = math.cos(self.state[1, -1])
+            s = math.sin(self.state[1, -1])
+            rot_mat = np.array([[c, -s], [s, c]]).T
+            output = np.matmul(rot_mat, output)
+
+            output = self.PIDs[2].step(self.state[2][:2], output)
+            output = np.array([-output[1], output[0], self.setpoint[2]])
+            output = self.PIDs[1].step(self.state[1], output)
+            output = self.PIDs[0].step(self.state[0], output)
 
         z_output = None
         # height controllers
         if self.mode == 0 or self.mode == 1 or self.mode == 5 or self.mode == 6:
             z_output = self.z_PIDs[0].step(self.state[2][-1], self.setpoint[-1])
             z_output = np.clip(z_output, 0, 1)
-        elif self.mode == 2 or self.mode == 3 or self.mode == 4:
+        elif self.mode == 2 or self.mode == 3 or self.mode == 4 or self.mode == 7:
             z_output = self.z_PIDs[1].step(self.state[3][-1], self.setpoint[-1])
             z_output = self.z_PIDs[0].step(self.state[2][-1], z_output)
             z_output = np.clip(z_output, 0, 1)

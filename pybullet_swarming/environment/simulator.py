@@ -17,7 +17,7 @@ class Simulator():
 
         # instantiate the digital twin
         self.env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True)
-        self.env.set_mode(6)
+        self.set_pos_control(True)
         self.env.set_go([0] * self.env.num_drones)
 
         # keep track of runtime
@@ -41,6 +41,11 @@ class Simulator():
     def step(self):
         self.steps += 1
         self.env.step()
+
+
+    def set_pos_control(self, setting):
+        """sets entire swarm to fly using pos control"""
+        self.env.set_mode(7 if setting else 6)
 
 
     def get_states(self):

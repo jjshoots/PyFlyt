@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
     # spawn in the drones according to the positions and enable all of them
     swarm = Simulator(start_pos=start_pos, start_orn=start_orn)
+    swarm.set_pos_control(False)
     swarm.go([1] * swarm.num_drones)
 
     # make the drone fly in horizontal x with 1 rad/s yawrate
