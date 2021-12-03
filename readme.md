@@ -21,10 +21,14 @@ pip3 install -e .
 There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py`.
 
 #### `simulate_single.py`
-Simulates a single drone in the pybullet env.
+Simulates a single drone in the pybullet env with position control.
 
 #### `simulate_swarm.py`
-Simulated a swarm of 4 drones in the pybullet env.
+Simulated a swarm of 4 drones in the pybullet env with velocity control.
+
+#### `simulate_cube.py`
+![You spin me round right round](/resource/spinning_cube.gif)
+Simulated a swarm of drones in a spinning cube.
 
 #### `single_crazyflie.py`
 Flies a real Crazyflie, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/) and [how to connect](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/#config-client) to get your URI(s) and modify them in line 18.

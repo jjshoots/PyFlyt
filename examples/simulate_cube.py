@@ -17,8 +17,8 @@ if __name__ == '__main__':
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 3x3x3 grid
-    drones_per_len = 2
-    drones_per_height = 2
+    drones_per_len = 4
+    drones_per_height = 4
     height_offset = np.array([[0., 0., 2.]])
 
     lin_range = np.array([-.5, .5])

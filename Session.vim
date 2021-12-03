@@ -14,7 +14,8 @@ badd +36 pybullet_swarming/environment/aviary.py
 badd +86 pybullet_swarming/environment/drone.py
 badd +30 pybullet_swarming/common/PID.py
 badd +83 pybullet_swarming/flier/swarm_controller.py
-badd +63 examples/simulate_cube.py
+badd +45 examples/simulate_cube.py
+badd +30 readme.md
 argglobal
 %argdel
 $argadd ./
@@ -36,12 +37,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 45 - ((17 * winheight(0) + 22) / 44)
+let s:l = 21 - ((14 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-45
-normal! 023|
+21
+normal! 025|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
