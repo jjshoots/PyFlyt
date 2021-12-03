@@ -30,7 +30,7 @@ class Swarm_Controller():
             assert start_pos[0].shape == 3, 'start pos must have only xyz, start orn must have only pqr'
 
             # compute cost matrix
-            cost = (np.expand_dims(self.states, axis=1) - np.expand_dims(start_pos, axis=0)) ** 2
+            cost = abs(np.expand_dims(self.states, axis=0) - np.expand_dims(start_pos, axis=1))
             cost = np.sum(cost, axis=-1)
 
             # compute optimal assignment using Hungarian algo

@@ -42,7 +42,7 @@ class Simulator():
             assert new_pos[0].shape[0] == 3, 'start pos must have only xyz, start orn must have only pqr'
 
             # compute cost matrix
-            cost = abs(np.expand_dims(self.states[:, :3], axis=1) - np.expand_dims(new_pos, axis=0))
+            cost = abs(np.expand_dims(self.states[:, :3], axis=0) - np.expand_dims(new_pos, axis=1))
             cost = np.sum(cost, axis=-1)
 
             # compute optimal assignment using Hungarian algo

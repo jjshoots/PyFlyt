@@ -64,12 +64,11 @@ if __name__ == '__main__':
     R2 = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
 
     # start the drones
-    swarm.set_pos_control(True)
-    swarm.go([1] * swarm.num_drones)
-
-    setpoints = np.concatenate((cube+offset+linear_offset, np.zeros((swarm.num_drones, 1))), axis=-1)
-    swarm.set_setpoints(setpoints)
     swarm.sleep(5)
+    swarm.set_pos_control(True)
+    swarm.reshuffle(cube+offset+linear_offset, np.zeros((swarm.num_drones, 3)))
+    swarm.go([1] * swarm.num_drones)
+    swarm.sleep(10)
 
     for i in range(100000):
         # at each timestep, update the target positions
