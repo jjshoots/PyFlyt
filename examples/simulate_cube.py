@@ -17,9 +17,10 @@ if __name__ == '__main__':
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 3x3x3 grid
-    drones_per_len = 4
-    drones_per_height = 4
-    height_offset = np.array([[0., 0., 2.]])
+    drones_per_len = 3
+    drones_per_height = 3
+    offset = np.array([[0., 0., 2.]])
+    linear_offset = np.array([[3., 0., 0.]])
 
     lin_range = np.array([-.5, .5])
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
@@ -34,7 +35,7 @@ if __name__ == '__main__':
 
     # spawn in the drones according to the positions and enable all of them
     swarm = Simulator( \
-                      start_pos=start_pos + height_offset, \
+                      start_pos=start_pos + offset + linear_offset, \
                       start_orn=start_orn \
                       )
     swarm.set_pos_control(True)
@@ -42,9 +43,9 @@ if __name__ == '__main__':
 
     # cube positions is basically the spawn positions minus height offset
     cube = start_pos
-    ball = np.array([[0., 0., 0.]])
+    ball = linear_offset
 
-    # r is delta radian per 1/240 seconds
+    # define cube rotation per timestep
     r = 1. / 1000.
     c, s = math.cos(r), math.sin(r)
     Rx = np.array([[1., 0., 0.], [0., c, -s], [0., s, c]])
@@ -54,14 +55,18 @@ if __name__ == '__main__':
     r = 3. / 1000.
     c, s = math.cos(r), math.sin(r)
     Rz = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
-    r = 1. / 3000.
+
+    R1 = Rx @ Ry @ Rz
+
+    # define offset rotation per timestep
+    r = 1. / 1000.
     c, s = math.cos(r), math.sin(r)
-    Rb = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
+    R2 = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
 
     for i in range(10000):
-        cube = (Rx @ Ry @ Rz @ cube.T).T
-        ball = (Rb @ ball.T).T
-        xyz = cube + ball + height_offset
+        cube = (R1 @ cube.T).T
+        ball = (R2 @ ball.T).T
+        xyz = cube + ball + offset
 
         setpoint = np.concatenate((xyz, np.zeros((swarm.num_drones, 1))), axis=-1)
 
