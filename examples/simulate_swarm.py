@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # send the setpoint for 5 seconds
     swarm.set_setpoints(setpoints)
-    swarm.sleep(4)
+    swarm.sleep(5)
 
     # make the drone fly in horizontal x with 1 rad/s yawrate
     setpoints = [-1., 0., 0., 1.]
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # send the setpoint for 5 seconds
     swarm.set_setpoints(setpoints)
-    swarm.sleep(4)
+    swarm.sleep(5)
 
     # disarm all drones
     swarm.go([0] * swarm.num_drones)

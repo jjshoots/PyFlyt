@@ -33,7 +33,7 @@ if __name__ == '__main__':
     start_pos = np.stack([grid_x, grid_y, grid_z], axis=-1)
     start_orn = np.zeros_like(start_pos)
 
-    # spawn in the drones according to the positions and enable all of them
+    # spawn in the drones according to the positions plus offset and enable all of them
     swarm = Simulator( \
                       start_pos=start_pos + offset + linear_offset, \
                       start_orn=start_orn \
@@ -41,34 +41,35 @@ if __name__ == '__main__':
     swarm.set_pos_control(True)
     swarm.go([1] * swarm.num_drones)
 
-    # cube positions is basically the spawn positions minus height offset
+    # cube positions is basically the spawn positions
     cube = start_pos
     ball = linear_offset
 
     # define cube rotation per timestep
     r = 1. / 1000.
-    c, s = math.cos(r), math.sin(r)
+    c, s = math.cos(1. * r), math.sin(1. * r)
     Rx = np.array([[1., 0., 0.], [0., c, -s], [0., s, c]])
-    r = 2. / 1000.
-    c, s = math.cos(r), math.sin(r)
+    c, s = math.cos(2. * r), math.sin(2. * r)
     Ry = np.array([[c, 0., s], [0., 1., 0.], [-s, 0., c]])
-    r = 3. / 1000.
-    c, s = math.cos(r), math.sin(r)
+    c, s = math.cos(3. * r), math.sin(3. * r)
     Rz = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
 
     R1 = Rx @ Ry @ Rz
 
-    # define offset rotation per timestep
+    # define ball rotation per timestep, only around z axis
     r = 1. / 1000.
     c, s = math.cos(r), math.sin(r)
     R2 = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
 
     for i in range(10000):
+        # at each timestep, update the target positions
         cube = (R1 @ cube.T).T
         ball = (R2 @ ball.T).T
         xyz = cube + ball + offset
 
+        # append list of zeros to the end because setpoint has to be xyzr
         setpoint = np.concatenate((xyz, np.zeros((swarm.num_drones, 1))), axis=-1)
 
+        # send the setpoints and step
         swarm.set_setpoints(setpoint)
         swarm.step()

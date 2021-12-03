@@ -21,7 +21,7 @@ if __name__ == '__main__':
     env.set_pos_control(True)
     env.go([1])
 
-    # fly horizontally with x velocity 1 and rotate at 1 rad/s yaw for 5 seconds
+    # fly in a box like pattern, allowing 5 seconds between each setpoint
     env.set_setpoints(np.array([[0., 0., 1., 1.]]))
     env.sleep(5)
     env.set_setpoints(np.array([[1., 0., 1., 1.]]))
