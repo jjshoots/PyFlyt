@@ -22,13 +22,15 @@ There are multiple template scripts available in `examples/` that you can run wi
 
 #### `simulate_single.py`
 Simulates a single drone in the pybullet env with position control.
+![simulate a single drone](/resource/simulate_single.gif)
 
 #### `simulate_swarm.py`
-Simulated a swarm of 4 drones in the pybullet env with velocity control.
+Simulates a swarm of 4 drones in the pybullet env with velocity control.
+![simulate a swarm of drones](/resource/simulate_swarm.gif)
 
 #### `simulate_cube.py`
-![You spin me round right round](/resource/spinning_cube.gif)
-Simulated a swarm of drones in a spinning cube.
+Simulates a swarm of drones in a spinning cube.
+![You spin me round right round](/resource/simulate_cube.gif)
 
 #### `single_crazyflie.py`
 Flies a real Crazyflie, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/) and [how to connect](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/#config-client) to get your URI(s) and modify them in line 18.
