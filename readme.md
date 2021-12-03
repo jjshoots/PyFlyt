@@ -25,7 +25,7 @@ Simulates a single drone in the pybullet env with position control.
 ![simulate a single drone](/resource/simulate_single.gif)
 
 #### `simulate_swarm.py`
-Simulates a swarm of 4 drones in the pybullet env with velocity control.
+Simulates a swarm of drones in the pybullet env with velocity control.
 ![simulate a swarm of drones](/resource/simulate_swarm.gif)
 
 #### `simulate_cube.py`
