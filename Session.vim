@@ -9,17 +9,17 @@ endif
 set shortmess=aoO
 badd +21 examples/simulate_single.py
 badd +34 examples/simulate_swarm.py
-badd +20 pybullet_swarming/environment/simulator.py
-badd +36 pybullet_swarming/environment/aviary.py
+badd +27 pybullet_swarming/environment/simulator.py
+badd +50 pybullet_swarming/environment/aviary.py
 badd +86 pybullet_swarming/environment/drone.py
 badd +30 pybullet_swarming/common/PID.py
 badd +83 pybullet_swarming/flier/swarm_controller.py
-badd +70 examples/simulate_cube.py
+badd +61 examples/simulate_cube.py
 badd +30 readme.md
 argglobal
 %argdel
 $argadd ./
-edit examples/simulate_cube.py
+edit pybullet_swarming/environment/aviary.py
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -37,12 +37,12 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal nofen
-let s:l = 61 - ((31 * winheight(0) + 22) / 44)
+let s:l = 47 - ((31 * winheight(0) + 22) / 44)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-61
-normal! 041|
+47
+normal! 09|
 if exists(':tcd') == 2 | tcd ~/Sandboxes/pybullet_swarming | endif
 tabnext 1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'

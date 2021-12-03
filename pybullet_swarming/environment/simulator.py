@@ -23,8 +23,8 @@ class Simulator():
         # keep track of runtime
         self.steps = 0
 
-        tex_id = self.env.loadTexture('/models/diamond4.png')
-        self.env.changeVisualShape(self.env.planeId, -1, textureUniqueId=tex_id)
+        # tex_id = self.env.loadTexture('/models/diamond4.png')
+        # self.env.changeVisualShape(self.env.planeId, -1, textureUniqueId=tex_id)
 
 
     def set_setpoints(self, setpoints: np.ndarray):
