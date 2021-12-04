@@ -16,29 +16,18 @@ if __name__ == '__main__':
     check_venv()
     signal(SIGINT, shutdown_handler)
 
-    # here we spawn a set of 3x3x3 drones
+    # the cube is made up of 3x3x3 drones
     dim_drones = 3
 
-    # The cube is centered around offset
-    offset = np.array([[0., 0., 0.8]])
-
+    # use meshgrid to form the coordinates for drones to form the cube
     lin_range = np.array([-.4, .4])
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=dim_drones)
-    height_range = np.array([-.4, .4])
-    height_range = np.linspace(start=height_range[0], stop=height_range[1], num=dim_drones)
-
-    grid_x, grid_y, grid_z = np.meshgrid(lin_range, lin_range, height_range)
+    grid_x, grid_y, grid_z = np.meshgrid(lin_range, lin_range, lin_range)
     grid_x, grid_y, grid_z = grid_x.flatten(), grid_y.flatten(), grid_z.flatten()
 
+    # The cube is centered around offset
     cube = np.stack([grid_x, grid_y, grid_z], axis=-1)
-    cube_orn = np.zeros_like(cube)
-
-    swarm = Simulator( \
-                    start_pos=cube + offset, \
-                    start_orn=np.zeros_like(cube) \
-                    )
-    swarm.set_pos_control(True)
-    swarm.go([1] * swarm.num_drones)
+    offset = np.array([[0., 0., 0.8]])
 
     # define cube rotation per timestep
     r = 1. / 1000.
@@ -50,6 +39,14 @@ if __name__ == '__main__':
     Rz = np.array([[c, -s, 0.], [s, c, 0.], [0., 0., 1.]])
 
     R = Rx @ Ry @ Rz
+
+    # spawn the drones and go!
+    swarm = Simulator( \
+                start_pos=cube + offset, \
+                start_orn=np.zeros_like(cube) \
+                )
+    swarm.set_pos_control(True)
+    swarm.go([1] * swarm.num_drones)
 
     for i in range(100000):
         # at each timestep, update the target positions
