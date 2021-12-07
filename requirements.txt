@@ -1,4 +1,0 @@
-pybullet==3.2.0
-cflib==0.1.16
-cfclient==2021.6.1
-scipy==1.6.0

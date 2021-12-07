@@ -9,6 +9,7 @@ setup(name='pybullet_swarming',
         'pybullet',
         'cflib',
         'cfclient',
-        'scipy'
+        'scipy',
+        'pthflops'
         ]
 )
