@@ -5,6 +5,20 @@ This repo's `master` branch is still under development.
 
 Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones). But more modular, modifiable, and incorporates a companion module for interfacing with a real Crazyflie drone swarm using the Crazyradio PA module. Built for AVAILab, Coventry University.
 
+### Table of Contents
+- [Installation](#installation)
+    - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu)
+    - [On _Windows_](#on-windows)
+- [Usage](#usage)
+    - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu-1)
+    - [On _Windows_](#on-windows-1)
+- [Examples](#examples)
+    - [`simulate_single.py`](#simulate_singlepy)
+    - [`simulate_swarm.py`](#simulate_swarmpy)
+    - [`simulate_cube.py`](#simulate_cubepy)
+    - [`single_crazyflie.py`](#single_crazyfliepy)
+    - [`swarm_crazyflie.py`](#swarm_crazyfliepy)
+
 ## Installation
 Code is written and tested using _Python 3.8_ with `venv` and tested on Windows 10 and Ubuntu 20.04 LTS.
 
@@ -35,7 +49,7 @@ The installation above installs the packages required in a [python virtual envir
 source venv/bin/activate
 ```
 
-#### On _macOS_ and _Ubuntu_
+#### On _Windows_
 ```
 ./venv/bin/activate.bash
 ```
