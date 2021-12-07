@@ -58,7 +58,7 @@ Deactivation is the same except replace `activate` with `deactivate`.
 
 
 ## Examples
-There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py`.
+There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py` in _macOS_ and _Linux_, or just `python examples/***.py` in _Windows_.
 
 #### `simulate_single.py`
 Simulates a single drone in the pybullet env with position control.
