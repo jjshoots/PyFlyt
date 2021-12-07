@@ -17,6 +17,32 @@ source venv/bin/activate
 pip3 install -e .
 ```
 
+#### On _Windows_
+Follow [this](https://deepakjogi.medium.com/how-to-install-pybullet-physics-simulation-in-windows-e1f16baa26f6) guide, then:
+```
+git clone https://github.com/jjshoots/pybullet_swarming.git
+cd pybullet_swarming
+python -m venv venv
+./venv/bin/activate.bash
+pip install -e .
+```
+
+## Usage
+The installation above installs the packages required in a [python virtual environment](https://docs.python.org/3/library/venv.html). So, to activate the environment, you need to do:
+
+#### On _macOS_ and _Ubuntu_
+```
+source venv/bin/activate
+```
+
+#### On _macOS_ and _Ubuntu_
+```
+./venv/bin/activate.bash
+```
+
+Deactivation is the same except replace `activate` with `deactivate`.
+
+
 ## Examples
 There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py`.
 
