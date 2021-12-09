@@ -33,15 +33,11 @@ if __name__ == '__main__':
     UAV.sleep(10)
 
     for i in range(300):
-        theta = float(i) / 30.
+        theta = float(i) / 10.
         c, s = math.cos(theta), math.sin(theta)
 
         UAV.set_setpoints(np.array([[c, s, 1., 0.]]))
         UAV.sleep(0.1)
-
-    # send to top of circle
-    UAV.set_setpoints(np.array([[1., 0., 1., 0]]))
-    UAV.sleep(10)
 
     # send the drone back to origin hover
     UAV.set_setpoints(np.array([[0., 0., 1., 0]]))
