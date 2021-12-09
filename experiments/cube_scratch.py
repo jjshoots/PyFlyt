@@ -16,7 +16,7 @@ if __name__ == '__main__':
     check_venv()
     signal(SIGINT, shutdown_handler)
 
-    dim_drones = 3
+    dim_drones = 2
 
     # here we spawn drones in a circle
     theta = np.arange(0, 2 * math.pi, 2 * math.pi / (dim_drones ** 3))
@@ -32,8 +32,8 @@ if __name__ == '__main__':
                       )
 
     # form the cube coordinates
-    offset = np.array([[0., 0., 0.8]])
-    linear_offset = np.array([[0.3, 0., 0.]])
+    offset = np.array([[0., 0., 0.9]])
+    linear_offset = np.array([[0.3, 0., 0.15]])
 
     lin_range = np.array([-.4, .4])
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=dim_drones)

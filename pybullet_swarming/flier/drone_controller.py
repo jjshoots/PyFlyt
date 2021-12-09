@@ -28,7 +28,7 @@ class Drone_Controller():
         self.setpoint = np.array([0., 0., 0., 0.])
 
         self.pos_control = False
-        Kp = np.array([1., 1., 1., .5])
+        Kp = np.array([1.5, 1.5, 1., 1.])
         Ki = np.array([0., 0., 0., 0.])
         Kd = np.array([0., 0., 0., 0.])
         self.pos_controller = PID(Kp, Ki, Kd, 1., self.period)
@@ -113,10 +113,19 @@ class Drone_Controller():
         while True:
             if self.running:
                 if self.pos_control:
+                    # compute velocity setpoint if pos control
                     velocity_setpoint = self.pos_controller.step(self.position_estimate, self.setpoint)
 
+                    # change yaw setpoint from rad to deg
+                    velocity_setpoint[3] = velocity_setpoint[3] / math.pi * 180.
+
+                    # send setpoints
                     self.scf.cf.commander.send_velocity_world_setpoint(*velocity_setpoint)
                 else:
+                    # change yaw setpoint from rad to deg
+                    self.setpoint[3] = self.setpoint[3] / math.pi * 180.
+
+                    # send setpoints
                     self.scf.cf.commander.send_velocity_world_setpoint(*self.setpoint)
             else:
                 self.scf.cf.commander.send_stop_setpoint()
