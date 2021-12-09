@@ -94,6 +94,11 @@ class Simulator():
     def go(self, settings):
         self.env.set_go(settings)
 
+    def end(self):
+        self.go([0] * self.num_drones)
+        time.sleep(3)
+        exit()
+
 
     @property
     def states(self):
