@@ -44,6 +44,12 @@ class Drone_Controller():
         except:
             print(f'Failed to open link with Flier on {URI}')
 
+        # update the onboard PIDs
+        self.param_set('posCtlPid', 'xKp', 1.2)
+        self.param_set('posCtlPid', 'yKp', 1.2)
+        self.param_set('posCtlPid', 'zKp', 1.0)
+        self.param_set('posCtlPid', 'zKi', 0.2)
+
         # logging thread
         self.logging_thread = LogConfig(name='Position', period_in_ms=10)
         self.logging_thread.add_variable('stateEstimate.x', 'float')
@@ -65,7 +71,6 @@ class Drone_Controller():
         print(f'Flier on {URI} ready to rock and roll...')
         if not in_swarm:
             time.sleep(3)
-
 
 
     def start(self):
@@ -102,6 +107,7 @@ class Drone_Controller():
         """sets the setpoint for flight"""
         if self.pos_control:
             self.setpoint = setpoint + self.position_offset
+            self.setpoint = setpoint
         else:
             self.setpoint = setpoint
 
@@ -116,14 +122,12 @@ class Drone_Controller():
             if self.running:
                 if self.pos_control:
                     # compute velocity setpoint if pos control
-                    velocity_setpoint = self.pos_controller.step(self.position_estimate, self.setpoint)
+                    # velocity_setpoint = self.pos_controller.step(self.position_estimate, self.setpoint)
 
                     # send setpoints
-                    self.scf.cf.commander.send_velocity_world_setpoint(*(velocity_setpoint*self.rad_to_deg))
+                    # self.scf.cf.commander.send_velocity_world_setpoint(*(velocity_setpoint*self.rad_to_deg))
+                    self.scf.cf.commander.send_position_setpoint(*(self.setpoint*self.rad_to_deg))
                 else:
-                    # change yaw setpoint from rad to deg
-                    self.setpoint[3] = self.setpoint[3] / math.pi * 180.
-
                     # send setpoints
                     self.scf.cf.commander.send_velocity_world_setpoint(*(self.setpoint*self.rad_to_deg))
             else:
@@ -140,3 +144,16 @@ class Drone_Controller():
         self.position_estimate[2] = data['stateEstimate.z']
         self.position_estimate[3] = data['stateEstimate.yaw'] / 180. * math.pi
 
+
+    def _update_param_callback(self, name, value):
+        pass
+        # print('The crazyflie has parameter ' + name + ' set to: ' + value)
+
+
+    def param_set(self, groupstr, namestr, value):
+        full_name = groupstr + '.' + namestr
+
+        self.scf.cf.param.add_update_callback(group=groupstr, name=namestr,
+                                    cb=self._update_param_callback)
+        time.sleep(1)
+        self.scf.cf.param.set_value(full_name, value)

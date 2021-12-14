@@ -32,10 +32,10 @@ class Swarm_Controller():
         """
         assert new_pos.shape == new_orn.shape, 'start_pos must have same shape as start_orn'
         assert len(new_pos) == self.num_drones, 'must have same number of drones as number of drones'
-        assert new_pos[0].shape == 3, 'start pos must have only xyz, start orn must have only pqr'
+        assert new_pos.shape[1] == 3, 'start pos must have only xyz, start orn must have only pqr'
 
         # compute cost matrix
-        cost = abs(np.expand_dims(self.states, axis=0) - np.expand_dims(new_pos, axis=1))
+        cost = abs(np.expand_dims(self.states[:, :3], axis=0) - np.expand_dims(new_pos, axis=1))
         cost = np.sum(cost, axis=-1)
 
         # compute optimal assignment using Hungarian algo
