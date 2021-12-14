@@ -6,15 +6,23 @@ from pybullet_utils import bullet_client
 
 from pybullet_swarming.common.PID import *
 
-class Drone():
-    def __init__(self, p: bullet_client.BulletClient, start_pos: np.ndarray, start_orn: np.ndarray, ctrl_hz=48., sim_hz=240.):
+
+class Drone:
+    def __init__(
+        self,
+        p: bullet_client.BulletClient,
+        start_pos: np.ndarray,
+        start_orn: np.ndarray,
+        ctrl_hz=48.0,
+        sim_hz=240.0,
+    ):
         # default physics looprate is 240 Hz
         self.p = p
-        self.sim_period = 1. / sim_hz
-        self.ctrl_period = 1. / ctrl_hz
+        self.sim_period = 1.0 / sim_hz
+        self.ctrl_period = 1.0 / ctrl_hz
         self.update_ratio = int(sim_hz / ctrl_hz)
         self.steps = 0
-        drone_dir = 'models/vehicles/cf2x.urdf'
+        drone_dir = "models/vehicles/cf2x.urdf"
 
         """ SPAWN """
         self.start_pos = start_pos
@@ -23,7 +31,7 @@ class Drone():
             drone_dir,
             basePosition=self.start_pos,
             baseOrientation=self.start_orn,
-            useFixedBase=False
+            useFixedBase=False,
         )
 
         """
@@ -40,9 +48,9 @@ class Drone():
         # self.iyy = float(URDF_TREE[1][0][2].attrib['iyy'])
         # self.izz = float(URDF_TREE[1][0][2].attrib['izz'])
         # self.arm = float(URDF_TREE[0].attrib['arm'])
-        self.thrust2weight = float(URDF_TREE[0].attrib['thrust2weight'])
-        self.kf = float(URDF_TREE[0].attrib['kf'])
-        self.km = float(URDF_TREE[0].attrib['km'])
+        self.thrust2weight = float(URDF_TREE[0].attrib["thrust2weight"])
+        self.kf = float(URDF_TREE[0].attrib["kf"])
+        self.km = float(URDF_TREE[0].attrib["km"])
         # self.max_speed_kmh = float(URDF_TREE[0].attrib['max_speed_kmh'])
         # self.gnd_eff_coeff = float(URDF_TREE[0].attrib['gnd_eff_coeff'])
         # self.prop_radius = float(URDF_TREE[0].attrib['prop_radius'])
@@ -57,9 +65,9 @@ class Drone():
 
         # the joint IDs corresponding to motorID 1234
         self.motor_id = np.array([0, 2, 1, 3])
-        self.thr_coeff = np.array([[0., 0., 1.]]) * self.kf
-        self.tor_coeff = np.array([[0., 0., 1.]]) * self.km
-        self.tor_dir = np.array([[1.], [1.], [-1.], [-1.]])
+        self.thr_coeff = np.array([[0.0, 0.0, 1.0]]) * self.kf
+        self.tor_coeff = np.array([[0.0, 0.0, 1.0]]) * self.km
+        self.tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
         self.noise_ratio = 0.02
 
         # maximum motor RPM
@@ -69,45 +77,44 @@ class Drone():
         # motor mapping from angular torque to individual motors
         self.motor_map = np.array(
             [
-                [+1., -1., +1., +1.],
-                [-1., +1., +1., +1.],
-                [+1., +1., -1., +1.],
-                [-1., -1., -1., +1.]
+                [+1.0, -1.0, +1.0, +1.0],
+                [-1.0, +1.0, +1.0, +1.0],
+                [+1.0, +1.0, -1.0, +1.0],
+                [-1.0, -1.0, -1.0, +1.0],
             ]
         )
 
         # outputs normalized body torque commands
         self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
         self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
-        self.Kd_ang_vel = np.array([0., 0., 0.])
-        self.lim_ang_vel = np.array([1., 1., 1.])
+        self.Kd_ang_vel = np.array([0.0, 0.0, 0.0])
+        self.lim_ang_vel = np.array([1.0, 1.0, 1.0])
 
         # outputs angular rate
-        self.Kp_ang_pos = np.array([.5, .5, 1.])
-        self.Ki_ang_pos = np.array([0., 0., 0.])
-        self.Kd_ang_pos = np.array([0., 0., 0.])
-        self.lim_ang_pos = np.array([2., 2., 2.])
+        self.Kp_ang_pos = np.array([0.5, 0.5, 1.0])
+        self.Ki_ang_pos = np.array([0.0, 0.0, 0.0])
+        self.Kd_ang_pos = np.array([0.0, 0.0, 0.0])
+        self.lim_ang_pos = np.array([2.0, 2.0, 2.0])
 
         # outputs angular position
-        self.Kp_lin_vel = np.array([7., 7.])
-        self.Ki_lin_vel = np.array([0., 0.])
-        self.Kd_lin_vel = np.array([3., 3.])
-        self.lim_lin_vel = np.array([.6, .6])
+        self.Kp_lin_vel = np.array([7.0, 7.0])
+        self.Ki_lin_vel = np.array([0.0, 0.0])
+        self.Kd_lin_vel = np.array([3.0, 3.0])
+        self.lim_lin_vel = np.array([0.6, 0.6])
 
         # outputs angular position
-        self.Kp_lin_pos = np.array([1., 1.])
-        self.Ki_lin_pos = np.array([0., 0.])
-        self.Kd_lin_pos = np.array([0., 0.])
-        self.lim_lin_pos = np.array([1., 1.])
+        self.Kp_lin_pos = np.array([1.0, 1.0])
+        self.Ki_lin_pos = np.array([0.0, 0.0])
+        self.Kd_lin_pos = np.array([0.0, 0.0])
+        self.lim_lin_pos = np.array([1.0, 1.0])
 
         # height controllers
-        z_pos_PID = PID(3., 0., 0., 1., self.ctrl_period)
-        z_vel_PID = PID(0.2, 1.25, 0., 1., self.ctrl_period)
+        z_pos_PID = PID(3.0, 0.0, 0.0, 1.0, self.ctrl_period)
+        z_vel_PID = PID(0.2, 1.25, 0.0, 1.0, self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
 
         self.reset()
-
 
     def reset(self):
         self.set_mode(0)
@@ -122,9 +129,8 @@ class Drone():
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.update_state()
 
-
     def rpm2forces(self, rpm):
-        """ maps rpm to individual motor forces and torques"""
+        """maps rpm to individual motor forces and torques"""
         rpm = np.expand_dims(rpm, axis=1)
         thrust = (rpm ** 2) * self.thr_coeff
         torque = (rpm ** 2) * self.tor_coeff * self.tor_dir
@@ -134,35 +140,34 @@ class Drone():
         torque += np.random.randn(*torque.shape) * self.noise_ratio * torque
 
         for idx, thr, tor in zip(self.motor_id, thrust, torque):
-            self.p.applyExternalForce(self.Id, idx, thr, [0., 0., 0.], self.p.LINK_FRAME)
+            self.p.applyExternalForce(
+                self.Id, idx, thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
+            )
             self.p.applyExternalTorque(self.Id, idx, tor, self.p.LINK_FRAME)
 
-
     def pwm2rpm(self, pwm):
-        """ model the motor using first order ODE, y' = T/tau * (setpoint - y) """
+        """model the motor using first order ODE, y' = T/tau * (setpoint - y)"""
         self.rpm += (self.sim_period / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
 
         return self.rpm
 
-
     def cmd2pwm(self, cmd):
-        """ maps angular torque commands to motor rpms """
+        """maps angular torque commands to motor rpms"""
         pwm = np.matmul(self.motor_map, cmd)
 
         min = np.min(pwm)
         max = np.max(pwm)
 
         # deal with motor saturations
-        if min < 0.:
+        if min < 0.0:
             pwm = pwm - min
-        if max > 1.:
+        if max > 1.0:
             pwm = pwm / max
 
         return pwm
 
-
     def update_state(self):
-        """ ang_vel, ang_pos, lin_vel, lin_pos """
+        """ang_vel, ang_pos, lin_vel, lin_pos"""
         lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
@@ -175,7 +180,6 @@ class Drone():
         ang_pos = self.p.getEulerFromQuaternion(ang_pos)
 
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
-
 
     def set_mode(self, mode):
         """
@@ -192,27 +196,86 @@ class Drone():
 
         self.mode = mode
         if mode == 0 or mode == 2:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
+            ang_vel_PID = PID(
+                self.Kp_ang_vel,
+                self.Ki_ang_vel,
+                self.Kd_ang_vel,
+                self.lim_ang_vel,
+                self.ctrl_period,
+            )
             self.PIDs = [ang_vel_PID]
         elif mode == 1 or mode == 3:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
-            ang_pos_PID = PID(self.Kp_ang_pos, self.Ki_ang_pos, self.Kd_ang_pos, self.lim_ang_pos, self.ctrl_period)
+            ang_vel_PID = PID(
+                self.Kp_ang_vel,
+                self.Ki_ang_vel,
+                self.Kd_ang_vel,
+                self.lim_ang_vel,
+                self.ctrl_period,
+            )
+            ang_pos_PID = PID(
+                self.Kp_ang_pos,
+                self.Ki_ang_pos,
+                self.Kd_ang_pos,
+                self.lim_ang_pos,
+                self.ctrl_period,
+            )
             self.PIDs = [ang_vel_PID, ang_pos_PID]
         elif mode == 4 or mode == 5 or mode == 6:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
-            ang_pos_PID = PID(self.Kp_ang_pos[:2], self.Ki_ang_pos[:2], self.Kd_ang_pos[:2], self.lim_ang_pos[:2], self.ctrl_period)
-            lin_vel_PID = PID(self.Kp_lin_vel, self.Ki_lin_vel, self.Kd_lin_vel, self.lim_lin_vel, self.ctrl_period)
+            ang_vel_PID = PID(
+                self.Kp_ang_vel,
+                self.Ki_ang_vel,
+                self.Kd_ang_vel,
+                self.lim_ang_vel,
+                self.ctrl_period,
+            )
+            ang_pos_PID = PID(
+                self.Kp_ang_pos[:2],
+                self.Ki_ang_pos[:2],
+                self.Kd_ang_pos[:2],
+                self.lim_ang_pos[:2],
+                self.ctrl_period,
+            )
+            lin_vel_PID = PID(
+                self.Kp_lin_vel,
+                self.Ki_lin_vel,
+                self.Kd_lin_vel,
+                self.lim_lin_vel,
+                self.ctrl_period,
+            )
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID]
         elif mode == 7:
-            ang_vel_PID = PID(self.Kp_ang_vel, self.Ki_ang_vel, self.Kd_ang_vel, self.lim_ang_vel, self.ctrl_period)
-            ang_pos_PID = PID(self.Kp_ang_pos, self.Ki_ang_pos, self.Kd_ang_pos, self.lim_ang_pos, self.ctrl_period)
-            lin_vel_PID = PID(self.Kp_lin_vel, self.Ki_lin_vel, self.Kd_lin_vel, self.lim_lin_vel, self.ctrl_period)
-            lin_pos_PID = PID(self.Kp_lin_pos, self.Ki_lin_pos, self.Kd_lin_pos, self.lim_lin_pos, self.ctrl_period)
+            ang_vel_PID = PID(
+                self.Kp_ang_vel,
+                self.Ki_ang_vel,
+                self.Kd_ang_vel,
+                self.lim_ang_vel,
+                self.ctrl_period,
+            )
+            ang_pos_PID = PID(
+                self.Kp_ang_pos,
+                self.Ki_ang_pos,
+                self.Kd_ang_pos,
+                self.lim_ang_pos,
+                self.ctrl_period,
+            )
+            lin_vel_PID = PID(
+                self.Kp_lin_vel,
+                self.Ki_lin_vel,
+                self.Kd_lin_vel,
+                self.lim_lin_vel,
+                self.ctrl_period,
+            )
+            lin_pos_PID = PID(
+                self.Kp_lin_pos,
+                self.Ki_lin_pos,
+                self.Kd_lin_pos,
+                self.lim_lin_pos,
+                self.ctrl_period,
+            )
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID, lin_pos_PID]
 
-
     def update_control(self):
-        """ runs through PID controllers """
+        """runs through PID controllers"""
         output = None
         # angle controllers
         if self.mode == 0 or self.mode == 2:
@@ -224,7 +287,9 @@ class Drone():
             output = self.PIDs[2].step(self.state[2][:2], self.setpoint[:2])
             output = np.array([-output[1], output[0]])
             output = self.PIDs[1].step(self.state[1][:2], output)
-            output = self.PIDs[0].step(self.state[0], np.array([*output, self.setpoint[2]]))
+            output = self.PIDs[0].step(
+                self.state[0], np.array([*output, self.setpoint[2]])
+            )
         elif self.mode == 6:
             c = math.cos(self.state[1, -1])
             s = math.sin(self.state[1, -1])
@@ -234,7 +299,9 @@ class Drone():
             output = self.PIDs[2].step(self.state[2][:2], output)
             output = np.array([-output[1], output[0]])
             output = self.PIDs[1].step(self.state[1][:2], output)
-            output = self.PIDs[0].step(self.state[0], np.array([*output, self.setpoint[2]]))
+            output = self.PIDs[0].step(
+                self.state[0], np.array([*output, self.setpoint[2]])
+            )
         elif self.mode == 7:
             output = self.PIDs[3].step(self.state[3][:2], self.setpoint[:2])
 
@@ -261,10 +328,8 @@ class Drone():
         # mix the commands
         self.pwm = self.cmd2pwm(np.array([*output, z_output]))
 
-
     def update_forces(self):
         self.rpm2forces(self.pwm2rpm(self.pwm))
-
 
     def update(self):
         """

@@ -8,12 +8,13 @@ from pybullet_utils import bullet_client
 
 from pybullet_swarming.environment.drone import *
 
+
 class Aviary(bullet_client.BulletClient):
     def __init__(self, start_pos: np.ndarray, start_orn: np.ndarray, render=False):
         super().__init__(p.GUI if render else p.DIRECT)
 
         # default physics looprate is 240 Hz
-        self.period = 1. / 240.
+        self.period = 1.0 / 240.0
         self.now = time.time()
 
         self.start_pos = start_pos
@@ -23,14 +24,11 @@ class Aviary(bullet_client.BulletClient):
 
         self.render = render
         self.rtf_print_interval = 24
-        self.rtf_debug_line = self.addUserDebugText( \
-                    text='RTF here', \
-                    textPosition=[0, 0, 0], \
-                    textColorRGB=[1, 0, 0]
-                    )
+        self.rtf_debug_line = self.addUserDebugText(
+            text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
+        )
 
         self.reset()
-
 
     def reset(self):
         self.resetSimulation()
@@ -38,11 +36,7 @@ class Aviary(bullet_client.BulletClient):
         self.step_count = 0
 
         """ CONSTRUCT THE WORLD """
-        self.planeId = self.loadURDF(
-            "plane.urdf",
-            useFixedBase=True,
-            globalScaling=1.
-        )
+        self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=1.0)
 
         # spawn drones
         self.drones = []
@@ -51,11 +45,9 @@ class Aviary(bullet_client.BulletClient):
 
         self.go = [1] * self.num_drones
 
-
     @property
     def num_drones(self):
         return len(self.drones)
-
 
     @property
     def states(self):
@@ -70,11 +62,9 @@ class Aviary(bullet_client.BulletClient):
 
         return states
 
-
     def set_go(self, settings):
-        assert len(settings) == len(self.go), 'incorrect go length'
+        assert len(settings) == len(self.go), "incorrect go length"
         self.go = settings
-
 
     def set_mode(self, flight_mode):
         """
@@ -83,7 +73,6 @@ class Aviary(bullet_client.BulletClient):
         for drone in self.drones:
             drone.set_mode(flight_mode)
 
-
     def set_setpoints(self, setpoints):
         """
         commands each drone to go to a setpoint as specified in a list
@@ -91,14 +80,13 @@ class Aviary(bullet_client.BulletClient):
         for i, drone in enumerate(self.drones):
             drone.setpoint = setpoints[i]
 
-
     def step(self):
         """
         Steps the environment
         """
         if self.render:
             elapsed = time.time() - self.now
-            time.sleep(max(self.period - elapsed, 0.))
+            time.sleep(max(self.period - elapsed, 0.0))
             self.now = time.time()
 
             # calculate real time factor
@@ -106,13 +94,13 @@ class Aviary(bullet_client.BulletClient):
 
             if self.step_count % self.rtf_print_interval == 0:
                 # handle case where sometimes elapsed becomes 0
-                if elapsed != 0.:
-                    self.rtf_debug_line = self.addUserDebugText( \
-                                            text=f'RTF: {str(RTF)[:7]}', \
-                                            textPosition=[0, 0, 0], \
-                                            textColorRGB=[1, 0, 0], \
-                                            replaceItemUniqueId=self.rtf_debug_line
-                                            )
+                if elapsed != 0.0:
+                    self.rtf_debug_line = self.addUserDebugText(
+                        text=f"RTF: {str(RTF)[:7]}",
+                        textPosition=[0, 0, 0],
+                        textColorRGB=[1, 0, 0],
+                        replaceItemUniqueId=self.rtf_debug_line,
+                    )
 
             # print(f'RTF: {RTF}')
 
