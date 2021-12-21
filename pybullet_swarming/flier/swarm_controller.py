@@ -69,11 +69,7 @@ class Swarm_Controller:
     @property
     def position_estimate(self):
         """list of position estimate for each drone"""
-        pos_est = []
-        for UAV in self.UAVs:
-            pos_est.append(UAV.position_estimate - UAV.position_offset)
-
-        return np.stack(pos_est, axis=0)
+        return np.stack([UAV.position_estimate for UAV in self.UAVs], axis=0)
 
     @property
     def states(self):

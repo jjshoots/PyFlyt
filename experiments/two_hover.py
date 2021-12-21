@@ -56,9 +56,9 @@ def fake_handler():
 def real_handler():
     URIs = []
     URIs.append("radio://0/10/2M/E7E7E7E7E2")
-    URIs.append("radio://0/30/2M/E7E7E7E7E1")
+    URIs.append("radio://0/10/2M/E7E7E7E7E7")
     URIs.append("radio://0/30/2M/E7E7E7E7E0")
-    URIs.append("radio://0/100/2M/E7E7E7E7E7")
+    URIs.append("radio://0/10/2M/E7E7E7E7E6")
 
     # connect to a drone
     UAVs = Swarm_Controller(URIs)

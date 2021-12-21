@@ -25,16 +25,10 @@ class Drone_Controller:
         self.running = False
         self.flow_deck_attached = False
 
-        self.position_offset = np.array([0.0, 0.0, 0.0, 0.0])
         self.position_estimate = np.array([0.0, 0.0, 0.0, 0.0])
         self.setpoint = np.array([0.0, 0.0, 0.0, 0.0])
 
         self.pos_control = False
-        Kp = np.array([1.5, 1.5, 0.8, 1.0])
-        Ki = np.array([0.0, 0.0, 0.0, 0.0])
-        Kd = np.array([0.0, 0.0, 0.0, 0.0])
-        self.pos_controller = PID(Kp, Ki, Kd, 1.0, self.period)
-
         self.rad_to_deg = np.array([1.0, 1.0, 1.0, math.pi / 180.0])
 
         # make connection
@@ -76,13 +70,6 @@ class Drone_Controller:
 
     def start(self):
         """starts the control loop"""
-        self.pos_controller.reset()
-        if self.pos_control:
-            self.setpoint = copy.deepcopy(self.position_estimate)
-            # self.position_offset = copy.deepcopy(self.position_estimate)
-        else:
-            self.setpoint = np.array([0.0, 0.0, -0.2, 0.0])
-
         self.running = True
 
     def stop(self):
@@ -101,11 +88,7 @@ class Drone_Controller:
 
     def set_setpoint(self, setpoint):
         """sets the setpoint for flight"""
-        if self.pos_control:
-            self.setpoint = setpoint + self.position_offset
-            self.setpoint = setpoint
-        else:
-            self.setpoint = setpoint
+        self.setpoint = setpoint
 
     def sleep(self, seconds: float):
         time.sleep(seconds)
@@ -115,16 +98,10 @@ class Drone_Controller:
         while True:
             if self.running:
                 if self.pos_control:
-                    # compute velocity setpoint if pos control
-                    # velocity_setpoint = self.pos_controller.step(self.position_estimate, self.setpoint)
-
-                    # send setpoints
-                    # self.scf.cf.commander.send_velocity_world_setpoint(*(velocity_setpoint*self.rad_to_deg))
                     self.scf.cf.commander.send_position_setpoint(
                         *(self.setpoint * self.rad_to_deg)
                     )
                 else:
-                    # send setpoints
                     self.scf.cf.commander.send_velocity_world_setpoint(
                         *(self.setpoint * self.rad_to_deg)
                     )
