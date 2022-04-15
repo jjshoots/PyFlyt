@@ -4,7 +4,7 @@ import xml.etree.ElementTree as etxml
 
 from pybullet_utils import bullet_client
 
-from pybullet_swarming.common.PID import *
+from pybullet_swarming.common.PID import PID
 
 class Drone():
     def __init__(self, p: bullet_client.BulletClient, start_pos: np.ndarray, start_orn: np.ndarray, ctrl_hz=48., sim_hz=240.):
