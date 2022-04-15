@@ -12,15 +12,19 @@ class TwinnedQNetwork(nn.Module):
     """
     Twin Q Network
     """
+
     def __init__(self, num_inputs, num_actions):
         super().__init__()
 
         # critic, clipped double Q
         features = [num_inputs, 64, 64, num_actions]
-        actions = ['lrelu', 'lrelu', 'identity']
-        self.Q_network1 = Neural_blocks.generate_linear_stack(features, actions, batch_norm=False)
-        self.Q_network2 = Neural_blocks.generate_linear_stack(features, actions, batch_norm=False)
-
+        actions = ["lrelu", "lrelu", "identity"]
+        self.Q_network1 = Neural_blocks.generate_linear_stack(
+            features, actions, batch_norm=False
+        )
+        self.Q_network2 = Neural_blocks.generate_linear_stack(
+            features, actions, batch_norm=False
+        )
 
     def forward(self, states):
         """
@@ -34,11 +38,11 @@ class TwinnedQNetwork(nn.Module):
         return q1, q2
 
 
-
 class DoubleDeepQNetwork(nn.Module):
     """
     Double Deep Q Network
     """
+
     def __init__(self, num_inputs, num_actions):
         super().__init__()
 
@@ -55,28 +59,27 @@ class DoubleDeepQNetwork(nn.Module):
         for param in self.q_target.parameters():
             param.requires_grad = False
 
-        map = [ \
-               [+0.0, +0.8, +0.0], \
-               [+0.0, +0.0, +0.8], \
-               [-1.0, +0.0, +0.0], \
-               [+1.0, +0.0, +0.0], \
-               [+0.0, +0.0, +0.0], \
-               ]
+        map = [
+            [+0.0, +0.8, +0.0],
+            [+0.0, +0.0, +0.8],
+            [-1.0, +0.0, +0.0],
+            [+1.0, +0.0, +0.0],
+            [+0.0, +0.0, +0.0],
+        ]
         map = torch.tensor(map)
-        self.register_buffer('map', map, persistent=False)
-
+        self.register_buffer("map", map, persistent=False)
 
     def map_actions(self, actions):
         return actions.matmul(self.map)
-
 
     def update_q_target(self, tau=0.1):
         # polyak averaging update for target q network
         for target, source in zip(self.q_target.parameters(), self.q.parameters()):
             target.data.copy_(target.data * (1.0 - tau) + source.data * tau)
 
-
-    def calc_critic_loss(self, states, next_states, actions, next_actions, rewards, done, gamma=0.9):
+    def calc_critic_loss(
+        self, states, next_states, actions, next_actions, rewards, done, gamma=0.9
+    ):
         """
         states is of shape B x 64
         actions is of shape B x 4
@@ -97,7 +100,7 @@ class DoubleDeepQNetwork(nn.Module):
             next_q2 = next_q2.max(dim=-1)[0]
 
             # cat both qs together then...
-            next_q  = torch.stack((next_q1, next_q2), dim=-1)
+            next_q = torch.stack((next_q1, next_q2), dim=-1)
 
             # ...take the min at the stack dimension
             next_q = next_q.min(dim=-1, keepdim=True)[0]
@@ -109,8 +112,7 @@ class DoubleDeepQNetwork(nn.Module):
         q1_loss = F.smooth_l1_loss(curr_q1, target_q)
         q2_loss = F.smooth_l1_loss(curr_q2, target_q)
 
-        return (q1_loss + q2_loss) / 2.
-
+        return (q1_loss + q2_loss) / 2.0
 
     def sample(self, states):
         """
@@ -123,7 +125,6 @@ class DoubleDeepQNetwork(nn.Module):
         a = F.one_hot(a, num_classes=self.num_actions).float()
 
         return a
-
 
     def exploit(self, states):
         """

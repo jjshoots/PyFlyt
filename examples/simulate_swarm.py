@@ -2,15 +2,16 @@ import os
 import numpy as np
 from signal import signal, SIGINT
 
-from pybullet_swarming.utility.shebangs import  *
+from pybullet_swarming.utility.shebangs import *
 from pybullet_swarming.environment.simulator import Simulator
+
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
     os._exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_venv()
     signal(SIGINT, shutdown_handler)
 
@@ -20,8 +21,10 @@ if __name__ == '__main__':
 
     lin_range = [-1, 1]
     lin_range = np.linspace(start=lin_range[0], stop=lin_range[1], num=drones_per_len)
-    height_range = [1., 2.]
-    height_range = np.linspace(start=height_range[0], stop=height_range[1], num=drones_per_height)
+    height_range = [1.0, 2.0]
+    height_range = np.linspace(
+        start=height_range[0], stop=height_range[1], num=drones_per_height
+    )
 
     grid_x, grid_y, grid_z = np.meshgrid(lin_range, lin_range, height_range)
     grid_x, grid_y, grid_z = grid_x.flatten(), grid_y.flatten(), grid_z.flatten()
@@ -35,7 +38,7 @@ if __name__ == '__main__':
     swarm.go([1] * swarm.num_drones)
 
     # make the drone fly in horizontal x with 1 rad/s yawrate
-    setpoints = [1., 0., 0., 1.]
+    setpoints = [1.0, 0.0, 0.0, 1.0]
     setpoints = np.array([setpoints] * swarm.num_drones)
 
     # send the setpoint for 5 seconds
@@ -43,7 +46,7 @@ if __name__ == '__main__':
     swarm.sleep(5)
 
     # make the drone fly in horizontal x with 1 rad/s yawrate
-    setpoints = [-1., 0., 0., 1.]
+    setpoints = [-1.0, 0.0, 0.0, 1.0]
     setpoints = np.array([setpoints] * swarm.num_drones)
 
     # send the setpoint for 5 seconds
