@@ -4,7 +4,6 @@ import argparse
 import numpy as np
 from signal import signal, SIGINT
 
-from pybullet_swarming.utility.shebangs import *
 from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 from pybullet_swarming.environment.simulator import Simulator
 
@@ -61,7 +60,6 @@ def real_handler():
 
 
 if __name__ == "__main__":
-    check_venv()
     args = get_args()
     signal(SIGINT, shutdown_handler)
 

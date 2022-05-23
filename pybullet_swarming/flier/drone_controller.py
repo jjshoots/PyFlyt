@@ -11,7 +11,7 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.motion_commander import MotionCommander
 from cflib.utils import uri_helper
 
-from pybullet_swarming.common.PID import PID
+from pybullet_swarming.utilities.PID import PID
 
 
 class Drone_Controller:

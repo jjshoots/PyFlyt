@@ -4,7 +4,6 @@ import time
 import numpy as np
 from signal import signal, SIGINT
 
-from pybullet_swarming.utility.shebangs import *
 from pybullet_swarming.environment.simulator import Simulator
 
 
@@ -60,7 +59,6 @@ class Cloud:
 
 
 if __name__ == "__main__":
-    check_venv()
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 4x4x1 grid
