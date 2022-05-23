@@ -3,13 +3,13 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from signal import signal, SIGINT
+import argparse
 
-from pybullet_swarming.utility.shebangs import *
 from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 from pybullet_swarming.environment.simulator import Simulator
 
 global DIM_DRONES
-DIM_DRONES = 2
+DIM_DRONES = 3
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
@@ -105,7 +105,6 @@ def get_cube(radius):
 
 
 if __name__ == "__main__":
-    check_venv()
     args = get_args()
     signal(SIGINT, shutdown_handler)
 
@@ -121,8 +120,7 @@ if __name__ == "__main__":
 
     # offsets for cube
     cube_offset = np.array([[0.0, 0.0, 1.]])
-    # linear_offset = np.array([[0.3, 0.0, 0.15]])
-    linear_offset = np.array([[0., 0., 0.]])
+    linear_offset = np.array([[0.3, 0.0, 0.15]])
 
     # form the cube coordinates
     cube = get_cube(0.5)
@@ -161,10 +159,11 @@ if __name__ == "__main__":
         settings[i] = 1
         cost[i] = -100.0
         UAVs.go(settings)
-        UAVs.sleep(1)
-    UAVs.sleep(20)
+        UAVs.sleep(0.2)
+    UAVs.sleep(5)
 
-    for i in range(1000):
+    while True:
+    # for i in range(10000):
         # at each timestep, update the target positions
         cube = (R1 @ cube.T).T
         linear_offset = (R2 @ linear_offset.T).T

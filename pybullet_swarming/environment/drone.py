@@ -1,7 +1,7 @@
 import math
-import numpy as np
 import xml.etree.ElementTree as etxml
 
+import numpy as np
 from pybullet_utils import bullet_client
 
 from pybullet_swarming.common.PID import PID

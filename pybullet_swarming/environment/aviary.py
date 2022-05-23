@@ -1,12 +1,11 @@
 import time
-import numpy as np
-import multiprocessing as mp
 
+import numpy as np
 import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from pybullet_swarming.environment.drone import *
+from pybullet_swarming.environment.drone import Drone
 
 
 class Aviary(bullet_client.BulletClient):

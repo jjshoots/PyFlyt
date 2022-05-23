@@ -1,10 +1,10 @@
 import time
+from typing import List
+
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from typing import List
-
-from pybullet_swarming.flier.drone_controller import *
+from pybullet_swarming.flier.drone_controller import Drone_Controller
 
 
 class Swarm_Controller:

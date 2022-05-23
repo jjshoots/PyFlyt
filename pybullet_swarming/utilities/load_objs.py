@@ -1,4 +1,3 @@
-import numpy as np
 from pybullet_utils import bullet_client
 
 

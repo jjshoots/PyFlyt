@@ -1,11 +1,10 @@
-import math
-import time
 import copy
+import math
 import threading
-
-import numpy as np
+import time
 
 import cflib.crtp
+import numpy as np
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie

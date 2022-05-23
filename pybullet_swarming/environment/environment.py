@@ -1,5 +1,6 @@
 import math
-from pybullet_swarming.environment.aviary import *
+
+from pybullet_swarming.environment.aviary import Aviary
 
 
 class Environment:
