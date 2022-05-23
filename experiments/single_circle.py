@@ -1,11 +1,12 @@
-import os
-import math
 import argparse
-import numpy as np
-from signal import signal, SIGINT
+import math
+import os
+from signal import SIGINT, signal
 
-from pybullet_swarming.flier.swarm_controller import Swarm_Controller
+import numpy as np
+
 from pybullet_swarming.environment.simulator import Simulator
+from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 
 
 def shutdown_handler(*_):

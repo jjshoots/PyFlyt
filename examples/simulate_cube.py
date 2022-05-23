@@ -1,10 +1,10 @@
-import os
 import math
-import numpy as np
-import matplotlib.pyplot as plt
-from signal import signal, SIGINT
+import os
+from signal import SIGINT, signal
 
-from pybullet_swarming.utility.shebangs import *
+import matplotlib.pyplot as plt
+import numpy as np
+
 from pybullet_swarming.environment.simulator import Simulator
 
 
@@ -14,7 +14,6 @@ def shutdown_handler(*_):
 
 
 if __name__ == "__main__":
-    check_venv()
     signal(SIGINT, shutdown_handler)
 
     # the cube is made up of 3x3x3 drones

@@ -1,8 +1,8 @@
 import os
-import numpy as np
-from signal import signal, SIGINT
+from signal import SIGINT, signal
 
-from pybullet_swarming.utility.shebangs import *
+import numpy as np
+
 from pybullet_swarming.environment.simulator import Simulator
 
 
@@ -12,7 +12,6 @@ def shutdown_handler(*_):
 
 
 if __name__ == "__main__":
-    check_venv()
     signal(SIGINT, shutdown_handler)
 
     # here we spawn drones in a 2x2x1 grid

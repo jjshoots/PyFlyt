@@ -1,8 +1,9 @@
-import os
 import math
+import os
 import time
+from signal import SIGINT, signal
+
 import numpy as np
-from signal import signal, SIGINT
 
 from pybullet_swarming.environment.simulator import Simulator
 

@@ -1,15 +1,17 @@
-import os
-import math
-import numpy as np
-import matplotlib.pyplot as plt
-from signal import signal, SIGINT
 import argparse
+import math
+import os
+from signal import SIGINT, signal
 
-from pybullet_swarming.flier.swarm_controller import Swarm_Controller
+import matplotlib.pyplot as plt
+import numpy as np
+
 from pybullet_swarming.environment.simulator import Simulator
+from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 
 global DIM_DRONES
 DIM_DRONES = 3
+
 
 def shutdown_handler(*_):
     print("ctrl-c invoked")
@@ -103,7 +105,6 @@ def get_cube(radius):
     return np.stack([grid_x, grid_y, grid_z], axis=-1)
 
 
-
 if __name__ == "__main__":
     args = get_args()
     signal(SIGINT, shutdown_handler)
@@ -119,7 +120,7 @@ if __name__ == "__main__":
         exit()
 
     # offsets for cube
-    cube_offset = np.array([[0.0, 0.0, 1.]])
+    cube_offset = np.array([[0.0, 0.0, 1.0]])
     linear_offset = np.array([[0.3, 0.0, 0.15]])
 
     # form the cube coordinates
@@ -163,7 +164,7 @@ if __name__ == "__main__":
     UAVs.sleep(5)
 
     while True:
-    # for i in range(10000):
+        # for i in range(10000):
         # at each timestep, update the target positions
         cube = (R1 @ cube.T).T
         linear_offset = (R2 @ linear_offset.T).T
@@ -177,12 +178,12 @@ if __name__ == "__main__":
         UAVs.step()
 
     # circle targets
-    circle = get_circle(1., 1.)
+    circle = get_circle(1.0, 1.0)
     UAVs.reshuffle(circle, np.zeros_like(circle))
     UAVs.sleep(5)
 
     # circle targets
-    circle = get_circle(1., -1.)
+    circle = get_circle(1.0, -1.0)
     UAVs.reshuffle(circle, np.zeros_like(circle))
     UAVs.sleep(5)
 

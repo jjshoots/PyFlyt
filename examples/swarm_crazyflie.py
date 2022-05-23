@@ -1,9 +1,9 @@
 import os
-import numpy as np
-from signal import signal, SIGINT
+from signal import SIGINT, signal
 
-from pybullet_swarming.utility.shebangs import *
-from pybullet_swarming.flier.swarm_controller import *
+import numpy as np
+
+from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 
 
 def shutdown_handler(*_):
@@ -12,7 +12,6 @@ def shutdown_handler(*_):
 
 
 if __name__ == "__main__":
-    check_venv()
     signal(SIGINT, shutdown_handler)
 
     # here we attempt to control 2 drones in a swarm

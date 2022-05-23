@@ -1,8 +1,8 @@
 import os
-import numpy as np
-from signal import signal, SIGINT
+from signal import SIGINT, signal
 
-from pybullet_swarming.utility.shebangs import *
+import numpy as np
+
 from pybullet_swarming.flier.drone_controller import Drone_Controller
 
 
@@ -12,7 +12,6 @@ def shutdown_handler(*_):
 
 
 if __name__ == "__main__":
-    check_venv()
     signal(SIGINT, shutdown_handler)
 
     # here we attempt to control 1 drone

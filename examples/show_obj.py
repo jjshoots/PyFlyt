@@ -1,14 +1,13 @@
 import math
 import time
-import numpy as np
+from signal import SIGINT, signal
 
+import numpy as np
 import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from signal import signal, SIGINT
-
-from pybullet_swarming.environment.utilities import *
+from pybullet_swarming.utilities.load_objs import loadOBJ, obj_visual
 
 
 def shutdown_handler(*_):
