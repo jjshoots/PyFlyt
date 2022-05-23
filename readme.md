@@ -13,11 +13,16 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
     - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu-1)
     - [On _Windows_](#on-windows-1)
 - [Examples](#examples)
-    - [`simulate_single.py`](#simulate_singlepy)
-    - [`simulate_swarm.py`](#simulate_swarmpy)
-    - [`simulate_cube.py`](#simulate_cubepy)
-    - [`single_crazyflie.py`](#single_crazyfliepy)
-    - [`swarm_crazyflie.py`](#swarm_crazyfliepy)
+  - [Simulation Only](#simulation-only)
+    - [`sim_single.py`](#sim_singlepy)
+    - [`sim_swarm.py`](#sim_swarmpy)
+    - [`sim_cube.py`](#sim_cubepy)
+  - [Hardware Only](#hardware-only)
+    - [`fly_single.py`](#fly_singlepy)
+    - [`fly_swarm.py`](#fly_swarmpy)
+  - [Simulation or Hardware](#simulation-or-hardware)
+    - [`sim_n_fly_single.py`](#sim_n_fly_singlepy)
+    - [`sim_n_fly_multiple.py`](#sim_n_fly_multiplepy)
 
 ## Installation
 Code is written and tested using _Python 3.8_ with `venv` and tested on Windows 10 and Ubuntu 20.04 LTS.
@@ -60,20 +65,32 @@ Deactivation is the same except replace `activate` with `deactivate`.
 ## Examples
 There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py` in _macOS_ and _Linux_, or just `python examples/***.py` in _Windows_.
 
-#### `simulate_single.py`
+### Simulation Only
+
+#### `sim_single.py`
 Simulates a single drone in the pybullet env with position control.
 ![simulate a single drone](/resource/simulate_single.gif)
 
-#### `simulate_swarm.py`
+#### `sim_swarm.py`
 Simulates a swarm of drones in the pybullet env with velocity control.
 ![simulate a swarm of drones](/resource/simulate_swarm.gif)
 
-#### `simulate_cube.py`
+#### `sim_cube.py`
 Simulates a swarm of drones in a spinning cube.
 ![You spin me round right round](/resource/simulate_cube.gif)
 
-#### `single_crazyflie.py`
+### Hardware Only
+
+#### `fly_single.py`
 Flies a real Crazyflie, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/) and [how to connect](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/#config-client) to get your URI(s) and modify them in line 18.
 
-#### `swarm_crazyflie.py`
+#### `fly_swarm.py`
 Flies a real Crazyflie swarm, same as the previous example, but now takes in a list of URIs.
+
+### Simulation or Hardware
+
+#### `sim_n_fly_single.py`
+Simple script that can be used to fly a single crazyflie in sim or with a real drone using either the `--hardware` or `--simulate` args.
+
+#### `sim_n_fly_multiple.py`
+Simple script that can be used to fly a swarm of crazyflies in sim or with real drones using either the `--hardware` or `--simulate` args.
