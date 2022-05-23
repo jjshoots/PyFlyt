@@ -16,7 +16,7 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
   - [Simulation Only](#simulation-only)
     - [`sim_single.py`](#sim_singlepy)
     - [`sim_swarm.py`](#sim_swarmpy)
-    - [`sim_cube.py`](#sim_cubepy)
+    - [`sim_cube.py` / `sim_cube_from_scratch.py`](#sim_cubepy--sim_cube_from_scratchpy)
   - [Hardware Only](#hardware-only)
     - [`fly_single.py`](#fly_singlepy)
     - [`fly_swarm.py`](#fly_swarmpy)
@@ -75,7 +75,7 @@ Simulates a single drone in the pybullet env with position control.
 Simulates a swarm of drones in the pybullet env with velocity control.
 ![simulate a swarm of drones](/resource/simulate_swarm.gif)
 
-#### `sim_cube.py`
+#### `sim_cube.py` / `sim_cube_from_scratch.py`
 Simulates a swarm of drones in a spinning cube.
 ![You spin me round right round](/resource/simulate_cube.gif)
 
