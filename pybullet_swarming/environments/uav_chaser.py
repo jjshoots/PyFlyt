@@ -54,11 +54,11 @@ class Environment:
     def step(self, setpoints):
         """
         step the entire simulation
-            output is states, reward, dones, label
+            output is states, reward, dones
         """
 
         self.env.set_setpoints(setpoints)
         self.env.step()
         self.step_count += 1
 
-        return self.env.states, 0, 0, None
+        return self.env.states, 0, 0
