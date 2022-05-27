@@ -5,7 +5,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from pybullet_swarming.environment.simulator import Simulator
+from pybullet_swarming.environments.simulator import Simulator
 from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 
 

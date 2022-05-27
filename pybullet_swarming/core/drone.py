@@ -1,5 +1,5 @@
-import os
 import math
+import os
 import xml.etree.ElementTree as etxml
 
 import numpy as np
@@ -16,7 +16,7 @@ class Drone:
         start_orn: np.ndarray,
         ctrl_hz=48.0,
         sim_hz=240.0,
-        drone_model='cf2x',
+        drone_model="cf2x",
     ):
         # default physics looprate is 240 Hz
         self.p = p
@@ -135,8 +135,8 @@ class Drone:
     def rpm2forces(self, rpm):
         """maps rpm to individual motor forces and torques"""
         rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm ** 2) * self.thr_coeff
-        torque = (rpm ** 2) * self.tor_coeff * self.tor_dir
+        thrust = (rpm**2) * self.thr_coeff
+        torque = (rpm**2) * self.tor_coeff * self.tor_dir
 
         # add some random noise to the motor outputs
         thrust += np.random.randn(*thrust.shape) * self.noise_ratio * thrust

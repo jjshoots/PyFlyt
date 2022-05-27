@@ -6,7 +6,7 @@ from signal import SIGINT, signal
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pybullet_swarming.environment.simulator import Simulator
+from pybullet_swarming.environments.simulator import Simulator
 from pybullet_swarming.flier.swarm_controller import Swarm_Controller
 
 global DIM_DRONES
@@ -45,7 +45,7 @@ def get_args():
 def fake_handler():
     global DIM_DRONES
     # here we spawn drones in a circle
-    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES ** 3))
+    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES**3))
     distance = 2.0
     x = distance * np.cos(theta)
     y = distance * np.sin(theta)
@@ -81,7 +81,7 @@ def real_handler():
 def get_circle(radius, height):
     global DIM_DRONES
 
-    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES ** 3))
+    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES**3))
     x = radius * np.cos(theta)
     y = radius * np.sin(theta)
     z = np.ones_like(x) * height
