@@ -8,13 +8,13 @@ from gym import spaces
 from PyFlyt.core.aviary import Aviary
 
 
-class SimpleWaypointEnv(gym.Env):
+class SimpleHoverEnv(gym.Env):
     """
-    Simple Waypoint Environment
+    Simple Hover Environment
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
-    The target is x, y, z, yaw targets in space
+    The target is to not crash for the longest time possible
     """
 
     metadata = {"render_modes": ["human"]}
@@ -23,27 +23,19 @@ class SimpleWaypointEnv(gym.Env):
         self,
         max_steps=10000,
         angle_representation="quaternion",
-        num_targets=4,
-        use_yaw_targets=True,
-        goal_reach_distance=0.2,
-        goal_reach_angle=0.1,
         flight_dome_size=3.0,
     ):
 
         """GYM STUFF"""
         # observation size increases by 2 for euler
         if angle_representation == "euler":
-            obs_shape = 15
+            obs_shape = 12
         elif angle_representation == "quaternion":
-            obs_shape = 17
+            obs_shape = 14
         else:
             raise AssertionError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
             )
-
-        # if we have yaw targets, then the obs has yaw targets as well
-        if use_yaw_targets:
-            obs_shape += 1
 
         self.observation_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(1, obs_shape), dtype=np.float64
@@ -57,9 +49,6 @@ class SimpleWaypointEnv(gym.Env):
         self.enable_render = False
         self.flight_dome_size = flight_dome_size
         self.max_steps = max_steps
-        self.use_yaw_targets = use_yaw_targets
-        self.goal_reach_distance = goal_reach_distance
-        self.goal_reach_angle = goal_reach_angle
         self.ang_rep = 0
         if angle_representation == "euler":
             self.ang_rep = 0
@@ -69,27 +58,6 @@ class SimpleWaypointEnv(gym.Env):
         """ RUNTIME VARIABLES """
         self.env = None
         self.state = self.observation_space.sample()
-        self.dis_error = -100.0
-        self.yaw_error = -100.0
-
-        # we sample from polar coordinates to generate linear targets
-        self.targets = np.zeros(shape=(num_targets, 3))
-        thts = np.random.uniform(0.0, 2.0 * math.pi, size=(num_targets,))
-        phis = np.random.uniform(0.0, 2.0 * math.pi, size=(num_targets,))
-        for i, tht, phi in zip(range(num_targets), thts, phis):
-            x = 1.0 * math.sin(phi) * math.cos(tht)
-            y = 1.0 * math.sin(phi) * math.sin(tht)
-            z = np.abs(1.0 * math.cos(phi))
-            self.targets[i] = np.array([x, y, z])
-
-        # yaw targets
-        if self.use_yaw_targets:
-            self.yaw_targets = np.random.uniform(
-                low=-math.pi, high=math.pi, size=(num_targets,)
-            )
-
-        self.targets = np.array([[0., 0., 1.]])
-        self.yaw_targets = np.array([3.15])
 
     def render(self, mode="human"):
         self.enable_render = True
@@ -134,42 +102,19 @@ class SimpleWaypointEnv(gym.Env):
         lin_vel = raw_state[2]
         lin_pos = raw_state[3]
 
-        # quarternion angles
-        q_ang_vel = p.getQuaternionFromEuler(ang_vel)
-        q_ang_pos = p.getQuaternionFromEuler(ang_pos)
-
-        # rotation matrix
-        rotation = np.array(p.getMatrixFromQuaternion(q_ang_pos)).reshape(3, 3).T
-
-        # drone to target
-        self.dis_error = np.matmul(rotation, self.targets[0] - lin_pos)
-        self.yaw_error = self.yaw_targets[0] - ang_pos[-1]
-
-        # rollover yaw
-        if self.yaw_error > math.pi:
-            self.yaw_error -= 2.0 * math.pi
-        if self.yaw_error < -math.pi:
-            self.yaw_error += 2.0 * math.pi
-
-        # precompute the scalars so we can use it later
-        self.dis_error_scalar = np.linalg.norm(self.dis_error)
-        self.yaw_error_scalar = np.abs(self.yaw_error)
-
-        # use targ_yaw if necessary
-        if self.use_yaw_targets:
-            error = np.array([*self.dis_error, self.yaw_error])
-        else:
-            error = self.dis_error
-
         # combine everything
         new_state = np.array([0])
         if self.ang_rep == 0:
             new_state = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *error]
+                [*ang_vel, *ang_pos, *lin_vel, *lin_pos]
             )
         elif self.ang_rep == 1:
+            # quarternion angles
+            q_ang_vel = p.getQuaternionFromEuler(ang_vel)
+            q_ang_pos = p.getQuaternionFromEuler(ang_pos)
+
             new_state = np.array(
-                [*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error]
+                [*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos]
             )
 
         # expand dim to be consistent with obs
@@ -179,22 +124,9 @@ class SimpleWaypointEnv(gym.Env):
         self.state = new_state
 
     @property
-    def target_reached(self):
-        if self.dis_error_scalar < self.goal_reach_distance:
-            if self.use_yaw_targets:
-                if self.yaw_error_scalar < self.goal_reach_angle:
-                    return True
-            else:
-                return True
-
-        return False
-
-    @property
     def reward(self):
-        error = self.dis_error_scalar
-        if self.use_yaw_targets:
-            error += self.yaw_error_scalar
-        return -error
+        reward = 1.0 if not self.done else -10
+        return reward
 
     @property
     def done(self):
@@ -205,15 +137,6 @@ class SimpleWaypointEnv(gym.Env):
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
             return True
-
-        # target reached
-        if self.target_reached:
-            if len(self.targets) > 1:
-                # still have targets to go
-                self.targets = self.targets[1:]
-                self.yaw_targets = self.yaw_targets[1:]
-            else:
-                return True
 
         return False
 
