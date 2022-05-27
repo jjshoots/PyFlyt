@@ -135,8 +135,8 @@ class Drone:
     def rpm2forces(self, rpm):
         """maps rpm to individual motor forces and torques"""
         rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm ** 2) * self.thr_coeff
-        torque = (rpm ** 2) * self.tor_coeff * self.tor_dir
+        thrust = (rpm**2) * self.thr_coeff
+        torque = (rpm**2) * self.tor_coeff * self.tor_dir
 
         # add some random noise to the motor outputs
         thrust += np.random.randn(*thrust.shape) * self.noise_ratio * thrust
@@ -190,16 +190,17 @@ class Drone:
         p, q, r = angular positions
         u, v, w = linear velocities
         x, y, z = linear positions
+        vx, vy, vz = linear velocities
         T = thrust
 
         sets the flight mode:
             0 - vp, vq, vr, T
-            1 - p, q, r, T
+            1 - p, q, r, vz
             2 - vp, vq, vr, z
             3 - p, q, r, z
             4 - u, v, vr, z
-            5 - u, v, vr, T
-            6 - vx, vy, vr, T
+            5 - u, v, vr, vz
+            6 - vx, vy, vr, vz
             7 - x, y, r, z
         """
 
@@ -326,7 +327,9 @@ class Drone:
 
         z_output = None
         # height controllers
-        if self.mode == 0 or self.mode == 1 or self.mode == 5 or self.mode == 6:
+        if self.mode == 0:
+            z_output = np.clip(self.setpoint[-1], 0, 1)
+        elif self.mode == 1 or self.mode == 5 or self.mode == 6:
             z_output = self.z_PIDs[0].step(self.state[2][-1], self.setpoint[-1])
             z_output = np.clip(z_output, 0, 1)
         elif self.mode == 2 or self.mode == 3 or self.mode == 4 or self.mode == 7:
