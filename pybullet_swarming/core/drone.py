@@ -1,10 +1,11 @@
+import os
 import math
 import xml.etree.ElementTree as etxml
 
 import numpy as np
 from pybullet_utils import bullet_client
 
-from pybullet_swarming.utilities.PID import PID
+from pybullet_swarming.core.PID import PID
 
 
 class Drone:
@@ -23,7 +24,8 @@ class Drone:
         self.ctrl_period = 1.0 / ctrl_hz
         self.update_ratio = int(sim_hz / ctrl_hz)
         self.steps = 0
-        drone_dir = f"models/vehicles/{drone_model}.urdf"
+        file_dir = os.path.dirname(os.path.realpath(__file__))
+        drone_dir = os.path.join(file_dir, f"../models/vehicles/{drone_model}.urdf")
 
         """ SPAWN """
         self.start_pos = start_pos

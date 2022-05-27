@@ -4,7 +4,7 @@ import time
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from pybullet_swarming.environment.environment import Aviary
+from pybullet_swarming.core.aviary import Aviary
 
 
 class Simulator:
@@ -25,13 +25,6 @@ class Simulator:
 
         # keep track of runtime
         self.steps = 0
-
-        # texturing
-        tex_id = self.env.loadTexture("/models/diamond4.png")
-        # self.env.changeVisualShape(self.env.planeId, -1, textureUniqueId=tex_id)
-
-        for drone in self.env.drones:
-            self.env.changeVisualShape(drone.Id, -1, textureUniqueId=tex_id)
 
     def reshuffle(self, new_pos, new_orn):
         """
