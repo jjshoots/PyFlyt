@@ -6,8 +6,8 @@ from signal import SIGINT, signal
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pybullet_swarming.environments.simulator import Simulator
-from pybullet_swarming.flier.swarm_controller import Swarm_Controller
+from pybullet_swarming.hardware.simulator import Simulator
+from pybullet_swarming.hardware.swarm_controller import Swarm_Controller
 
 global DIM_DRONES
 DIM_DRONES = 3

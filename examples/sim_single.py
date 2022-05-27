@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from pybullet_swarming.environments.simulator import Simulator
+from pybullet_swarming.hardware.simulator import Simulator
 
 
 def shutdown_handler(*_):

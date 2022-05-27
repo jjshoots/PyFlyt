@@ -9,7 +9,9 @@ from pybullet_swarming.core.aviary import Aviary
 
 class Simulator:
     """
-    Class wrapper around `environment` to be concise with the swarm controller
+    This is a virtual version of the swarm_controller or drone_controller code.
+    Intended to be used to visualize how the real drones will fly.
+
     Control is done using linear velocity setpoints and yawrate:
         vx, vy, vz, vr
     States is full linear position and yaw

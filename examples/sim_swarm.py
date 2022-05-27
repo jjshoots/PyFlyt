@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from pybullet_swarming.environments.simulator import Simulator
+from pybullet_swarming.hardware.simulator import Simulator
 
 
 def shutdown_handler(*_):
@@ -14,7 +14,7 @@ def shutdown_handler(*_):
 if __name__ == "__main__":
     signal(SIGINT, shutdown_handler)
 
-    # here we spawn drones in a 2x2x1 grid
+    # here we spawn drones in a 3x3x2 grid
     drones_per_len = 3
     drones_per_height = 2
 

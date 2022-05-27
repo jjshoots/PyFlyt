@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from pybullet_swarming.flier.drone_controller import Drone_Controller
+from pybullet_swarming.hardware.drone_controller import Drone_Controller
 
 
 def shutdown_handler(*_):
