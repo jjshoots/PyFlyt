@@ -7,7 +7,7 @@ from gym import spaces
 from PyFlyt.core.aviary import Aviary
 
 
-class SimpleWaypointEnv(gym.Env):
+class BoilerPlate(gym.Env):
     """
     SimpleWaypoint Environment
 

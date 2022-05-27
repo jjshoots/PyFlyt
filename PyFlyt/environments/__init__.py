@@ -1,1 +1,1 @@
-from PyFlyt.environments.simple_waypoint import SimpleWaypoint
+from PyFlyt.environments.simple_waypoint import SimpleWaypointEnv
