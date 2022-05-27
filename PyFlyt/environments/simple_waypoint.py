@@ -49,8 +49,8 @@ class SimpleWaypointEnv(gym.Env):
             low=-np.inf, high=np.inf, shape=(1, obs_shape), dtype=np.float64
         )
 
-        high = np.array([[1.0, 1.0, flight_dome_size]])
-        low = np.array([[-1.0, -1.0, 0.0]])
+        high = np.array([[3.0, 3.0, 3.0, 1.0]])
+        low = np.array([[-3.0, -3.0, -3.0, -1.0]])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -88,6 +88,9 @@ class SimpleWaypointEnv(gym.Env):
                 low=-math.pi, high=math.pi, size=(num_targets,)
             )
 
+        self.targets = np.array([[0., 0., 1.]])
+        self.yaw_targets = np.array([3.15])
+
     def render(self, mode="human"):
         self.enable_render = True
 
@@ -107,7 +110,7 @@ class SimpleWaypointEnv(gym.Env):
         )
 
         # set flight mode
-        self.env.set_mode(6)
+        self.env.set_mode(0)
 
         # wait for env to stabilize
         for _ in range(10):

@@ -9,6 +9,4 @@ env.render()
 obs = env.reset()
 
 for i in range(10000):
-    action = obs[0, -4:]
-    action = np.array([[action[0], action[1], action[3], action[2]]])
-    obs, rew, dne, _ = env.step(action)
+    obs, rew, dne, _ = env.step(env.action_space.sample())

@@ -328,7 +328,7 @@ class Drone:
         z_output = None
         # height controllers
         if self.mode == 0:
-            z_output = np.clip(self.setpoint[-1], 0, 1)
+            z_output = np.clip(self.setpoint[-1] * 0.5 + 1.0, 0.0, 1.0)
         elif self.mode == 1 or self.mode == 5 or self.mode == 6:
             z_output = self.z_PIDs[0].step(self.state[2][-1], self.setpoint[-1])
             z_output = np.clip(z_output, 0, 1)
