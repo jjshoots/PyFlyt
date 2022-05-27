@@ -1,12 +1,13 @@
-import numpy as np
 import math
+
 import gym
+import numpy as np
 from gym import spaces
 
 from PyFlyt.core.aviary import Aviary
 
 
-class Environment(gym.Env):
+class SimpleWaypoint(gym.Env):
     """
     Wrapper for Aviary
     """
@@ -16,8 +17,12 @@ class Environment(gym.Env):
     def __init__(self, max_steps=10000):
 
         # Gym stuff
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(1, 19), dtype=np.float32)
-        self.action_space = spaces.Box(low=-360.0, high=360.0, shape=(1, 4), dtype=np.float32)
+        self.observation_space = spaces.Box(
+            low=-np.inf, high=np.inf, shape=(1, 19), dtype=np.float32
+        )
+        self.action_space = spaces.Box(
+            low=-360.0, high=360.0, shape=(1, 4), dtype=np.float32
+        )
 
         # environment params
         self.to_render = False
@@ -39,7 +44,9 @@ class Environment(gym.Env):
 
         # init env
         self.env = Aviary(
-            start_pos=np.array([0.0, 0.0, 1.0]), start_orn=np.array([0.0, 0.0, 0.0]), render=self.to_render
+            start_pos=np.array([0.0, 0.0, 1.0]),
+            start_orn=np.array([0.0, 0.0, 0.0]),
+            render=self.to_render,
         )
 
         # set flight mode
@@ -62,7 +69,7 @@ class Environment(gym.Env):
 
     @property
     def reward(self):
-        return 0.
+        return 0.0
 
     def step(self, action):
         """

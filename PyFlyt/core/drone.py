@@ -135,8 +135,8 @@ class Drone:
     def rpm2forces(self, rpm):
         """maps rpm to individual motor forces and torques"""
         rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm**2) * self.thr_coeff
-        torque = (rpm**2) * self.tor_coeff * self.tor_dir
+        thrust = (rpm ** 2) * self.thr_coeff
+        torque = (rpm ** 2) * self.tor_coeff * self.tor_dir
 
         # add some random noise to the motor outputs
         thrust += np.random.randn(*thrust.shape) * self.noise_ratio * thrust
