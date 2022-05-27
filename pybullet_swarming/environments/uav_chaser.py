@@ -1,16 +1,25 @@
+import numpy as np
 import math
 
+import gym
+from gym import spaces
 from pybullet_swarming.core.aviary import Aviary
 
 
-class Environment:
+class Environment(gym.Env):
     """
     Wrapper for Aviary
     """
 
+    metadata = {"render_modes": ["human"]}
+
     def __init__(
         self, start_pos, start_orn, num_envs=1, max_steps=math.inf, render=None
     ):
+
+        # Gym stuff
+        self.observation_space = gym.spaces.Box(-np)
+
         self.max_steps = max_steps
 
         self.start_pos = start_pos
