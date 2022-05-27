@@ -15,6 +15,7 @@ class Drone:
         start_orn: np.ndarray,
         ctrl_hz=48.0,
         sim_hz=240.0,
+        drone_model='cf2x',
     ):
         # default physics looprate is 240 Hz
         self.p = p
@@ -22,7 +23,7 @@ class Drone:
         self.ctrl_period = 1.0 / ctrl_hz
         self.update_ratio = int(sim_hz / ctrl_hz)
         self.steps = 0
-        drone_dir = "models/vehicles/cf2x.urdf"
+        drone_dir = f"models/vehicles/{drone_model}.urdf"
 
         """ SPAWN """
         self.start_pos = start_pos
