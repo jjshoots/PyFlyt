@@ -5,7 +5,7 @@ import xml.etree.ElementTree as etxml
 import numpy as np
 from pybullet_utils import bullet_client
 
-from pybullet_swarming.core.PID import PID
+from PyFlyt.core.PID import PID
 
 
 class Drone:
@@ -186,14 +186,20 @@ class Drone:
 
     def set_mode(self, mode):
         """
+        vp, vq, vr = angular velocities
+        p, q, r = angular positions
+        u, v, w = linear velocities
+        x, y, z = linear positions
+        T = thrust
+
         sets the flight mode:
-            0 - vp, vq, vr, vz
-            1 - p, q, r, vz
+            0 - vp, vq, vr, T
+            1 - p, q, r, T
             2 - vp, vq, vr, z
             3 - p, q, r, z
             4 - u, v, vr, z
-            5 - u, v, vr, vz
-            6 - vx, vy, vr, vz
+            5 - u, v, vr, T
+            6 - vx, vy, vr, T
             7 - x, y, r, z
         """
 

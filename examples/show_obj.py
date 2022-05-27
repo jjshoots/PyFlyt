@@ -7,7 +7,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from pybullet_swarming.core.load_objs import loadOBJ, obj_visual
+from PyFlyt.core.load_objs import loadOBJ, obj_visual
 
 
 def shutdown_handler(*_):

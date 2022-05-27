@@ -5,7 +5,7 @@ from signal import SIGINT, signal
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pybullet_swarming.hardware.simulator import Simulator
+from PyFlyt.hardware.simulator import Simulator
 
 
 def shutdown_handler(*_):

@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from pybullet_swarming.flier.drone_controller import Drone_Controller
+from PyFlyt.hardware.drone_controller import Drone_Controller
 
 
 class Swarm_Controller:

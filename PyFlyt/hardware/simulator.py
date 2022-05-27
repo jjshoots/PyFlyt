@@ -4,7 +4,7 @@ import time
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from pybullet_swarming.core.aviary import Aviary
+from PyFlyt.core.aviary import Aviary
 
 
 class Simulator:

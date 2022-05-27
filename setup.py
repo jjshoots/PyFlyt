@@ -1,16 +1,14 @@
 from setuptools import setup
 
 setup(
-    name="pybullet_swarming",
-    version="1.0.0",
+    name="PyFlyt",
+    version="0.0.1",
     install_requires=[
-        "wandb",
         "numpy",
         "matplotlib",
         "pybullet",
         "cflib",
         "cfclient",
         "scipy",
-        "pthflops",
     ],
 )

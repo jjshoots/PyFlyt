@@ -5,8 +5,8 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from pybullet_swarming.hardware.simulator import Simulator
-from pybullet_swarming.hardware.swarm_controller import Swarm_Controller
+from PyFlyt.hardware.simulator import Simulator
+from PyFlyt.hardware.swarm_controller import Swarm_Controller
 
 
 def shutdown_handler(*_):
