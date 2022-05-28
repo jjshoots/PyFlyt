@@ -137,7 +137,7 @@ class SimpleHoverEnv(gym.Env):
 
         return False
 
-    def step(self, action):
+    def step(self, action: np.ndarray):
         """
         step the entire simulation
             output is states, reward, dones
