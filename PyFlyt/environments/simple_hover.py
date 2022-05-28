@@ -38,11 +38,11 @@ class SimpleHoverEnv(gym.Env):
             )
 
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(1, obs_shape), dtype=np.float64
+            low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
         )
 
-        high = np.array([[3.0, 3.0, 3.0, 1.0]])
-        low = np.array([[-3.0, -3.0, -3.0, -1.0]])
+        high = np.array([3.0, 3.0, 3.0, 1.0])
+        low = np.array([-3.0, -3.0, -3.0, -1.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -78,14 +78,13 @@ class SimpleHoverEnv(gym.Env):
         )
 
         # set flight mode
-        self.env.set_mode(0)
+        self.env.set_mode(6)
 
         # wait for env to stabilize
         for _ in range(10):
             self.env.step()
 
-        self.compute_state()
-        return self.state
+        return self.compute_state()
 
     def compute_state(self):
         """ This computes the observation as well as the distances to target """
@@ -117,25 +116,27 @@ class SimpleHoverEnv(gym.Env):
                 [*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos]
             )
 
-        # expand dim to be consistent with obs
-        new_state = np.expand_dims(new_state, axis=0)
-
-        # this is our state
-        self.state = new_state
+        return new_state
 
     @property
     def reward(self):
-        reward = 1.0 if not self.done else -10
+        if len(self.env.getContactPoints()) > 0:
+            reward = -100.0
+        else:
+            reward = 1.0 if not self.done else -10
         return reward
 
-    @property
-    def done(self):
+    def compute_done(self):
         # exceed step count
         if self.step_count > self.max_steps:
             return True
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+            return True
+
+        # collision
+        if len(self.env.getContactPoints()) > 0:
             return True
 
         return False
@@ -145,9 +146,13 @@ class SimpleHoverEnv(gym.Env):
         step the entire simulation
             output is states, reward, dones
         """
+        # step through env
         self.env.set_setpoints(action)
         self.env.step()
-        self.compute_state()
+
+        # compute state and done
+        self.state = self.compute_state()
+        self.done = self.compute_done()
 
         self.step_count += 1
 

@@ -27,7 +27,7 @@ class SimpleWaypointEnv(gym.Env):
         use_yaw_targets=True,
         goal_reach_distance=0.2,
         goal_reach_angle=0.1,
-        flight_dome_size=3.0,
+        flight_dome_size=10.0,
     ):
 
         """GYM STUFF"""
@@ -46,11 +46,11 @@ class SimpleWaypointEnv(gym.Env):
             obs_shape += 1
 
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(1, obs_shape), dtype=np.float64
+            low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
         )
 
-        high = np.array([[3.0, 3.0, 3.0, 1.0]])
-        low = np.array([[-3.0, -3.0, -3.0, -1.0]])
+        high = np.array([3.0, 3.0, 3.0, 1.0])
+        low = np.array([-3.0, -3.0, -3.0, -1.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -69,6 +69,7 @@ class SimpleWaypointEnv(gym.Env):
         """ RUNTIME VARIABLES """
         self.env = None
         self.state = self.observation_space.sample()
+        self.done = False
         self.dis_error = -100.0
         self.yaw_error = -100.0
 
@@ -87,9 +88,6 @@ class SimpleWaypointEnv(gym.Env):
             self.yaw_targets = np.random.uniform(
                 low=-math.pi, high=math.pi, size=(num_targets,)
             )
-
-        self.targets = np.array([[0., 0., 1.]])
-        self.yaw_targets = np.array([3.15])
 
     def render(self, mode="human"):
         self.enable_render = True
@@ -110,14 +108,13 @@ class SimpleWaypointEnv(gym.Env):
         )
 
         # set flight mode
-        self.env.set_mode(0)
+        self.env.set_mode(6)
 
         # wait for env to stabilize
         for _ in range(10):
             self.env.step()
 
-        self.compute_state()
-        return self.state
+        return self.compute_state()
 
     def compute_state(self):
         """ This computes the observation as well as the distances to target """
@@ -172,11 +169,7 @@ class SimpleWaypointEnv(gym.Env):
                 [*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error]
             )
 
-        # expand dim to be consistent with obs
-        new_state = np.expand_dims(new_state, axis=0)
-
-        # this is our state
-        self.state = new_state
+        return new_state
 
     @property
     def target_reached(self):
@@ -191,19 +184,28 @@ class SimpleWaypointEnv(gym.Env):
 
     @property
     def reward(self):
-        error = self.dis_error_scalar
-        if self.use_yaw_targets:
-            error += self.yaw_error_scalar
-        return -error
+        if not self.done:
+            # normal reward
+            error = self.dis_error_scalar
+            if self.use_yaw_targets:
+                error += self.yaw_error_scalar
+            return -error
+        else:
+            # collision with ground
+            if len(self.env.getContactPoints()) > 0:
+                return -100.0
 
-    @property
-    def done(self):
+    def compute_done(self):
         # exceed step count
         if self.step_count > self.max_steps:
             return True
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+            return True
+
+        # collision
+        if len(self.env.getContactPoints()) > 0:
             return True
 
         # target reached
@@ -222,9 +224,13 @@ class SimpleWaypointEnv(gym.Env):
         step the entire simulation
             output is states, reward, dones
         """
+        # step env
         self.env.set_setpoints(action)
         self.env.step()
-        self.compute_state()
+
+        # compute state and dones
+        self.state = self.compute_state()
+        self.done = self.compute_done()
 
         self.step_count += 1
 

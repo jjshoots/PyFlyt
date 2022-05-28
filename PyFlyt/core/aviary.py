@@ -108,4 +108,5 @@ class Aviary(bullet_client.BulletClient):
                 drone.update()
 
         self.stepSimulation()
+        self.performCollisionDetection()
         self.step_count += 1

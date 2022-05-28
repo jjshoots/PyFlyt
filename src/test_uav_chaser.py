@@ -3,10 +3,12 @@ import gym
 
 import PyFlyt
 
-env = gym.make("PyFlyt/SimpleWaypointEnv-v0")
+env = gym.make("PyFlyt/SimpleHoverEnv-v0")
 
 env.render()
 obs = env.reset()
 
 for i in range(10000):
-    obs, rew, dne, _ = env.step(env.action_space.sample())
+    action = np.array([[0, 0, 0, -0.1]])
+    obs, rew, dne, _ = env.step(action)
+    print(dne, rew)
