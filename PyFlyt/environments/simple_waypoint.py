@@ -117,6 +117,11 @@ class SimpleWaypointEnv(gym.Env):
         for _ in range(10):
             self.env.step()
 
+        # if we are rendering, laod in the targets
+        if self.enable_render:
+            for target in self.targets:
+                pass
+
         return self.compute_state()
 
     def compute_state(self):

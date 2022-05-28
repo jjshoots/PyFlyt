@@ -19,6 +19,7 @@ class Aviary(bullet_client.BulletClient):
         self.start_pos = start_pos
         self.start_orn = start_orn
 
+        self.drone_model = "cf2x"
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
         self.render = render
@@ -40,7 +41,14 @@ class Aviary(bullet_client.BulletClient):
         # spawn drones
         self.drones = []
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
-            self.drones.append(Drone(self, start_pos=start_pos, start_orn=start_orn))
+            self.drones.append(
+                Drone(
+                    self,
+                    start_pos=start_pos,
+                    start_orn=start_orn,
+                    drone_model=self.drone_model,
+                )
+            )
 
         self.go = [1] * self.num_drones
 

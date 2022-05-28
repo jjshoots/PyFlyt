@@ -73,6 +73,10 @@ class Drone:
         self.tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
         self.noise_ratio = 0.02
 
+        # pseudo drag coef
+        self.drag_const_xyz = 1e-3
+        self.drag_const_pqr = 1e-4
+
         # maximum motor RPM
         self.max_rpm = np.sqrt((self.thrust2weight * 9.81) / (4 * self.kf))
         # motor modelled with first order ode, below is time const
@@ -131,6 +135,16 @@ class Drone:
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.update_state()
+
+    def update_drag(self):
+        """adds drag to the model, this is not physically correct but only approximation"""
+        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
+        drag_xyz = -self.drag_const_xyz * (np.array(lin_vel) ** 2)
+        drag_pqr = -self.drag_const_pqr * (np.array(ang_vel) ** 2)
+        self.p.applyExternalForce(
+            self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
+        )
+        self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def rpm2forces(self, rpm):
         """maps rpm to individual motor forces and torques"""
@@ -342,6 +356,7 @@ class Drone:
 
     def update_forces(self):
         self.rpm2forces(self.pwm2rpm(self.pwm))
+        self.update_drag()
 
     def update(self):
         """
