@@ -15,6 +15,9 @@ class SimpleHoverEnv(gym.Env):
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
     The target is to not crash for the longest time possible
+
+    Reward is 1.0 for each time step, and -10.0 for crashing
+    or going outside the flight dome.
     """
 
     metadata = {"render_modes": ["human"]}
@@ -87,7 +90,7 @@ class SimpleHoverEnv(gym.Env):
         return self.compute_state()
 
     def compute_state(self):
-        """ This computes the observation as well as the distances to target """
+        """This computes the observation as well as the distances to target"""
         # ang_vel (3/4)
         # ang_pos (3/4)
         # lin_vel (3)
@@ -104,17 +107,13 @@ class SimpleHoverEnv(gym.Env):
         # combine everything
         new_state = np.array([0])
         if self.ang_rep == 0:
-            new_state = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos]
-            )
+            new_state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
         elif self.ang_rep == 1:
             # quarternion angles
             q_ang_vel = p.getQuaternionFromEuler(ang_vel)
             q_ang_pos = p.getQuaternionFromEuler(ang_pos)
 
-            new_state = np.array(
-                [*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos]
-            )
+            new_state = np.array([*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
 
         return new_state
 

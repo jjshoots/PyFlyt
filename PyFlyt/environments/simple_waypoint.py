@@ -15,6 +15,8 @@ class SimpleWaypointEnv(gym.Env):
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
     The target is x, y, z, yaw targets in space
+
+    Reward is
     """
 
     metadata = {"render_modes": ["human"]}
@@ -117,7 +119,7 @@ class SimpleWaypointEnv(gym.Env):
         return self.compute_state()
 
     def compute_state(self):
-        """ This computes the observation as well as the distances to target """
+        """This computes the observation as well as the distances to target"""
         # ang_vel (3/4)
         # ang_pos (3/4)
         # lin_vel (3)
@@ -161,13 +163,9 @@ class SimpleWaypointEnv(gym.Env):
         # combine everything
         new_state = np.array([0])
         if self.ang_rep == 0:
-            new_state = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *error]
-            )
+            new_state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos, *error])
         elif self.ang_rep == 1:
-            new_state = np.array(
-                [*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error]
-            )
+            new_state = np.array([*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error])
 
         return new_state
 
@@ -184,16 +182,15 @@ class SimpleWaypointEnv(gym.Env):
 
     @property
     def reward(self):
-        if not self.done:
+        if len(self.env.getContactPoints()) > 0:
+            # collision with ground
+            return -100.0
+        else:
             # normal reward
             error = self.dis_error_scalar
             if self.use_yaw_targets:
                 error += self.yaw_error_scalar
             return -error
-        else:
-            # collision with ground
-            if len(self.env.getContactPoints()) > 0:
-                return -100.0
 
     def compute_done(self):
         # exceed step count
