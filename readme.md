@@ -1,96 +1,86 @@
-# PyBullet Swarming
+# PyFlyt - Freestyle Quadcopter Flight in Pybullet with Gym and (soon) PettingZoo APIs
 
-This is a library for running swarming algorithms on both real crazyflies and simulated ones.
+This is a library for running reinforcement learning algorithms on both real crazyflies and simulated ones using the Gym and (soon) PettingZoo APIs.
 This repo's `master` branch is still under development.
 
-Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones). But more modular, modifiable, and incorporates a companion module for interfacing with a real Crazyflie drone swarm using the Crazyradio PA module. Built for AVAILab, Coventry University.
+Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones) with several key differences:
 
-### Table of Contents
-- [Installation](#installation)
-    - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu)
-    - [On _Windows_](#on-windows)
-- [Usage](#usage)
-    - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu-1)
-    - [On _Windows_](#on-windows-1)
-- [Examples](#examples)
-  - [Simulation Only](#simulation-only)
-    - [`sim_single.py`](#sim_singlepy)
-    - [`sim_swarm.py`](#sim_swarmpy)
-    - [`sim_cube.py` / `sim_cube_from_scratch.py`](#sim_cubepy--sim_cube_from_scratchpy)
-  - [Hardware Only](#hardware-only)
-    - [`fly_single.py`](#fly_singlepy)
-    - [`fly_swarm.py`](#fly_swarmpy)
-  - [Simulation or Hardware](#simulation-or-hardware)
-    - [`sim_n_fly_single.py`](#sim_n_fly_singlepy)
-    - [`sim_n_fly_multiple.py`](#sim_n_fly_multiplepy)
+- Actual full cascaded PID flight controller implementations for each drone.
+- Actual motor RPM simulation using first order differential equation.
+- More modular control structure
+- For developers - 8 implemented flight modes that use tuned cascaded PID flight controllers, available in `PyFlyt/core/drone.py`.
+- For developers - easily build your own multiagent environments using the `PyFlyt.core.aviary.Aviary` class.
+- More environments with increasing difficulties, targetted at enabling hiearchical learning for as true-to-realistic freestyle quadcopter flight.
 
 ## Installation
-Code is written and tested using _Python 3.8_ with `venv` and tested on Windows 10 and Ubuntu 20.04 LTS.
+Code is written and tested using _Python 3.8_ with `venv` and tested on Ubuntu 20.04 LTS.
 
 #### On _macOS_ and _Ubuntu_
+This is the recommended way to install things, using a venv.
 ```
-git clone https://github.com/jjshoots/pybullet_swarming.git
-cd pybullet_swarming
+git clone https://github.com/jjshoots/PyFlyt.git
+cd PyFlyt
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -e .
 ```
 
-#### On _Windows_
-Follow [this](https://deepakjogi.medium.com/how-to-install-pybullet-physics-simulation-in-windows-e1f16baa26f6) guide, then:
-```
-git clone https://github.com/jjshoots/pybullet_swarming.git
-cd pybullet_swarming
-python -m venv venv
-./venv/bin/activate.bash
-pip install -e .
-```
-
 ## Usage
-The installation above installs the packages required in a [python virtual environment](https://docs.python.org/3/library/venv.html). So, to activate the environment, you need to do:
+
+### Venv Activation
+
+The installation above installs the packages required in a [python virtual environment](https://docs.python.org/3/library/venv.html).
+So, to activate the environment, you need to do:
 
 #### On _macOS_ and _Ubuntu_
 ```
 source venv/bin/activate
 ```
 
-#### On _Windows_
-```
-./venv/bin/activate.bash
-```
-
 Deactivation is the same except replace `activate` with `deactivate`.
 
+### Usage
 
-## Examples
-There are multiple template scripts available in `examples/` that you can run with `python3 examples/***.py` in _macOS_ and _Linux_, or just `python examples/***.py` in _Windows_.
+Usage is similar to any other Gym and (soon) PettingZoo environment:
 
-### Simulation Only
+```py
+import PyFlyt
 
-#### `sim_single.py`
-Simulates a single drone in the pybullet env with position control.
-![simulate a single drone](/resource/simulate_single.gif)
+env = gym.make("PyFlyt/SimpleHoverEnv-v0")
 
-#### `sim_swarm.py`
-Simulates a swarm of drones in the pybullet env with velocity control.
-![simulate a swarm of drones](/resource/simulate_swarm.gif)
 
-#### `sim_cube.py` / `sim_cube_from_scratch.py`
-Simulates a swarm of drones in a spinning cube.
-![You spin me round right round](/resource/simulate_cube.gif)
+env.render()
+obs = env.reset()
 
-### Hardware Only
+done = False
+while not done:
+    observation, reward, done, _ = env.step(env.observation_space.sample())
+```
 
-#### `fly_single.py`
-Flies a real Crazyflie, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/) and [how to connect](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/#config-client) to get your URI(s) and modify them in line 18.
+### Observation Space
 
-#### `fly_swarm.py`
-Flies a real Crazyflie swarm, same as the previous example, but now takes in a list of URIs.
+All observation spaces use `gym.spaces.Box`.
+For `Simple` environments, the observation spaces are simple 1D vectors of length less than 25, all values are not normalized.
+For `Advanced` environments, the observation spaces are usually images, and sometimes 1D vectors.
 
-### Simulation or Hardware
+### Action Space
 
-#### `sim_n_fly_single.py`
-Simple script that can be used to fly a single crazyflie in sim or with a real drone using either the `--hardware` or `--simulate` args.
+All environments use the same action space, this is to allow hiearchical learning to take place - an RL agent can learn to hover before learning to move around.
 
-#### `sim_n_fly_multiple.py`
-Simple script that can be used to fly a swarm of crazyflies in sim or with real drones using either the `--hardware` or `--simulate` args.
+By default, all environments have an action space that corresponds to FPV controls - pitch angular rate, roll angular rate, yaw_angular rate, thrust.
+The limits for angular rate are +-3 rad/s.
+The limits for thrust commands are -1 to 1.
+
+The angular rates are intentionally not normalized to allow for a) better interpretation and b) more realistic inputs.
+
+## Environments
+
+### `PyFlyt/SimpleHoverEnv-v0`
+
+A simple environment where an agent can learn to hover.
+The environment ends when either the Quadcopter collides with the ground or exits the permitted flight dome.
+
+### `PyFlyt/SimpleWaypointEnv-v0`
+
+A simple environment where the goal is to position the Quadcopter at random setpoints in space within the permitted flight dome.
+The environment ends when either the Quadcopter collides with the ground or exits the permitted flight dome.
