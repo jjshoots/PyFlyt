@@ -12,6 +12,18 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
 - For developers - easily build your own multiagent environments using the `PyFlyt.core.aviary.Aviary` class.
 - More environments with increasing difficulties, targetted at enabling hiearchical learning for as true-to-realistic freestyle quadcopter flight.
 
+- [Installation](#installation)
+    - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu)
+- [Usage](#usage)
+  - [Venv Activation](#venv-activation)
+    - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu-1)
+  - [Usage](#usage-1)
+  - [Observation Space](#observation-space)
+  - [Action Space](#action-space)
+- [Environments](#environments)
+  - [`PyFlyt/SimpleHoverEnv-v0`](#pyflytsimplehoverenv-v0)
+  - [`PyFlyt/SimpleWaypointEnv-v0`](#pyflytsimplewaypointenv-v0)
+
 ## Installation
 Code is written and tested using _Python 3.8_ with `venv` and tested on Ubuntu 20.04 LTS.
 
