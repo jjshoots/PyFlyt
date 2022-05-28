@@ -40,13 +40,17 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
 
 ## Installation
 
-`pip3 install PyFlyt`
+```
+pip3 install wheel
+pip3 install pyflyt
+```
 
 ## Usage
 
 Usage is similar to any other Gym and (soon) PettingZoo environment:
 
 ```py
+import gym
 import PyFlyt
 
 env = gym.make("PyFlyt/SimpleHoverEnv-v0")
