@@ -14,9 +14,10 @@ class SimpleWaypointEnv(gym.Env):
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
-    The target is x, y, z, yaw targets in space
+    The target is a set of `[x, y, z, yaw]` targets in space
 
-    Reward is
+    Reward is -(distance from waypoint + angle error) for each timestep,
+    and -100.0 for hitting the ground.
     """
 
     metadata = {"render_modes": ["human"]}
@@ -221,6 +222,9 @@ class SimpleWaypointEnv(gym.Env):
         step the entire simulation
             output is states, reward, dones
         """
+        # unsqueeze the action to be usable in aviary
+        action = np.expand_dims(action, axis=0)
+
         # step env
         self.env.set_setpoints(action)
         self.env.step()

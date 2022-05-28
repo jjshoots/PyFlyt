@@ -142,6 +142,9 @@ class SimpleHoverEnv(gym.Env):
         step the entire simulation
             output is states, reward, dones
         """
+        # unsqueeze the action to be usable in aviary
+        action = np.expand_dims(action, axis=0)
+
         # step through env
         self.env.set_setpoints(action)
         self.env.step()
