@@ -62,7 +62,8 @@ import PyFlyt
 
 env = gym.make("PyFlyt/SimpleHoverEnv-v0")
 
-
+# ommit the below line to remove renderring and let
+# the simulation go as fast as possible
 env.render()
 obs = env.reset()
 
