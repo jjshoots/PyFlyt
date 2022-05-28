@@ -131,9 +131,12 @@ class SimpleWaypointEnv(gym.Env):
                     )
                 )
 
-            for visual in self.target_visual:
-                p.changeVisualShape(visual, linkIndex=-1, rgbaColor=(1, 0, 0, 1))
-            p.changeVisualShape(self.target_visual[0], linkIndex=-1, rgbaColor=(0, 1, 0, 1))
+            for i, visual in enumerate(self.target_visual):
+                p.changeVisualShape(
+                    visual,
+                    linkIndex=-1,
+                    rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
+                )
 
         return self.compute_state()
 
@@ -237,9 +240,14 @@ class SimpleWaypointEnv(gym.Env):
             if self.enable_render:
                 p.removeBody(self.target_visual[0])
                 self.target_visual = self.target_visual[1:]
-                for visual in self.target_visual:
-                    p.changeVisualShape(visual, linkIndex=-1, rgbaColor=(1, 0, 0, 1))
-                p.changeVisualShape(self.target_visual[0], linkIndex=-1, rgbaColor=(0, 1, 0, 1))
+
+                # recolour
+                for i, visual in enumerate(self.target_visual):
+                    p.changeVisualShape(
+                        visual,
+                        linkIndex=-1,
+                        rgbaColor=(1 - (i / len(self.target_visual)), 0, 0, 1),
+                    )
 
         return False
 
