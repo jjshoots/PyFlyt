@@ -14,6 +14,7 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
     - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu)
 - [Usage](#usage)
@@ -25,6 +26,18 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
 - [Environments](#environments)
   - [`PyFlyt/SimpleHoverEnv-v0`](#pyflytsimplehoverenv-v0)
   - [`PyFlyt/SimpleWaypointEnv-v0`](#pyflytsimplewaypointenv-v0)
+- [Non-Gym examples](#non-gym-examples)
+  - [Simulation Only](#simulation-only)
+    - [`sim_single.py`](#sim_singlepy)
+    - [`sim_swarm.py`](#sim_swarmpy)
+    - [`sim_cube.py`](#sim_cubepy)
+  - [Hardware Only](#hardware-only)
+    - [`fly_single.py`](#fly_singlepy)
+    - [`fly_swarm.py`](#fly_swarmpy)
+  - [Simulation or Hardware](#simulation-or-hardware)
+    - [`sim_n_fly_single.py`](#sim_n_fly_singlepy)
+    - [`sim_n_fly_multiple.py`](#sim_n_fly_multiplepy)
+    - [`sim_n_fly_cube_from_scratch.py`](#sim_n_fly_cube_from_scratchpy)
 
 ## Installation
 Code is written and tested using _Python 3.8_ with `venv` and tested on Ubuntu 20.04 LTS.
@@ -99,3 +112,42 @@ The environment ends when either the Quadcopter collides with the ground or exit
 
 A simple environment where the goal is to position the Quadcopter at random setpoints in space within the permitted flight dome.
 The environment ends when either the Quadcopter collides with the ground or exits the permitted flight dome.
+
+## Non-Gym examples
+
+If you're not interested in RL but want to use the library for your own research, we provide a bunch of template scripts in `examples/` that you can run with `python3 examples/***.py` in _macOS_ and _Linux_.
+The library is built using CrazyFlie drones, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/).
+These scripts are built with as little dependencies as possible, but enable interfacing with real (using the CrazyPA module) or virtual drones easy.
+
+### Simulation Only
+
+#### `sim_single.py`
+Simulates a single drone in the pybullet env with position control.
+![simulate a single drone](/resource/simulate_single.gif)
+
+#### `sim_swarm.py`
+Simulates a swarm of drones in the pybullet env with velocity control.
+![simulate a swarm of drones](/resource/simulate_swarm.gif)
+
+#### `sim_cube.py`
+Simulates a swarm of drones in a spinning cube.
+![You spin me round right round](/resource/simulate_cube.gif)
+
+### Hardware Only
+
+#### `fly_single.py`
+Flies a real Crazyflie, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/) and [how to connect](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/#config-client) to get your URI(s) and modify them in line 18.
+
+#### `fly_swarm.py`
+Flies a real Crazyflie swarm, same as the previous example, but now takes in a list of URIs.
+
+### Simulation or Hardware
+
+#### `sim_n_fly_single.py`
+Simple script that can be used to fly a single crazyflie in sim or with a real drone using either the `--hardware` or `--simulate` args.
+
+#### `sim_n_fly_multiple.py`
+Simple script that can be used to fly a swarm of crazyflies in sim or with real drones using either the `--hardware` or `--simulate` args.
+
+#### `sim_n_fly_cube_from_scratch.py`
+Simple script that can be used to fly a swarm of crazyflies in sim or with real drones using either the `--hardware` or `--simulate` args, and forms the same spinning cube from takeoff as in `sim_cube.py`.
