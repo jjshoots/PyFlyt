@@ -120,10 +120,7 @@ class SimpleHoverEnv(gym.Env):
 
     @property
     def reward(self):
-        if len(self.env.getContactPoints()) > 0:
-            reward = -100.0
-        else:
-            reward = 1.0 if not self.done else -10
+        reward = 1.0 if not self.done else -10
         return reward
 
     def compute_done(self):
