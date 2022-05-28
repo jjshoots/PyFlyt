@@ -113,6 +113,8 @@ The environment ends when either the Quadcopter collides with the ground or exit
 A simple environment where the goal is to position the Quadcopter at random setpoints in space within the permitted flight dome.
 The environment ends when either the Quadcopter collides with the ground or exits the permitted flight dome.
 
+**MORE ARE ON THE WAY**
+
 ## Non-Gym examples
 
 If you're not interested in RL but want to use the library for your own research, we provide a bunch of template scripts in `examples/` that you can run with `python3 examples/***.py` in _macOS_ and _Linux_.
