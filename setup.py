@@ -1,15 +1,13 @@
 from setuptools import setup
 
-with open("README.md") as fh:
+with open("readme.md") as fh:
     long_description = ""
     header_count = 0
     for line in fh:
         if line.startswith("##"):
             header_count += 1
-        if header_count < 2:
-            long_description += line
         else:
-            break
+            long_description += line
 
 setup(
     name="PyFlyt",
@@ -17,7 +15,7 @@ setup(
     author="jjshoots",
     author_email="taijunjet@hotmail.com",
     description="Freestyle Quadcopter Flight in Pybullet with Gym and (soon) PettingZoo APIs",
-    url="https://github.com/Farama-Foundation/PettingZoo",
+    url="https://github.com/jjshoots/PyFlyt",
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords=["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "Gym", "PettingZoo"],

@@ -14,7 +14,6 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
     - [On _macOS_ and _Ubuntu_](#on-macos-and-ubuntu)
 - [Usage](#usage)
@@ -40,33 +39,10 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
     - [`sim_n_fly_cube_from_scratch.py`](#sim_n_fly_cube_from_scratchpy)
 
 ## Installation
-Code is written and tested using _Python 3.8_ with `venv` and tested on Ubuntu 20.04 LTS.
 
-#### On _macOS_ and _Ubuntu_
-This is the recommended way to install things, using a venv.
-```
-git clone https://github.com/jjshoots/PyFlyt.git
-cd PyFlyt
-python3 -m venv venv
-source venv/bin/activate
-pip3 install -e .
-```
+`pip3 install PyFlyt`
 
 ## Usage
-
-### Venv Activation
-
-The installation above installs the packages required in a [python virtual environment](https://docs.python.org/3/library/venv.html).
-So, to activate the environment, you need to do:
-
-#### On _macOS_ and _Ubuntu_
-```
-source venv/bin/activate
-```
-
-Deactivation is the same except replace `activate` with `deactivate`.
-
-### Usage
 
 Usage is similar to any other Gym and (soon) PettingZoo environment:
 
