@@ -1,5 +1,5 @@
-import os
 import math
+import os
 
 import gym
 import numpy as np
@@ -54,7 +54,7 @@ class SimpleWaypointEnv(gym.Env):
         )
 
         high = np.array([3.0, 3.0, 3.0, 1.0])
-        low = np.array([-3.0, -3.0, -3.0, -1.0])
+        low = np.array([-3.0, -3.0, -3.0, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -74,10 +74,6 @@ class SimpleWaypointEnv(gym.Env):
 
         """ RUNTIME VARIABLES """
         self.env = None
-        self.state = self.observation_space.sample()
-        self.done = False
-        self.dis_error = -100.0
-        self.yaw_error = -100.0
 
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(num_targets, 3))
@@ -105,7 +101,11 @@ class SimpleWaypointEnv(gym.Env):
             self.env.disconnect()
 
         # reset step count
+        self.info = {}
+        self.done = False
         self.step_count = 0
+        self.dis_error = -100.0
+        self.yaw_error = -100.0
 
         # init env
         self.env = Aviary(
@@ -137,13 +137,6 @@ class SimpleWaypointEnv(gym.Env):
                     linkIndex=-1,
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
-
-            self.env.loadURDF(
-                "/PyFlyt/models/race_gate.urdf",
-                basePosition=[0.0, 0.0, 0.3],
-                baseOrientation=self.env.getQuaternionFromEuler([0.0, 0.0, 0.0]),
-                useFixedBase=True,
-            )
 
         return self.compute_state()
 
@@ -227,14 +220,17 @@ class SimpleWaypointEnv(gym.Env):
 
         # exceed step count
         if self.step_count > self.max_steps:
+            self.info["done"] = "step_count"
             return True
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+            self.info["done"] = "out_of_range"
             return True
 
         # collision
         if len(self.env.getContactPoints()) > 0:
+            self.info["done"] = "collision"
             return True
 
         # target reached
@@ -244,6 +240,7 @@ class SimpleWaypointEnv(gym.Env):
                 self.targets = self.targets[1:]
                 self.yaw_targets = self.yaw_targets[1:]
             else:
+                self.info["done"] = "env_complete"
                 return True
 
             # delete the reached target and recolour the others
@@ -271,7 +268,8 @@ class SimpleWaypointEnv(gym.Env):
 
         # step env
         self.env.set_setpoints(action)
-        self.env.step()
+        while self.env.drones[0].steps % self.env.drones[0].update_ratio != 0:
+            self.env.step()
 
         # compute state and dones
         self.state = self.compute_state()

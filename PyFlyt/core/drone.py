@@ -17,6 +17,10 @@ class Drone:
         ctrl_hz=48.0,
         sim_hz=240.0,
         drone_model="cf2x",
+        use_camera=False,
+        use_gimbal=False,
+        camera_FOV=90,
+        camera_frame_size=(128, 128),
     ):
         # default physics looprate is 240 Hz
         self.p = p
@@ -120,6 +124,17 @@ class Drone:
         z_vel_PID = PID(0.2, 1.25, 0.0, 1.0, self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
+
+        """ CAMERA """
+        self.use_camera = use_camera
+        self.use_gimbal = use_gimbal
+        if self.use_camera:
+            self.proj_mat = self.p.computeProjectionMatrixFOV(
+                fov=camera_FOV, aspect=1.0, nearVal=0.1, farVal=255.0
+            )
+            self.rgbImg = self.depthImg = self.segImg = None
+            self.camera_FOV = camera_FOV
+            self.camera_frame_size = np.array(camera_frame_size)
 
         self.reset()
 
@@ -352,7 +367,7 @@ class Drone:
         z_output = None
         # height controllers
         if self.mode == 0:
-            z_output = np.clip(self.setpoint[-1] * 0.5 + 0.5, 0.0, 1.0)
+            z_output = np.clip(self.setpoint[-1], 0.0, 1.0)
         elif self.mode == 1 or self.mode == 5 or self.mode == 6:
             z_output = self.z_PIDs[0].step(self.state[2][-1], self.setpoint[-1])
             z_output = np.clip(z_output, 0, 1)
@@ -368,6 +383,51 @@ class Drone:
         self.rpm2forces(self.pwm2rpm(self.pwm))
         self.update_drag()
 
+    @property
+    def view_mat(self):
+        # get the state of the camera on the robot
+        camera_state = self.p.getLinkState(self.Id, 0)
+
+        # pose and rot
+        position = camera_state[0]
+
+        # simulate gimballed camera if needed
+        up_vector = None
+        if self.use_gimbal:
+            rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
+            rot[0] = 0.0
+            rot[1] = 45 / 180 * math.pi
+            rot = np.array(self.p.getQuaternionFromEuler(rot))
+            rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
+
+            up_vector = np.matmul(rot, np.array([0.0, 0.0, 1.0]))
+        else:
+            # camera rotated upward 20 degrees
+            rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
+            rot[1] += -20 / 180 * math.pi
+            rot = np.array(self.p.getQuaternionFromEuler(rot))
+            rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
+
+            # camera rotated upward 30 degrees
+            up_vector = np.matmul(rot, np.array([0, 0, 1]))
+
+        # target position is 1000 units ahead of camera relative to the current camera pos
+        target = np.dot(rot, np.array([1000, 0, 0])) + np.array(position)
+
+        return self.p.computeViewMatrix(
+            cameraEyePosition=position,
+            cameraTargetPosition=target,
+            cameraUpVector=up_vector,
+        )
+
+    def capture_image(self):
+        _, _, self.rgbImg, self.depthImg, self.segImg = self.p.getCameraImage(
+            width=self.camera_frame_size[1],
+            height=self.camera_frame_size[0],
+            viewMatrix=self.view_mat,
+            projectionMatrix=self.proj_mat,
+        )
+
     def update(self):
         """
         updates state and control
@@ -376,9 +436,14 @@ class Drone:
         self.update_state()
 
         # update control only when needed
-        self.steps += 1
         if self.steps % self.update_ratio == 0:
             self.update_control()
 
+            if self.use_camera:
+                self.capture_image()
+
         # update motor outputs constantly
         self.update_forces()
+
+        # step
+        self.steps += 1

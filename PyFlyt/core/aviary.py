@@ -9,7 +9,14 @@ from PyFlyt.core.drone import Drone
 
 
 class Aviary(bullet_client.BulletClient):
-    def __init__(self, start_pos: np.ndarray, start_orn: np.ndarray, render=False):
+    def __init__(
+        self,
+        start_pos: np.ndarray,
+        start_orn: np.ndarray,
+        render=False,
+        use_camera=False,
+        camera_frame_size=(128, 128),
+    ):
         super().__init__(p.GUI if render else p.DIRECT)
 
         # default physics looprate is 240 Hz
@@ -18,6 +25,8 @@ class Aviary(bullet_client.BulletClient):
 
         self.start_pos = start_pos
         self.start_orn = start_orn
+        self.use_camera = use_camera
+        self.camera_frame_size = camera_frame_size
 
         self.drone_model = "cf2x"
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -37,6 +46,11 @@ class Aviary(bullet_client.BulletClient):
 
         """ CONSTRUCT THE WORLD """
         self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=1.0)
+        p.changeVisualShape(
+            self.planeId,
+            linkIndex=-1,
+            rgbaColor=(0, 0, 0, 1),
+        )
 
         # spawn drones
         self.drones = []
@@ -47,6 +61,8 @@ class Aviary(bullet_client.BulletClient):
                     start_pos=start_pos,
                     start_orn=start_orn,
                     drone_model=self.drone_model,
+                    use_camera=self.use_camera,
+                    camera_frame_size=self.camera_frame_size,
                 )
             )
 

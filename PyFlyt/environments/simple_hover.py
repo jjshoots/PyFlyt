@@ -45,7 +45,7 @@ class SimpleHoverEnv(gym.Env):
         )
 
         high = np.array([3.0, 3.0, 3.0, 1.0])
-        low = np.array([-3.0, -3.0, -3.0, -1.0])
+        low = np.array([-3.0, -3.0, -3.0, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -60,7 +60,6 @@ class SimpleHoverEnv(gym.Env):
 
         """ RUNTIME VARIABLES """
         self.env = None
-        self.state = self.observation_space.sample()
 
     def render(self, mode="human"):
         self.enable_render = True
@@ -71,6 +70,8 @@ class SimpleHoverEnv(gym.Env):
             self.env.disconnect()
 
         # reset step count
+        self.info = {}
+        self.done = False
         self.step_count = 0
 
         # init env
@@ -128,14 +129,17 @@ class SimpleHoverEnv(gym.Env):
 
         # exceed step count
         if self.step_count > self.max_steps:
+            self.info["done"] = "step_limit"
             return True
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+            self.info["done"] = "out_of_range"
             return True
 
         # collision
         if len(self.env.getContactPoints()) > 0:
+            self.info["done"] = "collision"
             return True
 
         return False
@@ -150,7 +154,8 @@ class SimpleHoverEnv(gym.Env):
 
         # step through env
         self.env.set_setpoints(action)
-        self.env.step()
+        while self.env.drones[0].steps % self.env.drones[0].update_ratio != 0:
+            self.env.step()
 
         # compute state and done
         self.state = self.compute_state()

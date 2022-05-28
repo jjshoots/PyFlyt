@@ -31,7 +31,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder radius=".06" length=".025"/>
+        <box size="0.09 0.09 0.02"/>
       </geometry>
     </collision>
 

@@ -2,11 +2,11 @@
 <robot name="cube">
   <link name="base_link">
 
-    <collision>
-      <geometry>
-        <box size="0 0 0"/>
-      </geometry>
-    </collision>
+    <!-- <collision> -->
+    <!--   <geometry> -->
+    <!--     <box size="0 0 0"/> -->
+    <!--   </geometry> -->
+    <!-- </collision> -->
 
     <inertial>
       <mass value="0"/>

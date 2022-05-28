@@ -1,7 +1,6 @@
 import setuptools
 from setuptools import setup
 
-
 setup(
     name="PyFlyt",
     version="0.0.1.2",
@@ -11,7 +10,15 @@ setup(
     url="https://github.com/jjshoots/PyFlyt",
     long_description="# [Docs](https://github.com/jjshoots/PyFlyt/blob/master/readme.md)",
     long_description_content_type="text/markdown",
-    keywords=["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "Gym", "PettingZoo"],
+    keywords=[
+        "Reinforcement Learning",
+        "UAVs",
+        "drones",
+        "Quadcopter",
+        "AI",
+        "Gym",
+        "PettingZoo",
+    ],
     python_requires=">=3.8, <3.11",
     packages=setuptools.find_packages(),
     include_package_data=True,
