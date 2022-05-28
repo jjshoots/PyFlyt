@@ -89,7 +89,7 @@ while not done:
 
 All observation spaces use `gym.spaces.Box`.
 For `Simple` environments, the observation spaces are simple 1D vectors of length less than 25, all values are not normalized.
-For `Advanced` environments, the observation spaces are usually images, and sometimes 1D vectors.
+For `Advanced` environments, the observation spaces use `gym.spaces.Dict` with an `image` and `state` component.
 
 ### Action Space
 

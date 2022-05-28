@@ -30,11 +30,11 @@ class SimpleHoverEnv(gym.Env):
     ):
 
         """GYM STUFF"""
-        # observation size increases by 2 for euler
+        # observation size increases by 1 for quaternion
         if angle_representation == "euler":
             obs_shape = 12
         elif angle_representation == "quaternion":
-            obs_shape = 14
+            obs_shape = 13
         else:
             raise AssertionError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
@@ -110,10 +110,9 @@ class SimpleHoverEnv(gym.Env):
             new_state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
         elif self.ang_rep == 1:
             # quarternion angles
-            q_ang_vel = p.getQuaternionFromEuler(ang_vel)
             q_ang_pos = p.getQuaternionFromEuler(ang_pos)
 
-            new_state = np.array([*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
+            new_state = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
 
         return new_state
 

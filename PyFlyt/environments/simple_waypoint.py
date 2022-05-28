@@ -35,11 +35,11 @@ class SimpleWaypointEnv(gym.Env):
     ):
 
         """GYM STUFF"""
-        # observation size increases by 2 for euler
+        # observation size increases by 1 for quaternion
         if angle_representation == "euler":
             obs_shape = 15
         elif angle_representation == "quaternion":
-            obs_shape = 17
+            obs_shape = 16
         else:
             raise AssertionError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
@@ -156,7 +156,6 @@ class SimpleWaypointEnv(gym.Env):
         lin_pos = raw_state[3]
 
         # quarternion angles
-        q_ang_vel = p.getQuaternionFromEuler(ang_vel)
         q_ang_pos = p.getQuaternionFromEuler(ang_pos)
 
         # rotation matrix
@@ -187,7 +186,7 @@ class SimpleWaypointEnv(gym.Env):
         if self.ang_rep == 0:
             new_state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos, *error])
         elif self.ang_rep == 1:
-            new_state = np.array([*q_ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error])
+            new_state = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error])
 
         return new_state
 
