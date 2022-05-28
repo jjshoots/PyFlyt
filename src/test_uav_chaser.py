@@ -3,7 +3,7 @@ import numpy as np
 
 import PyFlyt
 
-env = gym.make("PyFlyt/SimpleHoverEnv-v0")
+env = gym.make("PyFlyt/SimpleWaypointEnv-v0")
 
 env.render()
 obs = env.reset()

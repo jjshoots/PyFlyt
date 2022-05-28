@@ -1,3 +1,4 @@
+import os
 import math
 
 import gym
@@ -30,7 +31,7 @@ class SimpleWaypointEnv(gym.Env):
         use_yaw_targets=True,
         goal_reach_distance=0.2,
         goal_reach_angle=0.1,
-        flight_dome_size=10.0,
+        flight_dome_size=5.0,
     ):
 
         """GYM STUFF"""
@@ -68,6 +69,8 @@ class SimpleWaypointEnv(gym.Env):
             self.ang_rep = 0
         elif angle_representation == "quaternion":
             self.ang_rep = 1
+        file_dir = os.path.dirname(os.path.realpath(__file__))
+        self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
 
         """ RUNTIME VARIABLES """
         self.env = None
@@ -81,9 +84,10 @@ class SimpleWaypointEnv(gym.Env):
         thts = np.random.uniform(0.0, 2.0 * math.pi, size=(num_targets,))
         phis = np.random.uniform(0.0, 2.0 * math.pi, size=(num_targets,))
         for i, tht, phi in zip(range(num_targets), thts, phis):
-            x = 1.0 * math.sin(phi) * math.cos(tht)
-            y = 1.0 * math.sin(phi) * math.sin(tht)
-            z = np.abs(1.0 * math.cos(phi))
+            dist = np.random.uniform(low=1.0, high=self.flight_dome_size)
+            x = dist * math.sin(phi) * math.cos(tht)
+            y = dist * math.sin(phi) * math.sin(tht)
+            z = abs(dist * math.cos(phi))
             self.targets[i] = np.array([x, y, z])
 
         # yaw targets
@@ -119,8 +123,17 @@ class SimpleWaypointEnv(gym.Env):
 
         # if we are rendering, laod in the targets
         if self.enable_render:
+            self.target_visual = []
             for target in self.targets:
-                pass
+                self.target_visual.append(
+                    self.env.loadURDF(
+                        self.targ_obj_dir, basePosition=target, useFixedBase=True
+                    )
+                )
+
+            for visual in self.target_visual:
+                p.changeVisualShape(visual, linkIndex=-1, rgbaColor=(1, 0, 0, 1))
+            p.changeVisualShape(self.target_visual[0], linkIndex=-1, rgbaColor=(0, 1, 0, 1))
 
         return self.compute_state()
 
@@ -219,6 +232,14 @@ class SimpleWaypointEnv(gym.Env):
                 self.yaw_targets = self.yaw_targets[1:]
             else:
                 return True
+
+            # delete the reached target and recolour the others
+            if self.enable_render:
+                p.removeBody(self.target_visual[0])
+                self.target_visual = self.target_visual[1:]
+                for visual in self.target_visual:
+                    p.changeVisualShape(visual, linkIndex=-1, rgbaColor=(1, 0, 0, 1))
+                p.changeVisualShape(self.target_visual[0], linkIndex=-1, rgbaColor=(0, 1, 0, 1))
 
         return False
 
