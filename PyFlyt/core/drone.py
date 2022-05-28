@@ -141,10 +141,13 @@ class Drone:
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
         drag_xyz = -self.drag_const_xyz * (np.array(lin_vel) ** 2)
         drag_pqr = -self.drag_const_pqr * (np.array(ang_vel) ** 2)
-        self.p.applyExternalForce(
-            self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
-        )
-        self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
+
+        # warning, the physics is funky for bounces
+        if len(self.p.getContactPoints()) == 0:
+            self.p.applyExternalForce(
+                self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
+            )
+            self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def rpm2forces(self, rpm):
         """maps rpm to individual motor forces and torques"""
@@ -218,6 +221,13 @@ class Drone:
             7 - x, y, r, z
         """
 
+        # preset setpoints on mode change
+        if mode == 0:
+            self.setpoint = np.array([0.0, 0.0, 0.0, -1.0])
+        else:
+            self.setpoint = np.array([0.0, 0.0, 0.0, 0.0])
+
+        # instantiate PIDs
         self.mode = mode
         if mode == 0 or mode == 2:
             ang_vel_PID = PID(
@@ -342,7 +352,7 @@ class Drone:
         z_output = None
         # height controllers
         if self.mode == 0:
-            z_output = np.clip(self.setpoint[-1] * 0.5 + 1.0, 0.0, 1.0)
+            z_output = np.clip(self.setpoint[-1] * 0.5 + 0.5, 0.0, 1.0)
         elif self.mode == 1 or self.mode == 5 or self.mode == 6:
             z_output = self.z_PIDs[0].step(self.state[2][-1], self.setpoint[-1])
             z_output = np.clip(z_output, 0, 1)

@@ -138,6 +138,13 @@ class SimpleWaypointEnv(gym.Env):
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
 
+            self.env.loadURDF(
+                "/PyFlyt/models/race_gate.urdf",
+                basePosition=[0.0, 0.0, 0.3],
+                baseOrientation=self.env.getQuaternionFromEuler([0.0, 0.0, 0.0]),
+                useFixedBase=True,
+            )
+
         return self.compute_state()
 
     def compute_state(self):
@@ -214,6 +221,10 @@ class SimpleWaypointEnv(gym.Env):
             return -error
 
     def compute_done(self):
+        # we were already done
+        if self.done:
+            return True
+
         # exceed step count
         if self.step_count > self.max_steps:
             return True

@@ -122,6 +122,10 @@ class SimpleHoverEnv(gym.Env):
         return reward
 
     def compute_done(self):
+        # we were already done
+        if self.done:
+            return True
+
         # exceed step count
         if self.step_count > self.max_steps:
             return True

@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<robot name="cube">
+  <link name="base_link">
+    <collision>
+      <geometry>
+        <box size="0.4 0.05 0.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+    	<inertia ixx="0.3" ixy="0.3" ixz="0.3" iyy="0.3" iyz="0.3" izz="0.3"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <box size="0.4 0.05 0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="left_link">
+    <collision>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+    	<inertia ixx="0.3" ixy="0.3" ixz="0.3" iyy="0.3" iyz="0.3" izz="0.3"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="right_link">
+    <collision>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+    	<inertia ixx="0.3" ixy="0.3" ixz="0.3" iyy="0.3" iyz="0.3" izz="0.3"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.3"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="top_link">
+    <collision>
+      <geometry>
+        <box size="0.4 0.05 0.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+    	<inertia ixx="0.3" ixy="0.3" ixz="0.3" iyy="0.3" iyz="0.3" izz="0.3"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <box size="0.4 0.05 0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_to_left" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_link"/>
+    <origin xyz="-0.175 0.0 0.175"/>
+  </joint>
+
+  <joint name="base_to_right" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_link"/>
+    <origin xyz="0.175 0.0 0.175"/>
+  </joint>
+
+  <joint name="base_to_top" type="fixed">
+    <parent link="base_link"/>
+    <child link="top_link"/>
+    <origin xyz="0.0 0.0 0.35"/>
+  </joint>
+</robot>
