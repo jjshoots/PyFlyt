@@ -46,11 +46,11 @@ class Aviary(bullet_client.BulletClient):
 
         """ CONSTRUCT THE WORLD """
         self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=1.0)
-        p.changeVisualShape(
-            self.planeId,
-            linkIndex=-1,
-            rgbaColor=(0, 0, 0, 1),
-        )
+        # p.changeVisualShape(
+        #     self.planeId,
+        #     linkIndex=-1,
+        #     rgbaColor=(0, 0, 0, 1),
+        # )
 
         # spawn drones
         self.drones = []
