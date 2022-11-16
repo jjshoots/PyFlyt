@@ -6,6 +6,7 @@ import pybullet_data
 from pybullet_utils import bullet_client
 
 from PyFlyt.core.drone import Drone
+from multiprocessing import Pool
 
 
 class Aviary(bullet_client.BulletClient):
@@ -20,6 +21,7 @@ class Aviary(bullet_client.BulletClient):
         super().__init__(p.GUI if render else p.DIRECT)
 
         # default physics looprate is 240 Hz
+        # do not change because pybullet doesn't like it
         self.period = 1.0 / 240.0
         self.now = time.time()
 
@@ -66,7 +68,7 @@ class Aviary(bullet_client.BulletClient):
                 )
             )
 
-        self.go = [1] * self.num_drones
+        self.armed = [1] * self.num_drones
 
     @property
     def num_drones(self):
@@ -85,9 +87,9 @@ class Aviary(bullet_client.BulletClient):
 
         return states
 
-    def set_go(self, settings):
-        assert len(settings) == len(self.go), "incorrect go length"
-        self.go = settings
+    def set_armed(self, settings):
+        assert len(settings) == len(self.armed), "incorrect go length"
+        self.armed = settings
 
     def set_mode(self, flight_mode):
         """
@@ -127,8 +129,8 @@ class Aviary(bullet_client.BulletClient):
 
             # print(f'RTF: {RTF}')
 
-        for drone, go in zip(self.drones, self.go):
-            if go:
+        for drone, armed in zip(self.drones, self.armed):
+            if armed:
                 drone.update()
 
         self.stepSimulation()

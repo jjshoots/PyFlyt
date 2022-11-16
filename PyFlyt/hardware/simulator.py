@@ -23,7 +23,7 @@ class Simulator:
         # instantiate the digital twin
         self.env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True)
         self.set_pos_control(True)
-        self.env.set_go([0] * self.env.num_drones)
+        self.env.set_armed([0] * self.env.num_drones)
 
         # keep track of runtime
         self.steps = 0
@@ -57,8 +57,8 @@ class Simulator:
         setpoints = np.concatenate(
             (new_pos, np.expand_dims(new_orn[:, -1], axis=-1)), axis=-1
         )
-        self.set_setpoints(setpoints)
         self.set_pos_control(True)
+        self.set_setpoints(setpoints)
 
         cost = np.choose(reassignment, cost.T)
         return cost
@@ -92,11 +92,11 @@ class Simulator:
         for _ in range(int(seconds / self.env.period)):
             self.step()
 
-    def go(self, settings):
-        self.env.set_go(settings)
+    def arm(self, settings):
+        self.env.set_armed(settings)
 
     def end(self):
-        self.go([0] * self.num_drones)
+        self.arm([0] * self.num_drones)
         time.sleep(3)
         exit()
 

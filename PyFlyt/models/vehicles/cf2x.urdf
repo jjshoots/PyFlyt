@@ -37,21 +37,9 @@
 
   </link>
 
-  <link name="prop0_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0.028 0.028 0"/>
-      <mass value="0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-  </link>
-  <joint name="prop0_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="prop0_link"/>
-  </joint>
-
   <link name="prop1_link">
     <inertial>
-      <origin rpy="0 0 0" xyz="-0.028 0.028 0"/>
+      <origin rpy="0 0 0" xyz="0.028 0.028 0"/>
       <mass value="0"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
@@ -75,7 +63,7 @@
 
   <link name="prop3_link">
     <inertial>
-      <origin rpy="0 0 0" xyz="0.028 -0.028 0"/>
+      <origin rpy="0 0 0" xyz="-0.028 0.028 0"/>
       <mass value="0"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
@@ -83,6 +71,18 @@
   <joint name="prop3_joint" type="fixed">
     <parent link="base_link"/>
     <child link="prop3_link"/>
+  </joint>
+
+  <link name="prop4_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.028 -0.028 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="prop4_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="prop4_link"/>
   </joint>
 
   <link name="center_of_mass_link">

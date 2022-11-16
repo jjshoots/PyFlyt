@@ -1,14 +1,14 @@
 import math
 
-import gym
+import gymnasium
 import numpy as np
 import pybullet as p
-from gym import spaces
+from gymnasium import spaces
 
 from PyFlyt.core.aviary import Aviary
 
 
-class SimpleHoverEnv(gym.Env):
+class SimpleHoverEnv(gymnasium.Env):
     """
     Simple Hover Environment
 
@@ -29,7 +29,7 @@ class SimpleHoverEnv(gym.Env):
         flight_dome_size=3.0,
     ):
 
-        """GYM STUFF"""
+        """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
         if angle_representation == "euler":
             obs_shape = 12

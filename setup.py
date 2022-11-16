@@ -23,7 +23,8 @@ setup(
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
-        "gym",
+        "matplotlib",
+        "gymnasium",
         "numpy",
         "pybullet",
         "cflib",

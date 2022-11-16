@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # spawn the drones and go!
     swarm = Simulator(start_pos=cube + offset, start_orn=np.zeros_like(cube))
     swarm.set_pos_control(True)
-    swarm.go([1] * swarm.num_drones)
+    swarm.arm([1] * swarm.num_drones)
 
     for i in range(100000):
         # at each timestep, update the target positions

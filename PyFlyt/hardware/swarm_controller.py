@@ -55,8 +55,8 @@ class Swarm_Controller:
         setpoints = np.concatenate(
             (new_pos, np.expand_dims(new_orn[:, -1], axis=-1)), axis=-1
         )
-        self.set_setpoints(setpoints)
         self.set_pos_control(True)
+        self.set_setpoints(setpoints)
 
         cost = np.choose(reassignment, cost.T)
         return cost
@@ -80,7 +80,7 @@ class Swarm_Controller:
         for UAV in self.UAVs:
             UAV.set_pos_control(setting)
 
-    def go(self, masks):
+    def arm(self, masks):
         """arms and starts control loop for drones with masks set to 1"""
         assert len(masks) == len(
             self.UAVs

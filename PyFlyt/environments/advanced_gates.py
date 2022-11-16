@@ -2,15 +2,15 @@ import copy
 import math
 import os
 
-import gym
+import gymnasium
 import numpy as np
 import pybullet as p
-from gym import spaces
+from gymnasium import spaces
 
 from PyFlyt.core.aviary import Aviary
 
 
-class AdvancedGatesEnv(gym.Env):
+class AdvancedGatesEnv(gymnasium.Env):
     """
     Advanced Gates Env
 
@@ -36,7 +36,7 @@ class AdvancedGatesEnv(gym.Env):
         camera_frame_size=(128, 128),
     ):
 
-        """GYM STUFF"""
+        """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
         if angle_representation == "euler":
             state_size = 12

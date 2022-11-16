@@ -1,15 +1,15 @@
 import math
 import os
 
-import gym
+import gymnasium
 import numpy as np
 import pybullet as p
-from gym import spaces
+from gymnasium import spaces
 
 from PyFlyt.core.aviary import Aviary
 
 
-class SimpleWaypointEnv(gym.Env):
+class SimpleWaypointEnv(gymnasium.Env):
     """
     Simple Waypoint Environment
 
@@ -34,7 +34,7 @@ class SimpleWaypointEnv(gym.Env):
         flight_dome_size=5.0,
     ):
 
-        """GYM STUFF"""
+        """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
         if angle_representation == "euler":
             obs_shape = 15

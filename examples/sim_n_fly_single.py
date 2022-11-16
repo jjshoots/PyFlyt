@@ -74,7 +74,7 @@ if __name__ == "__main__":
         exit()
 
     # arm all drones
-    UAVs.go([1])
+    UAVs.arm([1])
 
     # initial hover
     UAVs.set_setpoints(np.array([[0.0, 1.0, 1.0, 0.0]]))
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     UAVs.sleep(5)
 
     # stop the drone flight controller
-    UAVs.go([0])
+    UAVs.arm([0])
     UAVs.sleep(5)
 
     # end the drone control

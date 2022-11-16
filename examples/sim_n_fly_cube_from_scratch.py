@@ -45,7 +45,7 @@ def get_args():
 def fake_handler():
     global DIM_DRONES
     # here we spawn drones in a circle
-    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES ** 3))
+    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES**3))
     distance = 2.0
     x = distance * np.cos(theta)
     y = distance * np.sin(theta)
@@ -81,7 +81,7 @@ def real_handler():
 def get_circle(radius, height):
     global DIM_DRONES
 
-    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES ** 3))
+    theta = np.arange(0, 2 * math.pi, 2 * math.pi / (DIM_DRONES**3))
     x = radius * np.cos(theta)
     y = radius * np.sin(theta)
     z = np.ones_like(x) * height
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     # offsets for cube
     cube_offset = np.array([[0.0, 0.0, 1.0]])
-    linear_offset = np.array([[0.3, 0.0, 0.15]])
+    rotation_radius = np.array([[0.3, 0.0, 0.15]])
 
     # form the cube coordinates
     cube = get_cube(0.5)
@@ -149,44 +149,41 @@ if __name__ == "__main__":
 
     R2 = Rx @ Ry @ Rz
 
-    # reshuffle drones according to cube pos, then arm from highest cost first
-    cost = UAVs.reshuffle(
-        cube + cube_offset + linear_offset, np.zeros((UAVs.num_drones, 3))
+    # reshuffle drones according to cube pos, then arm all and launch
+    UAVs.reshuffle(
+        cube + cube_offset + rotation_radius, np.zeros((UAVs.num_drones, 3))
     )
-
-    settings = np.zeros(UAVs.num_drones)
-    for _ in range(UAVs.num_drones):
-        i = np.argmax(cost)
-        settings[i] = 1
-        cost[i] = -100.0
-        UAVs.go(settings)
-        UAVs.sleep(0.2)
+    UAVs.arm([1] * UAVs.num_drones)
     UAVs.sleep(5)
 
-    while True:
-        # for i in range(10000):
+    for i in range(1000):
         # at each timestep, update the target positions
         cube = (R1 @ cube.T).T
-        linear_offset = (R2 @ linear_offset.T).T
-        xyz = cube + cube_offset + linear_offset
+        rotation_radius = (R2 @ rotation_radius.T).T
+        xyz = cube + cube_offset + rotation_radius
 
         # append list of zeros to the end because setpoint has to be xyzr
         setpoints = np.concatenate((xyz, np.zeros((UAVs.num_drones, 1))), axis=-1)
 
-        # send the setpoints and step
+        # send the setpoints
         UAVs.set_setpoints(setpoints)
-        UAVs.step()
 
-    # circle targets
+        # step the simulation or wait some time
+        if args.simulate:
+            UAVs.step()
+        elif args.hardware:
+            UAVs.sleep(0.01)
+
+    # circle targets 1 meter above ground
     circle = get_circle(1.0, 1.0)
     UAVs.reshuffle(circle, np.zeros_like(circle))
     UAVs.sleep(5)
 
-    # circle targets
+    # circle targets on the ground
     circle = get_circle(1.0, -1.0)
     UAVs.reshuffle(circle, np.zeros_like(circle))
     UAVs.sleep(5)
 
-    UAVs.go([0] * UAVs.num_drones)
+    UAVs.arm([0] * UAVs.num_drones)
     UAVs.sleep(2)
     UAVs.end()

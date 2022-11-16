@@ -22,7 +22,12 @@ class Drone:
         camera_FOV=90,
         camera_frame_size=(128, 128),
     ):
-        # default physics looprate is 240 Hz
+
+        if sim_hz != 240.0:
+            raise UserWarning(
+                f"sim_hz is currently {sim_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
+            )
+
         self.p = p
         self.sim_period = 1.0 / sim_hz
         self.ctrl_period = 1.0 / ctrl_hz
@@ -43,9 +48,8 @@ class Drone:
 
         """
         DRONE CONTROL
-            motor_id corresponds to QuadrotorX in PX4
+            motor ids correspond to quadrotor X in PX4, using the ENU convention
             control commands are in the form of pitch-roll-yaw-thrust
-                using ENU convention
         """
 
         # All the params for the drone
@@ -71,7 +75,6 @@ class Drone:
         # self.collision_z_offset = [float(s) for s in URDF_TREE[1][2][0].attrib['xyz'].split(' ')][2]
 
         # the joint IDs corresponding to motorID 1234
-        self.motor_id = np.array([0, 2, 1, 3])
         self.thr_coeff = np.array([[0.0, 0.0, 1.0]]) * self.kf
         self.tor_coeff = np.array([[0.0, 0.0, 1.0]]) * self.km
         self.tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
@@ -85,7 +88,7 @@ class Drone:
         self.max_rpm = np.sqrt((self.thrust2weight * 9.81) / (4 * self.kf))
         # motor modelled with first order ode, below is time const
         self.motor_tau = 0.01
-        # motor mapping from angular torque to individual motors
+        # motor mapping from command to individual motors
         self.motor_map = np.array(
             [
                 [+1.0, -1.0, +1.0, +1.0],
@@ -95,25 +98,29 @@ class Drone:
             ]
         )
 
-        # outputs normalized body torque commands
+        # input: angular velocity command
+        # output: normalized angular torque command
         self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
         self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
         self.Kd_ang_vel = np.array([0.0, 0.0, 0.0])
         self.lim_ang_vel = np.array([1.0, 1.0, 1.0])
 
-        # outputs angular rate
+        # input: angular position command
+        # output: angular velocity
         self.Kp_ang_pos = np.array([0.5, 0.5, 1.0])
         self.Ki_ang_pos = np.array([0.0, 0.0, 0.0])
         self.Kd_ang_pos = np.array([0.0, 0.0, 0.0])
         self.lim_ang_pos = np.array([2.0, 2.0, 2.0])
 
-        # outputs angular position
+        # input: linear velocity command
+        # output: angular position
         self.Kp_lin_vel = np.array([7.0, 7.0])
         self.Ki_lin_vel = np.array([0.0, 0.0])
         self.Kd_lin_vel = np.array([3.0, 3.0])
         self.lim_lin_vel = np.array([0.6, 0.6])
 
-        # outputs angular position
+        # input: linear position command
+        # outputs: linear velocity
         self.Kp_lin_pos = np.array([1.0, 1.0])
         self.Ki_lin_pos = np.array([0.0, 0.0])
         self.Kd_lin_pos = np.array([0.0, 0.0])
@@ -167,14 +174,14 @@ class Drone:
     def rpm2forces(self, rpm):
         """maps rpm to individual motor forces and torques"""
         rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm ** 2) * self.thr_coeff
-        torque = (rpm ** 2) * self.tor_coeff * self.tor_dir
+        thrust = (rpm**2) * self.thr_coeff
+        torque = (rpm**2) * self.tor_coeff * self.tor_dir
 
         # add some random noise to the motor outputs
         thrust += np.random.randn(*thrust.shape) * self.noise_ratio * thrust
         torque += np.random.randn(*torque.shape) * self.noise_ratio * torque
 
-        for idx, thr, tor in zip(self.motor_id, thrust, torque):
+        for idx, (thr, tor) in enumerate(zip(thrust, torque)):
             self.p.applyExternalForce(
                 self.Id, idx, thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
             )
@@ -237,10 +244,20 @@ class Drone:
         """
 
         # preset setpoints on mode change
+        # self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
         if mode == 0:
+            # racing mode, thrust to 0
             self.setpoint = np.array([0.0, 0.0, 0.0, -1.0])
-        else:
+        elif mode in [1, 5, 6]:
+            # anything with a vz component, set to 0 vz
             self.setpoint = np.array([0.0, 0.0, 0.0, 0.0])
+        elif mode == 7:
+            # position mode just hold position
+            self.setpoint = np.array([*self.state[-1, :2], self.state[1, -1]])
+        else:
+            # everything else set to 0 except z component maintain
+            self.setpoint = np.array([0.0, 0.0, 0.0, 0.0])
+            self.setpoint[-1] = self.state[-1, -1]
 
         # instantiate PIDs
         self.mode = mode
