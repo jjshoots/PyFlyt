@@ -79,8 +79,8 @@ class SimpleWaypointEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
         )
 
-        high = np.array([3.0, 3.0, 3.0, 1.0])
-        low = np.array([-3.0, -3.0, -3.0, 0.0])
+        high = np.array([2 * math.pi, 2 * math.pi, 2 * math.pi, 1.0])
+        low = np.array([-2 * math.pi, -2 * math.pi, -2 * math.pi, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -228,8 +228,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     @property
     def target_reached(self):
-        """target_reached.
-        """
+        """target_reached."""
         if self.dis_error_scalar < self.goal_reach_distance:
             if self.use_yaw_targets:
                 if self.yaw_error_scalar < self.goal_reach_angle:
@@ -241,8 +240,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     @property
     def reward(self):
-        """reward.
-        """
+        """reward."""
         if len(self.env.getContactPoints()) > 0:
             # collision with ground
             return -100.0
@@ -256,10 +254,8 @@ class SimpleWaypointEnv(gymnasium.Env):
                     error += self.yaw_error_scalar
                 return -error
 
-
     def compute_term_trunc(self):
-        """compute_term_trunc.
-        """
+        """compute_term_trunc."""
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
@@ -319,8 +315,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         return self.state, self.reward, self.termination, self.truncation, self.info
 
     def render(self):
-        """render.
-        """
+        """render."""
         raise AssertionError(
             "This function is not meant to be called. Apply `render_mode='human'` on environment creation."
         )

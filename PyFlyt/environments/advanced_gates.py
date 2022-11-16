@@ -26,14 +26,14 @@ class AdvancedGatesEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps:int=10000,
-        angle_representation:str="quaternion",
-        num_targets:int=5,
-        goal_reach_distance:float=0.21,
-        max_gate_angles:list[float]=[0.0, 0.3, 1.0],
-        min_gate_distance:float=1.0,
-        max_gate_distance:float=4.0,
-        camera_frame_size:tuple[int, int]=(128, 128),
+        max_steps: int = 10000,
+        angle_representation: str = "quaternion",
+        num_targets: int = 5,
+        goal_reach_distance: float = 0.21,
+        max_gate_angles: list[float] = [0.0, 0.3, 1.0],
+        min_gate_distance: float = 1.0,
+        max_gate_distance: float = 4.0,
+        camera_frame_size: tuple[int, int] = (128, 128),
         render_mode: None | str = None,
     ):
         """__init__.
@@ -79,8 +79,8 @@ class AdvancedGatesEnv(gymnasium.Env):
             }
         )
 
-        high = np.array([3.0, 3.0, 3.0, 1.0])
-        low = np.array([-3.0, -3.0, -3.0, 0.0])
+        high = np.array([2 * math.pi, 2 * math.pi, 2 * math.pi, 1.0])
+        low = np.array([-2 * math.pi, -2 * math.pi, -2 * math.pi, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -147,8 +147,7 @@ class AdvancedGatesEnv(gymnasium.Env):
         return self.state, self.info
 
     def generate_gates(self):
-        """generate_gates.
-        """
+        """generate_gates."""
         # sample a bunch of distances for gate distances
         distances = np.random.uniform(
             self.min_gate_distance, self.max_gate_distance, size=(self.num_targets,)
@@ -220,8 +219,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             )
 
     def colour_first_gate(self):
-        """colour_first_gate.
-        """
+        """colour_first_gate."""
         # colour the first gate green
         for i in range(p.getNumJoints(self.gates[0])):
             p.changeVisualShape(
@@ -231,8 +229,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             )
 
     def colour_other_gate(self):
-        """colour_other_gate.
-        """
+        """colour_other_gate."""
         # colour all other gates yellow
         for gate in self.gates[1:]:
             for i in range(p.getNumJoints(gate)):
@@ -281,8 +278,7 @@ class AdvancedGatesEnv(gymnasium.Env):
 
     @property
     def target_reached(self):
-        """target_reached.
-        """
+        """target_reached."""
         if self.dis_error_scalar < self.goal_reach_distance:
             return True
         else:
@@ -290,8 +286,7 @@ class AdvancedGatesEnv(gymnasium.Env):
 
     @property
     def reward(self):
-        """reward.
-        """
+        """reward."""
         if len(self.env.getContactPoints()) > 0:
             # collision with ground
             return -100.0
@@ -300,8 +295,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             return self.dis_error_scalar
 
     def compute_term_trunc(self):
-        """compute_term_trunc.
-        """
+        """compute_term_trunc."""
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
@@ -356,8 +350,7 @@ class AdvancedGatesEnv(gymnasium.Env):
         return self.state, self.reward, self.termination, self.truncation, self.info
 
     def render(self):
-        """render.
-        """
+        """render."""
         raise AssertionError(
             "This function is not meant to be called. Apply `render_mode='human'` on environment creation."
         )

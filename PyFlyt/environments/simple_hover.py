@@ -61,8 +61,8 @@ class SimpleHoverEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
         )
 
-        high = np.array([3.0, 3.0, 3.0, 1.0])
-        low = np.array([-3.0, -3.0, -3.0, 0.0])
+        high = np.array([2 * math.pi, 2 * math.pi, 2 * math.pi, 1.0])
+        low = np.array([-2 * math.pi, -2 * math.pi, -2 * math.pi, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
