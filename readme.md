@@ -1,6 +1,6 @@
-# PyFlyt - Freestyle Quadcopter Flight in Pybullet with Gym and (soon) PettingZoo APIs
+# PyFlyt - Freestyle Quadcopter Flight in Pybullet with Gymnasium and (soon) PettingZoo APIs
 
-This is a library for running reinforcement learning algorithms on both real crazyflies and simulated ones using the Gym and (soon) PettingZoo APIs.
+This is a library for running reinforcement learning algorithms on both real crazyflies and simulated ones using the Gymnasium and (soon) PettingZoo APIs.
 This repo's `master` branch is still under development.
 
 Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones) with several key differences:
@@ -25,7 +25,7 @@ Inspired by [the original pybullet drones by University of Toronto's Dynamic Sys
 - [Environments](#environments)
   - [`PyFlyt/SimpleHoverEnv-v0`](#pyflytsimplehoverenv-v0)
   - [`PyFlyt/SimpleWaypointEnv-v0`](#pyflytsimplewaypointenv-v0)
-- [Non-Gym examples](#non-gym-examples)
+- [Non-Gymnasium examples](#non-Gymnasium-examples)
   - [Simulation Only](#simulation-only)
     - [`sim_single.py`](#sim_singlepy)
     - [`sim_swarm.py`](#sim_swarmpy)
@@ -47,13 +47,13 @@ pip3 install pyflyt
 
 ## Usage
 
-Usage is similar to any other Gym and (soon) PettingZoo environment:
+Usage is similar to any other Gymnasium and (soon) PettingZoo environment:
 
 ```py
-import gym
+import gymnasium
 import PyFlyt
 
-env = gym.make("PyFlyt/SimpleHoverEnv-v0")
+env = gymnasium.make("PyFlyt/SimpleHoverEnv-v0")
 
 # ommit the below line to remove renderring and let
 # the simulation go as fast as possible
@@ -67,9 +67,9 @@ while not done:
 
 ### Observation Space
 
-All observation spaces use `gym.spaces.Box`.
+All observation spaces use `gymnasium.spaces.Box`.
 For `Simple` environments, the observation spaces are simple 1D vectors of length less than 25, all values are not normalized.
-For `Advanced` environments, the observation spaces use `gym.spaces.Dict` with an `image` and `state` component.
+For `Advanced` environments, the observation spaces use `gymnasium.spaces.Dict` with an `image` and `state` component.
 
 ### Action Space
 
@@ -95,7 +95,7 @@ The environment ends when either the Quadcopter collides with the ground or exit
 
 **MORE ARE ON THE WAY**
 
-## Non-Gym examples
+## Non-Gymnasium examples
 
 If you're not interested in RL but want to use the library for your own research, we provide a bunch of template scripts in `examples/` that you can run with `python3 examples/***.py` in _macOS_ and _Linux_.
 The library is built using CrazyFlie drones, check out the [documentation](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/).
