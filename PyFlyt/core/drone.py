@@ -156,7 +156,9 @@ class Drone:
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.update_state()
-        self.capture_image()
+
+        if self.use_camera:
+            self.capture_image()
 
     def update_drag(self):
         """adds drag to the model, this is not physically correct but only approximation"""
