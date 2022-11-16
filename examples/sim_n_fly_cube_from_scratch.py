@@ -150,9 +150,7 @@ if __name__ == "__main__":
     R2 = Rx @ Ry @ Rz
 
     # reshuffle drones according to cube pos, then arm all and launch
-    UAVs.reshuffle(
-        cube + cube_offset + rotation_radius, np.zeros((UAVs.num_drones, 3))
-    )
+    UAVs.reshuffle(cube + cube_offset + rotation_radius, np.zeros((UAVs.num_drones, 3)))
     UAVs.arm([1] * UAVs.num_drones)
     UAVs.sleep(5)
 

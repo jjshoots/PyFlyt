@@ -24,10 +24,27 @@ class SimpleHoverEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps=10000,
-        angle_representation="quaternion",
-        flight_dome_size=3.0,
+        max_steps: int = 10000,
+        angle_representation: str = "quaternion",
+        flight_dome_size: float = 3.0,
+        render_mode: None | str = None,
     ):
+        """__init__.
+
+        Args:
+            max_steps (int): max_steps of the environment
+            angle_representation (str): can be "euler" or "quaternion"
+            flight_dome_size (float): size of the allowable flying area
+            render_mode (None | str): can be "human" or None
+        """
+
+        if render_mode is not None:
+            assert (
+                render_mode in self.metadata["render_modes"]
+            ), f"Invalid render mode {render_mode}, only `human` allowed."
+            self.enable_render = True
+        else:
+            self.enable_render = False
 
         """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
@@ -49,7 +66,6 @@ class SimpleHoverEnv(gymnasium.Env):
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
-        self.enable_render = False
         self.flight_dome_size = flight_dome_size
         self.max_steps = max_steps
         self.ang_rep = 0
@@ -58,21 +74,27 @@ class SimpleHoverEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.ang_rep = 1
 
-        """ RUNTIME VARIABLES """
-        self.env = None
+        self.reset()
 
-    def render(self, mode="human"):
-        self.enable_render = True
+    def reset(self, seed=None, options=None):
+        """reset.
 
-    def reset(self):
+        Args:
+            seed: seed to pass to the base environment.
+            options:
+        """
+        super().reset(seed=seed)
+
         # if we already have an env, disconnect from it
-        if self.env is not None:
+        if hasattr(self, "env"):
             self.env.disconnect()
 
-        # reset step count
-        self.info = {}
-        self.done = False
         self.step_count = 0
+        self.termination = False
+        self.truncation = False
+        self.info = {}
+        self.info["out_of_bounds"] = False
+        self.info["collision"] = False
 
         # init env
         self.env = Aviary(
@@ -82,21 +104,24 @@ class SimpleHoverEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(6)
+        self.env.set_mode(0)
 
         # wait for env to stabilize
         for _ in range(10):
             self.env.step()
 
-        return self.compute_state()
+        return self.state, {}
 
-    def compute_state(self):
-        """This computes the observation as well as the distances to target"""
-        # ang_vel (3/4)
-        # ang_pos (3/4)
-        # lin_vel (3)
-        # lin_pos (3)
-        # body frame distance to targ (3)
+    @property
+    def state(self):
+        """state.
+
+        This returns the observation.
+        - ang_vel (vector of 3 values)
+        - ang_pos (vector of 3/4 values)
+        - lin_vel (vector of 3 values)
+        - lin_pos (vector of 3 values)
+        """
         raw_state = self.env.states[0]
 
         # state breakdown
@@ -119,48 +144,52 @@ class SimpleHoverEnv(gymnasium.Env):
 
     @property
     def reward(self):
-        reward = 1.0 if not self.done else -10
+        """reward."""
+        reward = 1.0 if not self.termination else -10
         return reward
 
-    def compute_done(self):
-        # we were already done
-        if self.done:
-            return True
-
+    def compute_term_trunc(self):
+        """compute_term_trunc."""
         # exceed step count
         if self.step_count > self.max_steps:
-            self.info["done"] = "step_limit"
-            return True
+            self.truncation = self.truncation or True
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
-            self.info["done"] = "out_of_range"
-            return True
+            self.info["out_of_bounds"] = True
+            self.termination = self.termination or True
 
         # collision
         if len(self.env.getContactPoints()) > 0:
-            self.info["done"] = "collision"
-            return True
-
-        return False
+            self.info["collision"] = True
+            self.termination = self.termination or True
 
     def step(self, action: np.ndarray):
-        """
-        step the entire simulation
-            output is states, reward, dones
+        """Steps the environment
+
+        Args:
+            action (np.ndarray): action
+
+        Returns:
+            state, reward, termination, truncation, info
         """
         # unsqueeze the action to be usable in aviary
         action = np.expand_dims(action, axis=0)
 
-        # step through env
+        # step through env, the internal env updates a few steps before the outer env
         self.env.set_setpoints(action)
-        while self.env.drones[0].steps % self.env.drones[0].update_ratio != 0:
-            self.env.step()
+        self.env.step()
 
         # compute state and done
-        self.state = self.compute_state()
-        self.done = self.compute_done()
+        self.compute_term_trunc()
 
+        # increment step count
         self.step_count += 1
 
-        return self.state, self.reward, self.done, None
+        return self.state, self.reward, self.termination, self.truncation, self.info
+
+    def render(self):
+        """render."""
+        raise AssertionError(
+            "This function is not meant to be called. Apply `render_mode='human'` on environment creation."
+        )

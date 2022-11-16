@@ -34,7 +34,29 @@ class AdvancedGatesEnv(gymnasium.Env):
         min_gate_distance=1.0,
         max_gate_distance=4.0,
         camera_frame_size=(128, 128),
+        render_mode: None | str = None,
     ):
+        """__init__.
+
+        Args:
+            max_steps:
+            angle_representation:
+            num_targets:
+            goal_reach_distance:
+            max_gate_angles:
+            min_gate_distance:
+            max_gate_distance:
+            camera_frame_size:
+            render_mode (None | str): render_mode
+        """
+
+        if render_mode is not None:
+            assert (
+                render_mode in self.metadata["render_modes"]
+            ), f"Invalid render mode {render_mode}, only `human` allowed."
+            self.enable_render = True
+        else:
+            self.enable_render = False
 
         """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
@@ -63,7 +85,6 @@ class AdvancedGatesEnv(gymnasium.Env):
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
-        self.enable_render = False
         self.min_gate_distance = min_gate_distance
         self.max_gate_distance = max_gate_distance
         self.max_gate_angles = np.array([max_gate_angles])
@@ -79,10 +100,52 @@ class AdvancedGatesEnv(gymnasium.Env):
         self.camera_frame_size = camera_frame_size
         self.num_targets = num_targets
 
-        """ RUNTIME VARIABLES """
-        self.env = None
+        self.reset()
+
+    def reset(self):
+        """reset.
+        """
+        # if we already have an env, disconnect from it
+        if hasattr(self, "env"):
+            self.env.disconnect()
+
+        # reset step count
+        self.step_count = 0
+        self.termination = False
+        self.truncation = False
+        self.info = {}
+        self.info["out_of_bounds"] = False
+        self.info["collision"] = False
+        self.info["env_complete"] = False
+
+        self.dis_error = -100.0
+
+        # init env
+        self.env = Aviary(
+            start_pos=np.array([[0.0, 0.0, 3.0]]),
+            start_orn=np.array([[0.0, 0.0, 0.0]]),
+            render=self.enable_render,
+            use_camera=True,
+            camera_frame_size=self.camera_frame_size,
+        )
+
+        # generate gates
+        self.gates = []
+        self.targets = []
+        self.generate_gates()
+
+        # set flight mode
+        self.env.set_mode(7)
+
+        # wait for env to stabilize
+        for _ in range(10):
+            self.env.step()
+
+        return self.state
 
     def generate_gates(self):
+        """generate_gates.
+        """
         # sample a bunch of distances for gate distances
         distances = np.random.uniform(
             self.min_gate_distance, self.max_gate_distance, size=(self.num_targets,)
@@ -136,45 +199,12 @@ class AdvancedGatesEnv(gymnasium.Env):
         self.colour_first_gate()
         self.colour_other_gate()
 
-    def render(self, mode="human"):
-        self.enable_render = True
-
-    def reset(self):
-        # if we already have an env, disconnect from it
-        if self.env is not None:
-            self.env.disconnect()
-
-        # reset step count
-        self.done = False
-        self.info = {}
-        self.step_count = 0
-        self.dis_error = -100.0
-
-        # init env
-        self.env = Aviary(
-            start_pos=np.array([[0.0, 0.0, 3.0]]),
-            start_orn=np.array([[0.0, 0.0, 0.0]]),
-            render=self.enable_render,
-            use_camera=True,
-            camera_frame_size=self.camera_frame_size,
-        )
-
-        # generate gates
-        self.gates = []
-        self.targets = []
-        self.generate_gates()
-
-        # set flight mode
-        self.env.set_mode(7)
-
-        # wait for env to stabilize
-        for _ in range(10):
-            self.env.step()
-
-        self.state = self.compute_state()
-        return self.observation
-
     def colour_dead_gate(self, gate):
+        """colour_dead_gate.
+
+        Args:
+            gate:
+        """
         # colour the dead gates red
         for i in range(p.getNumJoints(gate)):
             p.changeVisualShape(
@@ -184,6 +214,8 @@ class AdvancedGatesEnv(gymnasium.Env):
             )
 
     def colour_first_gate(self):
+        """colour_first_gate.
+        """
         # colour the first gate green
         for i in range(p.getNumJoints(self.gates[0])):
             p.changeVisualShape(
@@ -193,6 +225,8 @@ class AdvancedGatesEnv(gymnasium.Env):
             )
 
     def colour_other_gate(self):
+        """colour_other_gate.
+        """
         # colour all other gates yellow
         for gate in self.gates[1:]:
             for i in range(p.getNumJoints(gate)):
@@ -203,18 +237,15 @@ class AdvancedGatesEnv(gymnasium.Env):
                 )
 
     @property
-    def observation(self):
-        obs = {}
-        obs["rgba_cam"] = np.transpose(self.env.drones[0].rgbImg, axes=(2, 0, 1))
-        obs["state"] = self.state
-        return obs
+    def state(self):
+        """state.
 
-    def compute_state(self):
-        """This computes the observation as well as the distances to target"""
-        # ang_vel (3)
-        # ang_pos (3/4)
-        # lin_vel (3)
-        # lin_pos (3)
+        This returns the observation.
+        - ang_vel (vector of 3 values)
+        - ang_pos (vector of 3/4 values)
+        - lin_vel (vector of 3 values)
+        - lin_pos (vector of 3 values)
+        """
         raw_state = self.env.states[0]
 
         # state breakdown
@@ -229,14 +260,22 @@ class AdvancedGatesEnv(gymnasium.Env):
         # drone to target
         self.dis_error_scalar = np.linalg.norm(self.targets[0] - lin_pos)
 
+        # get the camera observation
+        obs = {}
+        obs["rgba_cam"] = np.transpose(self.env.drones[0].rgbImg, axes=(2, 0, 1))
+
         # combine everything
         if self.ang_rep == 0:
-            return np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
+            obs["attitude"] = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
         elif self.ang_rep == 1:
-            return np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
+            obs["attitude"] = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
+
+        return obs
 
     @property
     def target_reached(self):
+        """target_reached.
+        """
         if self.dis_error_scalar < self.goal_reach_distance:
             return True
         else:
@@ -244,6 +283,8 @@ class AdvancedGatesEnv(gymnasium.Env):
 
     @property
     def reward(self):
+        """reward.
+        """
         if len(self.env.getContactPoints()) > 0:
             # collision with ground
             return -100.0
@@ -251,25 +292,22 @@ class AdvancedGatesEnv(gymnasium.Env):
             # normal reward
             return self.dis_error_scalar
 
-    def compute_done(self):
-        # we were already done
-        if self.done:
-            return True
-
+    def compute_term_trunc(self):
+        """compute_term_trunc.
+        """
         # exceed step count
         if self.step_count > self.max_steps:
-            self.info["done"] = "step_limit"
-            return True
+            self.truncation = self.truncation or True
 
         # out of range of next gate
         if self.dis_error_scalar > 2 * self.max_gate_distance:
-            self.info["done"] = "out_of_range"
-            return True
+            self.info["out_of_bounds"] = True
+            self.termination = self.termination or True
 
         # collision
         if len(self.env.getContactPoints(bodyA=self.env.drones[0].Id)) > 0:
-            self.info["done"] = "collision"
-            return True
+            self.info["collision"] = True
+            self.termination = self.termination or True
 
         # target reached
         if self.target_reached:
@@ -277,8 +315,8 @@ class AdvancedGatesEnv(gymnasium.Env):
                 # still have targets to go
                 self.targets = self.targets[1:]
             else:
-                self.info["done"] = "env_complete"
-                return True
+                self.info["env_complete"] = True
+                self.termination = self.termination or True
 
             # shift the gates and recolour the reached one
             self.colour_dead_gate(self.gates[0])
@@ -287,12 +325,10 @@ class AdvancedGatesEnv(gymnasium.Env):
             # colour the new target
             self.colour_first_gate()
 
-        return False
-
     def step(self, action: np.ndarray):
         """
         step the entire simulation
-            output is states, reward, dones
+            output is states, reward, termination, truncation, info
         """
         # unsqueeze the action to be usable in aviary
         action = np.expand_dims(action, axis=0)
@@ -301,12 +337,20 @@ class AdvancedGatesEnv(gymnasium.Env):
         self.env.set_setpoints(action)
         self.env.step()
 
-        # compute state and dones
-        self.done = self.compute_done()
-        self.state = self.compute_state()
+        # compute state and done
+        self.compute_term_trunc()
 
+        # increment step count
         self.step_count += 1
 
+        # show where the next target is
         self.info["target"] = self.targets[0]
 
-        return self.observation, self.reward, self.done, self.info
+        return self.state, self.reward, self.termination, self.truncation, self.info
+
+    def render(self):
+        """render.
+        """
+        raise AssertionError(
+            "This function is not meant to be called. Apply `render_mode='human'` on environment creation."
+        )
