@@ -26,30 +26,29 @@ class AdvancedGatesEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps=10000,
-        angle_representation="quaternion",
-        num_targets=5,
-        goal_reach_distance=0.21,
-        max_gate_angles=[0.0, 0.3, 1.0],
-        min_gate_distance=1.0,
-        max_gate_distance=4.0,
-        camera_frame_size=(128, 128),
+        max_steps:int=10000,
+        angle_representation:str="quaternion",
+        num_targets:int=5,
+        goal_reach_distance:float=0.21,
+        max_gate_angles:list[float]=[0.0, 0.3, 1.0],
+        min_gate_distance:float=1.0,
+        max_gate_distance:float=4.0,
+        camera_frame_size:tuple[int, int]=(128, 128),
         render_mode: None | str = None,
     ):
         """__init__.
 
         Args:
-            max_steps:
-            angle_representation:
-            num_targets:
-            goal_reach_distance:
-            max_gate_angles:
-            min_gate_distance:
-            max_gate_distance:
-            camera_frame_size:
+            max_steps (int): max_steps
+            angle_representation (str): angle_representation
+            num_targets (int): num_targets
+            goal_reach_distance (float): goal_reach_distance
+            max_gate_angles (list[float]): max_gate_angles
+            min_gate_distance (float): min_gate_distance
+            max_gate_distance (float): max_gate_distance
+            camera_frame_size (tuple[int, int]): camera_frame_size
             render_mode (None | str): render_mode
         """
-
         if render_mode is not None:
             assert (
                 render_mode in self.metadata["render_modes"]
@@ -71,11 +70,11 @@ class AdvancedGatesEnv(gymnasium.Env):
 
         self.observation_space = spaces.Dict(
             {
+                "attitude": spaces.Box(
+                    low=-np.inf, high=np.inf, shape=(state_size,), dtype=np.float64
+                ),
                 "rgba_cam": spaces.Box(
                     low=0.0, high=255.0, shape=(4, *camera_frame_size), dtype=np.float64
-                ),
-                "state": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(state_size,), dtype=np.float64
                 ),
             }
         )
@@ -267,15 +266,16 @@ class AdvancedGatesEnv(gymnasium.Env):
         # drone to target
         self.dis_error_scalar = np.linalg.norm(self.targets[0] - lin_pos)
 
-        # get the camera observation
-        obs = {}
-        obs["rgba_cam"] = np.transpose(self.env.drones[0].rgbImg, axes=(2, 0, 1))
+        obs = dict()
 
         # combine everything
         if self.ang_rep == 0:
             obs["attitude"] = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
         elif self.ang_rep == 1:
             obs["attitude"] = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
+
+        # grab the image
+        obs["rgba_cam"] = self.env.drones[0].rgbImg
 
         return obs
 

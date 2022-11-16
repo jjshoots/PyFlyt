@@ -139,7 +139,6 @@ class Drone:
             self.proj_mat = self.p.computeProjectionMatrixFOV(
                 fov=camera_FOV, aspect=1.0, nearVal=0.1, farVal=255.0
             )
-            self.rgbImg = self.depthImg = self.segImg = None
             self.camera_FOV = camera_FOV
             self.camera_frame_size = np.array(camera_frame_size)
 
@@ -157,6 +156,7 @@ class Drone:
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.update_state()
+        self.capture_image()
 
     def update_drag(self):
         """adds drag to the model, this is not physically correct but only approximation"""
@@ -425,7 +425,7 @@ class Drone:
             rot = np.array(self.p.getQuaternionFromEuler(rot))
             rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
 
-            # camera rotated upward 30 degrees
+            # camera rotated upward 20 degrees
             up_vector = np.matmul(rot, np.array([0, 0, 1]))
 
         # target position is 1000 units ahead of camera relative to the current camera pos
@@ -444,6 +444,9 @@ class Drone:
             viewMatrix=self.view_mat,
             projectionMatrix=self.proj_mat,
         )
+        self.rgbImg = np.array(self.rgbImg).reshape(-1, *self.camera_frame_size)
+        self.depthImg = np.array(self.depthImg).reshape(-1, *self.camera_frame_size)
+        self.segImg = np.array(self.segImg).reshape(-1, *self.camera_frame_size)
 
     def update(self):
         """
