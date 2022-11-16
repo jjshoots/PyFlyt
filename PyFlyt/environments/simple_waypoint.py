@@ -105,6 +105,8 @@ class SimpleWaypointEnv(gymnasium.Env):
             seed: seed to pass to the base environment.
             options:
         """
+        super().reset(seed=seed)
+
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
             self.env.disconnect()
@@ -119,6 +121,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         self.dis_error = -100.0
         self.yaw_error = -100.0
+        self.reward_to_go = 0.0
 
         # init env
         self.env = Aviary(
@@ -136,18 +139,20 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(self.num_targets, 3))
-        thts = np.random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
-        phis = np.random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
+        thts = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
+        phis = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
         for i, tht, phi in zip(range(self.num_targets), thts, phis):
-            dist = np.random.uniform(low=1.0, high=self.flight_dome_size)
+            dist = self.np_random.uniform(low=1.0, high=self.flight_dome_size)
             x = dist * math.sin(phi) * math.cos(tht)
             y = dist * math.sin(phi) * math.sin(tht)
             z = abs(dist * math.cos(phi))
-            self.targets[i] = np.array([x, y, z])
+
+            # check for floor of z
+            self.targets[i] = np.array([x, y, z if z > 0.1 else 0.1])
 
         # yaw targets
         if self.use_yaw_targets:
-            self.yaw_targets = np.random.uniform(
+            self.yaw_targets = self.np_random.uniform(
                 low=-math.pi, high=math.pi, size=(self.num_targets,)
             )
 
@@ -197,7 +202,8 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # drone to target
         self.dis_error = np.matmul(rotation, self.targets[0] - lin_pos)
-        self.yaw_error = self.yaw_targets[0] - ang_pos[-1]
+        if self.use_yaw_targets:
+            self.yaw_error = self.yaw_targets[0] - ang_pos[-1]
 
         # rollover yaw
         if self.yaw_error > math.pi:
@@ -230,21 +236,23 @@ class SimpleWaypointEnv(gymnasium.Env):
         if self.dis_error_scalar < self.goal_reach_distance:
             if self.use_yaw_targets:
                 if self.yaw_error_scalar < self.goal_reach_angle:
+                    self.reward_to_go = 10.0
                     return True
             else:
+                self.reward_to_go = 10.0
                 return True
 
+        self.reward_to_go = 0.0
         return False
 
     @property
     def reward(self):
         """reward."""
-        if len(self.env.getContactPoints()) > 0:
-            # collision with ground
+        if self.info["collision"]:
             return -100.0
         else:
             if self.sparse_reward:
-                return 10.0 if self.target_reached else 0.0
+                return self.reward_to_go
             else:
                 # if not sparse reward, then don't clip it
                 error = self.dis_error_scalar
@@ -273,13 +281,14 @@ class SimpleWaypointEnv(gymnasium.Env):
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]
-                self.yaw_targets = self.yaw_targets[1:]
+                if self.use_yaw_targets:
+                    self.yaw_targets = self.yaw_targets[1:]
             else:
                 self.info["env_complete"] = True
                 self.termination = self.termination or True
 
             # delete the reached target and recolour the others
-            if self.enable_render:
+            if self.enable_render and len(self.target_visual) > 0:
                 p.removeBody(self.target_visual[0])
                 self.target_visual = self.target_visual[1:]
 
@@ -288,7 +297,7 @@ class SimpleWaypointEnv(gymnasium.Env):
                     p.changeVisualShape(
                         visual,
                         linkIndex=-1,
-                        rgbaColor=(1 - (i / len(self.target_visual)), 0, 0, 1),
+                        rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                     )
 
     def step(self, action: np.ndarray):

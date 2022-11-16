@@ -26,7 +26,7 @@ class AdvancedGatesEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 10000,
+        max_steps: int = 5000,
         angle_representation: str = "quaternion",
         num_targets: int = 5,
         goal_reach_distance: float = 0.21,
@@ -106,6 +106,8 @@ class AdvancedGatesEnv(gymnasium.Env):
             seed: seed to pass to the base environment.
             options:
         """
+        super().reset(seed=seed)
+
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
             self.env.disconnect()
@@ -147,10 +149,10 @@ class AdvancedGatesEnv(gymnasium.Env):
     def generate_gates(self):
         """generate_gates."""
         # sample a bunch of distances for gate distances
-        distances = np.random.uniform(
+        distances = self.np_random.uniform(
             self.min_gate_distance, self.max_gate_distance, size=(self.num_targets,)
         )
-        angles = np.random.uniform(-1.0, 1.0, size=(self.num_targets, 3))
+        angles = self.np_random.uniform(-1.0, 1.0, size=(self.num_targets, 3))
         angles *= self.max_gate_angles
 
         # starting position and angle
@@ -285,8 +287,7 @@ class AdvancedGatesEnv(gymnasium.Env):
     @property
     def reward(self):
         """reward."""
-        if len(self.env.getContactPoints()) > 0:
-            # collision with ground
+        if self.info["collision"]:
             return -100.0
         else:
             # normal reward

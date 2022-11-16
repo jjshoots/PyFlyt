@@ -102,7 +102,7 @@ class Drone:
         # output: normalized angular torque command
         self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
         self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
-        self.Kd_ang_vel = np.array([0.0, 0.0, 0.0])
+        self.Kd_ang_vel = np.array([10e-5, 10e-5, 0.0])
         self.lim_ang_vel = np.array([1.0, 1.0, 1.0])
 
         # input: angular position command
@@ -114,9 +114,9 @@ class Drone:
 
         # input: linear velocity command
         # output: angular position
-        self.Kp_lin_vel = np.array([7.0, 7.0])
+        self.Kp_lin_vel = np.array([2.0, 2.0])
         self.Ki_lin_vel = np.array([0.0, 0.0])
-        self.Kd_lin_vel = np.array([3.0, 3.0])
+        self.Kd_lin_vel = np.array([0.5, 0.5])
         self.lim_lin_vel = np.array([0.6, 0.6])
 
         # input: linear position command
@@ -199,13 +199,9 @@ class Drone:
         """maps angular torque commands to motor rpms"""
         pwm = np.matmul(self.motor_map, cmd)
 
-        min = np.min(pwm)
-        max = np.max(pwm)
-
         # deal with motor saturations
-        if min < 0.0:
-            pwm = pwm - min
-        if max > 1.0:
+        pwm = np.clip(pwm, 0.0, np.inf)
+        if max := np.max(pwm)> 1.0:
             pwm = pwm / max
 
         return pwm
