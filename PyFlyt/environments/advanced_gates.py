@@ -102,8 +102,12 @@ class AdvancedGatesEnv(gymnasium.Env):
 
         self.reset()
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         """reset.
+
+        Args:
+            seed: seed to pass to the base environment.
+            options:
         """
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
@@ -135,13 +139,13 @@ class AdvancedGatesEnv(gymnasium.Env):
         self.generate_gates()
 
         # set flight mode
-        self.env.set_mode(7)
+        self.env.set_mode(0)
 
         # wait for env to stabilize
         for _ in range(10):
             self.env.step()
 
-        return self.state
+        return self.state, self.info
 
     def generate_gates(self):
         """generate_gates.
@@ -198,6 +202,9 @@ class AdvancedGatesEnv(gymnasium.Env):
         # colour the first gate
         self.colour_first_gate()
         self.colour_other_gate()
+
+        # update the gates
+        self.info["target"] = self.targets[0]
 
     def colour_dead_gate(self, gate):
         """colour_dead_gate.

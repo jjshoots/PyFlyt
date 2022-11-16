@@ -110,7 +110,7 @@ class SimpleHoverEnv(gymnasium.Env):
         for _ in range(10):
             self.env.step()
 
-        return self.state, {}
+        return self.state, self.info
 
     @property
     def state(self):

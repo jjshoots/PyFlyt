@@ -100,8 +100,12 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         self.reset()
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         """reset.
+
+        Args:
+            seed: seed to pass to the base environment.
+            options:
         """
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
@@ -166,7 +170,7 @@ class SimpleWaypointEnv(gymnasium.Env):
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
 
-        return self.state
+        return self.state, self.info
 
     @property
     def state(self):
