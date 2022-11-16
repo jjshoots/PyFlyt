@@ -99,8 +99,6 @@ class AdvancedGatesEnv(gymnasium.Env):
         self.camera_frame_size = camera_frame_size
         self.num_targets = num_targets
 
-        self.reset()
-
     def reset(self, seed=None, options=None):
         """reset.
 

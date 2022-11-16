@@ -74,8 +74,6 @@ class SimpleHoverEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.ang_rep = 1
 
-        self.reset()
-
     def reset(self, seed=None, options=None):
         """reset.
 

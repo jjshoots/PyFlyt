@@ -98,8 +98,6 @@ class SimpleWaypointEnv(gymnasium.Env):
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
 
-        self.reset()
-
     def reset(self, seed=None, options=None):
         """reset.
 
