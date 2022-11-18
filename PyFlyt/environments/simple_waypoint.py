@@ -18,11 +18,10 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     The target is a set of `[x, y, z, yaw]` targets in space
 
-    For sparse reward setting:
-        Reward is 10.0 for reaching target, 0.0 otherwise
-    For non-sparse reward setting:
-        Reward is -(distance from waypoint + angle error) for each timestep,
-        and -100.0 for hitting the ground.
+    Reward:
+        10.0 for reaching target,
+        -100 for collisions or out of bounds,
+        0.0 otherwise
     """
 
     metadata = {"render_modes": ["human"]}
@@ -36,7 +35,6 @@ class SimpleWaypointEnv(gymnasium.Env):
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 5.0,
-        sparse_reward: bool = True,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -49,7 +47,6 @@ class SimpleWaypointEnv(gymnasium.Env):
             goal_reach_distance (float): goal_reach_distance
             goal_reach_angle (float): goal_reach_angle
             flight_dome_size (float): size of the allowable flying area
-            sparse_reward (bool): sparse_reward setting
             render_mode (None | str): can be "human" or None
         """
 
@@ -86,7 +83,6 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         """ ENVIRONMENT CONSTANTS """
         self.flight_dome_size = flight_dome_size
-        self.sparse_reward = sparse_reward
         self.max_steps = max_steps
         self.num_targets = num_targets
         self.use_yaw_targets = use_yaw_targets
@@ -115,6 +111,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.step_count = 0
         self.termination = False
         self.truncation = False
+        self.reward = 0.0
         self.info = {}
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
@@ -122,7 +119,6 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         self.dis_error = -100.0
         self.yaw_error = -100.0
-        self.reward_to_go = 0.0
 
         # init env
         self.env = Aviary(
@@ -243,24 +239,9 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         return False
 
-    @property
-    def reward(self):
-        """reward."""
-        if self.info["collision"]:
-            return -100.0
-        else:
-            if self.sparse_reward:
-                return self.reward_to_go
-            else:
-                # if not sparse reward, then don't clip it
-                error = self.dis_error_scalar
-                if self.use_yaw_targets:
-                    error += self.yaw_error_scalar
-                return -error
-
-    def compute_term_trunc(self):
+    def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        self.reward_to_go = 0.0
+        self.reward = 0.0
 
         # exceed step count
         if self.step_count > self.max_steps:
@@ -268,19 +249,19 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+            self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
-            self.reward_to_go = -100.0
 
         # collision
         if len(self.env.getContactPoints()) > 0:
+            self.reward = -100.0
             self.info["collision"] = True
             self.termination = self.termination or True
-            self.reward_to_go = -100.0
 
         # target reached
         if self.target_reached:
-            self.reward_to_go = 10.0
+            self.reward = 10.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]
@@ -317,7 +298,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.env.step()
 
         # compute state and done
-        self.compute_term_trunc()
+        self.compute_term_trunc_reward()
 
         # increment step count
         self.step_count += 1

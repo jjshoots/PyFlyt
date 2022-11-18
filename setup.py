@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="PyFlyt",
-    version="0.2.5",
+    version="0.2.6",
     author="jjshoots",
     author_email="taijunjet@hotmail.com",
     description="Freestyle Quadcopter Flight in Pybullet with Gym and (soon) PettingZoo APIs",

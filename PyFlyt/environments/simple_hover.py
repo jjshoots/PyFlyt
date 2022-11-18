@@ -91,6 +91,7 @@ class SimpleHoverEnv(gymnasium.Env):
         self.step_count = 0
         self.termination = False
         self.truncation = False
+        self.reward = 0.0
         self.info = {}
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
@@ -141,25 +142,23 @@ class SimpleHoverEnv(gymnasium.Env):
 
         return new_state
 
-    @property
-    def reward(self):
-        """reward."""
-        reward = 1.0 if not self.termination else -10
-        return reward
-
-    def compute_term_trunc(self):
+    def compute_term_trunc_reward(self):
         """compute_term_trunc."""
+        self.reward = 0
+
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
 
         # exceed flight dome
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+            self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
         # collision
         if len(self.env.getContactPoints()) > 0:
+            self.reward = -100.0
             self.info["collision"] = True
             self.termination = self.termination or True
 
@@ -180,7 +179,7 @@ class SimpleHoverEnv(gymnasium.Env):
         self.env.step()
 
         # compute state and done
-        self.compute_term_trunc()
+        self.compute_term_trunc_reward()
 
         # increment step count
         self.step_count += 1
