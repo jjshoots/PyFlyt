@@ -237,13 +237,10 @@ class SimpleWaypointEnv(gymnasium.Env):
         if self.dis_error_scalar < self.goal_reach_distance:
             if self.use_yaw_targets:
                 if self.yaw_error_scalar < self.goal_reach_angle:
-                    self.reward_to_go = 10.0
                     return True
             else:
-                self.reward_to_go = 10.0
                 return True
 
-        self.reward_to_go = 0.0
         return False
 
     @property
@@ -263,6 +260,8 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def compute_term_trunc(self):
         """compute_term_trunc."""
+        self.reward_to_go = 0.0
+
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
@@ -271,14 +270,17 @@ class SimpleWaypointEnv(gymnasium.Env):
         if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
+            self.reward_to_go = -100.0
 
         # collision
         if len(self.env.getContactPoints()) > 0:
             self.info["collision"] = True
             self.termination = self.termination or True
+            self.reward_to_go = -100.0
 
         # target reached
         if self.target_reached:
+            self.reward_to_go = 10.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]
