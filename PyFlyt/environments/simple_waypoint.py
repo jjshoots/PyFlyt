@@ -78,7 +78,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         high = np.array([2 * math.pi, 2 * math.pi, 2 * math.pi, 1.0])
-        low = np.array([-2 * math.pi, -2 * math.pi, -2 * math.pi, 0.0])
+        low = np.array([-2 * math.pi, -2 * math.pi, -2 * math.pi, -1.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -128,7 +128,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(0)
+        self.env.set_mode(6)
 
         # wait for env to stabilize
         for _ in range(10):
@@ -181,7 +181,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         - ang_pos (vector of 3/4 values)
         - lin_vel (vector of 3 values)
         - lin_pos (vector of 3 values)
-        - body_frame distance to target (vector of 3 values)
+        - body_frame distance to target (vector of 3/4 values)
         """
         raw_state = self.env.states[0]
 
@@ -248,7 +248,7 @@ class SimpleWaypointEnv(gymnasium.Env):
             self.truncation = self.truncation or True
 
         # exceed flight dome
-        if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
+        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
             self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True

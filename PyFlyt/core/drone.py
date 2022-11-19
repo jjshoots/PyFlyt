@@ -103,32 +103,32 @@ class Drone:
         self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
         self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
         self.Kd_ang_vel = np.array([10e-5, 10e-5, 0.0])
-        self.lim_ang_vel = np.array([1.0, 1.0, 1.0])
+        self.lim_ang_vel = np.array([0.3, 0.3, 0.3])
 
         # input: angular position command
         # output: angular velocity
-        self.Kp_ang_pos = np.array([0.5, 0.5, 1.0])
+        self.Kp_ang_pos = np.array([2.0, 2.0, 2.0])
         self.Ki_ang_pos = np.array([0.0, 0.0, 0.0])
         self.Kd_ang_pos = np.array([0.0, 0.0, 0.0])
-        self.lim_ang_pos = np.array([2.0, 2.0, 2.0])
+        self.lim_ang_pos = np.array([1.0, 1.0, 0.5])
 
         # input: linear velocity command
         # output: angular position
-        self.Kp_lin_vel = np.array([2.0, 2.0])
-        self.Ki_lin_vel = np.array([0.0, 0.0])
+        self.Kp_lin_vel = np.array([0.5, 0.5])
+        self.Ki_lin_vel = np.array([0.1, 0.1])
         self.Kd_lin_vel = np.array([0.5, 0.5])
-        self.lim_lin_vel = np.array([0.6, 0.6])
+        self.lim_lin_vel = np.array([0.4, 0.4])
 
         # input: linear position command
         # outputs: linear velocity
         self.Kp_lin_pos = np.array([1.0, 1.0])
         self.Ki_lin_pos = np.array([0.0, 0.0])
         self.Kd_lin_pos = np.array([0.0, 0.0])
-        self.lim_lin_pos = np.array([1.0, 1.0])
+        self.lim_lin_pos = np.array([0.5, 0.5])
 
         # height controllers
-        z_pos_PID = PID(3.0, 0.0, 0.0, 1.0, self.ctrl_period)
-        z_vel_PID = PID(0.2, 1.25, 0.0, 1.0, self.ctrl_period)
+        z_pos_PID = PID(1.0, 0.0, 0.0, 1.0, self.ctrl_period)
+        z_vel_PID = PID(0.2, 1.25, 0.0, 0.5, self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
 
@@ -150,9 +150,6 @@ class Drone:
         self.setpoint = np.zeros((4))
         self.rpm = np.zeros((4))
         self.pwm = np.zeros((4))
-
-        for PID in self.PIDs:
-            PID.reset()
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.update_state()
@@ -200,9 +197,10 @@ class Drone:
         pwm = np.matmul(self.motor_map, cmd)
 
         # deal with motor saturations
-        pwm = np.clip(pwm, 0.0, np.inf)
-        if max := np.max(pwm)> 1.0:
-            pwm = pwm / max
+        if (high := np.max(pwm)) > 1.0:
+            pwm /= high
+        if (low := np.min(pwm)) < 0.05:
+            pwm += (1.0 - pwm) / (1.0 - low) * (0.05 - low)
 
         return pwm
 
@@ -337,6 +335,9 @@ class Drone:
                 self.ctrl_period,
             )
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID, lin_pos_PID]
+
+        for controller in self.PIDs:
+            controller.reset()
 
     def update_control(self):
         """runs through PID controllers"""

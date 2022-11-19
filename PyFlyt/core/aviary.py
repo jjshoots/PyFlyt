@@ -19,7 +19,7 @@ class Aviary(bullet_client.BulletClient):
         camera_frame_size=(128, 128),
     ):
         super().__init__(p.GUI if render else p.DIRECT)
-        print ("\033[A                             \033[A")
+        print("\033[A                             \033[A")
 
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
