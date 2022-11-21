@@ -15,11 +15,14 @@ class Aviary(bullet_client.BulletClient):
         start_pos: np.ndarray,
         start_orn: np.ndarray,
         render: bool = False,
-        use_camera: bool = False,
         physics_hz: int = 240,
         ctrl_hz: int = 120,
         model_dir: None | str = None,
         drone_model: str = "cf2x",
+        use_camera: bool = False,
+        use_gimbal: bool = False,
+        camera_angle: int = 20,
+        camera_FOV: int = 90,
         camera_frame_size: tuple[int, int] = (128, 128),
     ):
         super().__init__(p.GUI if render else p.DIRECT)
@@ -37,6 +40,9 @@ class Aviary(bullet_client.BulletClient):
         self.start_pos = start_pos
         self.start_orn = start_orn
         self.use_camera = use_camera
+        self.use_gimbal = use_gimbal
+        self.camera_angle = camera_angle
+        self.camera_FOV = camera_FOV
         self.camera_frame_size = camera_frame_size
 
         self.model_dir = model_dir
@@ -76,6 +82,9 @@ class Aviary(bullet_client.BulletClient):
                     model_dir=self.model_dir,
                     drone_model=self.drone_model,
                     use_camera=self.use_camera,
+                    use_gimbal=self.use_gimbal,
+                    camera_angle=self.camera_angle,
+                    camera_FOV=self.camera_FOV,
                     camera_frame_size=self.camera_frame_size,
                 )
             )
