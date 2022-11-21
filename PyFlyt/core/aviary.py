@@ -1,3 +1,4 @@
+from __future__ import annotations
 import time
 
 import numpy as np
@@ -13,11 +14,13 @@ class Aviary(bullet_client.BulletClient):
         self,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        render=False,
-        use_camera=False,
-        physics_hz=240.0,
-        ctrl_hz=120.0,
-        camera_frame_size=(128, 128),
+        render: bool = False,
+        use_camera: bool = False,
+        physics_hz: int = 240,
+        ctrl_hz: int = 120,
+        model_dir: None | str = None,
+        drone_model: str = "cf2x",
+        camera_frame_size: tuple[int, int] = (128, 128),
     ):
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
@@ -36,7 +39,8 @@ class Aviary(bullet_client.BulletClient):
         self.use_camera = use_camera
         self.camera_frame_size = camera_frame_size
 
-        self.drone_model = "cf2x"
+        self.model_dir = model_dir
+        self.drone_model = drone_model
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
         self.render = render
@@ -69,6 +73,7 @@ class Aviary(bullet_client.BulletClient):
                     start_orn=start_orn,
                     ctrl_hz=self.ctrl_hz,
                     physics_hz=self.physics_hz,
+                    model_dir=self.model_dir,
                     drone_model=self.drone_model,
                     use_camera=self.use_camera,
                     camera_frame_size=self.camera_frame_size,

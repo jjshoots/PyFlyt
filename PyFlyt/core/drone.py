@@ -1,6 +1,7 @@
+from __future__ import annotations
 import math
 import os
-import xml.etree.ElementTree as etxml
+import yaml
 
 import numpy as np
 from pybullet_utils import bullet_client
@@ -16,23 +17,33 @@ class Drone:
         start_orn: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
-        drone_model="cf2x",
-        use_camera=False,
-        use_gimbal=False,
-        camera_FOV=90,
-        camera_frame_size=(128, 128),
+        model_dir: None | str = None,
+        drone_model: str = "cf2x",
+        use_camera: bool = False,
+        use_gimbal: bool = False,
+        camera_angle: int = 20,
+        camera_FOV: int = 90,
+        camera_frame_size: tuple[int, int] = (128, 128),
     ):
 
         if physics_hz != 240.0:
             raise UserWarning(
-                f"physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
+                f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
             )
 
         self.p = p
         self.physics_hz = 1.0 / physics_hz
         self.ctrl_period = 1.0 / ctrl_hz
-        file_dir = os.path.dirname(os.path.realpath(__file__))
-        drone_dir = os.path.join(file_dir, f"../models/vehicles/{drone_model}.urdf")
+        if model_dir is None:
+            model_dir = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "../models/vehicles/"
+            )
+        drone_dir = os.path.join(
+            model_dir, f"{drone_model}/{drone_model}.urdf"
+        )
+        param_path = os.path.join(
+            model_dir, f"{drone_model}/{drone_model}.yaml"
+        )
 
         """ SPAWN """
         self.start_pos = start_pos
@@ -51,87 +62,86 @@ class Drone:
         """
 
         # All the params for the drone
-        URDF_TREE = etxml.parse(drone_dir).getroot()
-        # self.mass = float(URDF_TREE[1][0][1].attrib['value'])
-        # self.ixx = float(URDF_TREE[1][0][2].attrib['ixx'])
-        # self.iyy = float(URDF_TREE[1][0][2].attrib['iyy'])
-        # self.izz = float(URDF_TREE[1][0][2].attrib['izz'])
-        # self.arm = float(URDF_TREE[0].attrib['arm'])
-        self.thrust2weight = float(URDF_TREE[0].attrib["thrust2weight"])
-        self.kf = float(URDF_TREE[0].attrib["kf"])
-        self.km = float(URDF_TREE[0].attrib["km"])
-        # self.max_speed_kmh = float(URDF_TREE[0].attrib['max_speed_kmh'])
-        # self.gnd_eff_coeff = float(URDF_TREE[0].attrib['gnd_eff_coeff'])
-        # self.prop_radius = float(URDF_TREE[0].attrib['prop_radius'])
-        # self.drag_coeff_xy = float(URDF_TREE[0].attrib['drag_coeff_xy'])
-        # self.drag_coeff_z = float(URDF_TREE[0].attrib['drag_coeff_z'])
-        # self.dw_coeff_1 = float(URDF_TREE[0].attrib['dw_coeff_1'])
-        # self.dw_coeff_2 = float(URDF_TREE[0].attrib['dw_coeff_2'])
-        # self.dw_coeff_3 = float(URDF_TREE[0].attrib['dw_coeff_3'])
-        # self.length = float(URDF_TREE[1][2][1][0].attrib['length'])
-        # self.radius = float(URDF_TREE[1][2][1][0].attrib['radius'])
-        # self.collision_z_offset = [float(s) for s in URDF_TREE[1][2][0].attrib['xyz'].split(' ')][2]
+        print(param_path)
+        with open(param_path, "rb") as f:
+            # load all params from yaml
+            all_params = yaml.safe_load(f)
+            motor_params = all_params["motor_params"]
+            drag_params = all_params["drag_params"]
+            ctrl_params = all_params["control_params"]
 
-        # the joint IDs corresponding to motorID 1234
-        self.thr_coeff = np.array([[0.0, 0.0, 1.0]]) * self.kf
-        self.tor_coeff = np.array([[0.0, 0.0, 1.0]]) * self.km
-        self.tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
-        self.noise_ratio = 0.02
+            # motor thrust and torque constants
+            self.t2w = motor_params["thrust_to_weight"]
+            self.kf = motor_params["thrust_const"]
+            self.km = motor_params["torque_const"]
 
-        # pseudo drag coef
-        self.drag_const_xyz = 1e-3
-        self.drag_const_pqr = 1e-4
+            # the joint IDs corresponding to motorID 1234
+            self.thr_coeff = np.array([[0.0, 0.0, 1.0]]) * self.kf
+            self.tor_coeff = np.array([[0.0, 0.0, 1.0]]) * self.km
+            self.tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
+            self.noise_ratio = motor_params["motor_noise_ratio"]
 
-        # maximum motor RPM
-        self.max_rpm = np.sqrt((self.thrust2weight * 9.81) / (4 * self.kf))
-        # motor modelled with first order ode, below is time const
-        self.motor_tau = 0.01
-        # motor mapping from command to individual motors
-        self.motor_map = np.array(
-            [
-                [+1.0, -1.0, +1.0, +1.0],
-                [-1.0, +1.0, +1.0, +1.0],
-                [+1.0, +1.0, -1.0, +1.0],
-                [-1.0, -1.0, -1.0, +1.0],
-            ]
-        )
+            # pseudo drag coef
+            self.drag_const_xyz = drag_params["drag_const_xyz"]
+            self.drag_const_pqr = drag_params["drag_const_pqr"]
 
-        # input: angular velocity command
-        # output: normalized angular torque command
-        self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
-        self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
-        self.Kd_ang_vel = np.array([10e-5, 10e-5, 0.0])
-        self.lim_ang_vel = np.array([1.0, 1.0, 1.0])
+            # maximum motor RPM
+            self.max_rpm = np.sqrt((self.t2w * 9.81) / (4 * self.kf))
+            # motor modelled with first order ode, below is time const
+            self.motor_tau = 0.01
+            # motor mapping from command to individual motors
+            self.motor_map = np.array(
+                [
+                    [+1.0, -1.0, +1.0, +1.0],
+                    [-1.0, +1.0, +1.0, +1.0],
+                    [+1.0, +1.0, -1.0, +1.0],
+                    [-1.0, -1.0, -1.0, +1.0],
+                ]
+            )
 
-        # input: angular position command
-        # output: angular velocity
-        self.Kp_ang_pos = np.array([2.0, 2.0, 2.0])
-        self.Ki_ang_pos = np.array([0.0, 0.0, 0.0])
-        self.Kd_ang_pos = np.array([0.0, 0.0, 0.0])
-        self.lim_ang_pos = np.array([3.0, 3.0, 3.0])
+            self.Kp_ang_vel = np.array(ctrl_params["ang_vel"]["kp"])
+            self.Ki_ang_vel = np.array(ctrl_params["ang_vel"]["ki"])
+            self.Kd_ang_vel = np.array(ctrl_params["ang_vel"]["kd"])
+            self.lim_ang_vel = np.array(ctrl_params["ang_vel"]["lim"])
 
-        # input: linear velocity command
-        # output: angular position
-        self.Kp_lin_vel = np.array([0.8, 0.8])
-        self.Ki_lin_vel = np.array([0.1, 0.1])
-        self.Kd_lin_vel = np.array([0.5, 0.5])
-        self.lim_lin_vel = np.array([0.4, 0.4])
+            self.Kp_ang_pos = np.array(ctrl_params["ang_pos"]["kp"])
+            self.Ki_ang_pos = np.array(ctrl_params["ang_pos"]["ki"])
+            self.Kd_ang_pos = np.array(ctrl_params["ang_pos"]["kd"])
+            self.lim_ang_pos = np.array(ctrl_params["ang_pos"]["lim"])
 
-        # input: linear position command
-        # outputs: linear velocity
-        self.Kp_lin_pos = np.array([1.0, 1.0])
-        self.Ki_lin_pos = np.array([0.0, 0.0])
-        self.Kd_lin_pos = np.array([0.0, 0.0])
-        self.lim_lin_pos = np.array([0.5, 0.5])
+            self.Kp_lin_vel = np.array(ctrl_params["lin_vel"]["kp"])
+            self.Ki_lin_vel = np.array(ctrl_params["lin_vel"]["ki"])
+            self.Kd_lin_vel = np.array(ctrl_params["lin_vel"]["kd"])
+            self.lim_lin_vel = np.array(ctrl_params["lin_vel"]["lim"])
 
-        # height controllers
-        z_pos_PID = PID(1.0, 0.0, 0.0, 1.0, self.ctrl_period)
-        z_vel_PID = PID(0.15, 1.0, 0.015, 0.3, self.ctrl_period)
-        self.z_PIDs = [z_vel_PID, z_pos_PID]
-        self.PIDs = []
+            # input: linear position command
+            # outputs: linear velocity
+            self.Kp_lin_pos = np.array(ctrl_params["lin_pos"]["kp"])
+            self.Ki_lin_pos = np.array(ctrl_params["lin_pos"]["ki"])
+            self.Kd_lin_pos = np.array(ctrl_params["lin_pos"]["kd"])
+            self.lim_lin_pos = np.array(ctrl_params["lin_pos"]["lim"])
+
+            # height controllers
+            z_pos_PID = PID(
+                ctrl_params["z_pos"]["kp"],
+                ctrl_params["z_pos"]["ki"],
+                ctrl_params["z_pos"]["kd"],
+                ctrl_params["z_pos"]["lim"],
+                self.ctrl_period,
+            )
+            z_vel_PID = PID(
+                ctrl_params["z_vel"]["kp"],
+                ctrl_params["z_vel"]["ki"],
+                ctrl_params["z_vel"]["kd"],
+                ctrl_params["z_vel"]["lim"],
+                self.ctrl_period,
+            )
+            self.z_PIDs = [z_vel_PID, z_pos_PID]
+            self.PIDs = []
 
         """ CAMERA """
         self.use_camera = use_camera
+        self.camera_angle = camera_angle
         self.use_gimbal = use_gimbal
         if self.use_camera:
             self.proj_mat = self.p.computeProjectionMatrixFOV(
@@ -410,7 +420,7 @@ class Drone:
         if self.use_gimbal:
             rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
             rot[0] = 0.0
-            rot[1] = 45 / 180 * math.pi
+            rot[1] = self.camera_angle / 180 * math.pi
             rot = np.array(self.p.getQuaternionFromEuler(rot))
             rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
 
@@ -418,7 +428,7 @@ class Drone:
         else:
             # camera rotated upward 20 degrees
             rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[1] += -20 / 180 * math.pi
+            rot[1] += -self.camera_angle / 180 * math.pi
             rot = np.array(self.p.getQuaternionFromEuler(rot))
             rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
 
