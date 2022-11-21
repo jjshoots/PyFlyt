@@ -14,8 +14,8 @@ class Drone:
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        ctrl_hz=48.0,
-        sim_hz=240.0,
+        ctrl_hz: int,
+        physics_hz: int,
         drone_model="cf2x",
         use_camera=False,
         use_gimbal=False,
@@ -23,16 +23,14 @@ class Drone:
         camera_frame_size=(128, 128),
     ):
 
-        if sim_hz != 240.0:
+        if physics_hz != 240.0:
             raise UserWarning(
-                f"sim_hz is currently {sim_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
+                f"physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
             )
 
         self.p = p
-        self.sim_period = 1.0 / sim_hz
+        self.physics_hz = 1.0 / physics_hz
         self.ctrl_period = 1.0 / ctrl_hz
-        self.update_ratio = int(sim_hz / ctrl_hz)
-        self.steps = 0
         file_dir = os.path.dirname(os.path.realpath(__file__))
         drone_dir = os.path.join(file_dir, f"../models/vehicles/{drone_model}.urdf")
 
@@ -128,7 +126,7 @@ class Drone:
 
         # height controllers
         z_pos_PID = PID(1.0, 0.0, 0.0, 1.0, self.ctrl_period)
-        z_vel_PID = PID(0.2, 1.25, 0.03, 0.3, self.ctrl_period)
+        z_vel_PID = PID(0.15, 1.0, 0.015, 0.3, self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
 
@@ -188,7 +186,7 @@ class Drone:
 
     def pwm2rpm(self, pwm):
         """model the motor using first order ODE, y' = T/tau * (setpoint - y)"""
-        self.rpm += (self.sim_period / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
+        self.rpm += (self.physics_hz / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
 
         return self.rpm
 
@@ -451,18 +449,8 @@ class Drone:
         """
         updates state and control
         """
-        # update states according to sim rate
         self.update_state()
+        self.update_control()
 
-        # update control only when needed
-        if self.steps % self.update_ratio == 0:
-            self.update_control()
-
-            if self.use_camera:
-                self.capture_image()
-
-        # update motor outputs constantly
-        self.update_forces()
-
-        # step
-        self.steps += 1
+        if self.use_camera:
+            self.capture_image()

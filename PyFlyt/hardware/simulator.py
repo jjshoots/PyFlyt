@@ -89,7 +89,7 @@ class Simulator:
         return states
 
     def sleep(self, seconds: float):
-        for _ in range(int(seconds / self.env.period)):
+        for _ in range(int(seconds / self.env.ctrl_period)):
             self.step()
 
     def arm(self, settings):
@@ -110,4 +110,4 @@ class Simulator:
 
     @property
     def elapsed_time(self):
-        return self.env.period * self.steps
+        return self.env.physics_period * self.steps

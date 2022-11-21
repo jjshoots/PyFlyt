@@ -1,5 +1,4 @@
 import time
-from multiprocessing import Pool
 
 import numpy as np
 import pybullet as p
@@ -16,6 +15,8 @@ class Aviary(bullet_client.BulletClient):
         start_orn: np.ndarray,
         render=False,
         use_camera=False,
+        physics_hz=240.0,
+        ctrl_hz=120.0,
         camera_frame_size=(128, 128),
     ):
         super().__init__(p.GUI if render else p.DIRECT)
@@ -23,7 +24,11 @@ class Aviary(bullet_client.BulletClient):
 
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
-        self.period = 1.0 / 240.0
+        self.physics_hz = physics_hz
+        self.physics_period = 1.0 / physics_hz
+        self.ctrl_hz = ctrl_hz
+        self.ctrl_period = 1.0 / ctrl_hz
+        self.ctrl_update_ratio = int(physics_hz / ctrl_hz)
         self.now = time.time()
 
         self.start_pos = start_pos
@@ -35,7 +40,6 @@ class Aviary(bullet_client.BulletClient):
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
         self.render = render
-        self.rtf_print_interval = 24
         self.rtf_debug_line = self.addUserDebugText(
             text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
         )
@@ -45,7 +49,7 @@ class Aviary(bullet_client.BulletClient):
     def reset(self):
         self.resetSimulation()
         self.setGravity(0, 0, -9.81)
-        self.step_count = 0
+        self.steps = 0
 
         """ CONSTRUCT THE WORLD """
         self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=1.0)
@@ -63,6 +67,8 @@ class Aviary(bullet_client.BulletClient):
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
+                    ctrl_hz=self.ctrl_hz,
+                    physics_hz=self.physics_hz,
                     drone_model=self.drone_model,
                     use_camera=self.use_camera,
                     camera_frame_size=self.camera_frame_size,
@@ -110,30 +116,39 @@ class Aviary(bullet_client.BulletClient):
         """
         Steps the environment
         """
-        if self.render:
-            elapsed = time.time() - self.now
-            time.sleep(max(self.period - elapsed, 0.0))
-            self.now = time.time()
+        for i in range(self.ctrl_update_ratio):
 
-            # calculate real time factor
-            RTF = self.period / (elapsed + 1e-6)
+            # wait a bit if we're rendering
+            if self.render:
+                elapsed = time.time() - self.now
+                time.sleep(max(self.physics_period - elapsed, 0.0))
+                self.now = time.time()
 
-            if self.step_count % self.rtf_print_interval == 0:
-                # handle case where sometimes elapsed becomes 0
-                if elapsed != 0.0:
-                    self.rtf_debug_line = self.addUserDebugText(
-                        text=f"RTF: {str(RTF)[:7]}",
-                        textPosition=[0, 0, 0],
-                        textColorRGB=[1, 0, 0],
-                        replaceItemUniqueId=self.rtf_debug_line,
-                    )
+                # calculate real time factor
+                RTF = self.physics_period / (elapsed + 1e-6)
 
-            # print(f'RTF: {RTF}')
+                if i == 0:
+                    # handle case where sometimes elapsed becomes 0
+                    if elapsed != 0.0:
+                        self.rtf_debug_line = self.addUserDebugText(
+                            text=f"RTF: {str(RTF)[:7]}",
+                            textPosition=[0, 0, 0],
+                            textColorRGB=[1, 0, 0],
+                            replaceItemUniqueId=self.rtf_debug_line,
+                        )
 
-        for drone, armed in zip(self.drones, self.armed):
-            if armed:
-                drone.update()
+                # print(f'RTF: {RTF}')
 
-        self.stepSimulation()
+            for drone, armed in zip(self.drones, self.armed):
+                # update drone control at a different rate
+                if armed:
+                    if i == 0:
+                        drone.update()
+
+                    # update motor outputs constantly
+                    drone.update_forces()
+
+            self.stepSimulation()
+
         self.performCollisionDetection()
-        self.step_count += 1
+        self.steps += 1
