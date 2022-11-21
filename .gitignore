@@ -1,6 +1,9 @@
 # vim
 .vim/
 
+# pypi credentials
+.pyirc
+
 # crazyflie cache
 cache/
 
