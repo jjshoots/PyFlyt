@@ -60,7 +60,6 @@ class Drone:
         """
 
         # All the params for the drone
-        print(param_path)
         with open(param_path, "rb") as f:
             # load all params from yaml
             all_params = yaml.safe_load(f)
