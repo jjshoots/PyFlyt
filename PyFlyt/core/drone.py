@@ -103,18 +103,18 @@ class Drone:
         self.Kp_ang_vel = np.array([8e-3, 8e-3, 1e-2])
         self.Ki_ang_vel = np.array([2.5e-7, 2.5e-7, 1.3e-4])
         self.Kd_ang_vel = np.array([10e-5, 10e-5, 0.0])
-        self.lim_ang_vel = np.array([0.3, 0.3, 0.3])
+        self.lim_ang_vel = np.array([1.0, 1.0, 1.0])
 
         # input: angular position command
         # output: angular velocity
         self.Kp_ang_pos = np.array([2.0, 2.0, 2.0])
         self.Ki_ang_pos = np.array([0.0, 0.0, 0.0])
         self.Kd_ang_pos = np.array([0.0, 0.0, 0.0])
-        self.lim_ang_pos = np.array([1.0, 1.0, 0.5])
+        self.lim_ang_pos = np.array([3.0, 3.0, 3.0])
 
         # input: linear velocity command
         # output: angular position
-        self.Kp_lin_vel = np.array([0.5, 0.5])
+        self.Kp_lin_vel = np.array([0.8, 0.8])
         self.Ki_lin_vel = np.array([0.1, 0.1])
         self.Kd_lin_vel = np.array([0.5, 0.5])
         self.lim_lin_vel = np.array([0.4, 0.4])
@@ -128,7 +128,7 @@ class Drone:
 
         # height controllers
         z_pos_PID = PID(1.0, 0.0, 0.0, 1.0, self.ctrl_period)
-        z_vel_PID = PID(0.2, 1.25, 0.0, 0.5, self.ctrl_period)
+        z_vel_PID = PID(0.2, 1.25, 0.03, 0.3, self.ctrl_period)
         self.z_PIDs = [z_vel_PID, z_pos_PID]
         self.PIDs = []
 

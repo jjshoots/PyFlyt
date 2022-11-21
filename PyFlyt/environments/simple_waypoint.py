@@ -128,7 +128,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(6)
+        self.env.set_mode(0)
 
         # wait for env to stabilize
         for _ in range(10):
@@ -139,7 +139,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         thts = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
         phis = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
         for i, tht, phi in zip(range(self.num_targets), thts, phis):
-            dist = self.np_random.uniform(low=1.0, high=self.flight_dome_size)
+            dist = self.np_random.uniform(low=1.0, high=self.flight_dome_size * 0.9)
             x = dist * math.sin(phi) * math.cos(tht)
             y = dist * math.sin(phi) * math.sin(tht)
             z = abs(dist * math.cos(phi))
@@ -269,7 +269,8 @@ class SimpleWaypointEnv(gymnasium.Env):
                     self.yaw_targets = self.yaw_targets[1:]
             else:
                 self.info["env_complete"] = True
-                self.termination = self.termination or True
+                # self.termination = self.termination or True
+                self.truncation = self.truncation or True
 
             # delete the reached target and recolour the others
             if self.enable_render and len(self.target_visual) > 0:
