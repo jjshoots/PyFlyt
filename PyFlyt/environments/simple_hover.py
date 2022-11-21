@@ -25,7 +25,7 @@ class SimpleHoverEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 10000,
+        max_steps: int = 2000,
         angle_representation: str = "quaternion",
         flight_dome_size: float = 3.0,
         render_mode: None | str = None,

@@ -28,7 +28,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 10000,
+        max_steps: int = 2400,
         angle_representation: str = "quaternion",
         num_targets: int = 4,
         use_yaw_targets: bool = True,
@@ -241,7 +241,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        self.reward = 0.0
+        self.reward = -1.0
 
         # exceed step count
         if self.step_count > self.max_steps:
@@ -269,8 +269,7 @@ class SimpleWaypointEnv(gymnasium.Env):
                     self.yaw_targets = self.yaw_targets[1:]
             else:
                 self.info["env_complete"] = True
-                # self.termination = self.termination or True
-                self.truncation = self.truncation or True
+                self.termination = self.termination or True
 
             # delete the reached target and recolour the others
             if self.enable_render and len(self.target_visual) > 0:
