@@ -101,6 +101,7 @@ class SimpleHoverEnv(gymnasium.Env):
             start_pos=np.array([[0.0, 0.0, 1.0]]),
             start_orn=np.array([[0.0, 0.0, 0.0]]),
             render=self.enable_render,
+            seed=seed,
         )
 
         # set flight mode

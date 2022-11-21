@@ -131,6 +131,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             render=self.enable_render,
             use_camera=True,
             camera_frame_size=self.camera_frame_size,
+            seed=seed,
         )
 
         # generate gates

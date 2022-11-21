@@ -24,6 +24,7 @@ class Aviary(bullet_client.BulletClient):
         camera_angle: int = 20,
         camera_FOV: int = 90,
         camera_frame_size: tuple[int, int] = (128, 128),
+        seed: None | int = None,
     ):
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
@@ -54,12 +55,15 @@ class Aviary(bullet_client.BulletClient):
             text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
         )
 
-        self.reset()
+        self.reset(seed)
 
-    def reset(self):
+    def reset(self, seed: None | int = None):
         self.resetSimulation()
         self.setGravity(0, 0, -9.81)
         self.steps = 0
+
+        # define new RNG
+        self.np_random = np.random.RandomState(seed=seed)
 
         """ CONSTRUCT THE WORLD """
         self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=1.0)
@@ -86,6 +90,7 @@ class Aviary(bullet_client.BulletClient):
                     camera_angle=self.camera_angle,
                     camera_FOV=self.camera_FOV,
                     camera_frame_size=self.camera_frame_size,
+                    np_random=self.np_random,
                 )
             )
 

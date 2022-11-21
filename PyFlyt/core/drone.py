@@ -24,6 +24,7 @@ class Drone:
         camera_angle: int = 20,
         camera_FOV: int = 90,
         camera_frame_size: tuple[int, int] = (128, 128),
+        np_random: None | np.random.RandomState = None,
     ):
 
         if physics_hz != 240.0:
@@ -32,18 +33,15 @@ class Drone:
             )
 
         self.p = p
+        self.np_random = np.random.RandomState() if np_random is None else np_random
         self.physics_hz = 1.0 / physics_hz
         self.ctrl_period = 1.0 / ctrl_hz
         if model_dir is None:
             model_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "../models/vehicles/"
             )
-        drone_dir = os.path.join(
-            model_dir, f"{drone_model}/{drone_model}.urdf"
-        )
-        param_path = os.path.join(
-            model_dir, f"{drone_model}/{drone_model}.yaml"
-        )
+        drone_dir = os.path.join(model_dir, f"{drone_model}/{drone_model}.urdf")
+        param_path = os.path.join(model_dir, f"{drone_model}/{drone_model}.yaml")
 
         """ SPAWN """
         self.start_pos = start_pos
@@ -185,8 +183,8 @@ class Drone:
         torque = (rpm**2) * self.tor_coeff * self.tor_dir
 
         # add some random noise to the motor outputs
-        thrust += np.random.randn(*thrust.shape) * self.noise_ratio * thrust
-        torque += np.random.randn(*torque.shape) * self.noise_ratio * torque
+        thrust += self.np_random.randn(*thrust.shape) * self.noise_ratio * thrust
+        torque += self.np_random.randn(*torque.shape) * self.noise_ratio * torque
 
         for idx, (thr, tor) in enumerate(zip(thrust, torque)):
             self.p.applyExternalForce(
