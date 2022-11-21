@@ -241,7 +241,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        self.reward = -1.0
+        self.reward = -0.1
 
         # exceed step count
         if self.step_count > self.max_steps:
@@ -261,7 +261,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # target reached
         if self.target_reached:
-            self.reward = 10.0
+            self.reward = 100.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]
