@@ -6,6 +6,7 @@ import gymnasium
 import numpy as np
 import pybullet as p
 from gymnasium import spaces
+from gymnasium.spaces import GraphInstance
 
 from PyFlyt.core.aviary import Aviary
 
@@ -61,9 +62,9 @@ class SimpleWaypointEnv(gymnasium.Env):
         """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
         if angle_representation == "euler":
-            obs_shape = 15
+            obs_shape = 12
         elif angle_representation == "quaternion":
-            obs_shape = 16
+            obs_shape = 13
         else:
             raise AssertionError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
@@ -73,12 +74,25 @@ class SimpleWaypointEnv(gymnasium.Env):
         if use_yaw_targets:
             obs_shape += 1
 
-        self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
+        self.observation_space = spaces.Dict(
+            {
+                "attitude": spaces.Box(
+                    low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
+                ),
+                "target_deltas": spaces.Graph(
+                    node_space=spaces.Box(
+                        low=-2 * flight_dome_size,
+                        high=2 * flight_dome_size,
+                        shape=(3,),
+                        dtype=np.float64,
+                    ),
+                    edge_space=None,
+                ),
+            }
         )
 
-        high = np.array([2 * math.pi, 2 * math.pi, 2 * math.pi, 1.0])
-        low = np.array([-2 * math.pi, -2 * math.pi, -2 * math.pi, -1.0])
+        high = np.array([math.pi, math.pi, math.pi, 1.0])
+        low = np.array([-math.pi, -math.pi, -math.pi, -1.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -117,9 +131,6 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.info["collision"] = False
         self.info["env_complete"] = False
 
-        self.dis_error = -100.0
-        self.yaw_error = -100.0
-
         # init env
         self.env = Aviary(
             start_pos=np.array([[0.0, 0.0, 1.0]]),
@@ -129,7 +140,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(0)
+        self.env.set_mode(6)
 
         # wait for env to stabilize
         for _ in range(10):
@@ -178,11 +189,13 @@ class SimpleWaypointEnv(gymnasium.Env):
         """state.
 
         This returns the observation as well as the distances to target.
-        - ang_vel (vector of 3 values)
-        - ang_pos (vector of 3/4 values)
-        - lin_vel (vector of 3 values)
-        - lin_pos (vector of 3 values)
-        - body_frame distance to target (vector of 3/4 values)
+        - "attitude" (Box)
+            - ang_vel (vector of 3 values)
+            - ang_pos (vector of 3/4 values)
+            - lin_vel (vector of 3 values)
+            - lin_pos (vector of 3 values)
+        - "targets" (Sequence)
+            - list of body_frame distances to target (vector of 3/4 values)
         """
         raw_state = self.env.states[0]
 
@@ -199,32 +212,32 @@ class SimpleWaypointEnv(gymnasium.Env):
         rotation = np.array(p.getMatrixFromQuaternion(q_ang_pos)).reshape(3, 3).T
 
         # drone to target
-        self.dis_error = np.matmul(rotation, self.targets[0] - lin_pos)
+        target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
+        self.dis_error_scalar = np.linalg.norm(target_deltas[0])
+
         if self.use_yaw_targets:
-            self.yaw_error = self.yaw_targets[0] - ang_pos[-1]
+            yaw_errors = self.yaw_targets - ang_pos[-1]
 
-        # rollover yaw
-        if self.yaw_error > math.pi:
-            self.yaw_error -= 2.0 * math.pi
-        if self.yaw_error < -math.pi:
-            self.yaw_error += 2.0 * math.pi
+            # rollover yaw
+            yaw_errors[yaw_errors > math.pi] -= 2.0 * math.pi
+            yaw_errors[yaw_errors < -math.pi] += 2.0 * math.pi
 
-        # precompute the scalars so we can use it later
-        self.dis_error_scalar = np.linalg.norm(self.dis_error)
-        self.yaw_error_scalar = np.abs(self.yaw_error)
+            # add the yaw delta to the target deltas
+            target_deltas = np.concatenate([target_deltas, yaw_errors], axis=-1)
 
-        # use targ_yaw if necessary
-        if self.use_yaw_targets:
-            error = np.array([*self.dis_error, self.yaw_error])
-        else:
-            error = self.dis_error
+            # compute the yaw error scalar
+            self.yaw_error_scalar = np.abs(yaw_errors[0])
 
         # combine everything
-        new_state = np.array([0])
+        new_state = dict()
         if self.ang_rep == 0:
-            new_state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos, *error])
+            new_state["attitude"] = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
         elif self.ang_rep == 1:
-            new_state = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *error])
+            new_state["attitude"] = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
+
+        new_state["target_deltas"] = GraphInstance(
+            nodes=target_deltas, edge_links=None, edges=None
+        )
 
         return new_state
 
