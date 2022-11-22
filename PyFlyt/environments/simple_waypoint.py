@@ -140,7 +140,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(6)
+        self.env.set_mode(0)
 
         # wait for env to stabilize
         for _ in range(10):
