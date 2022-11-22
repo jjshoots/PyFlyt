@@ -1,13 +1,24 @@
-import setuptools
 from setuptools import setup
+
+def get_version():
+    """Gets the pettingzoo version."""
+    path = "pyproject.toml"
+    with open(path) as file:
+        lines = file.readlines()
+
+    for line in lines:
+        if line.startswith("version"):
+            return line.strip().split()[-1].strip().strip('"')
+    raise RuntimeError("bad version data in __init__.py")
 
 setup(
     name="PyFlyt",
-    version="0.2.13",
-    author="jjshoots",
+    version=get_version(),
+    author="Jet",
     author_email="taijunjet@hotmail.com",
     description="Freestyle Quadcopter Flight in Pybullet with Gym and (soon) PettingZoo APIs",
     url="https://github.com/jjshoots/PyFlyt",
+    license_files=("LICENSE.txt"),
     long_description="# [Docs](https://github.com/jjshoots/PyFlyt/blob/master/readme.md)",
     long_description_content_type="text/markdown",
     keywords=[
@@ -19,10 +30,11 @@ setup(
         "Gym",
         "PettingZoo",
     ],
-    python_requires=">=3.8, <3.11",
-    packages=setuptools.find_packages(),
+    python_requires=">=3.7",
+    packages=["wingman"],
     include_package_data=True,
     install_requires=[
+        "wheel",
         "matplotlib",
         "gymnasium",
         "numpy",
