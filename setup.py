@@ -32,14 +32,4 @@ setup(
     ],
     python_requires=">=3.7",
     include_package_data=True,
-    install_requires=[
-        "wheel",
-        "matplotlib",
-        "gymnasium",
-        "numpy",
-        "pybullet",
-        "cflib",
-        "cfclient",
-        "scipy",
-    ],
 )

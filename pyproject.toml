@@ -27,3 +27,6 @@ license = { file="./LICENSE.txt" }
 
 [tool.setuptools.package-data]
 pyflyt = ["*.dae", "*.urdf", "*.yaml"]
+
+[tool.setuptools]
+py-modules = []
