@@ -31,7 +31,6 @@ setup(
         "PettingZoo",
     ],
     python_requires=">=3.7",
-    packages=["wingman"],
     include_package_data=True,
     install_requires=[
         "wheel",
