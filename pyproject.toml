@@ -29,4 +29,4 @@ license = { file="./LICENSE.txt" }
 pyflyt = ["*.dae", "*.urdf", "*.yaml"]
 
 [tool.setuptools]
-py-modules = []
+packages = ["PyFlyt"]
