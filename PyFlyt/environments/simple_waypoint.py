@@ -20,9 +20,9 @@ class SimpleWaypointEnv(gymnasium.Env):
     The target is a set of `[x, y, z, yaw]` targets in space
 
     Reward:
-        10.0 for reaching target,
+        100.0 for reaching target,
         -100 for collisions or out of bounds,
-        0.0 otherwise
+        -0.1 otherwise
     """
 
     metadata = {"render_modes": ["human"]}

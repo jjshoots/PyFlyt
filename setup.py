@@ -1,4 +1,19 @@
+from setuptools import find_namespace_packages
 from setuptools import setup
+import os
+
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join("..", path, filename))
+    return paths
+
+
+extra_files = package_files("PyFlyt/models/")
+print(extra_files)
+
 
 def get_version():
     """Gets the pettingzoo version."""
@@ -10,6 +25,7 @@ def get_version():
         if line.startswith("version"):
             return line.strip().split()[-1].strip().strip('"')
     raise RuntimeError("bad version data in __init__.py")
+
 
 setup(
     name="PyFlyt",
@@ -32,4 +48,6 @@ setup(
     ],
     python_requires=">=3.7",
     include_package_data=True,
+    packages=[package for package in find_namespace_packages() if package.startswith("PyFlyt")],
+    package_data={'PyFlyt': extra_files},
 )
