@@ -183,6 +183,8 @@ class SimpleWaypointEnv(gymnasium.Env):
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
 
+        self.compute_state()
+
         return self.state, self.info
 
     def compute_state(self):
