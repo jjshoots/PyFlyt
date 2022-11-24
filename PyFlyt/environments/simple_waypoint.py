@@ -62,9 +62,9 @@ class SimpleWaypointEnv(gymnasium.Env):
         """GYMNASIUM STUFF"""
         # observation size increases by 1 for quaternion
         if angle_representation == "euler":
-            obs_shape = 12
+            obs_shape = 16
         elif angle_representation == "quaternion":
-            obs_shape = 13
+            obs_shape = 17
         else:
             raise AssertionError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
@@ -126,6 +126,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.termination = False
         self.truncation = False
         self.reward = 0.0
+        self.action = np.zeros((4, ))
         self.info = {}
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
@@ -140,7 +141,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(0)
+        self.env.set_mode(6)
 
         # wait for env to stabilize
         for _ in range(10):
@@ -184,8 +185,7 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         return self.state, self.info
 
-    @property
-    def state(self):
+    def compute_state(self):
         """state.
 
         This returns the observation as well as the distances to target.
@@ -231,15 +231,15 @@ class SimpleWaypointEnv(gymnasium.Env):
         # combine everything
         new_state = dict()
         if self.ang_rep == 0:
-            new_state["attitude"] = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
+            new_state["attitude"] = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action])
         elif self.ang_rep == 1:
-            new_state["attitude"] = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
+            new_state["attitude"] = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *self.action])
 
         new_state["target_deltas"] = GraphInstance(
             nodes=target_deltas, edge_links=None, edges=None
         )
 
-        return new_state
+        self.state = new_state
 
     @property
     def target_reached(self):
@@ -305,6 +305,7 @@ class SimpleWaypointEnv(gymnasium.Env):
             action (np.ndarray): action
         """
         # unsqueeze the action to be usable in aviary
+        self.action = action.copy()
         action = np.expand_dims(action, axis=0)
 
         # step through env, the internal env updates a few steps before the outer env
@@ -312,6 +313,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.env.step()
 
         # compute state and done
+        self.compute_state()
         self.compute_term_trunc_reward()
 
         # increment step count
