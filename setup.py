@@ -48,6 +48,8 @@ setup(
     ],
     python_requires=">=3.7",
     include_package_data=True,
-    packages=[package for package in find_namespace_packages() if package.startswith("PyFlyt")],
-    package_data={'PyFlyt': extra_files},
+    packages=[
+        package for package in find_namespace_packages() if package.startswith("PyFlyt")
+    ],
+    package_data={"PyFlyt": extra_files},
 )

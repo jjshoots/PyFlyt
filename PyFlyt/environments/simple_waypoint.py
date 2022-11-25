@@ -91,8 +91,8 @@ class SimpleWaypointEnv(gymnasium.Env):
             }
         )
 
-        high = np.array([math.pi, math.pi, math.pi, 1.0])
-        low = np.array([-math.pi, -math.pi, -math.pi, -1.0])
+        high = np.array([0.3 * math.pi, 0.3 * math.pi, 0.3 * math.pi, 1.0])
+        low = np.array([-0.3 * math.pi, -0.3 * math.pi, -0.3 * math.pi, -1.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
@@ -126,7 +126,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.termination = False
         self.truncation = False
         self.reward = 0.0
-        self.action = np.zeros((4, ))
+        self.action = np.zeros((4,))
         self.info = {}
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
@@ -141,7 +141,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         )
 
         # set flight mode
-        self.env.set_mode(6)
+        self.env.set_mode(0)
 
         # wait for env to stabilize
         for _ in range(10):
@@ -233,9 +233,13 @@ class SimpleWaypointEnv(gymnasium.Env):
         # combine everything
         new_state = dict()
         if self.ang_rep == 0:
-            new_state["attitude"] = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action])
+            new_state["attitude"] = np.array(
+                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action]
+            )
         elif self.ang_rep == 1:
-            new_state["attitude"] = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *self.action])
+            new_state["attitude"] = np.array(
+                [*ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *self.action]
+            )
 
         new_state["target_deltas"] = GraphInstance(
             nodes=target_deltas, edge_links=None, edges=None
