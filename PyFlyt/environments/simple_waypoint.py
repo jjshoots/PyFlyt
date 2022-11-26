@@ -35,7 +35,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         use_yaw_targets: bool = True,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
-        flight_dome_size: float = 5.0,
+        flight_dome_size: float = 3.0,
         render_mode: None | str = None,
     ):
         """__init__.
