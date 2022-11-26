@@ -91,8 +91,8 @@ class SimpleWaypointEnv(gymnasium.Env):
             }
         )
 
-        high = np.array([0.3 * math.pi, 0.3 * math.pi, 0.3 * math.pi, 0.5])
-        low = np.array([-0.3 * math.pi, -0.3 * math.pi, -0.3 * math.pi, -0.5])
+        high = np.array([math.pi, math.pi, math.pi, 1.0])
+        low = np.array([-math.pi, -math.pi, -math.pi, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
