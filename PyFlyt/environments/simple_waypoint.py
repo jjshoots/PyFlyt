@@ -36,6 +36,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 3.0,
+        agent_hz: int = 60,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -48,8 +49,16 @@ class SimpleWaypointEnv(gymnasium.Env):
             goal_reach_distance (float): goal_reach_distance
             goal_reach_angle (float): goal_reach_angle
             flight_dome_size (float): size of the allowable flying area
+            agent_hz (int): looprate of the agent to environment interaction
             render_mode (None | str): can be "human" or None
         """
+
+        if 120 % agent_hz != 0:
+            lowest = int(120 / int(120 / agent_hz))
+            highest = int(120 / (int(120 / agent_hz) + 1))
+            raise AssertionError(
+                f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
+            )
 
         if render_mode is not None:
             assert (
@@ -98,6 +107,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
+        self.cycle_steps = int(120 / agent_hz)
         self.flight_dome_size = flight_dome_size
         self.max_steps = max_steps
         self.num_targets = num_targets
@@ -318,7 +328,8 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # step through env, the internal env updates a few steps before the outer env
         self.env.set_setpoints(action)
-        self.env.step()
+        for _ in range(self.cycle_steps):
+            self.env.step()
 
         # compute state and done
         self.compute_state()
