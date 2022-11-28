@@ -6,7 +6,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from PyFlyt.core.drone import Drone
+from PyFlyt.core.drone import Drone, BasicController
 
 
 class Aviary(bullet_client.BulletClient):
@@ -118,6 +118,15 @@ class Aviary(bullet_client.BulletClient):
         states = np.stack(states, axis=0)
 
         return states
+
+    def register_controller(
+        self,
+        controller_id: int,
+        controller_constructor: type[BasicController],
+        base_mode: int,
+    ):
+        for drone in self.drones:
+            drone.register_controller(controller_id, controller_constructor, base_mode)
 
     def set_armed(self, settings):
         assert len(settings) == len(self.armed), "incorrect go length"

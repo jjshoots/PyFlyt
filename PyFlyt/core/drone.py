@@ -9,7 +9,22 @@ from pybullet_utils import bullet_client
 from PyFlyt.core.PID import PID
 
 
+class BasicController:
+    """Basic Controller class to implement custom controllers."""
+
+    def __init__(self):
+        pass
+
+    def reset(self):
+        pass
+
+    def step(self, state: np.ndarray, setpoint: np.ndarray):
+        pass
+
+
 class Drone:
+    """Drone instance that handles everything about a particular drone."""
+
     def __init__(
         self,
         p: bullet_client.BulletClient,
@@ -147,6 +162,12 @@ class Drone:
             self.camera_FOV = camera_FOV
             self.camera_frame_size = np.array(camera_frame_size)
 
+        """ CUSTOM CONTROLLERS """
+        # dictionary mapping of controller_id to controller objects
+        self.registered_controllers = dict()
+        self.instanced_controllers = dict()
+        self.registered_base_modes = dict()
+
         self.reset()
 
     def reset(self):
@@ -234,6 +255,7 @@ class Drone:
         T = thrust
 
         sets the flight mode:
+           -1 - m1, m2, m3, m4
             0 - vp, vq, vr, T
             1 - p, q, r, vz
             2 - vp, vq, vr, z
@@ -243,9 +265,23 @@ class Drone:
             6 - vx, vy, vr, vz
             7 - x, y, r, z
         """
+        if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
+            raise ValueError(
+                f"`mode` must be between -1 and 7 or be registered in {self.registered_controllers.keys()=}, got {mode}."
+            )
+
+        self.mode = mode
+
+        # for custom modes
+        if mode in self.registered_controllers.keys():
+            self.instanced_controllers[mode] = self.registered_controllers[mode]()
+            mode = self.registered_base_modes[mode]
+
+        # mode -1 means no controller present
+        if mode == -1:
+            return
 
         # preset setpoints on mode change
-        # self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
         if mode == 0:
             # racing mode, thrust to 0
             self.setpoint = np.array([0.0, 0.0, 0.0, -1.0])
@@ -261,8 +297,7 @@ class Drone:
             self.setpoint[-1] = self.state[-1, -1]
 
         # instantiate PIDs
-        self.mode = mode
-        if mode == 0 or mode == 2:
+        if mode in [0, 2]:
             ang_vel_PID = PID(
                 self.Kp_ang_vel,
                 self.Ki_ang_vel,
@@ -271,7 +306,7 @@ class Drone:
                 self.ctrl_period,
             )
             self.PIDs = [ang_vel_PID]
-        elif mode == 1 or mode == 3:
+        elif mode in [1, 3]:
             ang_vel_PID = PID(
                 self.Kp_ang_vel,
                 self.Ki_ang_vel,
@@ -287,7 +322,7 @@ class Drone:
                 self.ctrl_period,
             )
             self.PIDs = [ang_vel_PID, ang_pos_PID]
-        elif mode == 4 or mode == 5 or mode == 6:
+        elif mode in [4, 5, 6]:
             ang_vel_PID = PID(
                 self.Kp_ang_vel,
                 self.Ki_ang_vel,
@@ -345,60 +380,78 @@ class Drone:
             controller.reset()
 
     def update_control(self):
-        """runs through PID controllers"""
-        output = None
+        """runs through controllers"""
+        # this is the thing we cascade down controllers
+        a_output = self.setpoint[:3].copy()
+        z_output = self.setpoint[-1].copy()
+        mode = self.mode
+
+        # custom controllers run first if any
+        if self.mode in self.registered_controllers.keys():
+            custom_output = self.instanced_controllers[self.mode].step(
+                self.state, self.setpoint
+            )
+            assert custom_output.shape == (
+                4,
+            ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
+
+            # splice things out to be passed along
+            a_output = custom_output[:3].copy()
+            z_output = custom_output[-1].copy()
+            mode = self.registered_base_modes[self.mode]
+
+        # controller -1 means just direct to motor pwm commands
+        if mode == -1:
+            self.pwm = np.array([*a_output, z_output])
+            return
+
         # angle controllers
-        if self.mode == 0 or self.mode == 2:
-            output = self.PIDs[0].step(self.state[0], self.setpoint[:3])
-        elif self.mode == 1 or self.mode == 3:
-            output = self.PIDs[1].step(self.state[1], self.setpoint[:3])
-            output = self.PIDs[0].step(self.state[0], output)
-        elif self.mode == 4 or self.mode == 5:
-            output = self.PIDs[2].step(self.state[2][:2], self.setpoint[:2])
-            output = np.array([-output[1], output[0]])
-            output = self.PIDs[1].step(self.state[1][:2], output)
-            output = self.PIDs[0].step(
-                self.state[0], np.array([*output, self.setpoint[2]])
-            )
-        elif self.mode == 6:
+        if mode in [0, 2]:
+            a_output = self.PIDs[0].step(self.state[0], a_output)
+        elif mode in [1, 3]:
+            a_output = self.PIDs[1].step(self.state[1], a_output)
+            a_output = self.PIDs[0].step(self.state[0], a_output)
+        elif mode in [4, 5]:
+            a_output[:2] = self.PIDs[2].step(self.state[2][:2], a_output[:2])
+            a_output[:2] = np.array([-a_output[1], a_output[0]])
+            a_output[:2] = self.PIDs[1].step(self.state[1][:2], a_output[:2])
+            a_output = self.PIDs[0].step(self.state[0], a_output)
+        elif mode == 6:
             c = math.cos(self.state[1, -1])
             s = math.sin(self.state[1, -1])
             rot_mat = np.array([[c, -s], [s, c]]).T
-            output = np.matmul(rot_mat, self.setpoint[:2])
+            a_output[:2] = np.matmul(rot_mat, a_output[:2])
 
-            output = self.PIDs[2].step(self.state[2][:2], output)
-            output = np.array([-output[1], output[0]])
-            output = self.PIDs[1].step(self.state[1][:2], output)
-            output = self.PIDs[0].step(
-                self.state[0], np.array([*output, self.setpoint[2]])
-            )
-        elif self.mode == 7:
-            output = self.PIDs[3].step(self.state[3][:2], self.setpoint[:2])
+            a_output[:2] = self.PIDs[2].step(self.state[2][:2], a_output[:2])
+            a_output[:2] = np.array([-a_output[1], a_output[0]])
+            a_output[:2] = self.PIDs[1].step(self.state[1][:2], a_output[:2])
+            a_output = self.PIDs[0].step(self.state[0], a_output)
+        elif mode == 7:
+            a_output[:2] = self.PIDs[3].step(self.state[3][:2], a_output[:2])
 
             c = math.cos(self.state[1, -1])
             s = math.sin(self.state[1, -1])
             rot_mat = np.array([[c, -s], [s, c]]).T
-            output = np.matmul(rot_mat, output)
+            a_output[:2] = np.matmul(rot_mat, a_output[:2])
 
-            output = self.PIDs[2].step(self.state[2][:2], output)
-            output = np.array([-output[1], output[0], self.setpoint[2]])
-            output = self.PIDs[1].step(self.state[1], output)
-            output = self.PIDs[0].step(self.state[0], output)
+            a_output[:2] = self.PIDs[2].step(self.state[2][:2], a_output[:2])
+            a_output = np.array([-a_output[1], a_output[0], a_output[2]])
+            a_output = self.PIDs[1].step(self.state[1], a_output)
+            a_output = self.PIDs[0].step(self.state[0], a_output)
 
-        z_output = None
         # height controllers
-        if self.mode == 0:
-            z_output = np.clip(self.setpoint[-1], 0.0, 1.0)
-        elif self.mode == 1 or self.mode == 5 or self.mode == 6:
-            z_output = self.z_PIDs[0].step(self.state[2][-1], self.setpoint[-1])
+        if mode == 0:
+            z_output = np.clip(z_output, 0.0, 1.0)
+        elif mode == 1 or mode == 5 or mode == 6:
+            z_output = self.z_PIDs[0].step(self.state[2][-1], z_output)
             z_output = np.clip(z_output, 0, 1)
-        elif self.mode == 2 or self.mode == 3 or self.mode == 4 or self.mode == 7:
-            z_output = self.z_PIDs[1].step(self.state[3][-1], self.setpoint[-1])
+        elif mode == 2 or mode == 3 or mode == 4 or mode == 7:
+            z_output = self.z_PIDs[1].step(self.state[3][-1], z_output)
             z_output = self.z_PIDs[0].step(self.state[2][-1], z_output)
             z_output = np.clip(z_output, 0, 1)
 
         # mix the commands
-        self.pwm = self.cmd2pwm(np.array([*output, z_output]))
+        self.pwm = self.cmd2pwm(np.array([*a_output, z_output]))
 
     def update_forces(self):
         self.rpm2forces(self.pwm2rpm(self.pwm))
@@ -451,6 +504,22 @@ class Drone:
         self.rgbImg = np.array(self.rgbImg).reshape(-1, *self.camera_frame_size)
         self.depthImg = np.array(self.depthImg).reshape(-1, *self.camera_frame_size)
         self.segImg = np.array(self.segImg).reshape(-1, *self.camera_frame_size)
+
+    def register_controller(
+        self,
+        controller_id: int,
+        controller_constructor: type[BasicController],
+        base_mode: int,
+    ):
+        assert (
+            controller_id > 7
+        ), f"`controller_id` must be more than 7, currently {controller_id}"
+        assert (
+            base_mode >= -1 and base_mode <= 7
+        ), f"`base_mode` must be within -1 and 7, currently {base_mode}."
+
+        self.registered_controllers[controller_id] = controller_constructor
+        self.registered_base_modes[controller_id] = base_mode
 
     def update(self):
         """
