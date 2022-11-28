@@ -29,9 +29,6 @@ class Aviary(bullet_client.BulletClient):
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
 
-        # reset the camera position t a sane place
-        self.resetDebugVisualizerCamera(cameraDistance=3, cameraYaw=30, cameraPitch=52, cameraTargetPosition=[0,0,0])
-
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
         self.physics_hz = physics_hz
@@ -64,6 +61,14 @@ class Aviary(bullet_client.BulletClient):
         self.resetSimulation()
         self.setGravity(0, 0, -9.81)
         self.steps = 0
+
+        # reset the camera position t a sane place
+        self.resetDebugVisualizerCamera(
+            cameraDistance=5,
+            cameraYaw=30,
+            cameraPitch=-45,
+            cameraTargetPosition=[0, 0, 1],
+        )
 
         # define new RNG
         self.np_random = np.random.RandomState(seed=seed)
