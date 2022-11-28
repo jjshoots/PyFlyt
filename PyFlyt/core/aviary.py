@@ -29,6 +29,9 @@ class Aviary(bullet_client.BulletClient):
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
 
+        # reset the camera position t a sane place
+        self.resetDebugVisualizerCamera(cameraDistance=3, cameraYaw=30, cameraPitch=52, cameraTargetPosition=[0,0,0])
+
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
         self.physics_hz = physics_hz
@@ -118,15 +121,6 @@ class Aviary(bullet_client.BulletClient):
         states = np.stack(states, axis=0)
 
         return states
-
-    def register_controller(
-        self,
-        controller_id: int,
-        controller_constructor: type[BasicController],
-        base_mode: int,
-    ):
-        for drone in self.drones:
-            drone.register_controller(controller_id, controller_constructor, base_mode)
 
     def set_armed(self, settings):
         assert len(settings) == len(self.armed), "incorrect go length"
