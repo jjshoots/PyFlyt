@@ -94,7 +94,13 @@ class Aviary(bullet_client.BulletClient):
                 )
             )
 
+        # arm everything
         self.armed = [1] * self.num_drones
+
+        # collision array
+        self.collision_array = np.zeros(
+            (self.getNumBodies(), self.getNumBodies()), dtype=bool
+        )
 
     @property
     def num_drones(self):
@@ -135,6 +141,10 @@ class Aviary(bullet_client.BulletClient):
         """
         Steps the environment
         """
+        # reset collisions
+        self.collision_array &= False
+
+        # step the environment enough times for 1 control loop
         for i in range(self.ctrl_update_ratio):
 
             # wait a bit if we're rendering
@@ -169,5 +179,9 @@ class Aviary(bullet_client.BulletClient):
 
             self.stepSimulation()
 
-        self.performCollisionDetection()
+            # splice out collisions
+            for collision in self.getContactPoints():
+                self.collision_array[collision[1], collision[2]] = True
+                self.collision_array[collision[2], collision[1]] = True
+
         self.steps += 1

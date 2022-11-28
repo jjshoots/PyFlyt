@@ -17,17 +17,19 @@ class SimpleHoverEnv(gymnasium.Env):
 
     The target is to not crash for the longest time possible
 
-    Reward is 1.0 for each time step, and -10.0 for crashing
-    or going outside the flight dome.
+    Reward:
+        -100 for collisions or out of bounds,
+        -0.1 otherwise
     """
 
     metadata = {"render_modes": ["human"]}
 
     def __init__(
         self,
-        max_steps: int = 2000,
+        max_steps: int = 300,
         angle_representation: str = "quaternion",
         flight_dome_size: float = 3.0,
+        agent_hz: int = 30,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -38,6 +40,13 @@ class SimpleHoverEnv(gymnasium.Env):
             flight_dome_size (float): size of the allowable flying area
             render_mode (None | str): can be "human" or None
         """
+
+        if 120 % agent_hz != 0:
+            lowest = int(120 / int(120 / agent_hz))
+            highest = int(120 / (int(120 / agent_hz) + 1))
+            raise AssertionError(
+                f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
+            )
 
         if render_mode is not None:
             assert (
@@ -67,6 +76,7 @@ class SimpleHoverEnv(gymnasium.Env):
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
+        self.cycle_steps = int(120 / agent_hz)
         self.flight_dome_size = flight_dome_size
         self.max_steps = max_steps
         self.ang_rep = 0
@@ -111,10 +121,11 @@ class SimpleHoverEnv(gymnasium.Env):
         for _ in range(10):
             self.env.step()
 
+        self.compute_state()
+
         return self.state, self.info
 
-    @property
-    def state(self):
+    def compute_state(self):
         """state.
 
         This returns the observation.
@@ -132,34 +143,35 @@ class SimpleHoverEnv(gymnasium.Env):
         lin_pos = raw_state[3]
 
         # combine everything
-        new_state = np.array([0])
         if self.ang_rep == 0:
-            new_state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
+            self.state = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos])
         elif self.ang_rep == 1:
             # quarternion angles
             q_ang_pos = p.getQuaternionFromEuler(ang_pos)
 
-            new_state = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
-
-        return new_state
+            self.state = np.array([*ang_vel, *q_ang_pos, *lin_vel, *lin_pos])
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        self.reward = 0
+        self.reward += -0.1
+
+        # if we've already ended, just exit
+        if self.termination or self.truncation:
+            return
 
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
 
         # exceed flight dome
-        if np.linalg.norm(self.state[-3:]) > self.flight_dome_size:
-            self.reward = -100.0
+        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
+            self.reward += -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
         # collision
-        if len(self.env.getContactPoints()) > 0:
-            self.reward = -100.0
+        if np.any(self.env.collision_array):
+            self.reward += -100.0
             self.info["collision"] = True
             self.termination = self.termination or True
 
@@ -173,14 +185,20 @@ class SimpleHoverEnv(gymnasium.Env):
             state, reward, termination, truncation, info
         """
         # unsqueeze the action to be usable in aviary
+        self.action = action.copy()
         action = np.expand_dims(action, axis=0)
 
-        # step through env, the internal env updates a few steps before the outer env
+        # reset the reward and set the action
+        self.reward = 0
         self.env.set_setpoints(action)
-        self.env.step()
 
-        # compute state and done
-        self.compute_term_trunc_reward()
+        # step through env, the internal env updates a few steps before the outer env
+        for _ in range(self.cycle_steps):
+            self.env.step()
+
+            # compute state and done
+            self.compute_state()
+            self.compute_term_trunc_reward()
 
         # increment step count
         self.step_count += 1

@@ -29,14 +29,14 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 2400,
+        max_steps: int = 300,
         angle_representation: str = "quaternion",
         num_targets: int = 4,
         use_yaw_targets: bool = True,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
-        flight_dome_size: float = 3.0,
-        agent_hz: int = 60,
+        flight_dome_size: float = 5.0,
+        agent_hz: int = 30,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -137,7 +137,6 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.step_count = 0
         self.termination = False
         self.truncation = False
-        self.reward = 0.0
         self.action = np.zeros((4,))
         self.info = {}
         self.info["out_of_bounds"] = False
@@ -273,7 +272,11 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        self.reward = -0.1
+        self.reward += -0.1
+
+        # if we've already ended, just exit
+        if self.termination or self.truncation:
+            return
 
         # exceed step count
         if self.step_count > self.max_steps:
@@ -281,19 +284,19 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # exceed flight dome
         if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
-            self.reward = -100.0
+            self.reward += -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
         # collision
-        if len(self.env.getContactPoints()) > 0:
-            self.reward = -100.0
+        if np.any(self.env.collision_array):
+            self.reward += -100.0
             self.info["collision"] = True
             self.termination = self.termination or True
 
         # target reached
         if self.target_reached:
-            self.reward = 100.0
+            self.reward += 100.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]
@@ -326,14 +329,17 @@ class SimpleWaypointEnv(gymnasium.Env):
         self.action = action.copy()
         action = np.expand_dims(action, axis=0)
 
-        # step through env, the internal env updates a few steps before the outer env
+        # reset the reward and set the action
+        self.reward = 0
         self.env.set_setpoints(action)
+
+        # step through env, the internal env updates a few steps before the outer env
         for _ in range(self.cycle_steps):
             self.env.step()
 
-        # compute state and done
-        self.compute_state()
-        self.compute_term_trunc_reward()
+            # compute state and done
+            self.compute_state()
+            self.compute_term_trunc_reward()
 
         # increment step count
         self.step_count += 1
