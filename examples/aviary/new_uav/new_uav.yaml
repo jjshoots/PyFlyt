@@ -1,0 +1,52 @@
+motor_params:
+  thrust_to_weight: 2.25
+  thrust_const: 3.16e-10
+  torque_const: 7.94e-12
+  motor_noise_ratio: 0.02
+
+drag_params:
+  drag_const_xyz: 1.0e-3
+  drag_const_pqr: 1.0e-4
+
+control_params:
+  ang_vel:
+    description: "input: angular velocity command | output: normalized antular torque command"
+    kp: [8.0e-3, 8.0e-3, 1.0e-2]
+    ki: [2.5e-7, 2.5e-7, 1.3e-4]
+    kd: [10.0e-5, 10.0e-5, 0.0]
+    lim: [1.0, 1.0, 1.0]
+
+  ang_pos:
+    description: "input: angular position command | output: angular velocity command"
+    kp: [2.0, 2.0, 2.0]
+    ki: [0.0, 0.0, 0.0]
+    kd: [0.0, 0.0, 0.0]
+    lim: [3.0, 3.0, 3.0]
+
+  lin_vel:
+    description: "input: linear velocity command | output: angular position command"
+    kp: [0.8, 0.8]
+    ki: [0.3, 0.3]
+    kd: [0.5, 0.5]
+    lim: [0.4, 0.4]
+
+  lin_pos:
+    description: "input: linear position command | output: linear velocity command"
+    kp: [1.0, 1.0]
+    ki: [0.0, 0.0]
+    kd: [0.0, 0.0]
+    lim: [0.5, 0.5]
+
+  z_pos:
+    description: "input: height position target | output: z velocity command"
+    kp: 1.0
+    ki: 0.0
+    kd: 0.0
+    lim: 1.0
+
+  z_vel:
+    description: "input: z velocity command | output: normalized thrust command"
+    kp: 0.15
+    ki: 1.0
+    kd: 0.015
+    lim: 0.3
