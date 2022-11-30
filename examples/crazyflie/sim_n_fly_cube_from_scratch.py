@@ -6,8 +6,7 @@ from signal import SIGINT, signal
 import matplotlib.pyplot as plt
 import numpy as np
 
-from PyFlyt.crazyflie.simulator import Simulator
-from PyFlyt.crazyflie.swarm_controller import Swarm_Controller
+from PyFlyt.crazyflie import Simulator, SwarmController
 
 global DIM_DRONES
 DIM_DRONES = 3
@@ -72,7 +71,7 @@ def real_handler():
     URIs.append("radio://1/30/2M/E7E7E7E7E4")
 
     # connect to a drone
-    UAVs = Swarm_Controller(URIs)
+    UAVs = SwarmController(URIs)
     UAVs.set_pos_control(True)
 
     return UAVs

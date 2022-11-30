@@ -5,7 +5,7 @@ from signal import SIGINT, signal
 import matplotlib.pyplot as plt
 import numpy as np
 
-from PyFlyt.example.simulator import Simulator
+from PyFlyt.crazyflie import Simulator
 
 
 def shutdown_handler(*_):

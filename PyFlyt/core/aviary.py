@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import time
 
 import numpy as np
@@ -6,7 +7,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from PyFlyt.core.drone import Drone, BasicController
+from PyFlyt.core.drone import Drone
 
 
 class Aviary(bullet_client.BulletClient):
@@ -82,7 +83,7 @@ class Aviary(bullet_client.BulletClient):
         # )
 
         # spawn drones
-        self.drones = []
+        self.drones: list[Drone] = []
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
             self.drones.append(
                 Drone(
@@ -104,7 +105,9 @@ class Aviary(bullet_client.BulletClient):
 
         # arm everything
         self.armed = [1] * self.num_drones
+        self.register_all_new_bodies()
 
+    def register_all_new_bodies(self):
         # collision array
         self.collision_array = np.zeros(
             (self.getNumBodies(), self.getNumBodies()), dtype=bool

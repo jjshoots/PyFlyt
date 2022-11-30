@@ -4,10 +4,10 @@ from typing import List
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from PyFlyt.crazyflie.drone_controller import Drone_Controller
+from PyFlyt.crazyflie import DroneController
 
 
-class Swarm_Controller:
+class SwarmController:
     """
     Class for controlling a swarm of Crazyflie UAVs.
     Realistically, only about 5 drones per dongle supported.
@@ -22,7 +22,7 @@ class Swarm_Controller:
     """
 
     def __init__(self, URIs: List[str]):
-        self.UAVs = [Drone_Controller(URI, in_swarm=True) for URI in URIs]
+        self.UAVs = [DroneController(URI, in_swarm=True) for URI in URIs]
         time.sleep(1)
         print(f"Swarm with {self.num_drones} drones ready to go...")
         time.sleep(1)

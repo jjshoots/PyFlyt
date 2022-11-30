@@ -1,6 +1,6 @@
-from setuptools import find_namespace_packages
-from setuptools import setup
 import os
+
+from setuptools import find_namespace_packages, setup
 
 
 def package_files(directory):

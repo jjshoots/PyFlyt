@@ -1,15 +1,16 @@
 from __future__ import annotations
+
 import math
 import os
-import yaml
 
 import numpy as np
+import yaml
 from pybullet_utils import bullet_client
 
 from PyFlyt.core.PID import PID
 
 
-class BasicController:
+class BaseCtrlClass:
     """Basic Controller class to implement custom controllers."""
 
     def __init__(self):
@@ -290,7 +291,9 @@ class Drone:
             self.setpoint = np.array([0.0, 0.0, 0.0, 0.0])
         elif mode == 7:
             # position mode just hold position
-            self.setpoint = np.array([*self.state[-1, :2], self.state[1, -1]])
+            self.setpoint = np.array(
+                [*self.state[-1, :2], self.state[1, -1], self.state[-1, -1]]
+            )
         else:
             # everything else set to 0 except z component maintain
             self.setpoint = np.array([0.0, 0.0, 0.0, 0.0])
@@ -495,20 +498,20 @@ class Drone:
         )
 
     def capture_image(self):
-        _, _, self.rgbImg, self.depthImg, self.segImg = self.p.getCameraImage(
+        _, _, self.rgbaImg, self.depthImg, self.segImg = self.p.getCameraImage(
             width=self.camera_frame_size[1],
             height=self.camera_frame_size[0],
             viewMatrix=self.view_mat,
             projectionMatrix=self.proj_mat,
         )
-        self.rgbImg = np.array(self.rgbImg).reshape(-1, *self.camera_frame_size)
-        self.depthImg = np.array(self.depthImg).reshape(-1, *self.camera_frame_size)
-        self.segImg = np.array(self.segImg).reshape(-1, *self.camera_frame_size)
+        self.rgbaImg = np.array(self.rgbaImg).reshape(*self.camera_frame_size, -1)
+        self.depthImg = np.array(self.depthImg).reshape(*self.camera_frame_size, -1)
+        self.segImg = np.array(self.segImg).reshape(*self.camera_frame_size, -1)
 
     def register_controller(
         self,
         controller_id: int,
-        controller_constructor: type[BasicController],
+        controller_constructor: type[BaseCtrlClass],
         base_mode: int,
     ):
         assert (

@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from PyFlyt.crazyflie.drone_controller import Drone_Controller
+from PyFlyt.crazyflie import DroneController
 
 
 def shutdown_handler(*_):
@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     # here we attempt to control 1 drone
     # the URI corresponds to the 1 drone
-    UAV = Drone_Controller("radio://0/10/2M/E7E7E7E7E3")
+    UAV = DroneController("radio://0/10/2M/E7E7E7E7E3")
 
     # start the flight controller and put into pos control
     UAV.set_pos_control(True)

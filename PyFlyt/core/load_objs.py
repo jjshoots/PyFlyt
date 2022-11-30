@@ -6,6 +6,7 @@ def loadOBJ(
     fileName="null",
     visualId=-1,
     collisionId=-1,
+    baseMass=0.0,
     meshScale=[1.0, 1.0, 1.0],
     basePosition=[0.0, 0.0, 0.0],
     baseOrientation=[0.0, 0.0, 0.0],
@@ -21,7 +22,7 @@ def loadOBJ(
         visualId = obj_visual(fileName, meshScale)
 
     return p.createMultiBody(
-        baseMass=0,
+        baseMass=baseMass,
         baseVisualShapeIndex=int(visualId),
         baseCollisionShapeIndex=int(collisionId),
         basePosition=basePosition,

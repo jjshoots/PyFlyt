@@ -5,8 +5,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from PyFlyt.crazyflie.simulator import Simulator
-from PyFlyt.crazyflie.swarm_controller import Swarm_Controller
+from PyFlyt.crazyflie import Simulator, SwarmController
 
 
 def shutdown_handler(*_):
@@ -54,7 +53,7 @@ def real_handler():
     URIs.append("radio://0/10/2M/E7E7E7E7E2")
 
     # connect to a drone
-    UAVs = Swarm_Controller(URIs)
+    UAVs = SwarmController(URIs)
     UAVs.set_pos_control(True)
 
     return UAVs

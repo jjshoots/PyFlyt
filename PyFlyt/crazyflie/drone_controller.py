@@ -11,10 +11,8 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.motion_commander import MotionCommander
 from cflib.utils import uri_helper
 
-from PyFlyt.core.PID import PID
 
-
-class Drone_Controller:
+class DroneController:
     """controller for a single drone"""
 
     def __init__(self, URI, in_swarm=False):

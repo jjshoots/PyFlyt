@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from PyFlyt.crazyflie.swarm_controller import Swarm_Controller
+from PyFlyt.crazyflie import SwarmController
 
 
 def shutdown_handler(*_):
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     URIs.append("radio://0/30/2M/E7E7E7E7E7")
 
     # arm all drones
-    swarm = Swarm_Controller(URIs)
+    swarm = SwarmController(URIs)
     # swarm.set_pos_control(True)
     swarm.go([1] * swarm.num_drones)
 
