@@ -100,8 +100,8 @@ class SimpleWaypointEnv(gymnasium.Env):
             }
         )
 
-        a_lim = math.pi / 3.0
-        t_lim = 0.6
+        a_lim = math.pi / 2.0
+        t_lim = 0.8
         high = np.array([a_lim, a_lim, a_lim, t_lim])
         low = np.array([-a_lim, -a_lim, -a_lim, 0.0])
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
