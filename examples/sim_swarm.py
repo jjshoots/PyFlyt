@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from PyFlyt.hardware.simulator import Simulator
+from PyFlyt.example.simulator import Simulator
 
 
 def shutdown_handler(*_):

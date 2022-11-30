@@ -3,7 +3,7 @@ from signal import SIGINT, signal
 
 import numpy as np
 
-from PyFlyt.hardware.drone_controller import Drone_Controller
+from PyFlyt.crazyflie.drone_controller import Drone_Controller
 
 
 def shutdown_handler(*_):
