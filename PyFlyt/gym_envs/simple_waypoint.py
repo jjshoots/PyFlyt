@@ -30,14 +30,14 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 300,
+        max_steps: int = 6000,
         angle_representation: str = "quaternion",
         num_targets: int = 4,
         use_yaw_targets: bool = True,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 5.0,
-        agent_hz: int = 30,
+        agent_hz: int = 60,
         render_mode: None | str = None,
     ):
         """__init__.
