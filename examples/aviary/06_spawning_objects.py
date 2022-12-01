@@ -1,8 +1,7 @@
 """Spawn a single drone on x=0, y=0, z=1, with 0 rpy."""
 import numpy as np
-from PyFlyt import Aviary
 
-from PyFlyt import loadOBJ, obj_visual, obj_collision
+from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual
 
 # the starting position and orientations
 start_pos = np.array([[0.0, 0.0, 1.0]])
@@ -17,7 +16,13 @@ env.set_mode(7)
 # load the visual and collision entities and load the duck
 visualId = obj_visual(env, "duck.obj")
 collisionId = obj_collision(env, "duck.obj")
-loadOBJ(env, visualId=visualId, collisionId=collisionId, baseMass=1.0, basePosition=[0.0, 0.0, 10.0])
+loadOBJ(
+    env,
+    visualId=visualId,
+    collisionId=collisionId,
+    baseMass=1.0,
+    basePosition=[0.0, 0.0, 10.0],
+)
 
 # call this to register all new bodies for collision
 env.register_all_new_bodies()

@@ -1,13 +1,20 @@
 """Spawn a single drone on x=0, y=0, z=1, with 0 rpy."""
 import numpy as np
-from PyFlyt import Aviary
+
+from PyFlyt.core import Aviary
 
 # the starting position and orientations
 start_pos = np.array([[0.0, 0.0, 1.0]])
 start_orn = np.array([[0.0, 0.0, 0.0]])
 
 # environment setup
-env = Aviary(start_pos=start_pos, start_orn=start_orn, model_dir="./", drone_model="new_uav", render=True)
+env = Aviary(
+    start_pos=start_pos,
+    start_orn=start_orn,
+    model_dir="./",
+    drone_model="new_uav",
+    render=True,
+)
 
 # set to position control
 env.set_mode(7)

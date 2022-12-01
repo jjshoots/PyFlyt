@@ -7,10 +7,10 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from PyFlyt.core.PID import PID
+from .pid import PID
 
 
-class BaseCtrlClass:
+class CtrlClass:
     """Basic Controller class to implement custom controllers."""
 
     def __init__(self):
@@ -511,7 +511,7 @@ class Drone:
     def register_controller(
         self,
         controller_id: int,
-        controller_constructor: type[BaseCtrlClass],
+        controller_constructor: type[CtrlClass],
         base_mode: int,
     ):
         assert (

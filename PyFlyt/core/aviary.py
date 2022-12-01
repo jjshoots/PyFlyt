@@ -7,7 +7,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from PyFlyt.core.drone import Drone
+from .drone import Drone
 
 
 class Aviary(bullet_client.BulletClient):

@@ -1,6 +1,7 @@
 """Spawns two drones on x=0, y=0, z=1 and x=1, y=0, z=1."""
 import numpy as np
-from PyFlyt import Aviary
+
+from PyFlyt.core import Aviary
 
 # the starting position and orientations
 start_pos = np.array([[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]])

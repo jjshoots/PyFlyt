@@ -1,7 +1,8 @@
 """Spawn a single drone, then command it to go to two setpoints consecutively, and plots the xyz output."""
 import matplotlib.pyplot as plt
 import numpy as np
-from PyFlyt import Aviary
+
+from PyFlyt.core import Aviary
 
 # initialize the log
 log = np.zeros((1000, 3), dtype=np.float32)

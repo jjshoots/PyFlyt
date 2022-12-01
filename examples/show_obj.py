@@ -1,13 +1,9 @@
-import math
 import time
 from signal import SIGINT, signal
 
-import numpy as np
 import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
-
-from PyFlyt.core.load_objs import loadOBJ, obj_visual
 
 
 def shutdown_handler(*_):
