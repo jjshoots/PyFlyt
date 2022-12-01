@@ -37,9 +37,9 @@ class Drone:
         drone_model: str = "cf2x",
         use_camera: bool = False,
         use_gimbal: bool = False,
-        camera_angle: int = 20,
-        camera_FOV: int = 90,
-        camera_frame_size: tuple[int, int] = (128, 128),
+        camera_angle_degrees: int = 20,
+        camera_FOV_degrees: int = 90,
+        camera_resolution: tuple[int, int] = (128, 128),
         np_random: None | np.random.RandomState = None,
     ):
 
@@ -154,14 +154,14 @@ class Drone:
 
         """ CAMERA """
         self.use_camera = use_camera
-        self.camera_angle = camera_angle
-        self.use_gimbal = use_gimbal
         if self.use_camera:
             self.proj_mat = self.p.computeProjectionMatrixFOV(
-                fov=camera_FOV, aspect=1.0, nearVal=0.1, farVal=255.0
+                fov=camera_FOV_degrees, aspect=1.0, nearVal=0.1, farVal=255.0
             )
-            self.camera_FOV = camera_FOV
-            self.camera_frame_size = np.array(camera_frame_size)
+            self.use_gimbal = use_gimbal
+            self.camera_angle_degrees = camera_angle_degrees
+            self.camera_FOV_degrees = camera_FOV_degrees
+            self.camera_resolution = np.array(camera_resolution)
 
         """ CUSTOM CONTROLLERS """
         # dictionary mapping of controller_id to controller objects
@@ -471,21 +471,21 @@ class Drone:
         # simulate gimballed camera if needed
         up_vector = None
         if self.use_gimbal:
+            # camera tilted downward for gimballed mode
             rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
             rot[0] = 0.0
-            rot[1] = self.camera_angle / 180 * math.pi
+            rot[1] = self.camera_angle_degrees / 180 * math.pi
             rot = np.array(self.p.getQuaternionFromEuler(rot))
             rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
 
             up_vector = np.matmul(rot, np.array([0.0, 0.0, 1.0]))
         else:
-            # camera rotated upward 20 degrees
+            # camera rotated upward for FPV mode
             rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[1] += -self.camera_angle / 180 * math.pi
+            rot[1] += -self.camera_angle_degrees / 180 * math.pi
             rot = np.array(self.p.getQuaternionFromEuler(rot))
             rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
 
-            # camera rotated upward 20 degrees
             up_vector = np.matmul(rot, np.array([0, 0, 1]))
 
         # target position is 1000 units ahead of camera relative to the current camera pos
@@ -499,14 +499,14 @@ class Drone:
 
     def capture_image(self):
         _, _, self.rgbaImg, self.depthImg, self.segImg = self.p.getCameraImage(
-            width=self.camera_frame_size[1],
-            height=self.camera_frame_size[0],
+            width=self.camera_resolution[1],
+            height=self.camera_resolution[0],
             viewMatrix=self.view_mat,
             projectionMatrix=self.proj_mat,
         )
-        self.rgbaImg = np.array(self.rgbaImg).reshape(*self.camera_frame_size, -1)
-        self.depthImg = np.array(self.depthImg).reshape(*self.camera_frame_size, -1)
-        self.segImg = np.array(self.segImg).reshape(*self.camera_frame_size, -1)
+        self.rgbaImg = np.array(self.rgbaImg).reshape(*self.camera_resolution, -1)
+        self.depthImg = np.array(self.depthImg).reshape(*self.camera_resolution, -1)
+        self.segImg = np.array(self.segImg).reshape(*self.camera_resolution, -1)
 
     def register_controller(
         self,

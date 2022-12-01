@@ -35,7 +35,7 @@ class AdvancedGatesEnv(gymnasium.Env):
         max_gate_angles: list[float] = [0.0, 0.3, 1.0],
         min_gate_distance: float = 1.0,
         max_gate_distance: float = 4.0,
-        camera_frame_size: tuple[int, int] = (128, 128),
+        camera_resolution: tuple[int, int] = (128, 128),
         render_mode: None | str = None,
     ):
         """__init__.
@@ -48,7 +48,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             max_gate_angles (list[float]): max_gate_angles
             min_gate_distance (float): min_gate_distance
             max_gate_distance (float): max_gate_distance
-            camera_frame_size (tuple[int, int]): camera_frame_size
+            camera_resolution (tuple[int, int]): camera_resolution
             render_mode (None | str): render_mode
         """
         if render_mode is not None:
@@ -76,7 +76,7 @@ class AdvancedGatesEnv(gymnasium.Env):
                     low=-np.inf, high=np.inf, shape=(state_size,), dtype=np.float64
                 ),
                 "rgba_cam": spaces.Box(
-                    low=0.0, high=255.0, shape=(4, *camera_frame_size), dtype=np.float64
+                    low=0.0, high=255.0, shape=(4, *camera_resolution), dtype=np.float64
                 ),
             }
         )
@@ -98,7 +98,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             self.ang_rep = 1
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.gate_obj_dir = os.path.join(file_dir, f"../models/race_gate.urdf")
-        self.camera_frame_size = camera_frame_size
+        self.camera_resolution = camera_resolution
         self.num_targets = num_targets
 
     def reset(self, seed=None, options=None):
@@ -131,7 +131,7 @@ class AdvancedGatesEnv(gymnasium.Env):
             start_orn=np.array([[0.0, 0.0, 0.0]]),
             render=self.enable_render,
             use_camera=True,
-            camera_frame_size=self.camera_frame_size,
+            camera_resolution=self.camera_resolution,
             seed=seed,
         )
 
