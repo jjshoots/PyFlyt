@@ -93,7 +93,6 @@ class SimpleWaypointEnv(PyFlytEnv):
             seed: seed to pass to the base environment.
             options:
         """
-
         super().begin_reset(seed, options)
 
         """TARGET GENERATION"""
