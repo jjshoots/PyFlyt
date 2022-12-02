@@ -1,5 +1,7 @@
 from gymnasium.envs.registration import register
 
+from .pyflyt_env import PyFlytEnv
+
 register(
     id="PyFlyt/SimpleHoverEnv-v0",
     entry_point="PyFlyt.gym_envs.simple_hover:SimpleHoverEnv",

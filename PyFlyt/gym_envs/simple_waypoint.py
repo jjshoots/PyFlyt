@@ -3,16 +3,15 @@ from __future__ import annotations
 import math
 import os
 
-import gymnasium
 import numpy as np
 import pybullet as p
 from gymnasium import spaces
 from gymnasium.spaces import GraphInstance
 
-from PyFlyt.core.aviary import Aviary
+from .pyflyt_env import PyFlytEnv
 
 
-class SimpleWaypointEnv(gymnasium.Env):
+class SimpleWaypointEnv(PyFlytEnv):
     """
     Simple Waypoint Environment
 
@@ -30,70 +29,46 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
         num_targets: int = 4,
         use_yaw_targets: bool = True,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 5.0,
+        max_duration_seconds: float = 10.0,
+        angle_representation: str = "quaternion",
         agent_hz: int = 40,
         render_mode: None | str = None,
     ):
         """__init__.
 
         Args:
-            max_duration_seconds (float): maximum simulatiaon time of the environment
-            angle_representation (str): can be "euler" or "quaternion"
             num_targets (int): num_targets
             use_yaw_targets (bool): use_yaw_targets
             goal_reach_distance (float): goal_reach_distance
             goal_reach_angle (float): goal_reach_angle
             flight_dome_size (float): size of the allowable flying area
+            max_duration_seconds (float): maximum simulatiaon time of the environment
+            angle_representation (str): can be "euler" or "quaternion"
             agent_hz (int): looprate of the agent to environment interaction
             render_mode (None | str): can be "human" or None
         """
 
-        if 120 % agent_hz != 0:
-            lowest = int(120 / (int(120 / agent_hz) + 1))
-            highest = int(120 / int(120 / agent_hz))
-            raise AssertionError(
-                f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
-            )
-
-        if render_mode is not None:
-            assert (
-                render_mode in self.metadata["render_modes"]
-            ), f"Invalid render mode {render_mode}, only `human` allowed."
-            self.enable_render = True
-        else:
-            self.enable_render = False
+        super().__init__(
+            max_duration_seconds=max_duration_seconds,
+            angle_representation=angle_representation,
+            agent_hz=agent_hz,
+            render_mode=render_mode,
+        )
 
         """GYMNASIUM STUFF"""
-        # observation size increases by 1 for quaternion
-        if angle_representation == "euler":
-            obs_shape = 16
-        elif angle_representation == "quaternion":
-            obs_shape = 17
-        else:
-            raise AssertionError(
-                f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
-            )
-
-        # if we have yaw targets, then the obs has yaw targets as well
-        if use_yaw_targets:
-            obs_shape += 1
-
         self.observation_space = spaces.Dict(
             {
-                "attitude": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=(obs_shape,), dtype=np.float64
-                ),
+                "attitude": self.attitude_space,
                 "target_deltas": spaces.Graph(
                     node_space=spaces.Box(
                         low=-2 * flight_dome_size,
                         high=2 * flight_dome_size,
-                        shape=(3,),
+                        shape=(4,) if use_yaw_targets else (3,),
                         dtype=np.float64,
                     ),
                     edge_space=None,
@@ -101,28 +76,13 @@ class SimpleWaypointEnv(gymnasium.Env):
             }
         )
 
-        angular_rate_limit = math.pi
-        thrust_limit = 0.9
-        high = np.array(
-            [angular_rate_limit, angular_rate_limit, angular_rate_limit, thrust_limit]
-        )
-        low = np.array(
-            [-angular_rate_limit, -angular_rate_limit, -angular_rate_limit, 0.0]
-        )
-        self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
-
         """ ENVIRONMENT CONSTANTS """
-        self.cycle_steps = int(120 / agent_hz)
         self.flight_dome_size = flight_dome_size
-        self.max_steps = int(agent_hz * max_duration_seconds)
         self.num_targets = num_targets
         self.use_yaw_targets = use_yaw_targets
         self.goal_reach_distance = goal_reach_distance
         self.goal_reach_angle = goal_reach_angle
-        if angle_representation == "euler":
-            self.ang_rep = 0
-        elif angle_representation == "quaternion":
-            self.ang_rep = 1
+
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
 
@@ -133,36 +93,10 @@ class SimpleWaypointEnv(gymnasium.Env):
             seed: seed to pass to the base environment.
             options:
         """
-        super().reset(seed=seed)
 
-        # if we already have an env, disconnect from it
-        if hasattr(self, "env"):
-            self.env.disconnect()
+        super().begin_reset(seed, options)
 
-        self.step_count = 0
-        self.termination = False
-        self.truncation = False
-        self.action = np.zeros((4,))
-        self.info = {}
-        self.info["out_of_bounds"] = False
-        self.info["collision"] = False
-        self.info["env_complete"] = False
-
-        # init env
-        self.env = Aviary(
-            start_pos=np.array([[0.0, 0.0, 1.0]]),
-            start_orn=np.array([[0.0, 0.0, 0.0]]),
-            render=self.enable_render,
-            seed=seed,
-        )
-
-        # set flight mode
-        self.env.set_mode(0)
-
-        # wait for env to stabilize
-        for _ in range(10):
-            self.env.step()
-
+        """TARGET GENERATION"""
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(self.num_targets, 3))
         thts = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
@@ -199,7 +133,7 @@ class SimpleWaypointEnv(gymnasium.Env):
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
 
-        self.compute_state()
+        super().end_reset()
 
         return self.state, self.info
 
@@ -212,22 +146,13 @@ class SimpleWaypointEnv(gymnasium.Env):
             - ang_pos (vector of 3/4 values)
             - lin_vel (vector of 3 values)
             - lin_pos (vector of 3 values)
-        - "targets" (Sequence)
+        - "target_deltas" (Graph)
             - list of body_frame distances to target (vector of 3/4 values)
         """
-        raw_state = self.env.states[0]
-
-        # state breakdown
-        ang_vel = raw_state[0]
-        ang_pos = raw_state[1]
-        lin_vel = raw_state[2]
-        lin_pos = raw_state[3]
-
-        # quarternion angles
-        q_ang_pos = p.getQuaternionFromEuler(ang_pos)
+        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
 
         # rotation matrix
-        rotation = np.array(p.getMatrixFromQuaternion(q_ang_pos)).reshape(3, 3).T
+        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
 
         # drone to target
         target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
@@ -248,13 +173,13 @@ class SimpleWaypointEnv(gymnasium.Env):
 
         # combine everything
         new_state = dict()
-        if self.ang_rep == 0:
+        if self.angle_representation == 0:
             new_state["attitude"] = np.array(
                 [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action]
             )
-        elif self.ang_rep == 1:
+        elif self.angle_representation == 1:
             new_state["attitude"] = np.array(
-                [*ang_vel, *q_ang_pos, *lin_vel, *lin_pos, *self.action]
+                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action]
             )
 
         new_state["target_deltas"] = GraphInstance(
@@ -277,26 +202,12 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        self.reward += -0.1
-
-        # if we've already ended, just exit
-        if self.termination or self.truncation:
-            return
-
-        # exceed step count
-        if self.step_count > self.max_steps:
-            self.truncation = self.truncation or True
+        super().compute_base_term_trunc_reward()
 
         # exceed flight dome
         if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
             self.reward += -100.0
             self.info["out_of_bounds"] = True
-            self.termination = self.termination or True
-
-        # collision
-        if np.any(self.env.collision_array):
-            self.reward += -100.0
-            self.info["collision"] = True
             self.termination = self.termination or True
 
         # target reached
@@ -323,36 +234,3 @@ class SimpleWaypointEnv(gymnasium.Env):
                         linkIndex=-1,
                         rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                     )
-
-    def step(self, action: np.ndarray):
-        """step.
-
-        Args:
-            action (np.ndarray): action
-        """
-        # unsqueeze the action to be usable in aviary
-        self.action = action.copy()
-        action = np.expand_dims(action, axis=0)
-
-        # reset the reward and set the action
-        self.reward = 0
-        self.env.set_setpoints(action)
-
-        # step through env, the internal env updates a few steps before the outer env
-        for _ in range(self.cycle_steps):
-            self.env.step()
-
-            # compute state and done
-            self.compute_state()
-            self.compute_term_trunc_reward()
-
-        # increment step count
-        self.step_count += 1
-
-        return self.state, self.reward, self.termination, self.truncation, self.info
-
-    def render(self):
-        """render."""
-        raise AssertionError(
-            "This function is not meant to be called. Apply `render_mode='human'` on environment creation."
-        )
