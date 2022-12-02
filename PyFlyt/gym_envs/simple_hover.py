@@ -27,24 +27,24 @@ class SimpleHoverEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 300,
+        max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
         flight_dome_size: float = 3.0,
-        agent_hz: int = 30,
+        agent_hz: int = 40,
         render_mode: None | str = None,
     ):
         """__init__.
 
         Args:
-            max_steps (int): max_steps of the environment
+            max_duration_seconds (float): maximum simulatiaon time of the environment
             angle_representation (str): can be "euler" or "quaternion"
             flight_dome_size (float): size of the allowable flying area
             render_mode (None | str): can be "human" or None
         """
 
         if 120 % agent_hz != 0:
-            lowest = int(120 / int(120 / agent_hz))
-            highest = int(120 / (int(120 / agent_hz) + 1))
+            lowest = int(120 / (int(120 / agent_hz) + 1))
+            highest = int(120 / int(120 / agent_hz))
             raise AssertionError(
                 f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
             )
@@ -79,7 +79,7 @@ class SimpleHoverEnv(gymnasium.Env):
         """ ENVIRONMENT CONSTANTS """
         self.cycle_steps = int(120 / agent_hz)
         self.flight_dome_size = flight_dome_size
-        self.max_steps = max_steps
+        self.max_steps = int(agent_hz * max_duration_seconds)
         self.ang_rep = 0
         if angle_representation == "euler":
             self.ang_rep = 0

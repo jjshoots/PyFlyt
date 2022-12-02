@@ -30,20 +30,20 @@ class SimpleWaypointEnv(gymnasium.Env):
 
     def __init__(
         self,
-        max_steps: int = 6000,
+        max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
         num_targets: int = 4,
         use_yaw_targets: bool = True,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 5.0,
-        agent_hz: int = 60,
+        agent_hz: int = 40,
         render_mode: None | str = None,
     ):
         """__init__.
 
         Args:
-            max_steps (int): max_steps of the environment
+            max_duration_seconds (float): maximum simulatiaon time of the environment
             angle_representation (str): can be "euler" or "quaternion"
             num_targets (int): num_targets
             use_yaw_targets (bool): use_yaw_targets
@@ -55,8 +55,8 @@ class SimpleWaypointEnv(gymnasium.Env):
         """
 
         if 120 % agent_hz != 0:
-            lowest = int(120 / int(120 / agent_hz))
-            highest = int(120 / (int(120 / agent_hz) + 1))
+            lowest = int(120 / (int(120 / agent_hz) + 1))
+            highest = int(120 / int(120 / agent_hz))
             raise AssertionError(
                 f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
             )
@@ -114,7 +114,7 @@ class SimpleWaypointEnv(gymnasium.Env):
         """ ENVIRONMENT CONSTANTS """
         self.cycle_steps = int(120 / agent_hz)
         self.flight_dome_size = flight_dome_size
-        self.max_steps = max_steps
+        self.max_steps = int(agent_hz * max_duration_seconds)
         self.num_targets = num_targets
         self.use_yaw_targets = use_yaw_targets
         self.goal_reach_distance = goal_reach_distance
