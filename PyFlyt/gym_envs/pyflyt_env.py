@@ -208,7 +208,9 @@ class PyFlytEnv(gymnasium.Env):
 
     def render(self):
         """render."""
-        assert self.enable_render, "Please set `render_mode='human' to use this function."
+        assert (
+            self.enable_render
+        ), "Please set `render_mode='human' to use this function."
 
         camera_parameters = self.env.getDebugVisualizerCamera()
 
@@ -221,4 +223,4 @@ class PyFlytEnv(gymnasium.Env):
             projectionMatrix=camera_parameters[3],
         )
 
-        return np.array(rgbaImg).reshape(*camera_resolution, -1)
+        return np.array(rgbaImg).reshape(camera_resolution[1], camera_resolution[0], -1)

@@ -71,7 +71,7 @@ class Aviary(bullet_client.BulletClient):
             cameraTargetPosition=[0, 0, 1],
         )
         if not self.use_camera:
-            self.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+            self.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
 
         # define new RNG
         self.np_random = np.random.RandomState(seed=seed)
