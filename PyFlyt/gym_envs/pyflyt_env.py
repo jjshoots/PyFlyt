@@ -15,13 +15,13 @@ from PyFlyt.core.aviary import Aviary
 class PyFlytEnv(gymnasium.Env):
     """Base PyFlyt Environments using the Gymnasim API"""
 
-    metadata = {"render_modes": ["human"]}
+    metadata = {"render_modes": ["human"], "render_fps": 30}
 
     def __init__(
         self,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
-        agent_hz: int = 40,
+        agent_hz: int = 30,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -208,6 +208,17 @@ class PyFlytEnv(gymnasium.Env):
 
     def render(self):
         """render."""
-        raise AssertionError(
-            "This function is not meant to be called. Apply `render_mode='human'` on environment creation."
+        assert self.enable_render, "Please set `render_mode='human' to use this function."
+
+        camera_parameters = self.env.getDebugVisualizerCamera()
+
+        camera_resolution = (camera_parameters[0], camera_parameters[1])
+
+        _, _, rgbaImg, _, _ = self.env.getCameraImage(
+            width=camera_parameters[0],
+            height=camera_parameters[1],
+            viewMatrix=camera_parameters[2],
+            projectionMatrix=camera_parameters[3],
         )
+
+        return np.array(rgbaImg).reshape(*camera_resolution, -1)
