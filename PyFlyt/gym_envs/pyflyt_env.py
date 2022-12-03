@@ -162,10 +162,6 @@ class PyFlytEnv(gymnasium.Env):
         """compute_base_term_trunc_reward."""
         self.reward += -0.1
 
-        # if we've already ended, just exit
-        if self.termination or self.truncation:
-            return
-
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
@@ -195,6 +191,10 @@ class PyFlytEnv(gymnasium.Env):
 
         # step through env, the internal env updates a few steps before the outer env
         for _ in range(self.env_step_ratio):
+            # if we've already ended, don't continue
+            if self.termination or self.truncation:
+                break
+
             self.env.step()
 
             # compute state and done

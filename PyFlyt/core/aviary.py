@@ -63,13 +63,15 @@ class Aviary(bullet_client.BulletClient):
         self.setGravity(0, 0, -9.81)
         self.steps = 0
 
-        # reset the camera position t a sane place
+        # reset the camera position to a sane place
         self.resetDebugVisualizerCamera(
             cameraDistance=5,
             cameraYaw=30,
-            cameraPitch=-45,
+            cameraPitch=-30,
             cameraTargetPosition=[0, 0, 1],
         )
+        if not self.use_camera:
+            self.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 
         # define new RNG
         self.np_random = np.random.RandomState(seed=seed)
