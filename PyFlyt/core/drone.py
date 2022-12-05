@@ -250,9 +250,9 @@ class Drone:
         """
         vp, vq, vr = angular velocities
         p, q, r = angular positions
-        u, v, w = linear velocities
+        u, v, w = local linear velocities
         x, y, z = linear positions
-        vx, vy, vz = linear velocities
+        vx, vy, vz = ground linear velocities
         T = thrust
 
         sets the flight mode:

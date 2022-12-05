@@ -163,7 +163,6 @@ class Aviary(bullet_client.BulletClient):
             # wait a bit if we're rendering
             if self.render:
                 elapsed = time.time() - self.now
-                time.sleep(max(self.physics_period - elapsed, 0.0))
                 self.now = time.time()
 
                 # calculate real time factor
