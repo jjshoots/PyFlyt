@@ -90,9 +90,11 @@ The environment ends when either the Quadcopter collides with the ground or exit
 
 ### `PyFlyt/SimpleWaypointEnv-v0`
 
-![simple waypoint env](/readme_assets/simple_waypoint.gif | width:500)
 A simple environment where the goal is to position the Quadcopter at random setpoints in space within the permitted flight dome.
 The environment ends when either the Quadcopter collides with the ground or exits the permitted flight dome.
+<p align="center">
+    <img src="/readme_assets/simple_waypoint.gif" width="500px"/>
+</p>
 
 **MORE ARE ON THE WAY**
 
@@ -106,15 +108,21 @@ These scripts are built with as little dependencies as possible, but enable inte
 
 #### `sim_single.py`
 Simulates a single drone in the pybullet env with position control.
-![simulate a single drone](/readme_assets/simulate_single.gif | width:500)
+<p align="center">
+    <img src="/readme_assets/simulate_single.gif" width="500px"/>
+</p>
 
 #### `sim_swarm.py`
 Simulates a swarm of drones in the pybullet env with velocity control.
-![simulate a swarm of drones](/readme_assets/simulate_swarm.gif | width:500)
+<p align="center">
+    <img src="/readme_assets/simulate_swarm.gif" width="500px"/>
+</p>
 
 #### `sim_cube.py`
 Simulates a swarm of drones in a spinning cube.
-![You spin me round right round](/readme_assets/simulate_cube.gif | width:500)
+<p align="center">
+    <img src="/readme_assets/simulate_cube.gif" width="500px"/>
+</p>
 
 ### Hardware Only
 
