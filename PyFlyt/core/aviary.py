@@ -127,11 +127,11 @@ class Aviary(bullet_client.BulletClient):
         )
 
     @property
-    def num_drones(self):
+    def num_drones(self) -> int:
         return len(self.drones)
 
     @property
-    def states(self):
+    def states(self) -> np.ndarray:
         """
         returns a list of states for each drone in the aviary
         """
@@ -169,7 +169,7 @@ class Aviary(bullet_client.BulletClient):
             for drone in self.drones:
                 drone.set_mode(flight_modes)
 
-    def set_setpoints(self, setpoints):
+    def set_setpoints(self, setpoints: np.ndarray):
         """
         commands each drone to go to a setpoint as specified in a list
         """
@@ -180,39 +180,39 @@ class Aviary(bullet_client.BulletClient):
         """
         Steps the environment
         """
+        # compute rtf if we're rendering
+        if self.render:
+            elapsed = time.time() - self.now
+            self.now = time.time()
+
+            # sleep to maintain real time factor
+            time.sleep(max(0, self.ctrl_period - elapsed))
+
+            # calculate real time factor
+            RTF = self.ctrl_period / (elapsed + 1e-6)
+
+            # handle case where sometimes elapsed becomes 0
+            if elapsed != 0.0:
+                self.rtf_debug_line = self.addUserDebugText(
+                    text=f"RTF: {str(RTF)[:7]}",
+                    textPosition=[0, 0, 0],
+                    textColorRGB=[1, 0, 0],
+                    replaceItemUniqueId=self.rtf_debug_line,
+                )
+
         # reset collisions
         self.collision_array &= False
 
         # step the environment enough times for 1 control loop
         for i in range(self.ctrl_update_ratio):
-
-            # wait a bit if we're rendering
-            if self.render:
-                elapsed = time.time() - self.now
-                self.now = time.time()
-
-                # calculate real time factor
-                RTF = self.physics_period / (elapsed + 1e-6)
-
-                if i == 0:
-                    # handle case where sometimes elapsed becomes 0
-                    if elapsed != 0.0:
-                        self.rtf_debug_line = self.addUserDebugText(
-                            text=f"RTF: {str(RTF)[:7]}",
-                            textPosition=[0, 0, 0],
-                            textColorRGB=[1, 0, 0],
-                            replaceItemUniqueId=self.rtf_debug_line,
-                        )
-
-                # print(f'RTF: {RTF}')
-
+            # update each drone depending on arm condition
             for drone, armed in zip(self.drones, self.armed):
-                # update drone control at a different rate
-                if armed:
-                    if i == 0:
-                        drone.update()
+                # update drone control only on the first loop
+                if i == 0 and armed:
+                    drone.update()
 
-                    # update motor outputs constantly
+                # update motor outputs all the time
+                if armed:
                     drone.update_forces()
 
             self.stepSimulation()
