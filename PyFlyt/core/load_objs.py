@@ -1,8 +1,8 @@
-from pybullet_utils import bullet_client
+from .aviary import Aviary
 
 
 def loadOBJ(
-    p: bullet_client.BulletClient,
+    env: Aviary,
     fileName="null",
     visualId=-1,
     collisionId=-1,
@@ -14,14 +14,13 @@ def loadOBJ(
     """
     loads in an object via either the fileName or meshId, meshId takes precedence
     """
-
     if len(baseOrientation) == 3:
-        baseOrientation = p.getQuaternionFromEuler(baseOrientation)
+        baseOrientation = env.getQuaternionFromEuler(baseOrientation)
 
     if visualId == -1:
         visualId = obj_visual(fileName, meshScale)
 
-    return p.createMultiBody(
+    body_id = env.createMultiBody(
         baseMass=baseMass,
         baseVisualShapeIndex=int(visualId),
         baseCollisionShapeIndex=int(collisionId),
@@ -29,10 +28,14 @@ def loadOBJ(
         baseOrientation=baseOrientation,
     )
 
+    env.register_all_new_bodies()
 
-def obj_visual(p: bullet_client.BulletClient, fileName, meshScale=[1.0, 1.0, 1.0]):
-    return p.createVisualShape(
-        shapeType=p.GEOM_MESH,
+    return body_id
+
+
+def obj_visual(env: Aviary, fileName, meshScale=[1.0, 1.0, 1.0]):
+    return env.createVisualShape(
+        shapeType=env.GEOM_MESH,
         fileName=fileName,
         rgbaColor=[1, 1, 1, 1],
         specularColor=[0.0, 0.0, 0.0],
@@ -40,7 +43,7 @@ def obj_visual(p: bullet_client.BulletClient, fileName, meshScale=[1.0, 1.0, 1.0
     )
 
 
-def obj_collision(p: bullet_client.BulletClient, fileName, meshScale=[1.0, 1.0, 1.0]):
-    return p.createCollisionShape(
-        shapeType=p.GEOM_MESH, fileName=fileName, meshScale=meshScale
+def obj_collision(env: Aviary, fileName, meshScale=[1.0, 1.0, 1.0]):
+    return env.createCollisionShape(
+        shapeType=env.GEOM_MESH, fileName=fileName, meshScale=meshScale
     )

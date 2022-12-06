@@ -30,6 +30,17 @@ class Aviary(bullet_client.BulletClient):
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
 
+        # assertations
+        assert (
+            len(start_pos.shape) == 2
+        ), f"start_pos must be shape (n, 3), currently {start_pos.shape}."
+        assert (
+            start_pos.shape[-1] == 3
+        ), f"start_pos must be shape (n, 3), currently {start_pos.shape}."
+        assert (
+            start_orn.shape == start_pos.shape
+        ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
+
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
         self.physics_hz = physics_hz
@@ -132,16 +143,31 @@ class Aviary(bullet_client.BulletClient):
 
         return states
 
-    def set_armed(self, settings):
-        assert len(settings) == len(self.armed), "incorrect go length"
-        self.armed = settings
+    def set_armed(self, settings: int | list[int | bool]):
+        """
+        sets the arming status for all the drones
+        """
+        if isinstance(settings, list):
+            assert len(settings) == len(
+                self.armed
+            ), f"Expected {len(self.armed)} settings, got {len(settings)}."
+            self.armed = settings
+        else:
+            self.armed = np.ones_like(self.armed) * settings
 
-    def set_mode(self, flight_mode):
+    def set_mode(self, flight_modes: int | list[int]):
         """
         sets the flight mode for each drone
         """
-        for drone in self.drones:
-            drone.set_mode(flight_mode)
+        if isinstance(flight_modes, list):
+            assert len(flight_modes) == len(
+                self.drones
+            ), f"Expected {len(self.drones)} flight_modes, got {len(flight_modes)}."
+            for drone, mode in zip(self.drones, flight_modes):
+                drone.set_mode(mode)
+        else:
+            for drone in self.drones:
+                drone.set_mode(flight_modes)
 
     def set_setpoints(self, setpoints):
         """
