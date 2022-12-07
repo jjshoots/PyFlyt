@@ -8,17 +8,17 @@ import yaml
 from pybullet_utils import bullet_client
 
 from .pid import PID
+from abc import ABC, abstractmethod
 
 
-class CtrlClass:
+class CtrlClass(ABC):
     """Basic Controller class to implement custom controllers."""
 
-    def __init__(self):
-        pass
-
+    @abstractmethod
     def reset(self):
         pass
 
+    @abstractmethod
     def step(self, state: np.ndarray, setpoint: np.ndarray):
         pass
 
