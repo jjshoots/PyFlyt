@@ -66,7 +66,7 @@ class DroneClass(ABC):
         pass
 
     @abstractmethod
-    def set_mode(self):
+    def set_mode(self, mode):
         pass
 
     @abstractmethod

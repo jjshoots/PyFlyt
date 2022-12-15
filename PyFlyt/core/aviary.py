@@ -9,6 +9,7 @@ from pybullet_utils import bullet_client
 
 from .abstractions import DroneClass
 from .drones.quadx import QuadX
+from .drones.fixedwing import FixedWing
 
 
 class Aviary(bullet_client.BulletClient):
@@ -100,7 +101,7 @@ class Aviary(bullet_client.BulletClient):
         self.drones: list[DroneClass] = []
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
             self.drones.append(
-                QuadX(
+                FixedWing(
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
@@ -108,13 +109,23 @@ class Aviary(bullet_client.BulletClient):
                     physics_hz=self.physics_hz,
                     drone_model=self.drone_model,
                     model_dir=self.model_dir,
-                    use_camera=self.use_camera,
-                    use_gimbal=self.use_gimbal,
-                    camera_angle_degrees=self.camera_angle,
-                    camera_FOV_degrees=self.camera_FOV,
-                    camera_resolution=self.camera_frame_size,
                     np_random=self.np_random,
                 )
+                # QuadX(
+                #     self,
+                #     start_pos=start_pos,
+                #     start_orn=start_orn,
+                #     ctrl_hz=self.ctrl_hz,
+                #     physics_hz=self.physics_hz,
+                #     drone_model=self.drone_model,
+                #     model_dir=self.model_dir,
+                #     use_camera=self.use_camera,
+                #     use_gimbal=self.use_gimbal,
+                #     camera_angle_degrees=self.camera_angle,
+                #     camera_FOV_degrees=self.camera_FOV,
+                #     camera_resolution=self.camera_frame_size,
+                #     np_random=self.np_random,
+                # )
             )
 
         # arm everything
