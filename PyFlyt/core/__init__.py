@@ -1,4 +1,7 @@
+from .abstractions import CtrlClass
 from .aviary import Aviary
-from .drone import CtrlClass, Drone
+
+# import all drone classes
+from .drones.quadx import QuadX
 from .load_objs import loadOBJ, obj_collision, obj_visual
 from .pid import PID

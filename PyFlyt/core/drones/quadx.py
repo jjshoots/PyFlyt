@@ -1,30 +1,17 @@
 from __future__ import annotations
 
 import math
-import os
 
 import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from .pid import PID
-from abc import ABC, abstractmethod
+from ..abstractions import CtrlClass, DroneClass
+from ..pid import PID
 
 
-class CtrlClass(ABC):
-    """Basic Controller class to implement custom controllers."""
-
-    @abstractmethod
-    def reset(self):
-        pass
-
-    @abstractmethod
-    def step(self, state: np.ndarray, setpoint: np.ndarray):
-        pass
-
-
-class Drone:
-    """Drone instance that handles everything about a particular drone."""
+class QuadX(DroneClass):
+    """QuadX instance that handles everything about a quadrotor in the X configuration."""
 
     def __init__(
         self,
@@ -42,33 +29,33 @@ class Drone:
         camera_resolution: tuple[int, int] = (128, 128),
         np_random: None | np.random.RandomState = None,
     ):
+        """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
-        if physics_hz != 240.0:
-            raise UserWarning(
-                f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
-            )
-
-        self.p = p
-        self.np_random = np.random.RandomState() if np_random is None else np_random
-        self.physics_hz = 1.0 / physics_hz
-        self.ctrl_period = 1.0 / ctrl_hz
-        if model_dir is None:
-            model_dir = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "../models/vehicles/"
-            )
-        drone_dir = os.path.join(model_dir, f"{drone_model}/{drone_model}.urdf")
-        param_path = os.path.join(model_dir, f"{drone_model}/{drone_model}.yaml")
-
-        """ SPAWN """
-        self.start_pos = start_pos
-        self.start_orn = self.p.getQuaternionFromEuler(start_orn)
-        self.Id = self.p.loadURDF(
-            drone_dir,
-            basePosition=self.start_pos,
-            baseOrientation=self.start_orn,
-            useFixedBase=False,
+        Args:
+            p (bullet_client.BulletClient): p
+            start_pos (np.ndarray): start_pos
+            start_orn (np.ndarray): start_orn
+            ctrl_hz (int): ctrl_hz
+            physics_hz (int): physics_hz
+            model_dir (None | str): model_dir
+            drone_model (str): drone_model
+            use_camera (bool): use_camera
+            use_gimbal (bool): use_gimbal
+            camera_angle_degrees (int): camera_angle_degrees
+            camera_FOV_degrees (int): camera_FOV_degrees
+            camera_resolution (tuple[int, int]): camera_resolution
+            np_random (None | np.random.RandomState): np_random
+        """
+        super().__init__(
+            p=p,
+            start_pos=start_pos,
+            start_orn=start_orn,
+            ctrl_hz=ctrl_hz,
+            physics_hz=physics_hz,
+            model_dir=model_dir,
+            drone_model=drone_model,
+            np_random=np_random,
         )
-
         """
         DRONE CONTROL
             motor ids correspond to quadrotor X in PX4, using the ENU convention
@@ -76,7 +63,7 @@ class Drone:
         """
 
         # All the params for the drone
-        with open(param_path, "rb") as f:
+        with open(self.param_path, "rb") as f:
             # load all params from yaml
             all_params = yaml.safe_load(f)
             motor_params = all_params["motor_params"]
@@ -172,6 +159,8 @@ class Drone:
         self.reset()
 
     def reset(self):
+        """reset.
+        """
         self.set_mode(0)
         self.state = np.zeros((4, 3))
         self.setpoint = np.zeros((4))
@@ -456,12 +445,16 @@ class Drone:
         # mix the commands
         self.pwm = self.cmd2pwm(np.array([*a_output, z_output]))
 
-    def update_forces(self):
+    def update_physics(self):
+        """update_physics.
+        """
         self.rpm2forces(self.pwm2rpm(self.pwm))
         self.update_drag()
 
     @property
     def view_mat(self):
+        """view_mat.
+        """
         # get the state of the camera on the robot
         camera_state = self.p.getLinkState(self.Id, 0)
 
@@ -498,6 +491,8 @@ class Drone:
         )
 
     def capture_image(self):
+        """capture_image.
+        """
         _, _, self.rgbaImg, self.depthImg, self.segImg = self.p.getCameraImage(
             width=self.camera_resolution[1],
             height=self.camera_resolution[0],
@@ -514,6 +509,13 @@ class Drone:
         controller_constructor: type[CtrlClass],
         base_mode: int,
     ):
+        """register_controller.
+
+        Args:
+            controller_id (int): controller_id
+            controller_constructor (type[CtrlClass]): controller_constructor
+            base_mode (int): base_mode
+        """
         assert (
             controller_id > 7
         ), f"`controller_id` must be more than 7, currently {controller_id}"
@@ -524,7 +526,7 @@ class Drone:
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
 
-    def update(self):
+    def update_avionics(self):
         """
         updates state and control
         """

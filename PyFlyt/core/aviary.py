@@ -7,7 +7,8 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from .drone import Drone
+from .abstractions import DroneClass
+from .drones.quadx import QuadX
 
 
 class Aviary(bullet_client.BulletClient):
@@ -96,10 +97,10 @@ class Aviary(bullet_client.BulletClient):
         # )
 
         # spawn drones
-        self.drones: list[Drone] = []
+        self.drones: list[DroneClass] = []
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
             self.drones.append(
-                Drone(
+                QuadX(
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
@@ -209,11 +210,11 @@ class Aviary(bullet_client.BulletClient):
             for drone, armed in zip(self.drones, self.armed):
                 # update drone control only on the first loop
                 if i == 0 and armed:
-                    drone.update()
+                    drone.update_avionics()
 
                 # update motor outputs all the time
                 if armed:
-                    drone.update_forces()
+                    drone.update_physics()
 
             self.stepSimulation()
 
