@@ -20,8 +20,8 @@ class QuadX(DroneClass):
         start_orn: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
-        model_dir: None | str = None,
         drone_model: str = "cf2x",
+        model_dir: None | str = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
         camera_angle_degrees: int = 20,
@@ -159,8 +159,7 @@ class QuadX(DroneClass):
         self.reset()
 
     def reset(self):
-        """reset.
-        """
+        """reset."""
         self.set_mode(0)
         self.state = np.zeros((4, 3))
         self.setpoint = np.zeros((4))
@@ -446,15 +445,13 @@ class QuadX(DroneClass):
         self.pwm = self.cmd2pwm(np.array([*a_output, z_output]))
 
     def update_physics(self):
-        """update_physics.
-        """
+        """update_physics."""
         self.rpm2forces(self.pwm2rpm(self.pwm))
         self.update_drag()
 
     @property
     def view_mat(self):
-        """view_mat.
-        """
+        """view_mat."""
         # get the state of the camera on the robot
         camera_state = self.p.getLinkState(self.Id, 0)
 
@@ -491,8 +488,7 @@ class QuadX(DroneClass):
         )
 
     def capture_image(self):
-        """capture_image.
-        """
+        """capture_image."""
         _, _, self.rgbaImg, self.depthImg, self.segImg = self.p.getCameraImage(
             width=self.camera_resolution[1],
             height=self.camera_resolution[0],

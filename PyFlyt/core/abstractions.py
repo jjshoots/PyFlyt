@@ -27,8 +27,8 @@ class DroneClass(ABC):
         start_orn: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
+        drone_model: str,
         model_dir: None | str = None,
-        drone_model: str = "cf2x",
         np_random: None | np.random.RandomState = None,
     ):
         """DEFAULT CONFIGURATION FOR DRONES"""
