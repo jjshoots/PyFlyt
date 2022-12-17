@@ -20,8 +20,13 @@ class FixedWing(DroneClass):
         start_orn: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
-        drone_model: str = "cf2x",
+        drone_model: str = "FW_UAV",
         model_dir: None | str = None,
+        use_camera: bool = False,
+        use_gimbal: bool = False,
+        camera_angle_degrees: int = 20,
+        camera_FOV_degrees: int = 90,
+        camera_resolution: tuple[int, int] = (128, 128),
         np_random: None | np.random.RandomState = None,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.

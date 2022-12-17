@@ -109,6 +109,11 @@ class Aviary(bullet_client.BulletClient):
                     physics_hz=self.physics_hz,
                     drone_model=self.drone_model,
                     model_dir=self.model_dir,
+                    use_camera=self.use_camera,
+                    use_gimbal=self.use_gimbal,
+                    camera_angle_degrees=self.camera_angle,
+                    camera_FOV_degrees=self.camera_FOV,
+                    camera_resolution=self.camera_frame_size,
                     np_random=self.np_random,
                 )
                 # QuadX(

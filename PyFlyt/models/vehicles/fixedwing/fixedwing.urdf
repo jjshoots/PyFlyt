@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<robot name="cf2">
+<robot name="FW_UAV">
 
   <link name="base_link">
 
