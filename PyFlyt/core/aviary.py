@@ -20,7 +20,7 @@ class Aviary(bullet_client.BulletClient):
         render: bool = False,
         physics_hz: int = 240,
         ctrl_hz: int = 120,
-        drone_model: str = "cf2x",
+        drone_model: str = None,
         model_dir: None | str = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
@@ -79,9 +79,9 @@ class Aviary(bullet_client.BulletClient):
         # reset the camera position to a sane place
         self.resetDebugVisualizerCamera(
             cameraDistance=5,
-            cameraYaw=30,
-            cameraPitch=-30,
-            cameraTargetPosition=[0, 0, 1],
+            cameraYaw=0,
+            cameraPitch=-70,
+            cameraTargetPosition=[0, -1, 1000],
         )
         if not self.use_camera:
             self.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
@@ -107,7 +107,6 @@ class Aviary(bullet_client.BulletClient):
                     start_orn=start_orn,
                     ctrl_hz=self.ctrl_hz,
                     physics_hz=self.physics_hz,
-                    drone_model=self.drone_model,
                     model_dir=self.model_dir,
                     use_camera=self.use_camera,
                     use_gimbal=self.use_gimbal,
@@ -122,7 +121,6 @@ class Aviary(bullet_client.BulletClient):
                 #     start_orn=start_orn,
                 #     ctrl_hz=self.ctrl_hz,
                 #     physics_hz=self.physics_hz,
-                #     drone_model=self.drone_model,
                 #     model_dir=self.model_dir,
                 #     use_camera=self.use_camera,
                 #     use_gimbal=self.use_gimbal,

@@ -1,98 +1,153 @@
 <?xml version="1.0" ?>
 
-<robot name="FW_UAV">
+<robot name="fixedwing">
 
   <link name="base_link">
-
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.027"/>
-      <inertia ixx="1.4e-5" ixy="0.0" ixz="0.0" iyy="1.4e-5" iyz="0.0" izz="2.17e-5"/>
+      <mass value="0.3"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
-
-    <!-- links>
-      <carlos url="https://arxiv.org/pdf/1608.05786.pdf" />
-      <julian url="http://mikehamer.info/assets/papers/Crazyflie%20Modelling.pdf" />
-      <mit url="http://groups.csail.mit.edu/robotics-center/public_papers/Landry15.pdf" />
-    </links -->
-
-    <visual>
-      <origin rpy="0 0 55" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="./cf2.dae" scale=" 1 1 1"/>
-      </geometry>
-      <material name="grey">
-        <color rgba=".5 .5 .5 1"/>
-      </material>
-    </visual>
-
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.09 0.09 0.02"/>
+        <box size="0.2 0.1 0.2"/>
       </geometry>
     </collision>
-
   </link>
 
-  <link name="prop1_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0.028 0.028 0"/>
-      <mass value="0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-  </link>
-  <joint name="prop1_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="prop1_link"/>
-  </joint>
 
-  <link name="prop2_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="-0.028 -0.028 0"/>
-      <mass value="0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-  </link>
-  <joint name="prop2_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="prop2_link"/>
-  </joint>
-
-  <link name="prop3_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="-0.028 0.028 0"/>
-      <mass value="0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-  </link>
-  <joint name="prop3_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="prop3_link"/>
-  </joint>
-
-  <link name="prop4_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0.028 -0.028 0"/>
-      <mass value="0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-  </link>
-  <joint name="prop4_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="prop4_link"/>
-  </joint>
-
-  <link name="center_of_mass_link">
+  <link name="motor_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <mass value="0"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
   </link>
-  <joint name="center_of_mass_joint" type="fixed">
+  <joint name="motor_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="base_link"/>
-    <child link="center_of_mass_link"/>
+    <child link="motor_link"/>
+  </joint>
+
+
+  <link name="horizontal_tail_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.6 0.3 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="horizontal_tail_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 -1.1 0"/>
+    <parent link="base_link"/>
+    <child link="horizontal_tail_link"/>
+  </joint>
+
+
+  <link name="vertical_tail_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.3 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="vertical_tail_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 -1.1 0.15"/>
+    <parent link="base_link"/>
+    <child link="vertical_tail_link"/>
+  </joint>
+
+
+  <link name="ail_left_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="ail_left_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.95 -0.5 0"/>
+    <parent link="base_link"/>
+    <child link="ail_left_link"/>
+  </joint>
+
+
+  <link name="ail_right_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="ail_right_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.95 -0.5  0"/>
+    <parent link="base_link"/>
+    <child link="ail_right_link"/>
+  </joint>
+
+
+  <link name="main_wing_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="1.8 0.3 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="main_wing_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 -0.5 0"/>
+    <parent link="base_link"/>
+    <child link="main_wing_link"/>
+  </joint>
+
+
+  <link name="fuselage_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.2 1.4 0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="fuselage_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 -0.8 0"/>
+    <parent link="base_link"/>
+    <child link="fuselage_link"/>
   </joint>
 
 </robot>
