@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import yaml
 from mpl_toolkits.mplot3d import axes3d
 from pybullet_utils import bullet_client
@@ -14,27 +13,79 @@ from ..pid import PID
 from pyPS4Controller.controller import Controller
 from threading import Thread, Event
 
+class MyController(Controller):
 
-# class MyController(Controller):
-
-#     def __init__(self, **kwargs):
-#         Controller.__init__(self, **kwargs)
+    def __init__(self, **kwargs):
+        Controller.__init__(self, **kwargs)
 
 
-#     def on_R3_down(self, value):
-#         return value
+    def on_R3_down(self, value):
+        global cmds
 
-#     def on_R3_up(self, value):
-#         return value
+        value = value / 32767
 
-# event = Event()
+        cmds[0] = value
+        return value
 
-# def readDS4(cmds):
-#     controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-#     controller.listen()
+    def on_R3_up(self, value):
+        global cmds
+
+        value = value / 32767
+
+        cmds[0] = value
+        return value
+
+    def on_R3_left(self, value):
+        global cmds
+
+        value = value / 32767
+
+        cmds[1] = value
+        return value
+
+    def on_R3_right(self, value):
+        global cmds
+
+        value = value / 32767
+
+        cmds[1] = value
+        return value
+
+    def on_L3_down(self, value):
+        return value
+
+    def on_L3_up(self, value):
+        global cmds
+
+        value = value / -32767
+
+        cmds[3] = value
+        return value
+
+    def on_L3_left(self, value):
+        global cmds
+
+        value = value / 32767
+
+        cmds[2] = value
+        return value
+
+    def on_L3_right(self, value):
+        global cmds
+
+        value = value / 32767
+
+        cmds[2] = value
+        return value
+
+def readDS4():
+    controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+    controller.listen()
     
-# t = Thread(target=readDS4, args=(cmds, ))
-# t.start()
+t = Thread(target=readDS4, args=())
+t.start()
+
+cmds = [0, 0, 0, 0]
 
 
 class FixedWing(DroneClass):
@@ -197,6 +248,7 @@ class FixedWing(DroneClass):
             self.Id, [0, 20, 0], [0, 0, 0])
 
         # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
+        # Maps .urdf idx to surface_ids
         self.surface_ids = [3, 4, 1, 5, 2]
         self.update_state()
 
@@ -265,7 +317,9 @@ class FixedWing(DroneClass):
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
-        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
+
+        defl = 30 * self.cmd[1]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed) # Dynamic pressure
@@ -291,7 +345,9 @@ class FixedWing(DroneClass):
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
-        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
+
+        defl = 30 * -self.cmd[1]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed) # Dynamic pressure
@@ -306,7 +362,7 @@ class FixedWing(DroneClass):
         
         self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [0.0, 0.0, 0.0], self.p.LINK_FRAME)
         self.p.applyExternalTorque(self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME)
-        
+
     def horizontal_tail_forces(self):
         i = 2
         orn = self.surface_orns[i]
@@ -317,7 +373,9 @@ class FixedWing(DroneClass):
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
-        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
+
+        defl = 30 * -self.cmd[0]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed) # Dynamic pressure
@@ -343,6 +401,7 @@ class FixedWing(DroneClass):
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
+
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
@@ -369,7 +428,9 @@ class FixedWing(DroneClass):
 
         alpha = np.arctan2(-local_surface_vel[0], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
-        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
+
+        defl = 30 * -self.cmd[2]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[0], local_surface_vel[1]]) # Only in X and Y directions
         Q = 0.5 * 1.225 * np.square(freestream_speed) # Dynamic pressure
@@ -406,7 +467,8 @@ class FixedWing(DroneClass):
             state = self.p.getLinkState(self.Id, id, computeLinkVelocity=True)
             self.surface_orns[i] = state[-3]
             self.surface_vels[i] = state[-2]
-        
+        print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
+
     def update_control(self):
         """runs through controllers"""
         mode = self.mode
@@ -422,14 +484,17 @@ class FixedWing(DroneClass):
 
             mode = self.registered_base_modes[self.mode]
 
-
+        
         # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
-        self.cmd = [0, 0, 0, 1]
+        self.cmd = cmds
 
     def get_aero_data(self, params, defl, alpha):
         """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
 
         AR = params["span"] / params["chord"]
+        defl = np.deg2rad(defl)
+        alpha = np.deg2rad(alpha)
+
 
         Cl_alpha_3D = params["Cl_alpha_2D"] * (AR / (
             AR + ((2 * (AR + 4)) / (AR + 2))))
@@ -437,16 +502,19 @@ class FixedWing(DroneClass):
         theta_f = np.arccos((2 * params["flap_to_chord"]) - 1)
         tau = 1 - ((theta_f-np.sin(theta_f)) / np.pi)
         delta_Cl = Cl_alpha_3D * tau * params["eta"] * defl
-        delta_Cl_max = - params["flap_to_chord"] * delta_Cl
+        delta_Cl_max = params["flap_to_chord"] * delta_Cl
+        
+        alpha_stall_P_base = np.deg2rad(params["alpha_stall_P_base"])
+        alpha_stall_N_base = np.deg2rad(params["alpha_stall_N_base"])
+
+        alpha_0_base = np.deg2rad(params["alpha_0_base"])
 
         Cl_max_P = Cl_alpha_3D * \
-            (params["alpha_stall_P_base"] -
-             params["alpha_0_base"]) + delta_Cl_max
+            (alpha_stall_P_base - alpha_0_base) + delta_Cl_max
         Cl_max_N = Cl_alpha_3D * \
-            (params["alpha_stall_N_base"] -
-             params["alpha_0_base"]) + delta_Cl_max
+            (alpha_stall_N_base - alpha_0_base) + delta_Cl_max
 
-        alpha_0 = params["alpha_0_base"] - (delta_Cl / Cl_alpha_3D)
+        alpha_0 = alpha_0_base - (delta_Cl / Cl_alpha_3D)
         alpha_stall_P = alpha_0 + ((Cl_max_P) / Cl_alpha_3D)
         alpha_stall_N = alpha_0 + ((Cl_max_N) / Cl_alpha_3D)
 
@@ -457,7 +525,7 @@ class FixedWing(DroneClass):
                 Cl_stall = Cl_alpha_3D * (alpha_stall_P - alpha_0)
                 alpha_i_at_stall = Cl_stall / (np.pi * AR)
                 # alpha_i post-stall Pos
-                alpha_i = np.interp(alpha, [alpha_stall_P, 90], [
+                alpha_i = np.interp(alpha, [alpha_stall_P, np.pi/2], [
                                     alpha_i_at_stall, 0])
 
             elif (alpha <= alpha_stall_N):
@@ -466,10 +534,9 @@ class FixedWing(DroneClass):
                 alpha_i_at_stall = Cl_stall / (np.pi * AR)
                 # alpha_i post-stall Neg
                 alpha_i = np.interp(
-                    alpha, [-90, alpha_stall_N], [0, alpha_i_at_stall])
+                    alpha, [-np.pi/2, alpha_stall_N], [0, alpha_i_at_stall])
 
-            alpha_eff = np.radians(alpha - alpha_0 - alpha_i)
-            alpha_eff = alpha_eff
+            alpha_eff = alpha - alpha_0 - alpha_i
             # Drag coefficient at 90 deg dependent on deflection angle
             Cd_90 = ((-4.26 * (10 ** -2)) * (defl ** 2)) + \
                 ((2.1 * (10 ** -1)) * defl) + 1.98
@@ -483,7 +550,7 @@ class FixedWing(DroneClass):
         else:  # No stall
             Cl = Cl_alpha_3D * (alpha - alpha_0)
             alpha_i = Cl / (np.pi * AR)
-            alpha_eff = np.radians(alpha - alpha_0 - alpha_i)
+            alpha_eff = alpha - alpha_0 - alpha_i
             CT = params["Cd_0"] * np.cos(alpha_eff)
             CN = (Cl + (CT * np.sin(alpha_eff))) / np.cos(alpha_eff)
             Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
@@ -511,16 +578,22 @@ class FixedWing(DroneClass):
         # get the state of the camera on the robot
         camera_state = self.p.getLinkState(self.Id, 0)
 
+        # UAV orientation 
+        orn = camera_state[1]
+        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
+        cam_offset = [0, -3, 1]
+        cam_offset_world_frame = np.matmul(cam_offset, rotation.transpose())
+        
         # pose and rot
-        position = np.array(camera_state[0]) - [0, 3, -1]
+        position = np.array(camera_state[0]) + cam_offset_world_frame
 
         # simulate gimballed camera if needed
         up_vector = None
         if self.use_gimbal:
             # camera tilted downward for gimballed mode
             rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[1] = 0.0
-            rot[0] = self.camera_angle_degrees / 180 * math.pi
+            rot[0] = 0.0
+            rot[1] = self.camera_angle_degrees / 180 * math.pi
             rot = np.array(self.p.getQuaternionFromEuler(rot))
             rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
 
@@ -535,7 +608,7 @@ class FixedWing(DroneClass):
             up_vector = np.matmul(rot, np.array([0, 0, 1]))
 
         # target position is 1000 units ahead of camera relative to the current camera pos
-        target = np.dot(rot, np.array([0, 1000, 0])) + np.array(position)
+        target = camera_state[0]
 
         return self.p.computeViewMatrix(
             cameraEyePosition=position,

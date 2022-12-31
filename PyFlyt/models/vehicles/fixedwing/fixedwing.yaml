@@ -1,11 +1,11 @@
 motor_params:
-  thrust_to_weight: 0.3
+  thrust_to_weight: 3
   thrust_const: 3.16e-10
   torque_const: 7.94e-12
   motor_noise_ratio: 0.02
 
 main_wing_params: 
-  Cl_alpha_2D: 0.105 # Average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 1.6
   flap_to_chord: 0.3 # 30% of chord
@@ -16,7 +16,7 @@ main_wing_params:
   Cd_0: 0.01 # Skin friction coefficient
 
 left_wing_flapped_params: 
-  Cl_alpha_2D: 0.105 # Average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 0.3
   flap_to_chord: 0.3 # 30% of chord
@@ -27,7 +27,7 @@ left_wing_flapped_params:
   Cd_0: 0.01 # Skin friction coefficient
 
 right_wing_flapped_params: 
-  Cl_alpha_2D: 0.105 # Average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 0.3
   flap_to_chord: 0.3 # 30% of chord
@@ -38,7 +38,7 @@ right_wing_flapped_params:
   Cd_0: 0.01 # Skin friction coefficient
 
 horizontal_tail_params: 
-  Cl_alpha_2D: 0.105 # Average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.2 # meters
   span: 0.625
   flap_to_chord: 0.3 # 30% of chord
@@ -49,7 +49,7 @@ horizontal_tail_params:
   Cd_0: 0.01 # Skin friction coefficient
 
 vertical_tail_params: 
-  Cl_alpha_2D: 0.105 # Average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.2 # meters
   span: 0.312
   flap_to_chord: 0.3 # 30% of chord

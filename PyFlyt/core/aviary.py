@@ -80,8 +80,8 @@ class Aviary(bullet_client.BulletClient):
         self.resetDebugVisualizerCamera(
             cameraDistance=5,
             cameraYaw=0,
-            cameraPitch=-70,
-            cameraTargetPosition=[0, -1, 1000],
+            cameraPitch=-50,
+            cameraTargetPosition=[0, 0, 10],
         )
         if not self.use_camera:
             self.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
