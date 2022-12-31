@@ -145,7 +145,7 @@
     </collision>
   </link>
   <joint name="fuselage_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 -0.5 0"/>
+    <origin rpy="0 0 0" xyz="0 -0.45 0"/>
     <parent link="base_link"/>
     <child link="fuselage_link"/>
   </joint>

@@ -51,17 +51,6 @@ class MyController(Controller):
         cmds[1] = value
         return value
 
-    def on_L3_down(self, value):
-        return value
-
-    def on_L3_up(self, value):
-        global cmds
-
-        value = value / -32767
-
-        cmds[3] = value
-        return value
-
     def on_L3_left(self, value):
         global cmds
 
@@ -76,6 +65,14 @@ class MyController(Controller):
         value = value / 32767
 
         cmds[2] = value
+        return value
+
+    def on_R2_press(self, value):
+        global cmds
+
+        value = value / 32767
+
+        cmds[3] = value
         return value
 
 def readDS4():
@@ -96,6 +93,7 @@ class FixedWing(DroneClass):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
+        start_vel: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
         drone_model: str = "fixedwing",
@@ -128,6 +126,7 @@ class FixedWing(DroneClass):
             p=p,
             start_pos=start_pos,
             start_orn=start_orn,
+            start_vel=start_vel,
             ctrl_hz=ctrl_hz,
             physics_hz=physics_hz,
             model_dir=model_dir,
@@ -232,59 +231,6 @@ class FixedWing(DroneClass):
 
         return pwm
 
-    def reset(self):
-        self.set_mode(1)
-        self.setpoint = np.zeros((4))
-        self.rpm = np.zeros((1))
-        self.pwm = np.zeros((1))
-        self.cmd = np.zeros((4))
-        self.surface_orns = [0] * 5
-        self.surface_vels = [0] * 5
-
-        self.p.resetBasePositionAndOrientation(
-            self.Id, self.start_pos, self.start_orn)
-
-        self.p.resetBaseVelocity(
-            self.Id, [0, 20, 0], [0, 0, 0])
-
-        # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
-        # Maps .urdf idx to surface_ids
-        self.surface_ids = [3, 4, 1, 5, 2]
-        self.update_state()
-
-        if self.use_camera:
-            self.capture_image()
-        pass
-
-    def set_mode(self, mode):
-        """
-        Mode 1 - [Roll, Pitch, Yaw, Throttle]
-        """
-
-        # WIP, copied and pasted from quadx
-        if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
-            raise ValueError(
-                f"`mode` must be between -1 and 7 or be registered in {self.registered_controllers.keys()=}, got {mode}."
-            )
-
-        self.mode = mode
-
-        # for custom modes
-        if mode in self.registered_controllers.keys():
-            self.instanced_controllers[mode] = self.registered_controllers[mode](
-            )
-            mode = self.registered_base_modes[mode]
-
-        if mode == 1:
-            self.setpoint = np.array([0.0, 0.0, 0.0, -1.0])
-        else:
-            self.setpoint = np.array([0.0, 0.0, 0.0, -1.0])
-
-        pass
-
-    def update_avionics(self):
-        pass
-
 
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
@@ -293,32 +239,29 @@ class FixedWing(DroneClass):
         self.rpm2forces(self.pwm2rpm(self.pwm))
 
         # Left aileron Forces
-        self.left_aileron_forces()
+        self.left_aileron_forces(0)
 
         # Right aileron Forces
-        self.right_aileron_forces()
+        self.right_aileron_forces(1)
 
         # Horizontal tail Forces
-        self.horizontal_tail_forces()
+        self.horizontal_tail_forces(2)
 
         # Main wing Forces
-        self.main_wing_forces()
+        self.main_wing_forces(3)
 
         # Vertical tail Forces
-        self.vertical_tail_forces()
+        self.vertical_tail_forces(4)
 
-    def left_aileron_forces(self):
-        i = 0
-        orn = self.surface_orns[i]
+    def left_aileron_forces(self, i):
+        
         vel = self.surface_vels[i]
-
-        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
-        local_surface_vel = np.matmul((vel), rotation)
+        local_surface_vel = np.matmul((vel), self.rotation)
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = 30 * self.cmd[1]
+        defl = self.aerofoil_params[i]["defl_lim"] * self.cmd[1]
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
@@ -335,18 +278,15 @@ class FixedWing(DroneClass):
         self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [0.0, 0.0, 0.0], self.p.LINK_FRAME)
         self.p.applyExternalTorque(self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME)
 
-    def right_aileron_forces(self):
-        i = 1
-        orn = self.surface_orns[i]
+    def right_aileron_forces(self, i):
+        
         vel = self.surface_vels[i]
-
-        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
-        local_surface_vel = np.matmul((vel), rotation)
+        local_surface_vel = np.matmul((vel), self.rotation)
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = 30 * -self.cmd[1]
+        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[1]
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
@@ -363,18 +303,15 @@ class FixedWing(DroneClass):
         self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [0.0, 0.0, 0.0], self.p.LINK_FRAME)
         self.p.applyExternalTorque(self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME)
 
-    def horizontal_tail_forces(self):
-        i = 2
-        orn = self.surface_orns[i]
-        vel = self.surface_vels[i]
+    def horizontal_tail_forces(self, i):
 
-        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
-        local_surface_vel = np.matmul((vel), rotation)
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = 30 * -self.cmd[0]
+        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[0]
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[1], local_surface_vel[2]]) # Only in Y and Z directions
@@ -391,13 +328,10 @@ class FixedWing(DroneClass):
         self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [0.0, 0.0, 0.0], self.p.LINK_FRAME)
         self.p.applyExternalTorque(self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME)
 
-    def main_wing_forces(self):
-        i = 3
-        orn = self.surface_orns[i]
-        vel = self.surface_vels[i]
+    def main_wing_forces(self, i):
 
-        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
-        local_surface_vel = np.matmul((vel), rotation)
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
 
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
@@ -418,18 +352,15 @@ class FixedWing(DroneClass):
         self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [0, 0, 0], self.p.LINK_FRAME)
         self.p.applyExternalTorque(self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME)
 
-    def vertical_tail_forces(self):
-        i = 4
-        orn = self.surface_orns[i]
-        vel = self.surface_vels[i]
+    def vertical_tail_forces(self, i):
 
-        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
-        local_surface_vel = np.matmul((vel), rotation)
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
 
         alpha = np.arctan2(-local_surface_vel[0], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = 30 * -self.cmd[2]
+        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[2]
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm([local_surface_vel[0], local_surface_vel[1]]) # Only in X and Y directions
@@ -445,48 +376,6 @@ class FixedWing(DroneClass):
 
         self.p.applyExternalForce(self.Id, self.surface_ids[i], [right, front, 0], [0.0, 0.0, 0.0], self.p.LINK_FRAME)
         self.p.applyExternalTorque(self.Id, self.surface_ids[i], [0, 0, pitching_moment], self.p.LINK_FRAME)
-
-
-    def update_state(self):
-        """ang_vel, ang_pos, lin_vel, lin_pos"""
-        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
-
-        # express vels in local frame
-        rotation = np.array(
-            self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        lin_vel = np.matmul(rotation, lin_vel)
-        ang_vel = np.matmul(rotation, ang_vel)
-
-        # ang_pos in euler form
-        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
-        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
-
-        # get the surface velocities and angles
-        for i, id in enumerate(self.surface_ids):
-            state = self.p.getLinkState(self.Id, id, computeLinkVelocity=True)
-            self.surface_orns[i] = state[-3]
-            self.surface_vels[i] = state[-2]
-        print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
-
-    def update_control(self):
-        """runs through controllers"""
-        mode = self.mode
-
-        # custom controllers run first if any
-        if self.mode in self.registered_controllers.keys():
-            custom_output = self.instanced_controllers[self.mode].step(
-                self.state, self.setpoint
-            )
-            assert custom_output.shape == (
-                4,
-            ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
-
-            mode = self.registered_base_modes[self.mode]
-
-        
-        # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
-        self.cmd = cmds
 
     def get_aero_data(self, params, defl, alpha):
         """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
@@ -558,19 +447,50 @@ class FixedWing(DroneClass):
 
         return Cl, Cd, CM
 
-    def update_physics(self):
-        self.update_state()
-        self.update_forces()
-        pass
 
-    def update_avionics(self):
-        """
-        updates state and control
-        """
-        self.update_control()
+    def update_state(self):
+        """ang_vel, ang_pos, lin_vel, lin_pos"""
+        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
+        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
-        if self.use_camera:
-            self.capture_image()
+        # express vels in local frame
+        rotation = np.array(
+            self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        lin_vel = np.matmul(rotation, lin_vel)
+        ang_vel = np.matmul(rotation, ang_vel)
+
+        # ang_pos in euler form
+        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
+        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
+
+        # get the surface velocities and angles
+        for i, id in enumerate(self.surface_ids):
+            state = self.p.getLinkState(self.Id, id, computeLinkVelocity=True)
+            self.surface_vels[i] = state[-2]
+
+        self.orn = state[-3]
+        self.rotation = np.array(self.p.getMatrixFromQuaternion(self.orn)).reshape(3, 3)
+        print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
+
+    def update_control(self):
+        """runs through controllers"""
+        mode = self.mode
+
+        # custom controllers run first if any
+        if self.mode in self.registered_controllers.keys():
+            custom_output = self.instanced_controllers[self.mode].step(
+                self.state, self.setpoint
+            )
+            assert custom_output.shape == (
+                4,
+            ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
+
+            mode = self.registered_base_modes[self.mode]
+
+        
+        # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
+        # self.cmd = self.setpoint
+        self.cmd = cmds
 
     @property
     def view_mat(self):
@@ -630,3 +550,76 @@ class FixedWing(DroneClass):
             *self.camera_resolution, -1)
         self.segImg = np.array(self.segImg).reshape(
             *self.camera_resolution, -1)
+
+        UAV_pos = self.state[-1]
+        UAV_yaw = np.rad2deg(np.arctan2(-UAV_pos[0], UAV_pos[1]))
+        UAV_pitch = np.rad2deg(np.abs(np.arctan(UAV_pos[2] / np.linalg.norm([UAV_pos[0], UAV_pos[1]]))))
+
+        self.p.resetDebugVisualizerCamera(
+        cameraDistance=5,
+        cameraYaw=UAV_yaw,
+        cameraPitch=UAV_pitch,
+        cameraTargetPosition=[0, 0, 5],
+        )
+
+
+    def reset(self):
+        self.set_mode(1)
+        self.setpoint = np.zeros((4))
+        self.rpm = np.zeros((1))
+        self.pwm = np.zeros((1))
+        self.cmd = np.zeros((4))
+        self.surface_orns = [0] * 5
+        self.surface_vels = [0] * 5
+
+        self.p.resetBasePositionAndOrientation(
+            self.Id, self.start_pos, self.start_orn)
+
+        self.p.resetBaseVelocity(
+            self.Id, self.start_vel, [0, 0, 0])
+
+        # print(self.start_vel)
+        # print(self.start_pos)
+
+        # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
+        # Maps .urdf idx to surface_ids
+        self.surface_ids = [3, 4, 1, 5, 2]
+        self.update_state()
+
+        if self.use_camera:
+            self.capture_image()
+        pass
+
+    def set_mode(self, mode):
+
+        """
+        Mode 1 - [Roll, Pitch, Yaw, Throttle]
+        """
+
+        # WIP, copied and pasted from quadx
+        if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
+            raise ValueError(
+                f"`mode` must be between -1 and 7 or be registered in {self.registered_controllers.keys()=}, got {mode}."
+            )
+
+        self.mode = mode
+
+        # for custom modes
+        if mode in self.registered_controllers.keys():
+            self.instanced_controllers[mode] = self.registered_controllers[mode](
+            )
+            mode = self.registered_base_modes[mode]
+
+    def update_physics(self):
+        self.update_state()
+        self.update_forces()
+        pass
+
+    def update_avionics(self):
+        """
+        updates state and control
+        """
+        self.update_control()
+
+        if self.use_camera:
+            self.capture_image()

@@ -25,6 +25,7 @@ class DroneClass(ABC):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
+        start_vel: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
         drone_model: str,
@@ -51,13 +52,13 @@ class DroneClass(ABC):
         """ SPAWN """
         self.start_pos = start_pos
         self.start_orn = self.p.getQuaternionFromEuler(start_orn)
+        self.start_vel = start_vel
         self.Id = self.p.loadURDF(
             self.drone_dir,
             basePosition=self.start_pos,
             baseOrientation=self.start_orn,
             useFixedBase=False,
         )
-
         """ DEFINE SETPOINT """
         self.setpoint = np.zeros((4,))
 

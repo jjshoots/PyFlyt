@@ -17,6 +17,7 @@ class Aviary(bullet_client.BulletClient):
         self,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
+        start_vel: np.ndarray,
         render: bool = False,
         physics_hz: int = 240,
         ctrl_hz: int = 120,
@@ -54,6 +55,7 @@ class Aviary(bullet_client.BulletClient):
 
         self.start_pos = start_pos
         self.start_orn = start_orn
+        self.start_vel = start_vel
         self.use_camera = use_camera
         self.use_gimbal = use_gimbal
         self.camera_angle = camera_angle_degrees
@@ -81,7 +83,7 @@ class Aviary(bullet_client.BulletClient):
             cameraDistance=5,
             cameraYaw=0,
             cameraPitch=-50,
-            cameraTargetPosition=[0, 0, 10],
+            cameraTargetPosition=[0, 0, 0],
         )
         if not self.use_camera:
             self.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
@@ -99,12 +101,13 @@ class Aviary(bullet_client.BulletClient):
 
         # spawn drones
         self.drones: list[DroneClass] = []
-        for start_pos, start_orn in zip(self.start_pos, self.start_orn):
+        for start_pos, start_orn, start_vel in zip(self.start_pos, self.start_orn, self.start_vel):
             self.drones.append(
                 FixedWing(
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
+                    start_vel=start_vel,
                     ctrl_hz=self.ctrl_hz,
                     physics_hz=self.physics_hz,
                     model_dir=self.model_dir,
@@ -115,6 +118,7 @@ class Aviary(bullet_client.BulletClient):
                     camera_resolution=self.camera_frame_size,
                     np_random=self.np_random,
                 )
+
                 # QuadX(
                 #     self,
                 #     start_pos=start_pos,

@@ -1,15 +1,15 @@
 """Spawn a single fixed wing UAV on x=0, y=0, z=50, with 0 rpy."""
 import numpy as np
-import time
-
+from PyFlyt.gym_envs.simple_waypoint import SimpleWaypointEnv
 from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual
 
 # the starting position and orientations
 start_pos = np.array([[0.0, 0.0, 10]])
 start_orn = np.array([[0.0, 0.0, 0.0]])
+start_vel = np.array([[0.0, 20.0, 0.0]])
 
 # environment setup
-env = Aviary(start_pos=start_pos, start_orn=start_orn, use_camera=True, use_gimbal=False, render=True)
+env = Aviary(start_pos=start_pos, start_orn=start_orn, start_vel=start_vel, use_camera=True, use_gimbal=False, render=True)
 
 # set to position control
 env.set_mode(1)
@@ -25,9 +25,10 @@ loadOBJ(
     visualId=visualId,
     collisionId=collisionId,
     baseMass=1.0,
-    basePosition=[0.0, 0.0, 10.0],
+    basePosition=[0.0, 0.0, 2.0],
 )
 
+# env = SimpleWaypointEnv(render_mode='human')
 # simulate for 1000 steps (1000/120 ~= 8 seconds)
 for i in range(10000):
     env.step()
