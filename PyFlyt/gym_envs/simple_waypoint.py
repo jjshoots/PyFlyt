@@ -30,7 +30,7 @@ class SimpleWaypointEnv(PyFlytEnv):
     def __init__(
         self,
         num_targets: int = 4,
-        use_yaw_targets: bool = True,
+        use_yaw_targets: bool = False,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 5.0,
@@ -229,6 +229,8 @@ class SimpleWaypointEnv(PyFlytEnv):
                 # recolour
                 for i, visual in enumerate(self.target_visual):
                     p.changeVisualShape(
+
+                        
                         visual,
                         linkIndex=-1,
                         rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),

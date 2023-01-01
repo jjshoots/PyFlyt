@@ -109,8 +109,9 @@ class PyFlytEnv(gymnasium.Env):
         self.info["env_complete"] = False
 
         # init env
-        aviary_options["start_pos"] = np.array([[0.0, 0.0, 1.0]])
+        aviary_options["start_pos"] = np.array([[0.0, 0.0, 10.0]])
         aviary_options["start_orn"] = np.array([[0.0, 0.0, 0.0]])
+        aviary_options["start_vel"] = np.array([[0.0, 20.0, 0.0]])
         aviary_options["render"] = self.enable_render
         aviary_options["seed"] = seed
         self.env = Aviary(**aviary_options)
@@ -203,6 +204,17 @@ class PyFlytEnv(gymnasium.Env):
 
         # increment step count
         self.step_count += 1
+
+        UAV_pos = self.state["attitude"][-7:-4]
+        UAV_yaw = np.rad2deg(np.arctan2(-UAV_pos[0], UAV_pos[1]))
+        UAV_pitch = np.rad2deg(np.abs(np.arctan(UAV_pos[2] / np.linalg.norm([UAV_pos[0], UAV_pos[1]]))))
+
+        self.env.resetDebugVisualizerCamera(
+        cameraDistance=5,
+        cameraYaw=UAV_yaw,
+        cameraPitch=UAV_pitch,
+        cameraTargetPosition=[0, 0, 5],
+        )
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 

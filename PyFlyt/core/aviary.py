@@ -134,7 +134,6 @@ class Aviary(bullet_client.BulletClient):
                 #     np_random=self.np_random,
                 # )
             )
-
         # arm everything
         self.armed = [1] * self.num_drones
         self.register_all_new_bodies()

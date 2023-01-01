@@ -13,76 +13,76 @@ from ..pid import PID
 from pyPS4Controller.controller import Controller
 from threading import Thread, Event
 
-class MyController(Controller):
+# class MyController(Controller):
 
-    def __init__(self, **kwargs):
-        Controller.__init__(self, **kwargs)
+#     def __init__(self, **kwargs):
+#         Controller.__init__(self, **kwargs)
 
 
-    def on_R3_down(self, value):
-        global cmds
+#     def on_R3_down(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[0] = value
-        return value
+#         cmds[0] = value
+#         return value
 
-    def on_R3_up(self, value):
-        global cmds
+#     def on_R3_up(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[0] = value
-        return value
+#         cmds[0] = value
+#         return value
 
-    def on_R3_left(self, value):
-        global cmds
+#     def on_R3_left(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[1] = value
-        return value
+#         cmds[1] = value
+#         return value
 
-    def on_R3_right(self, value):
-        global cmds
+#     def on_R3_right(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[1] = value
-        return value
+#         cmds[1] = value
+#         return value
 
-    def on_L3_left(self, value):
-        global cmds
+#     def on_L3_left(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[2] = value
-        return value
+#         cmds[2] = value
+#         return value
 
-    def on_L3_right(self, value):
-        global cmds
+#     def on_L3_right(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[2] = value
-        return value
+#         cmds[2] = value
+#         return value
 
-    def on_R2_press(self, value):
-        global cmds
+#     def on_R2_press(self, value):
+#         global cmds
 
-        value = value / 32767
+#         value = value / 32767
 
-        cmds[3] = value
-        return value
+#         cmds[3] = value
+#         return value
 
-def readDS4():
-    controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-    controller.listen()
+# def readDS4():
+#     controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+#     controller.listen()
     
-t = Thread(target=readDS4, args=())
-t.start()
+# t = Thread(target=readDS4, args=())
+# t.start()
 
-cmds = [0, 0, 0, 0]
+# cmds = [0, 0, 0, 0]
 
 
 class FixedWing(DroneClass):
@@ -489,8 +489,8 @@ class FixedWing(DroneClass):
 
         
         # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
-        # self.cmd = self.setpoint
-        self.cmd = cmds
+        self.cmd = self.setpoint
+        # self.cmd = cmds
 
     @property
     def view_mat(self):
