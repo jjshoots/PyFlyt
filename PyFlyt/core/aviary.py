@@ -155,7 +155,9 @@ class Aviary(bullet_client.BulletClient):
             assert len(settings) == len(
                 self.drones
             ), f"Expected {len(self.drones)} settings, got {len(settings)}."
-            self.armed_drones = [drone for (drone, arm) in zip(self.drones, settings) if arm]
+            self.armed_drones = [
+                drone for (drone, arm) in zip(self.drones, settings) if arm
+            ]
         else:
             self.armed_drones = [drone for drone in self.drones] if settings else []
 
