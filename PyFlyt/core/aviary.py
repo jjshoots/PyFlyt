@@ -92,7 +92,7 @@ class Aviary(bullet_client.BulletClient):
         self.np_random = np.random.RandomState(seed=seed)
 
         """ CONSTRUCT THE WORLD """
-        self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=1.0)
+        self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=20.0)
         # p.changeVisualShape(
         #     self.planeId,
         #     linkIndex=-1,

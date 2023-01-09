@@ -1,5 +1,5 @@
 motor_params:
-  thrust_to_weight: 3
+  thrust_to_weight: 6
   thrust_const: 3.16e-10
   torque_const: 7.94e-12
   motor_noise_ratio: 0.02
@@ -49,7 +49,7 @@ horizontal_tail_params:
   alpha_stall_P_base: 9 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  defl_lim: 30 # Control surface deflection limit in degrees
+  defl_lim: 20 # Control surface deflection limit in degrees
 
 vertical_tail_params: 
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -61,4 +61,4 @@ vertical_tail_params:
   alpha_stall_P_base: 9 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  defl_lim: 30 # Control surface deflection limit in degrees
+  defl_lim: 20 # Control surface deflection limit in degrees

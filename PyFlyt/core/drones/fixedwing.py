@@ -13,77 +13,6 @@ from ..pid import PID
 from pyPS4Controller.controller import Controller
 from threading import Thread, Event
 
-# class MyController(Controller):
-
-#     def __init__(self, **kwargs):
-#         Controller.__init__(self, **kwargs)
-
-
-#     def on_R3_down(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[0] = value
-#         return value
-
-#     def on_R3_up(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[0] = value
-#         return value
-
-#     def on_R3_left(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[1] = value
-#         return value
-
-#     def on_R3_right(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[1] = value
-#         return value
-
-#     def on_L3_left(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[2] = value
-#         return value
-
-#     def on_L3_right(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[2] = value
-#         return value
-
-#     def on_R2_press(self, value):
-#         global cmds
-
-#         value = value / 32767
-
-#         cmds[3] = value
-#         return value
-
-# def readDS4():
-#     controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-#     controller.listen()
-    
-# t = Thread(target=readDS4, args=())
-# t.start()
-
-# cmds = [0, 0, 0, 0]
-
 
 class FixedWing(DroneClass):
     """FixedWing instance that handles everything about a FixedWing."""
@@ -470,7 +399,7 @@ class FixedWing(DroneClass):
 
         self.orn = state[-3]
         self.rotation = np.array(self.p.getMatrixFromQuaternion(self.orn)).reshape(3, 3)
-        print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
+        # print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
 
     def update_control(self):
         """runs through controllers"""
@@ -562,6 +491,7 @@ class FixedWing(DroneClass):
         cameraTargetPosition=[0, 0, 5],
         )
 
+        return np.array(self.rgbaImg).reshape(self.camera_resolution[1], self.camera_resolution[0], -1)
 
     def reset(self):
         self.set_mode(1)
