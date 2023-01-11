@@ -10,10 +10,6 @@ from pybullet_utils import bullet_client
 from ..abstractions import CtrlClass, DroneClass
 from ..pid import PID
 
-from pyPS4Controller.controller import Controller
-from threading import Thread, Event
-
-
 class FixedWing(DroneClass):
     """FixedWing instance that handles everything about a FixedWing."""
 
