@@ -25,19 +25,6 @@ class FWTargets(gym.Env):
         self.action_space = spaces.Box(
             low=-1, high=1, shape=(4,), dtype=np.float32)
 
-        # Init targets
-        x_arr = [rd.uniform(-50, 50) for i in range(1, 4)]
-        y_arr = [rd.uniform(-50, 50) for i in range(1, 4)]
-        z_arr = [rd.uniform(5, 50) for i in range(1, 4)]
-
-        self.num_targets = len(x_arr)
-        self.targets = []
-        for i in range(len(x_arr)):
-            self.targets.append([x_arr[i], y_arr[i], z_arr[i]])
-
-        # Clone extra elements at the end of the list of targets
-        for i in range(2):
-            self.targets.append([0, 0, 0])
         # Target visual file
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
@@ -45,7 +32,6 @@ class FWTargets(gym.Env):
         # Additional parameters (Could be updated to be inside __init__())
         self.start_pos = np.array([[0, 0, 10]])
         self.start_orn = np.array([[0, 0, 0]])
-        self.start_vel = np.array([[0, 20, 0]])
         self.goal_reach_distance = 2
         self.time_limit = 30  # Seconds
         self.agent_Hz = 30
@@ -67,7 +53,7 @@ class FWTargets(gym.Env):
 
         # Initialise PyFlyt env
         self.env = Aviary(start_pos=self.start_pos, start_orn=self.start_orn,
-                          start_vel=self.start_vel, use_camera=self.use_camera, use_gimbal=False, render=self.enable_render)
+                          use_camera=self.use_camera, use_gimbal=False, render=self.enable_render, worldScale=20.0)
 
         # Reset Aviary env
         self.env.set_mode(1)
@@ -92,23 +78,20 @@ class FWTargets(gym.Env):
         self.last_error_from_UAV = [0, 0, 0]
 
         # Reset targets to follow
-        x_arr = [rd.uniform(-50, 50) for i in range(1, 4)]
-        y_arr = [rd.uniform(-50, 50) for i in range(1, 4)]
-        z_arr = [rd.uniform(5, 50) for i in range(1, 4)]
+        x_arr = [rd.uniform(-50, 50) for i in range(1, 6)]
+        y_arr = [rd.uniform(-50, 50) for i in range(1, 6)]
+        z_arr = [rd.uniform(5, 50) for i in range(1, 6)]
 
-        self.num_targets = len(x_arr)
+        # Final 2 dummy targets not meant to be collected (Not rendered)
+        self.num_targets = len(x_arr) - 2
         self.targets = []
         for i in range(len(x_arr)):
             self.targets.append([x_arr[i], y_arr[i], z_arr[i]])
 
-        # Clone extra elements at the end of the list of targets
-        for i in range(2):
-            self.targets.append([0, 0, 0])
-
         # if we are rendering, load in the targets
         if self.use_camera:
             self.target_visual = []
-            for target in self.targets:
+            for target in self.targets[0:self.num_targets]:
                 self.target_visual.append(
                     self.env.loadURDF(
                         self.targ_obj_dir, basePosition=target, useFixedBase=True
@@ -224,10 +207,10 @@ class FWTargets(gym.Env):
                 reward = 100
             else:
                 reward = 10
-        # Give -0.1 reward + velocity to target bonus if nothing happens 
+        # Give -0.1 reward + velocity to target bonus if nothing happens
         else:
 
-            reward = -0.01 + (0.01 * self.vel_to_target) * (self.vel_to_target > 0.0)
+            reward = (0.5 * self.vel_to_target) * (self.vel_to_target > 0.0)
 
         return reward
 

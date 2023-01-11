@@ -17,17 +17,17 @@ class Aviary(bullet_client.BulletClient):
         self,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        start_vel: np.ndarray,
         render: bool = False,
         physics_hz: int = 240,
         ctrl_hz: int = 120,
-        drone_model: str = None,
+        drone_model: str = "cf2x",
         model_dir: None | str = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
         camera_angle_degrees: int = 20,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
+        worldScale: float = 1.0,
         seed: None | int = None,
     ):
         super().__init__(p.GUI if render else p.DIRECT)
@@ -55,12 +55,12 @@ class Aviary(bullet_client.BulletClient):
 
         self.start_pos = start_pos
         self.start_orn = start_orn
-        self.start_vel = start_vel
         self.use_camera = use_camera
         self.use_gimbal = use_gimbal
         self.camera_angle = camera_angle_degrees
         self.camera_FOV = camera_FOV_degrees
         self.camera_frame_size = camera_resolution
+        self.worldScale = worldScale
 
         self.model_dir = model_dir
         self.drone_model = drone_model
@@ -81,9 +81,9 @@ class Aviary(bullet_client.BulletClient):
         # reset the camera position to a sane place
         self.resetDebugVisualizerCamera(
             cameraDistance=5,
-            cameraYaw=0,
-            cameraPitch=-50,
-            cameraTargetPosition=[0, 0, 0],
+            cameraYaw=30,
+            cameraPitch=-30,
+            cameraTargetPosition=[0, 0, 1],
         )
         if not self.use_camera:
             self.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
@@ -92,7 +92,7 @@ class Aviary(bullet_client.BulletClient):
         self.np_random = np.random.RandomState(seed=seed)
 
         """ CONSTRUCT THE WORLD """
-        self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=20.0)
+        self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=self.worldScale)
         # p.changeVisualShape(
         #     self.planeId,
         #     linkIndex=-1,
@@ -101,13 +101,12 @@ class Aviary(bullet_client.BulletClient):
 
         # spawn drones
         self.drones: list[DroneClass] = []
-        for start_pos, start_orn, start_vel in zip(self.start_pos, self.start_orn, self.start_vel):
+        for start_pos, start_orn in zip(self.start_pos, self.start_orn):
             self.drones.append(
                 FixedWing(
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
-                    start_vel=start_vel,
                     ctrl_hz=self.ctrl_hz,
                     physics_hz=self.physics_hz,
                     model_dir=self.model_dir,

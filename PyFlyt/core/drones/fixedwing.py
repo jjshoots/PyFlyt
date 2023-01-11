@@ -22,7 +22,6 @@ class FixedWing(DroneClass):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        start_vel: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
         drone_model: str = "fixedwing",
@@ -55,7 +54,6 @@ class FixedWing(DroneClass):
             p=p,
             start_pos=start_pos,
             start_orn=start_orn,
-            start_vel=start_vel,
             ctrl_hz=ctrl_hz,
             physics_hz=physics_hz,
             model_dir=model_dir,
@@ -506,10 +504,7 @@ class FixedWing(DroneClass):
             self.Id, self.start_pos, self.start_orn)
 
         self.p.resetBaseVelocity(
-            self.Id, self.start_vel, [0, 0, 0])
-
-        # print(self.start_vel)
-        # print(self.start_pos)
+            self.Id, [0, 20, 0], [0, 0, 0])
 
         # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
         # Maps .urdf idx to surface_ids
