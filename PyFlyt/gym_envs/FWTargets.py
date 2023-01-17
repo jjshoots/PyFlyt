@@ -212,6 +212,7 @@ class FWTargets(gym.Env):
 
             reward = (0.5 * self.vel_to_target) * (self.vel_to_target > 0.0)
 
+        reward = (1 * self.vel_to_target) * (self.vel_to_target > 0.0)
         return reward
 
     def _compute_done(self):
