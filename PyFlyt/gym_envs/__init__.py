@@ -1,6 +1,6 @@
 from gymnasium.envs.registration import register
 
-from .pyflyt_env import PyFlytEnv
+from PyFlyt.gym_envs.pyflyt_env import PyFlytEnv
 
 register(
     id="PyFlyt/SimpleHoverEnv-v0",
@@ -15,4 +15,9 @@ register(
 register(
     id="PyFlyt/AdvancedGatesEnv-v0",
     entry_point="PyFlyt.gym_envs.advanced_gates:AdvancedGatesEnv",
+)
+
+register(
+    id="PyFlyt/FWTargets-v0",
+    entry_point="PyFlyt.gym_envs.FWTargets:FWTargets",
 )
