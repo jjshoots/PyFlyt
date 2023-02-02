@@ -12,7 +12,7 @@ from gymnasium.spaces import GraphInstance
 from PyFlyt.core.aviary import Aviary
 
 
-class PyFlytEnv(gymnasium.Env):
+class QuadXBaseEnv(gymnasium.Env):
     """Base PyFlyt Environments using the Gymnasim API"""
 
     metadata = {"render_modes": ["human"], "render_fps": 30}

@@ -6,12 +6,11 @@ import os
 import numpy as np
 import pybullet as p
 from gymnasium import spaces
-from gymnasium.spaces import GraphInstance
 
-from .pyflyt_env import PyFlytEnv
+from .quadx_base_env import QuadXBaseEnv
 
 
-class SimpleWaypointEnv(PyFlytEnv):
+class QuadXWaypointsEnv(QuadXBaseEnv):
     """
     Simple Waypoint Environment
 
@@ -64,14 +63,13 @@ class SimpleWaypointEnv(PyFlytEnv):
         self.observation_space = spaces.Dict(
             {
                 "attitude": self.attitude_space,
-                "target_deltas": spaces.Graph(
-                    node_space=spaces.Box(
+                "target_deltas": spaces.Sequence(
+                    space=spaces.Box(
                         low=-2 * flight_dome_size,
                         high=2 * flight_dome_size,
                         shape=(4,) if use_yaw_targets else (3,),
                         dtype=np.float64,
-                    ),
-                    edge_space=None,
+                    )
                 ),
             }
         )
@@ -121,7 +119,7 @@ class SimpleWaypointEnv(PyFlytEnv):
             for target in self.targets:
                 self.target_visual.append(
                     self.env.loadURDF(
-                        self.targ_obj_dir, basePosition=target, useFixedBase=True
+                        self.targ_obj_dir, basePosition=target, useFixedBase=True, globalScaling=0.05
                     )
                 )
 
@@ -181,9 +179,7 @@ class SimpleWaypointEnv(PyFlytEnv):
                 [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action]
             )
 
-        new_state["target_deltas"] = GraphInstance(
-            nodes=target_deltas, edge_links=None, edges=None
-        )
+        new_state["target_deltas"] = target_deltas
 
         self.state = new_state
 

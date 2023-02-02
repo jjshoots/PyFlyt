@@ -57,6 +57,7 @@ class DroneClass(ABC):
             baseOrientation=self.start_orn,
             useFixedBase=False,
         )
+
         """ DEFINE SETPOINT """
         self.setpoint = np.zeros((4,))
 

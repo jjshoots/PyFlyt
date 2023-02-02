@@ -1,29 +1,43 @@
-import numpy as np
-import gymnasium as gym
-from gymnasium import spaces
-import pybullet as p
-import time
-import random as rd
-from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual
 import os
-from wingman import cpuize, gpuize
+import random as rd
+
+import gymnasium as gym
+import numpy as np
+import pybullet as p
+from gymnasium import spaces
+
+from PyFlyt.core import Aviary
 
 
-class FWTargets(gym.Env):
+class FixedwingWaypointsEnv(gym.Env):
     """Wrapper for PyFlyt fixed wing gymnasium environment"""
+
     metadata = {"render_modes": ["human", "gif"], "render_fps": 30}
 
-    def __init__(
-        self,
-        render_mode: None | str = None
-    ):
+    def __init__(self, render_mode: None | str = None):
 
         # Define observation space
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(26,), dtype=np.float32)
+            low=-np.inf, high=np.inf, shape=(26,), dtype=np.float32
+        )
+
+        # TODO: adjust observations to fit into this space
+        # self.observation_space = spaces.Dict(
+        #     {
+        #         "attitude": spaces.Box(low=-np.inf, high=np.inf, shape=(16,), dtype=np.float64),
+        #         "target_deltas": spaces.Sequence(
+        #             space=spaces.Box(
+        #                 low=-2 * flight_dome_size,
+        #                 high=2 * flight_dome_size,
+        #                 shape=(4,) if use_yaw_targets else (3,),
+        #                 dtype=np.float64,
+        #             )
+        #         ),
+        #     }
+        # )
+
         # Define action space
-        self.action_space = spaces.Box(
-            low=-1, high=1, shape=(4,), dtype=np.float32)
+        self.action_space = spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32)
 
         # Target visual file
         file_dir = os.path.dirname(os.path.realpath(__file__))
@@ -52,8 +66,14 @@ class FWTargets(gym.Env):
             self.use_camera = False
 
         # Initialise PyFlyt env
-        self.env = Aviary(start_pos=self.start_pos, start_orn=self.start_orn,
-                          use_camera=self.use_camera, use_gimbal=False, render=self.enable_render, worldScale=20.0)
+        self.env = Aviary(
+            start_pos=self.start_pos,
+            start_orn=self.start_orn,
+            use_camera=self.use_camera,
+            use_gimbal=False,
+            render=self.enable_render,
+            worldScale=20.0,
+        )
 
         # Reset Aviary env
         self.env.set_mode(1)
@@ -66,9 +86,8 @@ class FWTargets(gym.Env):
         self.done = False
         self.terminate = False
         self.truncate = False
-        self.info = {"Collide": False,
-                     "TargetReached": False,
-                     "NumTargetsReached": 0}
+        # TODO: fix these info to match those inside quadx_base_env, ie: use snake case
+        self.info = {"Collide": False, "TargetReached": False, "NumTargetsReached": 0}
         self.curr_target_idx = 0
         self.collide = False
         self.target_reached = False
@@ -91,7 +110,7 @@ class FWTargets(gym.Env):
         # if we are rendering, load in the targets
         if self.use_camera:
             self.target_visual = []
-            for target in self.targets[0:self.num_targets]:
+            for target in self.targets[0 : self.num_targets]:
                 self.target_visual.append(
                     self.env.loadURDF(
                         self.targ_obj_dir, basePosition=target, useFixedBase=True
@@ -113,19 +132,19 @@ class FWTargets(gym.Env):
                         rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                     )
 
-        return self._compute_obs(), self.info
+        return self.compute_state(), self.info
 
     def step(self, action):
-        self.env.set_setpoints([action])
+        self.env.set_setpoints(np.array([action]))
         for i in range(4):
             self.env.step()
             self.step_count += 1
-        self.obs = self._compute_obs()
-        self.rwd = self._compute_rwd()
-        self.terminate, self.truncate = self._compute_done()
+        self.obs = self.compute_state()
+        self.rwd = self.compute_reward()
+        self.terminate, self.truncate = self.compute_done()
         return self.obs, self.rwd, self.terminate, self.truncate, self.info
 
-    def _compute_obs(self):
+    def compute_state(self):
         """state.
 
         This returns the base attitude for the drone.
@@ -137,6 +156,7 @@ class FWTargets(gym.Env):
         - error_from_UAV (vector of 3 values)
         - next_targets (vector of 6 values)
         """
+        # TODO: add current action to observation, this is usually after `lin_pos`, this allows the learning agent to have a notion of history
         raw_state = self.env.states[0]
 
         # State breakdown
@@ -147,14 +167,14 @@ class FWTargets(gym.Env):
 
         # quarternion angles
         quarternion = p.getQuaternionFromEuler(ang_pos)
-        rotation = np.array(
-            p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
+        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
 
         # Compute distance to target
         error = self.targets[self.curr_target_idx] - lin_pos  # World frame
         self.error_from_UAV = np.matmul(rotation, error)  # UAV Body frame
         self.error_from_UAV_vel = (
-            self.last_error_from_UAV - self.error_from_UAV) / self.time_step_dur
+            self.last_error_from_UAV - self.error_from_UAV
+        ) / self.time_step_dur
 
         # Linear distance between UAV and target
         self.dist = np.linalg.norm(error)
@@ -165,16 +185,30 @@ class FWTargets(gym.Env):
         self.last_dist = self.dist.copy()
 
         # Extract positions of next 2 targets
-        next_targets = [*self.targets[self.curr_target_idx],
-                        *self.targets[self.curr_target_idx+1]]
+        next_targets = [
+            *self.targets[self.curr_target_idx],
+            *self.targets[self.curr_target_idx + 1],
+        ]
 
-        observation = np.array([*ang_vel, *ang_pos, *lin_vel, *lin_pos,
-                               self.dist, self.vel_to_target, *self.error_from_UAV_vel, *self.error_from_UAV, *next_targets], dtype=np.float32)
+        observation = np.array(
+            [
+                *ang_vel,
+                *ang_pos,
+                *lin_vel,
+                *lin_pos,
+                self.dist,
+                self.vel_to_target,
+                *self.error_from_UAV_vel,
+                *self.error_from_UAV,
+                *next_targets,
+            ],
+            dtype=np.float32,
+        )
 
         return observation
 
-    def _compute_rwd(self):
-        """ 
+    def compute_reward(self):
+        """
         Returns reward for this step
             1 - Target not reached: -0.1
             2 - Target reached: 100
@@ -200,8 +234,8 @@ class FWTargets(gym.Env):
             self.target_reached = True
             self.curr_target_idx += 1
             self.info["NumTargetsReached"] = self.curr_target_idx
-            self._compute_obs()
-            self._recolour()
+            self.compute_state()
+            self.recolour()
             if self.curr_target_idx == self.num_targets:
                 self.all_targets_reached = True
                 reward = 100
@@ -215,7 +249,7 @@ class FWTargets(gym.Env):
         reward = (1 * self.vel_to_target) * (self.vel_to_target > 0.0)
         return reward
 
-    def _compute_done(self):
+    def compute_done(self):
         """
         Determines status of the UAV:
             4 - Collision (terminate env)
@@ -234,7 +268,7 @@ class FWTargets(gym.Env):
 
         return self.terminate, self.truncate
 
-    def _recolour(self):
+    def recolour(self):
         # delete the reached target and recolour the others
         if self.use_camera and len(self.target_visual) > 0:
             p.removeBody(self.target_visual[0])
@@ -257,7 +291,6 @@ class FWTargets(gym.Env):
                     )
 
     def render(self):
-
         # Take picture
         img = self.env.drones[0].capture_image()
 

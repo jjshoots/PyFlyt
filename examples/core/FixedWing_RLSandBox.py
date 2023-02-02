@@ -1,25 +1,24 @@
 """Spawn a single fixed wing UAV on x=0, y=0, z=50, with 0 rpy."""
-import numpy as np
-import gymnasium
-from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual
 import argparse
 import os
 import random
 import time
 from distutils.util import strtobool
+from threading import Event, Thread
 
+import gymnasium
 import gymnasium as gym
-import PyFlyt.gym_envs
+import numpy as np
 from PIL import Image
-
 from pyPS4Controller.controller import Controller
-from threading import Thread, Event
+
+import PyFlyt.gym_envs
+from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual
+
 
 class MyController(Controller):
-
     def __init__(self, **kwargs):
         Controller.__init__(self, **kwargs)
-
 
     def on_R3_down(self, value):
         global cmds
@@ -77,14 +76,17 @@ class MyController(Controller):
         cmds[3] = value
         return value
 
+
 def readDS4():
     controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
     controller.listen()
-    
+
+
 t = Thread(target=readDS4, args=())
 t.start()
 
 cmds = [0, 0, 0, 0]
+
 
 def parse_args():
     # fmt: off
@@ -148,14 +150,15 @@ def parse_args():
     return args
 
 
-    
 def make_env(env_id, idx, capture_video, run_name, gamma):
     def thunk():
         if capture_video:
             env = gym.make(env_id, render_mode="rgb_array")
         else:
             env = gym.make(env_id)
-        env = gym.wrappers.FlattenObservation(env)  # deal with dm_control's Dict observation space
+        env = gym.wrappers.FlattenObservation(
+            env
+        )  # deal with dm_control's Dict observation space
         env = gym.wrappers.RecordEpisodeStatistics(env)
         if capture_video:
             if idx == 0:
@@ -168,7 +171,6 @@ def make_env(env_id, idx, capture_video, run_name, gamma):
         return env
 
     return thunk
-
 
 
 args = parse_args()
@@ -199,5 +201,7 @@ while not (terminated or truncated):
     #     print(next_obs, rewards, terminated, truncated, infos)
     #     print('Episode length: {}'.format(stepcount))
 imgs = [Image.fromarray(img) for img in imgs_array]
-imgs[0].save("FWTarget.gif", save_all=True, append_images=imgs[1:], duration=100/3, loop=0)
-print("Total time: {}".format(time.time()-timenow))
+imgs[0].save(
+    "FWTarget.gif", save_all=True, append_images=imgs[1:], duration=100 / 3, loop=0
+)
+print("Total time: {}".format(time.time() - timenow))

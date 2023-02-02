@@ -1,12 +1,12 @@
-import numpy as np
 import gymnasium
-import PyFlyt.gym_envs
-from PIL import Image
+import numpy as np
+import torch
+import torch.optim as optim
 from mainSAC import SAC
+from PIL import Image
 from wingman import Wingman, cpuize, gpuize
 
-import torch.optim as optim
-import torch
+import PyFlyt.gym_envs
 
 
 def setup_net(env, wm):
@@ -69,16 +69,18 @@ if __name__ == "__main__":
 
             if infos["TargetReached"] or infos["Collide"] or terminated or truncated:
                 print(state, rewards, terminated, truncated, infos)
-                print('Episode length: {}'.format(steps))
+                print("Episode length: {}".format(steps))
 
         imgs = [Image.fromarray(img) for img in imgs_array]
-        imgs[0].save("FWTarget.gif", save_all=True, append_images=imgs[1:], duration=100/3, loop=0)
+        imgs[0].save(
+            "FWTarget.gif",
+            save_all=True,
+            append_images=imgs[1:],
+            duration=100 / 3,
+            loop=0,
+        )
         # Show gif
         input("Press Enter to continue:")
 
         # total_rwds.append(rewards)
     # print("Average rewards after 100 runs: {}".format(np.mean(total_rwds)))
-
-
-
-
