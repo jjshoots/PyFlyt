@@ -7,6 +7,8 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
+from multiprocessing import Pool
+
 from .abstractions import DroneClass
 from .drones.quadx import QuadX
 from .drones.fixedwing import FixedWing
@@ -118,7 +120,6 @@ class Aviary(bullet_client.BulletClient):
                     camera_resolution=self.camera_frame_size,
                     np_random=self.np_random,
                 )
-
                 # FixedWing(
                 #     self,
                 #     start_pos=start_pos,
@@ -150,8 +151,8 @@ class Aviary(bullet_client.BulletClient):
                 # )
             )
         # arm everything
-        self.armed = [1] * self.num_drones
         self.register_all_new_bodies()
+        self.set_armed(True)
 
     def register_all_new_bodies(self):
         # collision array
@@ -176,17 +177,19 @@ class Aviary(bullet_client.BulletClient):
 
         return states
 
-    def set_armed(self, settings: int | list[int | bool]):
+    def set_armed(self, settings: int | bool | list[int | bool]):
         """
         sets the arming status for all the drones
         """
         if isinstance(settings, list):
             assert len(settings) == len(
-                self.armed
-            ), f"Expected {len(self.armed)} settings, got {len(settings)}."
-            self.armed = settings
+                self.drones
+            ), f"Expected {len(self.drones)} settings, got {len(settings)}."
+            self.armed_drones = [
+                drone for (drone, arm) in zip(self.drones, settings) if arm
+            ]
         else:
-            self.armed = np.ones_like(self.armed) * settings
+            self.armed_drones = [drone for drone in self.drones] if settings else []
 
     def set_mode(self, flight_modes: int | list[int]):
         """
@@ -236,18 +239,15 @@ class Aviary(bullet_client.BulletClient):
         # reset collisions
         self.collision_array &= False
 
-        # step the environment enough times for 1 control loop
-        for i in range(self.ctrl_update_ratio):
-            # update each drone depending on arm condition
-            for drone, armed in zip(self.drones, self.armed):
-                # update drone control only on the first loop
-                if i == 0 and armed:
-                    drone.update_avionics()
+        # update onboard avionics compute
+        [drone.update_avionics() for drone in self.armed_drones]
 
-                # update motor outputs all the time
-                if armed:
-                    drone.update_physics()
+        # step the environment enough times for one control loop
+        for _ in range(self.ctrl_update_ratio):
+            # compute physics
+            [drone.update_physics() for drone in self.armed_drones]
 
+            # advance pybullet
             self.stepSimulation()
 
             # splice out collisions
