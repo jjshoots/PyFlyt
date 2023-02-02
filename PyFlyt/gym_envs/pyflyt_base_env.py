@@ -64,13 +64,20 @@ class PyFlytBaseEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(attitude_shape,), dtype=np.float64
         )
 
-        angular_rate_limit = math.pi
-        thrust_limit = 0.8
+        control_surface_limit = np.inf
+        thrust_limit = np.inf
+        if drone_type == "quadx":
+            control_surface_limit = math.pi
+            thrust_limit = 0.8
+        elif drone_type == "fixedwing":
+            control_surface_limit = 1.0
+            thrust_limit = 1.0
+
         high = np.array(
-            [angular_rate_limit, angular_rate_limit, angular_rate_limit, thrust_limit]
+            [control_surface_limit, control_surface_limit, control_surface_limit, thrust_limit]
         )
         low = np.array(
-            [-angular_rate_limit, -angular_rate_limit, -angular_rate_limit, 0.0]
+            [-control_surface_limit, -control_surface_limit, -control_surface_limit, 0.0]
         )
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
