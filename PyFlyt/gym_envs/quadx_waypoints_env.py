@@ -7,10 +7,10 @@ import numpy as np
 import pybullet as p
 from gymnasium import spaces
 
-from .quadx_base_env import QuadXBaseEnv
+from .pyflyt_base_env import PyFlytBaseEnv
 
 
-class QuadXWaypointsEnv(QuadXBaseEnv):
+class QuadXWaypointsEnv(PyFlytBaseEnv):
     """
     Simple Waypoint Environment
 

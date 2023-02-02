@@ -5,10 +5,10 @@ import numpy as np
 import pybullet as p
 from gymnasium import spaces
 
-from .fixedwing_base_env import FixedwingBaseEnv
+from .pyflyt_base_env import PyFlytBaseEnv
 
 
-class FixedwingWaypointsEnv(FixedwingBaseEnv):
+class FixedwingWaypointsEnv(PyFlytBaseEnv):
 
     metadata = {"render_modes": ["human"]}
 
@@ -17,7 +17,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         sparse_reward: bool = False,
         num_targets: int = 4,
         goal_reach_distance: float = 2.0,
-        flight_dome_size: float = 10.0,
+        flight_dome_size: float = 100.0,
         max_duration_seconds: float = 30.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
@@ -36,6 +36,9 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """
 
         super().__init__(
+            start_pos=np.array([[0.0, 0.0, 10.0]]),
+            drone_type="fixedwing",
+            drone_model="fixedwing",
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
             agent_hz=agent_hz,

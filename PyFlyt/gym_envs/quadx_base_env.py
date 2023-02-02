@@ -9,7 +9,7 @@ from gymnasium import spaces
 from PyFlyt.core.aviary import Aviary
 
 
-class QuadXBaseEnv(gymnasium.Env):
+class PyFlytBaseEnv(gymnasium.Env):
     """Base PyFlyt Environments using the Gymnasim API"""
 
     metadata = {"render_modes": ["human"], "render_fps": 30}

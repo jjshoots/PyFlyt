@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 import gymnasium
 import numpy as np
 import pybullet as p
@@ -7,13 +9,17 @@ from gymnasium import spaces
 from PyFlyt.core.aviary import Aviary
 
 
-class FixedwingBaseEnv(gymnasium.Env):
+class PyFlytBaseEnv(gymnasium.Env):
     """Base PyFlyt Environments using the Gymnasim API"""
 
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
     def __init__(
         self,
+        start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
+        start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
+        drone_type: str = "quadx",
+        drone_model: str = "cf2x",
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
@@ -57,9 +63,21 @@ class FixedwingBaseEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(attitude_shape,), dtype=np.float64
         )
 
-        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64)
+        angular_rate_limit = math.pi
+        thrust_limit = 0.8
+        high = np.array(
+            [angular_rate_limit, angular_rate_limit, angular_rate_limit, thrust_limit]
+        )
+        low = np.array(
+            [-angular_rate_limit, -angular_rate_limit, -angular_rate_limit, 0.0]
+        )
+        self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
+        self.start_pos = start_pos
+        self.start_orn = start_orn
+        self.drone_type = drone_type
+        self.drone_model = drone_model
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
         if angle_representation == "euler":
@@ -96,11 +114,15 @@ class FixedwingBaseEnv(gymnasium.Env):
         self.info["env_complete"] = False
 
         # init env
-        aviary_options["start_pos"] = np.array([[0.0, 0.0, 10.0]])
-        aviary_options["start_orn"] = np.array([[0.0, 0.0, 0.0]])
-        aviary_options["render"] = self.enable_render
-        aviary_options["seed"] = seed
-        self.env = Aviary(**aviary_options)
+        self.env = Aviary(
+            drone_type=self.drone_type,
+            drone_model=self.drone_model,
+            start_pos=self.start_pos,
+            start_orn=self.start_orn,
+            render=self.enable_render,
+            seed=seed,
+            **aviary_options,
+        )
 
     def end_reset(self, seed=None, options=None):
         """The tailing half of the reset function"""
