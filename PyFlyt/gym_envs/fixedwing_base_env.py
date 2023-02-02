@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 import gymnasium
 import numpy as np
 import pybullet as p
@@ -9,7 +7,7 @@ from gymnasium import spaces
 from PyFlyt.core.aviary import Aviary
 
 
-class QuadXBaseEnv(gymnasium.Env):
+class FixedwingBaseEnv(gymnasium.Env):
     """Base PyFlyt Environments using the Gymnasim API"""
 
     metadata = {"render_modes": ["human"], "render_fps": 30}
@@ -59,15 +57,7 @@ class QuadXBaseEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(attitude_shape,), dtype=np.float64
         )
 
-        angular_rate_limit = math.pi
-        thrust_limit = 0.8
-        high = np.array(
-            [angular_rate_limit, angular_rate_limit, angular_rate_limit, thrust_limit]
-        )
-        low = np.array(
-            [-angular_rate_limit, -angular_rate_limit, -angular_rate_limit, 0.0]
-        )
-        self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(4,), dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
         self.max_steps = int(agent_hz * max_duration_seconds)
@@ -106,7 +96,7 @@ class QuadXBaseEnv(gymnasium.Env):
         self.info["env_complete"] = False
 
         # init env
-        aviary_options["start_pos"] = np.array([[0.0, 0.0, 1.0]])
+        aviary_options["start_pos"] = np.array([[0.0, 0.0, 10.0]])
         aviary_options["start_orn"] = np.array([[0.0, 0.0, 0.0]])
         aviary_options["render"] = self.enable_render
         aviary_options["seed"] = seed

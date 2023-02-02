@@ -119,7 +119,10 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
             for target in self.targets:
                 self.target_visual.append(
                     self.env.loadURDF(
-                        self.targ_obj_dir, basePosition=target, useFixedBase=True, globalScaling=0.05
+                        self.targ_obj_dir,
+                        basePosition=target,
+                        useFixedBase=True,
+                        globalScaling=self.goal_reach_distance / 4.0,
                     )
                 )
 
