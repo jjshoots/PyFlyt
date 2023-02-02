@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from multiprocessing import Pool
 
 import numpy as np
 import pybullet as p
