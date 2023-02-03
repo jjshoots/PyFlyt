@@ -166,11 +166,11 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        super().compute_base_term_trunc_reward()
+        super().compute_base_term_trunc()
 
         # exceed flight dome
         if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
-            self.reward += -100.0
+            self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
@@ -183,7 +183,7 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
 
         # target reached
         if self.target_reached:
-            self.reward += 100.0
+            self.reward = 100.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]

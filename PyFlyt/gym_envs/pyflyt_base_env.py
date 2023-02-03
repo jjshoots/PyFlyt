@@ -185,17 +185,15 @@ class PyFlytBaseEnv(gymnasium.Env):
     def compute_term_trunc_reward(self):
         raise NotImplementedError
 
-    def compute_base_term_trunc_reward(self):
+    def compute_base_term_trunc(self):
         """compute_base_term_trunc_reward."""
-        self.reward += -0.1
-
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
 
         # collision
         if np.any(self.env.collision_array):
-            self.reward += -100.0
+            self.reward = -100.0
             self.info["collision"] = True
             self.termination = self.termination or True
 
@@ -213,7 +211,7 @@ class PyFlytBaseEnv(gymnasium.Env):
         action = np.expand_dims(action, axis=0)
 
         # reset the reward and set the action
-        self.reward = 0.0
+        self.reward = -0.1
         self.env.set_setpoints(action)
 
         # step through env, the internal env updates a few steps before the outer env

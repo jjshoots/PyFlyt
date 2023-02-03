@@ -85,7 +85,7 @@ class QuadXHoverEnv(PyFlytBaseEnv):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        super().compute_base_term_trunc_reward()
+        super().compute_base_term_trunc()
 
         # exceed flight dome
         if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
