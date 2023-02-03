@@ -74,10 +74,20 @@ class PyFlytBaseEnv(gymnasium.Env):
             thrust_limit = 1.0
 
         high = np.array(
-            [control_surface_limit, control_surface_limit, control_surface_limit, thrust_limit]
+            [
+                control_surface_limit,
+                control_surface_limit,
+                control_surface_limit,
+                thrust_limit,
+            ]
         )
         low = np.array(
-            [-control_surface_limit, -control_surface_limit, -control_surface_limit, 0.0]
+            [
+                -control_surface_limit,
+                -control_surface_limit,
+                -control_surface_limit,
+                0.0,
+            ]
         )
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
