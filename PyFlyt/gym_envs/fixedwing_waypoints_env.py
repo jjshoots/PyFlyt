@@ -78,10 +78,10 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
         """
         super().begin_reset(seed, options)
 
-        # reset the error
-        self.old_error = 0.0
-
         """TARGET GENERATION"""
+        # reset the error
+        self.old_distance_to_target = 0.0
+
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(self.num_targets, 3))
         thts = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
@@ -128,7 +128,8 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
             - ang_pos (vector of 3/4 values)
             - lin_vel (vector of 3 values)
             - lin_pos (vector of 3 values)
-        - "target_deltas" (Graph)
+            - previous_action (vector of 4 values)
+        - "target_deltas" (Sequence)
             - list of body_frame distances to target (vector of 3/4 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
@@ -141,8 +142,8 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
         self.distance_to_target = np.linalg.norm(target_deltas[0])
 
         # record change in error
-        self.progress_to_target = self.old_error - self.distance_to_target
-        self.old_error = self.distance_to_target.copy()
+        self.progress_to_target = self.old_distance_to_target - self.distance_to_target
+        self.old_distance_to_target = self.distance_to_target.copy()
 
         # combine everything
         new_state = dict()
