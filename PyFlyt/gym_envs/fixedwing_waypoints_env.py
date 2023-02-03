@@ -180,6 +180,9 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
                 0.03 * self.progress_to_target * (self.progress_to_target > 0.0)
             )
 
+        # timestep penalty
+        self.reward -= 0.03
+
         # target reached
         if self.target_reached:
             self.reward += 100.0

@@ -562,11 +562,9 @@ class FixedWing(DroneClass):
         pass
 
     def set_mode(self, mode):
-
         """
         Mode 1 - [Roll, Pitch, Yaw, Throttle]
         """
-
         # WIP, copied and pasted from quadx
         if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
             raise ValueError(
