@@ -175,13 +175,11 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
             self.termination = self.termination or True
 
         # bonus reward if we are not sparse
-        if not self.sparse_reward:
-            self.reward += (
-                0.03 * self.progress_to_target * (self.progress_to_target > 0.0)
-            )
-
-        # timestep penalty
-        self.reward -= 0.03
+        self.reward += (
+            (self.progress_to_target)
+            * (self.progress_to_target > 0.0)
+            * (not self.sparse_reward)
+        )
 
         # target reached
         if self.target_reached:
