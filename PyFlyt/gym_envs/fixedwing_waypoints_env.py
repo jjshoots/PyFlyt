@@ -18,7 +18,7 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
         num_targets: int = 4,
         goal_reach_distance: float = 2.0,
         flight_dome_size: float = 100.0,
-        max_duration_seconds: float = 30.0,
+        max_duration_seconds: float = 120.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
         render_mode: None | str = None,
