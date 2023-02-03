@@ -176,7 +176,7 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
 
         # bonus reward if we are not sparse
         self.reward += (
-            (self.progress_to_target)
+            (0.3 * self.progress_to_target)
             * (self.progress_to_target > 0.0)
             * (not self.sparse_reward)
         )
