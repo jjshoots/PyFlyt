@@ -38,6 +38,7 @@ class QuadXHoverEnv(PyFlytBaseEnv):
             render_mode (None | str): can be "human" or None
         """
         super().__init__(
+            flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
             agent_hz=agent_hz,
@@ -46,9 +47,6 @@ class QuadXHoverEnv(PyFlytBaseEnv):
 
         """GYMNASIUM STUFF"""
         self.observation_space = self.attitude_space
-
-        """ ENVIRONMENT CONSTANTS """
-        self.flight_dome_size = flight_dome_size
 
     def reset(self, seed=None, options=None):
         """reset.
@@ -85,10 +83,4 @@ class QuadXHoverEnv(PyFlytBaseEnv):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        super().compute_base_term_trunc()
-
-        # exceed flight dome
-        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
-            self.reward += -100.0
-            self.info["out_of_bounds"] = True
-            self.termination = self.termination or True
+        super().compute_base_term_trunc_reward()

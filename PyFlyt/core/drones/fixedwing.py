@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import math
 
-import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-from mpl_toolkits.mplot3d import axes3d
 from pybullet_utils import bullet_client
 
 from ..abstractions import CtrlClass, DroneClass
@@ -581,7 +579,6 @@ class FixedWing(DroneClass):
     def update_physics(self):
         self.update_state()
         self.update_forces()
-        pass
 
     def update_avionics(self):
         """

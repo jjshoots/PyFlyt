@@ -6,7 +6,6 @@ import gymnasium
 import numpy as np
 import pybullet as p
 from gymnasium import spaces
-
 from PyFlyt.core.aviary import Aviary
 
 
@@ -21,6 +20,7 @@ class PyFlytBaseEnv(gymnasium.Env):
         start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
         drone_type: str = "quadx",
         drone_model: str = "cf2x",
+        flight_dome_size: float = np.inf,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
@@ -96,6 +96,7 @@ class PyFlytBaseEnv(gymnasium.Env):
         self.start_orn = start_orn
         self.drone_type = drone_type
         self.drone_model = drone_model
+        self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
         if angle_representation == "euler":
@@ -185,7 +186,7 @@ class PyFlytBaseEnv(gymnasium.Env):
     def compute_term_trunc_reward(self):
         raise NotImplementedError
 
-    def compute_base_term_trunc(self):
+    def compute_base_term_trunc_reward(self):
         """compute_base_term_trunc_reward."""
         # exceed step count
         if self.step_count > self.max_steps:
@@ -195,6 +196,12 @@ class PyFlytBaseEnv(gymnasium.Env):
         if np.any(self.env.collision_array):
             self.reward = -100.0
             self.info["collision"] = True
+            self.termination = self.termination or True
+
+        # exceed flight dome
+        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
+            self.reward = -100.0
+            self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
     def step(self, action: np.ndarray):

@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import math
-import os
-
 import numpy as np
-import pybullet as p
 from gymnasium import spaces
 
 from .pyflyt_base_env import PyFlytBaseEnv
+from .waypoint_handler import WaypointHandler
 
 
 class QuadXWaypointsEnv(PyFlytBaseEnv):
@@ -19,7 +16,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
     The target is a set of `[x, y, z, yaw]` targets in space
 
     Reward:
-        100.0 for reaching target,
+        200.0 for reaching target,
         -100 for collisions or out of bounds,
         -0.1 otherwise
     """
@@ -54,10 +51,25 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         """
 
         super().__init__(
+            start_pos=np.array([[0.0, 0.0, 1.0]]),
+            drone_type="quadx",
+            drone_model="cf2x",
+            flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
             agent_hz=agent_hz,
             render_mode=render_mode,
+        )
+
+        # define waypoints
+        self.waypoints = WaypointHandler(
+            enable_render=self.enable_render,
+            num_targets=num_targets,
+            use_yaw_targets=use_yaw_targets,
+            goal_reach_distance=goal_reach_distance,
+            goal_reach_angle=goal_reach_angle,
+            flight_dome_size=flight_dome_size,
+            np_random=self.np_random,
         )
 
         # Define observation space
@@ -77,14 +89,6 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
 
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
-        self.flight_dome_size = flight_dome_size
-        self.num_targets = num_targets
-        self.use_yaw_targets = use_yaw_targets
-        self.goal_reach_distance = goal_reach_distance
-        self.goal_reach_angle = goal_reach_angle
-
-        file_dir = os.path.dirname(os.path.realpath(__file__))
-        self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
 
     def reset(self, seed=None, options=None):
         """reset.
@@ -94,50 +98,8 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
             options:
         """
         super().begin_reset(seed, options)
-
-        """TARGET GENERATION"""
-        # reset the error
-        self.old_distance_to_target = 0.0
-
-        # we sample from polar coordinates to generate linear targets
-        self.targets = np.zeros(shape=(self.num_targets, 3))
-        thts = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
-        phis = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
-        for i, tht, phi in zip(range(self.num_targets), thts, phis):
-            dist = self.np_random.uniform(low=1.0, high=self.flight_dome_size * 0.9)
-            x = dist * math.sin(phi) * math.cos(tht)
-            y = dist * math.sin(phi) * math.sin(tht)
-            z = abs(dist * math.cos(phi))
-
-            # check for floor of z
-            self.targets[i] = np.array([x, y, z if z > 0.1 else 0.1])
-
-        # yaw targets
-        if self.use_yaw_targets:
-            self.yaw_targets = self.np_random.uniform(
-                low=-math.pi, high=math.pi, size=(self.num_targets,)
-            )
-
-        # if we are rendering, laod in the targets
-        if self.enable_render:
-            self.target_visual = []
-            for target in self.targets:
-                self.target_visual.append(
-                    self.env.loadURDF(
-                        self.targ_obj_dir,
-                        basePosition=target,
-                        useFixedBase=True,
-                        globalScaling=self.goal_reach_distance / 4.0,
-                    )
-                )
-
-            for i, visual in enumerate(self.target_visual):
-                p.changeVisualShape(
-                    visual,
-                    linkIndex=-1,
-                    rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
-                )
-
+        self.waypoints.reset()
+        self.info["num_targets_reached"] = 0
         super().end_reset()
 
         return self.state, self.info
@@ -157,30 +119,6 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
 
-        # rotation matrix
-        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
-
-        # drone to target
-        target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
-        self.distance_to_target = np.linalg.norm(target_deltas[0])
-
-        # record change in error
-        self.progress_to_target = self.old_distance_to_target - self.distance_to_target
-        self.old_distance_to_target = self.distance_to_target.copy()
-
-        if self.use_yaw_targets:
-            yaw_errors = self.yaw_targets - ang_pos[-1]
-
-            # rollover yaw
-            yaw_errors[yaw_errors > math.pi] -= 2.0 * math.pi
-            yaw_errors[yaw_errors < -math.pi] += 2.0 * math.pi
-
-            # add the yaw delta to the target deltas
-            target_deltas = np.concatenate([target_deltas, yaw_errors], axis=-1)
-
-            # compute the yaw error scalar
-            self.yaw_error_scalar = np.abs(yaw_errors[0])
-
         # combine everything
         new_state = dict()
         if self.angle_representation == 0:
@@ -192,60 +130,28 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
                 [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action]
             )
 
-        new_state["target_deltas"] = target_deltas
+        new_state["target_deltas"] = self.waypoints.distance_to_target(
+            ang_pos, lin_pos, quarternion
+        )
 
         self.state = new_state
 
-    @property
-    def target_reached(self):
-        """target_reached."""
-        if not self.distance_to_target < self.goal_reach_distance:
-            return False
-
-        return not (
-            self.use_yaw_targets and self.yaw_error_scalar < self.goal_reach_angle
-        )
-
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
-        super().compute_base_term_trunc()
-
-        # exceed flight dome
-        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
-            self.reward = -100.0
-            self.info["out_of_bounds"] = True
-            self.termination = self.termination or True
-            return
+        super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse
-        self.reward += (
-            (self.progress_to_target)
-            * (self.progress_to_target > 0.0)
-            * (not self.sparse_reward)
-        )
+        if not self.sparse_reward:
+            self.reward += max(self.waypoints.progress_to_target(), 0.0)
 
         # target reached
-        if self.target_reached:
+        if self.waypoints.target_reached():
             self.reward = 200.0
-            if len(self.targets) > 1:
-                # still have targets to go
-                self.targets = self.targets[1:]
-                if self.use_yaw_targets:
-                    self.yaw_targets = self.yaw_targets[1:]
-            else:
-                self.info["env_complete"] = True
-                self.info["num_targets_reached"] = self.num_targets - len(self.targets)
-                self.termination = self.termination or True
 
-            # delete the reached target and recolour the others
-            if self.enable_render and len(self.target_visual) > 0:
-                p.removeBody(self.target_visual[0])
-                self.target_visual = self.target_visual[1:]
+            # update infos and dones
+            self.termination |= self.waypoints.all_targets_reached()
+            self.info["env_complete"] = self.waypoints.all_targets_reached()
+            self.info["num_targets_reached"] = self.waypoints.num_targets_reached()
 
-                # recolour
-                for i, visual in enumerate(self.target_visual):
-                    p.changeVisualShape(
-                        visual,
-                        linkIndex=-1,
-                        rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
-                    )
+            # advance the targets
+            self.waypoints.advance_targets()

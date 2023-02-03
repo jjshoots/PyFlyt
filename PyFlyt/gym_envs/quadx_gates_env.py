@@ -263,7 +263,7 @@ class QuadXGatesEnv(PyFlytBaseEnv):
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc_reward."""
-        super().compute_base_term_trunc()
+        super().compute_base_term_trunc_reward()
 
         # out of range of next gate
         if self.dis_error_scalar > 2 * self.max_gate_distance:
