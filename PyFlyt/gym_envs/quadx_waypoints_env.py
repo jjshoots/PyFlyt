@@ -215,17 +215,18 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
             self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
+            return
 
         # bonus reward if we are not sparse
         self.reward += (
-            (0.3 * self.progress_to_target)
+            (self.progress_to_target)
             * (self.progress_to_target > 0.0)
             * (not self.sparse_reward)
         )
 
         # target reached
         if self.target_reached:
-            self.reward = 100.0
+            self.reward = 200.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]

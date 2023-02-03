@@ -174,6 +174,7 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
             self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
+            return
 
         # bonus reward if we are not sparse
         self.reward += (
