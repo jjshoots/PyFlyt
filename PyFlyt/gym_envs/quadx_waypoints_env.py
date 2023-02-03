@@ -30,7 +30,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         self,
         sparse_reward: bool = False,
         num_targets: int = 4,
-        use_yaw_targets: bool = True,
+        use_yaw_targets: bool = False,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_dome_size: float = 5.0,
