@@ -28,6 +28,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
 
     def __init__(
         self,
+        sparse_reward: bool = False,
         num_targets: int = 4,
         use_yaw_targets: bool = True,
         goal_reach_distance: float = 0.2,
@@ -35,7 +36,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         flight_dome_size: float = 5.0,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
-        agent_hz: int = 40,
+        agent_hz: int = 30,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -59,7 +60,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
             render_mode=render_mode,
         )
 
-        """GYMNASIUM STUFF"""
+        # Define observation space
         self.observation_space = spaces.Dict(
             {
                 "attitude": self.attitude_space,
@@ -75,6 +76,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         )
 
         """ ENVIRONMENT CONSTANTS """
+        self.sparse_reward = sparse_reward
         self.flight_dome_size = flight_dome_size
         self.num_targets = num_targets
         self.use_yaw_targets = use_yaw_targets
@@ -92,6 +94,9 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
             options:
         """
         super().begin_reset(seed, options)
+
+        # reset the error
+        self.old_error = 0.0
 
         """TARGET GENERATION"""
         # we sample from polar coordinates to generate linear targets
@@ -156,7 +161,11 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
 
         # drone to target
         target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
-        self.dis_error_scalar = np.linalg.norm(target_deltas[0])
+        self.distance_to_target = np.linalg.norm(target_deltas[0])
+
+        # record change in error
+        self.progress_to_target = self.old_error - self.distance_to_target
+        self.old_error = self.distance_to_target.copy()
 
         if self.use_yaw_targets:
             yaw_errors = self.yaw_targets - ang_pos[-1]
@@ -189,14 +198,12 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
     @property
     def target_reached(self):
         """target_reached."""
-        if self.dis_error_scalar < self.goal_reach_distance:
-            if self.use_yaw_targets:
-                if self.yaw_error_scalar < self.goal_reach_angle:
-                    return True
-            else:
-                return True
+        if not self.distance_to_target < self.goal_reach_distance:
+            return False
 
-        return False
+        return not (
+            self.use_yaw_targets and self.yaw_error_scalar < self.goal_reach_angle
+        )
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""
@@ -208,6 +215,13 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
             self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
+        # bonus reward if we are not sparse
+        self.reward += (
+            (0.3 * self.progress_to_target)
+            * (self.progress_to_target > 0.0)
+            * (not self.sparse_reward)
+        )
+
         # target reached
         if self.target_reached:
             self.reward = 100.0
@@ -218,6 +232,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
                     self.yaw_targets = self.yaw_targets[1:]
             else:
                 self.info["env_complete"] = True
+                self.info["num_targets_reached"] = self.num_targets - len(self.targets)
                 self.termination = self.termination or True
 
             # delete the reached target and recolour the others

@@ -51,8 +51,8 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
                 "attitude": self.attitude_space,
                 "target_deltas": spaces.Sequence(
                     space=spaces.Box(
-                        low=-np.inf,
-                        high=np.inf,
+                        low=-2 * flight_dome_size,
+                        high=2 * flight_dome_size,
                         shape=(3,),
                         dtype=np.float64,
                     )
@@ -183,12 +183,13 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
 
         # target reached
         if self.target_reached:
-            self.reward = 100.0
+            self.reward = 200.0
             if len(self.targets) > 1:
                 # still have targets to go
                 self.targets = self.targets[1:]
             else:
                 self.info["env_complete"] = True
+                self.info["num_targets_reached"] = self.num_targets - len(self.targets)
                 self.termination = self.termination or True
 
             # delete the reached target and recolour the others
