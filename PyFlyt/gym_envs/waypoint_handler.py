@@ -89,8 +89,8 @@ class WaypointHandler:
         target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
 
         # record distance to the next target
-        self.new_distance = float(np.linalg.norm(target_deltas[0]))
         self.old_distance = self.new_distance
+        self.new_distance = float(np.linalg.norm(target_deltas[0]))
 
         if self.use_yaw_targets:
             yaw_errors = self.yaw_targets - ang_pos[-1]
