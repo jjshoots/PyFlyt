@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
@@ -123,8 +124,13 @@ class Quadplane(DroneClass):
             )
 
             # Combine [ail_left, ail_right, hori_tail, main_wing, vert_tail]
-            self.aerofoil_params = [left_wing_flapped_params, right_wing_flapped_params,
-                                    horizontal_tail_params, main_wing_params, vertical_tail_params]
+            self.aerofoil_params = [
+                left_wing_flapped_params,
+                right_wing_flapped_params,
+                horizontal_tail_params,
+                main_wing_params,
+                vertical_tail_params,
+            ]
 
         """ CAMERA """
         self.use_camera = use_camera
@@ -146,21 +152,20 @@ class Quadplane(DroneClass):
         self.reset()
 
     def fm_rpm2forces(self, rpm_cmd):
-        """model the motor using first order ODE, y' = T/tau * (setpoint - y), then 
+        """model the motor using first order ODE, y' = T/tau * (setpoint - y), then
         maps rpm to individual motor force and torque"""
 
-        self.fm_rpm += (self.physics_hz / self.fm_motor_tau) * \
-            (self.fm_max_rpm * rpm_cmd - self.fm_rpm)
+        self.fm_rpm += (self.physics_hz / self.fm_motor_tau) * (
+            self.fm_max_rpm * rpm_cmd - self.fm_rpm
+        )
 
         rpm = np.expand_dims(self.fm_rpm, axis=1)
         thrust = (rpm**2) * self.fm_thr_coeff
         torque = (rpm**2) * self.fm_tor_coeff * self.fm_tor_dir
 
         # add some random noise to the motor output
-        thrust += self.np_random.randn(*thrust.shape) * \
-            self.fm_noise_ratio * thrust
-        torque += self.np_random.randn(*torque.shape) * \
-            self.fm_noise_ratio * torque
+        thrust += self.np_random.randn(*thrust.shape) * self.fm_noise_ratio * thrust
+        torque += self.np_random.randn(*torque.shape) * self.fm_noise_ratio * torque
 
         self.p.applyExternalForce(
             self.Id, 0, thrust[0], [0.0, 0.0, 0.0], self.p.LINK_FRAME
@@ -168,27 +173,26 @@ class Quadplane(DroneClass):
         # self.p.applyExternalTorque(self.Id, 0, torque[0], self.p.LINK_FRAME)
 
     def qm_rpm2forces(self, rpm_cmd):
-        """model the motor using first order ODE, y' = T/tau * (setpoint - y), then 
+        """model the motor using first order ODE, y' = T/tau * (setpoint - y), then
         maps rpm to individual motor force and torque"""
 
-        self.qm_rpm += (self.physics_hz / self.qm_motor_tau) * \
-            (self.qm_max_rpm * rpm_cmd - self.qm_rpm)
+        self.qm_rpm += (self.physics_hz / self.qm_motor_tau) * (
+            self.qm_max_rpm * rpm_cmd - self.qm_rpm
+        )
 
         rpm = np.expand_dims(self.qm_rpm, axis=1)
         thrust = (rpm**2) * self.qm_thr_coeff
         torque = (rpm**2) * self.qm_tor_coeff * self.qm_tor_dir
 
         # add some random noise to the motor outputs
-        thrust += self.np_random.randn(*thrust.shape) * \
-            self.qm_noise_ratio * thrust
-        torque += self.np_random.randn(*torque.shape) * \
-            self.qm_noise_ratio * torque
+        thrust += self.np_random.randn(*thrust.shape) * self.qm_noise_ratio * thrust
+        torque += self.np_random.randn(*torque.shape) * self.qm_noise_ratio * torque
 
         for idx, (thr, tor) in enumerate(zip(thrust, torque)):
             self.p.applyExternalForce(
-                self.Id, (idx+7), thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
+                self.Id, (idx + 7), thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
             )
-            self.p.applyExternalTorque(self.Id, (idx+7), tor, self.p.LINK_FRAME)
+            self.p.applyExternalTorque(self.Id, (idx + 7), tor, self.p.LINK_FRAME)
 
     def qm_cmd2rpm(self, Fz, Mpitch, Mroll, Myaw):
         """maps angular torque commands to motor rpms"""
@@ -206,9 +210,9 @@ class Quadplane(DroneClass):
 
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
-        
+
         Proll, eta, tau, Fz, Mpitch, Mroll, Myaw = self.cmd_mixing()
- 
+
         qm_rpm = self.qm_cmd2rpm(Fz, Mpitch, Mroll, Myaw)
 
         # Front Motor Forces
@@ -241,14 +245,13 @@ class Quadplane(DroneClass):
         alpha_deg = np.rad2deg(alpha)
 
         defl = self.aerofoil_params[i]["defl_lim"] * Proll
-        [Cl, Cd, CM] = self.get_aero_data(
-            self.aerofoil_params[i], defl, alpha_deg)
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
-            [local_surface_vel[1], local_surface_vel[2]])  # Only in Y and Z directions
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[i]["chord"] * \
-            self.aerofoil_params[i]["span"]
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
 
         lift = Q * area * Cl
         drag = Q * area * Cd  # Negative coz front is positive
@@ -257,10 +260,16 @@ class Quadplane(DroneClass):
         up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
-        self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [
-                                  0.0, 0.0, 0.0], self.p.LINK_FRAME)
-        self.p.applyExternalTorque(self.Id, self.surface_ids[i], [
-                                   pitching_moment, 0, 0], self.p.LINK_FRAME)
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [0, front, up],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
 
     def right_aileron_forces(self, i, Proll):
 
@@ -271,14 +280,13 @@ class Quadplane(DroneClass):
         alpha_deg = np.rad2deg(alpha)
 
         defl = self.aerofoil_params[i]["defl_lim"] * -Proll
-        [Cl, Cd, CM] = self.get_aero_data(
-            self.aerofoil_params[i], defl, alpha_deg)
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
-            [local_surface_vel[1], local_surface_vel[2]])  # Only in Y and Z directions
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[i]["chord"] * \
-            self.aerofoil_params[i]["span"]
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
 
         lift = Q * area * Cl
         drag = Q * area * Cd
@@ -287,10 +295,16 @@ class Quadplane(DroneClass):
         up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
-        self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [
-                                  0.0, 0.0, 0.0], self.p.LINK_FRAME)
-        self.p.applyExternalTorque(self.Id, self.surface_ids[i], [
-                                   pitching_moment, 0, 0], self.p.LINK_FRAME)
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [0, front, up],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
 
     def horizontal_tail_forces(self, i, eta):
 
@@ -301,14 +315,13 @@ class Quadplane(DroneClass):
         alpha_deg = np.rad2deg(alpha)
 
         defl = self.aerofoil_params[i]["defl_lim"] * eta
-        [Cl, Cd, CM] = self.get_aero_data(
-            self.aerofoil_params[i], defl, alpha_deg)
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
-            [local_surface_vel[1], local_surface_vel[2]])  # Only in Y and Z directions
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[i]["chord"] * \
-            self.aerofoil_params[i]["span"]
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
 
         lift = Q * area * Cl
         drag = Q * area * Cd
@@ -317,10 +330,16 @@ class Quadplane(DroneClass):
         up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
-        self.p.applyExternalForce(self.Id, self.surface_ids[i], [0, front, up], [
-                                  0.0, 0.0, 0.0], self.p.LINK_FRAME)
-        self.p.applyExternalTorque(self.Id, self.surface_ids[i], [
-                                   pitching_moment, 0, 0], self.p.LINK_FRAME)
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [0, front, up],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
 
     def main_wing_forces(self, i):
 
@@ -330,14 +349,13 @@ class Quadplane(DroneClass):
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        [Cl, Cd, CM] = self.get_aero_data(
-            self.aerofoil_params[i], 0, alpha_deg)
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
 
         freestream_speed = np.linalg.norm(
-            [local_surface_vel[1], local_surface_vel[2]])  # Only in Y and Z directions
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[i]["chord"] * \
-            self.aerofoil_params[i]["span"]
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
 
         lift = Q * area * Cl
         drag = Q * area * Cd
@@ -346,10 +364,12 @@ class Quadplane(DroneClass):
         up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
-        self.p.applyExternalForce(self.Id, self.surface_ids[i], [
-                                  0, front, up], [0, 0, 0], self.p.LINK_FRAME)
-        self.p.applyExternalTorque(self.Id, self.surface_ids[i], [
-                                   pitching_moment, 0, 0], self.p.LINK_FRAME)
+        self.p.applyExternalForce(
+            self.Id, self.surface_ids[i], [0, front, up], [0, 0, 0], self.p.LINK_FRAME
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
 
     def vertical_tail_forces(self, i):
 
@@ -360,14 +380,13 @@ class Quadplane(DroneClass):
         alpha_deg = np.rad2deg(alpha)
 
         defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[2]
-        [Cl, Cd, CM] = self.get_aero_data(
-            self.aerofoil_params[i], defl, alpha_deg)
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
-            [local_surface_vel[0], local_surface_vel[1]])  # Only in X and Y directions
+            [local_surface_vel[0], local_surface_vel[1]]
+        )  # Only in X and Y directions
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[i]["chord"] * \
-            self.aerofoil_params[i]["span"]
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
 
         lift = Q * area * Cl
         drag = Q * area * Cd
@@ -376,10 +395,16 @@ class Quadplane(DroneClass):
         right = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
-        self.p.applyExternalForce(self.Id, self.surface_ids[i], [right, front, 0], [
-                                  0.0, 0.0, 0.0], self.p.LINK_FRAME)
-        self.p.applyExternalTorque(self.Id, self.surface_ids[i], [
-                                   0, 0, pitching_moment], self.p.LINK_FRAME)
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [right, front, 0],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [0, 0, pitching_moment], self.p.LINK_FRAME
+        )
 
     def get_aero_data(self, params, defl, alpha):
         """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
@@ -388,11 +413,10 @@ class Quadplane(DroneClass):
         defl = np.deg2rad(defl)
         alpha = np.deg2rad(alpha)
 
-        Cl_alpha_3D = params["Cl_alpha_2D"] * (AR / (
-            AR + ((2 * (AR + 4)) / (AR + 2))))
+        Cl_alpha_3D = params["Cl_alpha_2D"] * (AR / (AR + ((2 * (AR + 4)) / (AR + 2))))
 
         theta_f = np.arccos((2 * params["flap_to_chord"]) - 1)
-        tau = 1 - ((theta_f-np.sin(theta_f)) / np.pi)
+        tau = 1 - ((theta_f - np.sin(theta_f)) / np.pi)
         delta_Cl = Cl_alpha_3D * tau * params["eta"] * defl
         delta_Cl_max = params["flap_to_chord"] * delta_Cl
 
@@ -401,10 +425,8 @@ class Quadplane(DroneClass):
 
         alpha_0_base = np.deg2rad(params["alpha_0_base"])
 
-        Cl_max_P = Cl_alpha_3D * \
-            (alpha_stall_P_base - alpha_0_base) + delta_Cl_max
-        Cl_max_N = Cl_alpha_3D * \
-            (alpha_stall_N_base - alpha_0_base) + delta_Cl_max
+        Cl_max_P = Cl_alpha_3D * (alpha_stall_P_base - alpha_0_base) + delta_Cl_max
+        Cl_max_N = Cl_alpha_3D * (alpha_stall_N_base - alpha_0_base) + delta_Cl_max
 
         alpha_0 = alpha_0_base - (delta_Cl / Cl_alpha_3D)
         alpha_stall_P = alpha_0 + ((Cl_max_P) / Cl_alpha_3D)
@@ -412,28 +434,39 @@ class Quadplane(DroneClass):
 
         # Check if stalled
         if (alpha >= alpha_stall_P) or (alpha <= alpha_stall_N):
-            if (alpha >= alpha_stall_P):
+            if alpha >= alpha_stall_P:
                 # Stall calculations to find alpha_i at stall
                 Cl_stall = Cl_alpha_3D * (alpha_stall_P - alpha_0)
                 alpha_i_at_stall = Cl_stall / (np.pi * AR)
                 # alpha_i post-stall Pos
-                alpha_i = np.interp(alpha, [alpha_stall_P, np.pi/2], [
-                                    alpha_i_at_stall, 0])
+                alpha_i = np.interp(
+                    alpha, [alpha_stall_P, np.pi / 2], [alpha_i_at_stall, 0]
+                )
 
-            elif (alpha <= alpha_stall_N):
+            elif alpha <= alpha_stall_N:
                 # Stall calculations to find alpha_i at stall
                 Cl_stall = Cl_alpha_3D * (alpha_stall_N - alpha_0)
                 alpha_i_at_stall = Cl_stall / (np.pi * AR)
                 # alpha_i post-stall Neg
                 alpha_i = np.interp(
-                    alpha, [-np.pi/2, alpha_stall_N], [0, alpha_i_at_stall])
+                    alpha, [-np.pi / 2, alpha_stall_N], [0, alpha_i_at_stall]
+                )
 
             alpha_eff = alpha - alpha_0 - alpha_i
             # Drag coefficient at 90 deg dependent on deflection angle
-            Cd_90 = ((-4.26 * (10 ** -2)) * (defl ** 2)) + \
-                ((2.1 * (10 ** -1)) * defl) + 1.98
-            CN = Cd_90 * np.sin(alpha_eff) * (1 / (0.56 + 0.44 *
-                                                   abs(np.sin(alpha_eff))) - 0.41 * (1 - np.exp(-17/AR)))
+            Cd_90 = (
+                ((-4.26 * (10**-2)) * (defl**2))
+                + ((2.1 * (10**-1)) * defl)
+                + 1.98
+            )
+            CN = (
+                Cd_90
+                * np.sin(alpha_eff)
+                * (
+                    1 / (0.56 + 0.44 * abs(np.sin(alpha_eff)))
+                    - 0.41 * (1 - np.exp(-17 / AR))
+                )
+            )
             CT = 0.5 * params["Cd_0"] * np.cos(alpha_eff)
             Cl = (CN * np.cos(alpha_eff)) - (CT * np.sin(alpha_eff))
             Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
@@ -472,7 +505,7 @@ class Quadplane(DroneClass):
 
         # Quad command, Mpitch
         Mpitch = (1 - ctrl_share) * -self.cmd[0]
-        
+
         # Quad command, Mroll
         Mroll = (1 - ctrl_share) * self.cmd[1]
 
@@ -487,8 +520,7 @@ class Quadplane(DroneClass):
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
         # express vels in local frame
-        rotation = np.array(
-            self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
         lin_vel = np.matmul(rotation, lin_vel)
         ang_vel = np.matmul(rotation, ang_vel)
 
@@ -502,8 +534,7 @@ class Quadplane(DroneClass):
             self.surface_vels[i] = state[-2]
 
         self.orn = state[-3]
-        self.rotation = np.array(
-            self.p.getMatrixFromQuaternion(self.orn)).reshape(3, 3)
+        self.rotation = np.array(self.p.getMatrixFromQuaternion(self.orn)).reshape(3, 3)
 
     def update_control(self):
         """runs through controllers"""
@@ -575,17 +606,15 @@ class Quadplane(DroneClass):
             viewMatrix=self.view_mat,
             projectionMatrix=self.proj_mat,
         )
-        self.rgbaImg = np.array(self.rgbaImg).reshape(
-            *self.camera_resolution, -1)
-        self.depthImg = np.array(self.depthImg).reshape(
-            *self.camera_resolution, -1)
-        self.segImg = np.array(self.segImg).reshape(
-            *self.camera_resolution, -1)
+        self.rgbaImg = np.array(self.rgbaImg).reshape(*self.camera_resolution, -1)
+        self.depthImg = np.array(self.depthImg).reshape(*self.camera_resolution, -1)
+        self.segImg = np.array(self.segImg).reshape(*self.camera_resolution, -1)
 
         UAV_pos = self.state[-1]
         UAV_yaw = np.rad2deg(np.arctan2(-UAV_pos[0], UAV_pos[1]))
         UAV_pitch = np.rad2deg(
-            np.abs(np.arctan(UAV_pos[2] / np.linalg.norm([UAV_pos[0], UAV_pos[1]]))))
+            np.abs(np.arctan(UAV_pos[2] / np.linalg.norm([UAV_pos[0], UAV_pos[1]])))
+        )
 
         self.p.resetDebugVisualizerCamera(
             cameraDistance=5,
@@ -594,7 +623,9 @@ class Quadplane(DroneClass):
             cameraTargetPosition=[0, 0, 5],
         )
 
-        return np.array(self.rgbaImg).reshape(self.camera_resolution[1], self.camera_resolution[0], -1)
+        return np.array(self.rgbaImg).reshape(
+            self.camera_resolution[1], self.camera_resolution[0], -1
+        )
 
     def reset(self):
         self.set_mode(1)
@@ -605,11 +636,9 @@ class Quadplane(DroneClass):
         self.surface_orns = [0] * 5
         self.surface_vels = [0] * 5
 
-        self.p.resetBasePositionAndOrientation(
-            self.Id, self.start_pos, self.start_orn)
+        self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
 
-        self.p.resetBaseVelocity(
-            self.Id, [0, 0, 0], [0, 0, 0])
+        self.p.resetBaseVelocity(self.Id, [0, 0, 0], [0, 0, 0])
 
         # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
         # Maps .urdf idx to surface_ids
@@ -635,8 +664,7 @@ class Quadplane(DroneClass):
 
         # for custom modes
         if mode in self.registered_controllers.keys():
-            self.instanced_controllers[mode] = self.registered_controllers[mode](
-            )
+            self.instanced_controllers[mode] = self.registered_controllers[mode]()
             mode = self.registered_base_modes[mode]
 
     def update_physics(self):

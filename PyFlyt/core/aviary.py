@@ -7,12 +7,10 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from multiprocessing import Pool
-
 from .abstractions import DroneClass
-from .drones.quadx import QuadX
 from .drones.fixedwing import FixedWing
 from .drones.quadplane import Quadplane
+from .drones.quadx import QuadX
 
 
 class Aviary(bullet_client.BulletClient):
@@ -23,6 +21,7 @@ class Aviary(bullet_client.BulletClient):
         render: bool = False,
         physics_hz: int = 240,
         ctrl_hz: int = 120,
+        drone_type: str = "quadx",
         drone_model: str = "cf2x",
         model_dir: None | str = None,
         use_camera: bool = False,
@@ -46,6 +45,14 @@ class Aviary(bullet_client.BulletClient):
         assert (
             start_orn.shape == start_pos.shape
         ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
+
+        # define the drone types
+        if drone_type == "quadx":
+            self.drone_constructor = QuadX
+        elif drone_type == "quadplane":
+            self.drone_constructor = Quadplane
+        elif drone_type == "fixedwing":
+            self.drone_constructor = FixedWing
 
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
@@ -95,18 +102,15 @@ class Aviary(bullet_client.BulletClient):
         self.np_random = np.random.RandomState(seed=seed)
 
         """ CONSTRUCT THE WORLD """
-        self.planeId = self.loadURDF("plane.urdf", useFixedBase=True, globalScaling=self.worldScale)
-        # p.changeVisualShape(
-        #     self.planeId,
-        #     linkIndex=-1,
-        #     rgbaColor=(0, 0, 0, 1),
-        # )
+        self.planeId = self.loadURDF(
+            "plane.urdf", useFixedBase=True, globalScaling=self.worldScale
+        )
 
         # spawn drones
         self.drones: list[DroneClass] = []
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
             self.drones.append(
-                Quadplane(
+                self.drone_constructor(
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
@@ -120,35 +124,6 @@ class Aviary(bullet_client.BulletClient):
                     camera_resolution=self.camera_frame_size,
                     np_random=self.np_random,
                 )
-                # FixedWing(
-                #     self,
-                #     start_pos=start_pos,
-                #     start_orn=start_orn,
-                #     ctrl_hz=self.ctrl_hz,
-                #     physics_hz=self.physics_hz,
-                #     model_dir=self.model_dir,
-                #     use_camera=self.use_camera,
-                #     use_gimbal=self.use_gimbal,
-                #     camera_angle_degrees=self.camera_angle,
-                #     camera_FOV_degrees=self.camera_FOV,
-                #     camera_resolution=self.camera_frame_size,
-                #     np_random=self.np_random,
-                # )
-
-                # QuadX(
-                #     self,
-                #     start_pos=start_pos,
-                #     start_orn=start_orn,
-                #     ctrl_hz=self.ctrl_hz,
-                #     physics_hz=self.physics_hz,
-                #     model_dir=self.model_dir,
-                #     use_camera=self.use_camera,
-                #     use_gimbal=self.use_gimbal,
-                #     camera_angle_degrees=self.camera_angle,
-                #     camera_FOV_degrees=self.camera_FOV,
-                #     camera_resolution=self.camera_frame_size,
-                #     np_random=self.np_random,
-                # )
             )
         # arm everything
         self.register_all_new_bodies()

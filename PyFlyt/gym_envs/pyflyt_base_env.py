@@ -1,24 +1,27 @@
 from __future__ import annotations
 
 import math
-import os
 
 import gymnasium
 import numpy as np
 import pybullet as p
 from gymnasium import spaces
-from gymnasium.spaces import GraphInstance
 
 from PyFlyt.core.aviary import Aviary
 
 
-class PyFlytEnv(gymnasium.Env):
+class PyFlytBaseEnv(gymnasium.Env):
     """Base PyFlyt Environments using the Gymnasim API"""
 
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
     def __init__(
         self,
+        start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
+        start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
+        drone_type: str = "quadx",
+        drone_model: str = "cf2x",
+        flight_dome_size: float = np.inf,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
@@ -62,17 +65,39 @@ class PyFlytEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(attitude_shape,), dtype=np.float64
         )
 
-        angular_rate_limit = math.pi
-        thrust_limit = 0.8
+        control_surface_limit = np.inf
+        thrust_limit = np.inf
+        if drone_type == "quadx":
+            control_surface_limit = math.pi
+            thrust_limit = 0.8
+        elif drone_type == "fixedwing":
+            control_surface_limit = 1.0
+            thrust_limit = 1.0
+
         high = np.array(
-            [angular_rate_limit, angular_rate_limit, angular_rate_limit, thrust_limit]
+            [
+                control_surface_limit,
+                control_surface_limit,
+                control_surface_limit,
+                thrust_limit,
+            ]
         )
         low = np.array(
-            [-angular_rate_limit, -angular_rate_limit, -angular_rate_limit, 0.0]
+            [
+                -control_surface_limit,
+                -control_surface_limit,
+                -control_surface_limit,
+                0.0,
+            ]
         )
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         """ ENVIRONMENT CONSTANTS """
+        self.start_pos = start_pos
+        self.start_orn = start_orn
+        self.drone_type = drone_type
+        self.drone_model = drone_model
+        self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
         if angle_representation == "euler":
@@ -109,11 +134,15 @@ class PyFlytEnv(gymnasium.Env):
         self.info["env_complete"] = False
 
         # init env
-        aviary_options["start_pos"] = np.array([[0.0, 0.0, 1.0]])
-        aviary_options["start_orn"] = np.array([[0.0, 0.0, 0.0]])
-        aviary_options["render"] = self.enable_render
-        aviary_options["seed"] = seed
-        self.env = Aviary(**aviary_options)
+        self.env = Aviary(
+            drone_type=self.drone_type,
+            drone_model=self.drone_model,
+            start_pos=self.start_pos,
+            start_orn=self.start_orn,
+            render=self.enable_render,
+            seed=seed,
+            **aviary_options,
+        )
 
     def end_reset(self, seed=None, options=None):
         """The tailing half of the reset function"""
@@ -160,16 +189,20 @@ class PyFlytEnv(gymnasium.Env):
 
     def compute_base_term_trunc_reward(self):
         """compute_base_term_trunc_reward."""
-        self.reward += -0.1
-
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
 
         # collision
         if np.any(self.env.collision_array):
-            self.reward += -100.0
+            self.reward = -100.0
             self.info["collision"] = True
+            self.termination = self.termination or True
+
+        # exceed flight dome
+        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
+            self.reward = -100.0
+            self.info["out_of_bounds"] = True
             self.termination = self.termination or True
 
     def step(self, action: np.ndarray):
@@ -186,7 +219,7 @@ class PyFlytEnv(gymnasium.Env):
         action = np.expand_dims(action, axis=0)
 
         # reset the reward and set the action
-        self.reward = 0.0
+        self.reward = -0.1
         self.env.set_setpoints(action)
 
         # step through env, the internal env updates a few steps before the outer env
