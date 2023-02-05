@@ -100,6 +100,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         super().begin_reset(seed, options)
         self.waypoints.reset()
         self.info["num_targets_reached"] = 0
+        self.distance_to_immediate = np.inf
         super().end_reset()
 
         return self.state, self.info
@@ -133,6 +134,9 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         new_state["target_deltas"] = self.waypoints.distance_to_target(
             ang_pos, lin_pos, quarternion
         )
+        self.distance_to_immediate = float(
+            np.linalg.norm(new_state["target_deltas"][0])
+        )
 
         self.state = new_state
 
@@ -143,6 +147,7 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             self.reward += max(self.waypoints.progress_to_target(), 0.0)
+            self.reward += max(10.0, 1.0 / self.distance_to_immediate)
 
         # target reached
         if self.waypoints.target_reached():
