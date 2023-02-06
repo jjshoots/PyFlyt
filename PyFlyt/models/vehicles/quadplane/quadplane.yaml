@@ -1,5 +1,15 @@
-motor_params:
+# Transitional parameters
+umin: 2
+umax: 15
+
+front_motor_params:
   thrust_to_weight: 6
+  thrust_const: 3.16e-10
+  torque_const: 7.94e-12
+  motor_noise_ratio: 0.02
+
+quad_motor_params:
+  thrust_to_weight: 1.5
   thrust_const: 3.16e-10
   torque_const: 7.94e-12
   motor_noise_ratio: 0.02

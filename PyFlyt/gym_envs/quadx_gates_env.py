@@ -9,10 +9,10 @@ import pybullet as p
 from gymnasium import spaces
 from gymnasium.spaces import GraphInstance
 
-from .pyflyt_env import PyFlytEnv
+from .pyflyt_base_env import PyFlytBaseEnv
 
 
-class AdvancedGatesEnv(PyFlytEnv):
+class QuadXGatesEnv(PyFlytBaseEnv):
     """
     Advanced Gates Env
 

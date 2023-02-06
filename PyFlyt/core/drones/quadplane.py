@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import math
 
+import matplotlib.pyplot as plt
 import numpy as np
 import yaml
+from mpl_toolkits.mplot3d import axes3d
 from pybullet_utils import bullet_client
 
 from ..abstractions import CtrlClass, DroneClass
 from ..pid import PID
 
 
-class FixedWing(DroneClass):
-    """FixedWing instance that handles everything about a FixedWing."""
+class Quadplane(DroneClass):
+    """Quadplane instance that handles everything about a Quadplane."""
 
     def __init__(
         self,
@@ -20,7 +22,7 @@ class FixedWing(DroneClass):
         start_orn: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
-        drone_model: str = "fixedwing",
+        drone_model: str = "quadplane",
         model_dir: None | str = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
@@ -29,7 +31,7 @@ class FixedWing(DroneClass):
         camera_resolution: tuple[int, int] = (128, 128),
         np_random: None | np.random.RandomState = None,
     ):
-        """Creates a fixed wing UAV and handles all relevant control and physics.
+        """Creates a quadplane UAV and handles all relevant control and physics.
 
         Args:
             p (bullet_client.BulletClient): p
@@ -57,10 +59,14 @@ class FixedWing(DroneClass):
             np_random=np_random,
         )
 
-        """Reads fixedwing.yaml file and load UAV parameters"""
+        """Reads quadplane.yaml file and load UAV parameters"""
         with open(self.param_path, "rb") as f:
             # load all params from yaml
             all_params = yaml.safe_load(f)
+
+            # Transitional parameters
+            self.umin = all_params["umin"]
+            self.umax = all_params["umax"]
 
             # Main wing
             main_wing_params = all_params["main_wing_params"]
@@ -77,20 +83,45 @@ class FixedWing(DroneClass):
             # Vertical tail
             vertical_tail_params = all_params["vertical_tail_params"]
 
-            # Motor
-            motor_params = all_params["motor_params"]
-            self.t2w = motor_params["thrust_to_weight"]
+            # Front Motor
+            front_motor_params = all_params["front_motor_params"]
+            self.fm_t2w = front_motor_params["thrust_to_weight"]
 
-            self.kf = motor_params["thrust_const"]
-            self.km = motor_params["torque_const"]
+            self.fm_kf = front_motor_params["thrust_const"]
+            self.fm_km = front_motor_params["torque_const"]
 
-            self.thr_coeff = np.array([0.0, 1.0, 0.0]) * self.kf
-            self.tor_coeff = np.array([0.0, 1.0, 0.0]) * self.km
-            self.tor_dir = np.array([[1.0]])
-            self.noise_ratio = motor_params["motor_noise_ratio"]
+            self.fm_thr_coeff = np.array([0.0, 1.0, 0.0]) * self.fm_kf
+            self.fm_tor_coeff = np.array([0.0, 1.0, 0.0]) * self.fm_km
+            self.fm_tor_dir = np.array([[1.0]])
+            self.fm_noise_ratio = front_motor_params["motor_noise_ratio"]
 
-            self.max_rpm = np.sqrt((self.t2w * 9.81) / (self.kf))
-            self.motor_tau = 0.01
+            self.fm_max_rpm = np.sqrt((self.fm_t2w * 9.81) / (self.fm_kf))
+            self.fm_motor_tau = 0.01
+
+            # Quad Motors
+            quad_motor_params = all_params["quad_motor_params"]
+            self.qm_t2w = quad_motor_params["thrust_to_weight"]
+
+            self.qm_kf = quad_motor_params["thrust_const"]
+            self.qm_km = quad_motor_params["torque_const"]
+
+            self.qm_thr_coeff = np.array([[0.0, 0.0, 1.0]]) * self.qm_kf
+            self.qm_tor_coeff = np.array([[0.0, 0.0, 1.0]]) * self.qm_km
+            self.qm_tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
+            self.qm_noise_ratio = quad_motor_params["motor_noise_ratio"]
+
+            self.qm_max_rpm = np.sqrt((self.qm_t2w * 9.81) / (self.qm_kf))
+            self.qm_motor_tau = 0.01
+
+            # motor mapping from command to individual motors
+            self.motor_map = np.array(
+                [
+                    [-1.0, -1.0, +1.0, +1.0],
+                    [+1.0, +1.0, +1.0, +1.0],
+                    [-1.0, +1.0, -1.0, +1.0],
+                    [+1.0, -1.0, -1.0, +1.0],
+                ]
+            )
 
             # Combine [ail_left, ail_right, hori_tail, main_wing, vert_tail]
             self.aerofoil_params = [
@@ -120,54 +151,84 @@ class FixedWing(DroneClass):
 
         self.reset()
 
-    def rpm2forces(self, rpm):
-        """maps rpm to individual motor force and torque"""
-        rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm**2) * self.thr_coeff
-        torque = (rpm**2) * self.tor_coeff * self.tor_dir
+    def fm_rpm2forces(self, rpm_cmd):
+        """model the motor using first order ODE, y' = T/tau * (setpoint - y), then
+        maps rpm to individual motor force and torque"""
+
+        self.fm_rpm += (self.physics_hz / self.fm_motor_tau) * (
+            self.fm_max_rpm * rpm_cmd - self.fm_rpm
+        )
+
+        rpm = np.expand_dims(self.fm_rpm, axis=1)
+        thrust = (rpm**2) * self.fm_thr_coeff
+        torque = (rpm**2) * self.fm_tor_coeff * self.fm_tor_dir
 
         # add some random noise to the motor output
-        thrust += self.np_random.randn(*thrust.shape) * self.noise_ratio * thrust
-        torque += self.np_random.randn(*torque.shape) * self.noise_ratio * torque
+        thrust += self.np_random.randn(*thrust.shape) * self.fm_noise_ratio * thrust
+        torque += self.np_random.randn(*torque.shape) * self.fm_noise_ratio * torque
 
         self.p.applyExternalForce(
             self.Id, 0, thrust[0], [0.0, 0.0, 0.0], self.p.LINK_FRAME
         )
-        self.p.applyExternalTorque(self.Id, 0, torque[0], self.p.LINK_FRAME)
+        # self.p.applyExternalTorque(self.Id, 0, torque[0], self.p.LINK_FRAME)
 
-    def pwm2rpm(self, pwm):
-        """model the motor using first order ODE, y' = T/tau * (setpoint - y)"""
-        self.rpm += (self.physics_hz / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
+    def qm_rpm2forces(self, rpm_cmd):
+        """model the motor using first order ODE, y' = T/tau * (setpoint - y), then
+        maps rpm to individual motor force and torque"""
 
-        return self.rpm
+        self.qm_rpm += (self.physics_hz / self.qm_motor_tau) * (
+            self.qm_max_rpm * rpm_cmd - self.qm_rpm
+        )
 
-    def cmd2pwm(self, cmd):
+        rpm = np.expand_dims(self.qm_rpm, axis=1)
+        thrust = (rpm**2) * self.qm_thr_coeff
+        torque = (rpm**2) * self.qm_tor_coeff * self.qm_tor_dir
+
+        # add some random noise to the motor outputs
+        thrust += self.np_random.randn(*thrust.shape) * self.qm_noise_ratio * thrust
+        torque += self.np_random.randn(*torque.shape) * self.qm_noise_ratio * torque
+
+        for idx, (thr, tor) in enumerate(zip(thrust, torque)):
+            self.p.applyExternalForce(
+                self.Id, (idx + 7), thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
+            )
+            self.p.applyExternalTorque(self.Id, (idx + 7), tor, self.p.LINK_FRAME)
+
+    def qm_cmd2rpm(self, Fz, Mpitch, Mroll, Myaw):
         """maps angular torque commands to motor rpms"""
-        pwm = cmd
+
+        # Mixes commands from pilot with transitional mixing (To be expanded to include lateral commands)
+        qm_cmd = [Mpitch, Mroll, Myaw, Fz]
+        qm_rpm_cmd = np.matmul(self.motor_map, qm_cmd)
         # deal with motor saturations
-        if (high := np.max(pwm)) > 1.0:
-            pwm /= high
-        if (low := np.min(pwm)) < 0.05:
-            pwm += (1.0 - pwm) / (1.0 - low) * (0.05 - low)
+        if (high := np.max(qm_rpm_cmd)) > 1.0:
+            qm_rpm_cmd /= high
+        if (low := np.min(qm_rpm_cmd)) < 0.05:
+            qm_rpm_cmd += (1.0 - qm_rpm_cmd) / (1.0 - low) * (0.05 - low)
 
-        pwm = cmd
-
-        return pwm
+        return qm_rpm_cmd
 
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
-        # Motor thrust
-        self.pwm = self.cmd2pwm(self.cmd[3])  # Extract Throttle cmd
-        self.rpm2forces(self.pwm2rpm(self.pwm))
+
+        Proll, eta, tau, Fz, Mpitch, Mroll, Myaw = self.cmd_mixing()
+
+        qm_rpm = self.qm_cmd2rpm(Fz, Mpitch, Mroll, Myaw)
+
+        # Front Motor Forces
+        self.fm_rpm2forces(tau)
+
+        # Quad Motors Forces
+        self.qm_rpm2forces(qm_rpm)
 
         # Left aileron Forces
-        self.left_aileron_forces(0)
+        self.left_aileron_forces(0, Proll)
 
         # Right aileron Forces
-        self.right_aileron_forces(1)
+        self.right_aileron_forces(1, Proll)
 
         # Horizontal tail Forces
-        self.horizontal_tail_forces(2)
+        self.horizontal_tail_forces(2, eta)
 
         # Main wing Forces
         self.main_wing_forces(3)
@@ -175,7 +236,7 @@ class FixedWing(DroneClass):
         # Vertical tail Forces
         self.vertical_tail_forces(4)
 
-    def left_aileron_forces(self, i):
+    def left_aileron_forces(self, i, Proll):
 
         vel = self.surface_vels[i]
         local_surface_vel = np.matmul((vel), self.rotation)
@@ -183,7 +244,7 @@ class FixedWing(DroneClass):
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = self.aerofoil_params[i]["defl_lim"] * self.cmd[1]
+        defl = self.aerofoil_params[i]["defl_lim"] * Proll
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
@@ -210,7 +271,7 @@ class FixedWing(DroneClass):
             self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
         )
 
-    def right_aileron_forces(self, i):
+    def right_aileron_forces(self, i, Proll):
 
         vel = self.surface_vels[i]
         local_surface_vel = np.matmul((vel), self.rotation)
@@ -218,7 +279,7 @@ class FixedWing(DroneClass):
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[1]
+        defl = self.aerofoil_params[i]["defl_lim"] * -Proll
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
@@ -245,7 +306,7 @@ class FixedWing(DroneClass):
             self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
         )
 
-    def horizontal_tail_forces(self, i):
+    def horizontal_tail_forces(self, i, eta):
 
         vel = self.surface_vels[i]
         local_surface_vel = np.matmul((vel), self.rotation)
@@ -253,7 +314,7 @@ class FixedWing(DroneClass):
         alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
         alpha_deg = np.rad2deg(alpha)
 
-        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[0]
+        defl = self.aerofoil_params[i]["defl_lim"] * eta
         [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
 
         freestream_speed = np.linalg.norm(
@@ -422,6 +483,37 @@ class FixedWing(DroneClass):
 
         return Cl, Cd, CM
 
+    def cmd_mixing(self):
+        """Mixes the longitudinal commands [eta, tau] for plane commands and [Fz, M] for quad commands"""
+
+        u = self.state[2][1]
+        ctrl_share = (u - self.umin) / (self.umax - self.umin)
+        # Saturate ctrl_share between [0, 1]
+        ctrl_share = np.clip(ctrl_share, 0, 1)
+        print(u, ctrl_share)
+        # Plane command, eta
+        eta = ctrl_share * -self.cmd[0]
+
+        # Plane command, tau
+        tau = ctrl_share * self.cmd[3]
+
+        # Plane command, Proll
+        Proll = ctrl_share * self.cmd[1]
+
+        # Quad command, Fz
+        Fz = (1 - ctrl_share) * self.cmd[3]
+
+        # Quad command, Mpitch
+        Mpitch = (1 - ctrl_share) * -self.cmd[0]
+
+        # Quad command, Mroll
+        Mroll = (1 - ctrl_share) * self.cmd[1]
+
+        # Quad command, Myaw
+        Myaw = (1 - ctrl_share) * -self.cmd[2]
+
+        return Proll, eta, tau, Fz, Mpitch, Mroll, Myaw
+
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""
         lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
@@ -443,7 +535,6 @@ class FixedWing(DroneClass):
 
         self.orn = state[-3]
         self.rotation = np.array(self.p.getMatrixFromQuaternion(self.orn)).reshape(3, 3)
-        # print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
 
     def update_control(self):
         """runs through controllers"""
@@ -460,9 +551,8 @@ class FixedWing(DroneClass):
 
             mode = self.registered_base_modes[self.mode]
 
-        # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
+        # Final cmd, [Pitch, Roll, Yaw, Throttle] from [-1, 1]
         self.cmd = self.setpoint
-        # self.cmd = cmds
 
     @property
     def view_mat(self):
@@ -540,15 +630,15 @@ class FixedWing(DroneClass):
     def reset(self):
         self.set_mode(1)
         self.setpoint = np.zeros((4))
-        self.rpm = np.zeros((1))
-        self.pwm = np.zeros((1))
+        self.fm_rpm = np.zeros((1))
+        self.qm_rpm = np.zeros((4))
         self.cmd = np.zeros((4))
         self.surface_orns = [0] * 5
         self.surface_vels = [0] * 5
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
 
-        self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
+        self.p.resetBaseVelocity(self.Id, [0, 0, 0], [0, 0, 0])
 
         # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
         # Maps .urdf idx to surface_ids
@@ -563,6 +653,7 @@ class FixedWing(DroneClass):
         """
         Mode 1 - [Roll, Pitch, Yaw, Throttle]
         """
+
         # WIP, copied and pasted from quadx
         if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
             raise ValueError(
@@ -579,6 +670,7 @@ class FixedWing(DroneClass):
     def update_physics(self):
         self.update_state()
         self.update_forces()
+        pass
 
     def update_avionics(self):
         """
