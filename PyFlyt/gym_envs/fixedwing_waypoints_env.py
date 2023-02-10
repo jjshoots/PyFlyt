@@ -150,7 +150,7 @@ class FixedwingWaypointsEnv(PyFlytBaseEnv):
             self.reward = 100.0
 
             # update infos and dones
-            self.termination |= self.waypoints.all_targets_reached()
+            self.truncation |= self.waypoints.all_targets_reached()
             self.info["env_complete"] = self.waypoints.all_targets_reached()
             self.info["num_targets_reached"] = self.waypoints.num_targets_reached()
 
