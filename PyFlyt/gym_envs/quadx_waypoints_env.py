@@ -153,10 +153,10 @@ class QuadXWaypointsEnv(PyFlytBaseEnv):
         if self.waypoints.target_reached():
             self.reward = 100.0
 
+            # advance the targets
+            self.waypoints.advance_targets()
+
             # update infos and dones
             self.truncation |= self.waypoints.all_targets_reached()
             self.info["env_complete"] = self.waypoints.all_targets_reached()
             self.info["num_targets_reached"] = self.waypoints.num_targets_reached()
-
-            # advance the targets
-            self.waypoints.advance_targets()

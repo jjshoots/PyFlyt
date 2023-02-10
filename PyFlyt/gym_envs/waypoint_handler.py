@@ -115,9 +115,13 @@ class WaypointHandler:
         if not self.new_distance < self.goal_reach_distance:
             return False
 
-        return not (
-            self.use_yaw_targets and self.yaw_error_scalar < self.goal_reach_angle
-        )
+        if not self.use_yaw_targets:
+            return True
+
+        if self.yaw_error_scalar < self.goal_reach_angle:
+            return True
+
+        return False
 
     def advance_targets(self):
         if len(self.targets) > 1:
@@ -125,6 +129,9 @@ class WaypointHandler:
             self.targets = self.targets[1:]
             if self.use_yaw_targets:
                 self.yaw_targets = self.yaw_targets[1:]
+        else:
+            self.targets = []
+            self.yaw_targets = []
 
         # delete the reached target and recolour the others
         if self.enable_render and len(self.target_visual) > 0:
