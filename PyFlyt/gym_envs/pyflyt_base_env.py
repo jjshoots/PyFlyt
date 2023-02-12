@@ -47,7 +47,6 @@ class PyFlytBaseEnv(gymnasium.Env):
                 render_mode in self.metadata["render_modes"]
             ), f"Invalid render mode {render_mode}, only `human` allowed."
             self.enable_render = True
-            self.camera_parameters = self.env.getDebugVisualizerCamera()
         else:
             self.enable_render = False
 
@@ -144,6 +143,9 @@ class PyFlytBaseEnv(gymnasium.Env):
             seed=seed,
             **aviary_options,
         )
+
+        if self.enable_render:
+            self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(self, seed=None, options=None):
         """The tailing half of the reset function"""
