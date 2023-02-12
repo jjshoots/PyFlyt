@@ -100,6 +100,7 @@ class PyFlytBaseEnv(gymnasium.Env):
         self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
+        self.tracking_camera = self.drone_type == "fixedwing"
         if angle_representation == "euler":
             self.angle_representation = 0
         elif angle_representation == "quaternion":
@@ -140,6 +141,7 @@ class PyFlytBaseEnv(gymnasium.Env):
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             render=self.enable_render,
+            use_camera=self.tracking_camera,
             seed=seed,
             **aviary_options,
         )
@@ -242,18 +244,18 @@ class PyFlytBaseEnv(gymnasium.Env):
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
-    def render(self, tracking=False):
+    def render(self):
         """render."""
         assert (
             self.enable_render
         ), "Please set `render_mode='human' to use this function."
 
-        if not tracking:
+        if self.tracking_camera:
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
                 width=self.camera_parameters[0],
                 height=self.camera_parameters[1],
-                viewMatrix=self.camera_parameters[2],
-                projectionMatrix=self.camera_parameters[3],
+                viewMatrix=self.env.drones[0].view_mat,
+                projectionMatrix=self.env.drones[0].proj_mat,
             )
 
             return np.array(rgbaImg).reshape(
@@ -263,8 +265,8 @@ class PyFlytBaseEnv(gymnasium.Env):
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
                 width=self.camera_parameters[0],
                 height=self.camera_parameters[1],
-                viewMatrix=self.env.drones[0].view_mat,
-                projectionMatrix=self.env.drones[0].proj_mat,
+                viewMatrix=self.camera_parameters[2],
+                projectionMatrix=self.camera_parameters[3],
             )
 
             return np.array(rgbaImg).reshape(
