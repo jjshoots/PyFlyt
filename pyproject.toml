@@ -30,7 +30,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["wheel", "matplotlib", "gymnasium", "numpy", "pybullet", "cflib", "cfclient"]
+dependencies = ["wheel", "matplotlib", "gymnasium", "numpy", "pybullet", "cflib", "cfclient", "scipy"]
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "Gym", "PettingZoo"]
 license = { file="./LICENSE.txt" }
 
