@@ -520,23 +520,6 @@ class FixedWing(DroneClass):
         self.depthImg = np.array(self.depthImg).reshape(*self.camera_resolution, -1)
         self.segImg = np.array(self.segImg).reshape(*self.camera_resolution, -1)
 
-        UAV_pos = self.state[-1]
-        UAV_yaw = np.rad2deg(np.arctan2(-UAV_pos[0], UAV_pos[1]))
-        UAV_pitch = np.rad2deg(
-            np.abs(np.arctan(UAV_pos[2] / np.linalg.norm([UAV_pos[0], UAV_pos[1]])))
-        )
-
-        self.p.resetDebugVisualizerCamera(
-            cameraDistance=5,
-            cameraYaw=UAV_yaw,
-            cameraPitch=UAV_pitch,
-            cameraTargetPosition=[0, 0, 5],
-        )
-
-        return np.array(self.rgbaImg).reshape(
-            self.camera_resolution[1], self.camera_resolution[0], -1
-        )
-
     def reset(self):
         self.set_mode(1)
         self.setpoint = np.zeros((4))

@@ -47,6 +47,7 @@ class PyFlytBaseEnv(gymnasium.Env):
                 render_mode in self.metadata["render_modes"]
             ), f"Invalid render mode {render_mode}, only `human` allowed."
             self.enable_render = True
+            self.camera_parameters = self.env.getDebugVisualizerCamera()
         else:
             self.enable_render = False
 
@@ -239,21 +240,31 @@ class PyFlytBaseEnv(gymnasium.Env):
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
-    def render(self):
+    def render(self, tracking=False):
         """render."""
         assert (
             self.enable_render
         ), "Please set `render_mode='human' to use this function."
 
-        camera_parameters = self.env.getDebugVisualizerCamera()
+        if not tracking:
+            _, _, rgbaImg, _, _ = self.env.getCameraImage(
+                width=self.camera_parameters[0],
+                height=self.camera_parameters[1],
+                viewMatrix=self.camera_parameters[2],
+                projectionMatrix=self.camera_parameters[3],
+            )
 
-        camera_resolution = (camera_parameters[0], camera_parameters[1])
+            return np.array(rgbaImg).reshape(
+                self.camera_parameters[1], self.camera_parameters[0], -1
+            )
+        else:
+            _, _, rgbaImg, _, _ = self.env.getCameraImage(
+                width=self.camera_parameters[0],
+                height=self.camera_parameters[1],
+                viewMatrix=self.env.drones[0].view_mat,
+                projectionMatrix=self.env.drones[0].proj_mat,
+            )
 
-        _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=camera_parameters[0],
-            height=camera_parameters[1],
-            viewMatrix=camera_parameters[2],
-            projectionMatrix=camera_parameters[3],
-        )
-
-        return np.array(rgbaImg).reshape(camera_resolution[1], camera_resolution[0], -1)
+            return np.array(rgbaImg).reshape(
+                self.camera_parameters[1], self.camera_parameters[0], -1
+            )
