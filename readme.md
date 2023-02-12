@@ -2,6 +2,7 @@
 
 This is a library for testing reinforcement learning algorithms on UAVs.
 This repo is still under development.
+We are also actively looking for users and developers, if this sounds like you, don't hesitate to get in touch!
 
 PyFlyt currently supports two separate UAV platforms:
 - QuadX UAV
