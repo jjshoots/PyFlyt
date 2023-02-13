@@ -14,7 +14,11 @@ PyFlyt currently supports two separate UAV platforms:
   - For developers - 8 implemented flight modes that use tuned cascaded PID flight controllers, available in `PyFlyt/core/drones/quadx.py`.
 
 - Fixedwing UAV
-  -
+  - Flight model designed for a small fixed wing UAV (< 10 Kg)
+  - Assumes a conventional tube and wing design
+  - Single puller propeller with thrust line passing through CG
+  - Moments of inertia estimations computed by PyBullet according to geometry of parts with mass
+  - Aerofoil characteristics derived from [*Real-time modeling of agile fixed-wing UAV aerodynamics*](https://ieeexplore.ieee.org/document/7152411)
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
