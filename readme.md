@@ -17,7 +17,6 @@ PyFlyt currently supports two separate UAV platforms:
   - Flight model designed for a small fixed wing UAV (< 10 Kg)
   - Assumes a conventional tube and wing design
   - Single puller propeller with thrust line passing through CG
-  - Moments of inertia estimations computed by PyBullet according to geometry of parts with mass
   - Aerofoil characteristics derived from the paper: [*Real-time modeling of agile fixed-wing UAV aerodynamics*](https://ieeexplore.ieee.org/document/7152411)
 
 ## Table of Contents
