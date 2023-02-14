@@ -5,7 +5,6 @@ import math
 import numpy as np
 import yaml
 from pybullet_utils import bullet_client
-from multiprocessing import Pool
 
 from ..abstractions import CtrlClass, DroneClass
 from ..pid import PID
@@ -96,16 +95,19 @@ class FixedWing(DroneClass):
             # surface_id, command_id, command_sign, z_axis_lift, aerofoil_params
             self.surface_descriptions = []
             # left aileron
-            self.surface_descriptions.append((0, 1, 1.0, True, left_wing_flapped_params))
+            self.surface_descriptions.append(
+                (0, 1, 1.0, True, left_wing_flapped_params)
+            )
             # right aileron
-            self.surface_descriptions.append((1, 1, -1.0, True, right_wing_flapped_params))
+            self.surface_descriptions.append(
+                (1, 1, -1.0, True, right_wing_flapped_params)
+            )
             # horizontal tail
             self.surface_descriptions.append((2, 0, -1.0, True, horizontal_tail_params))
             # main wing
             self.surface_descriptions.append((3, None, 0.0, True, main_wing_params))
             # vertical tail
             self.surface_descriptions.append((4, 2, -1.0, False, vertical_tail_params))
-
 
         """ CAMERA """
         self.use_camera = use_camera
@@ -169,7 +171,14 @@ class FixedWing(DroneClass):
         for description in self.surface_descriptions:
             self.update_lifting_surface_forces(*description)
 
-    def update_lifting_surface_forces(self, surface_id: int, command_id: None | int, command_sign: float, z_axis_lift: bool, aerofoil_params: dict):
+    def update_lifting_surface_forces(
+        self,
+        surface_id: int,
+        command_id: None | int,
+        command_sign: float,
+        z_axis_lift: bool,
+        aerofoil_params: dict,
+    ):
         local_surface_vel = np.matmul(self.rotation, self.surface_vels[surface_id])
 
         if z_axis_lift:
@@ -300,7 +309,9 @@ class FixedWing(DroneClass):
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
         # express vels in local frame
-        self.rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        self.rotation = (
+            np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        )
         lin_vel = np.matmul(self.rotation, lin_vel)
         ang_vel = np.matmul(self.rotation, ang_vel)
 
