@@ -101,20 +101,6 @@ class FixedWing(DroneClass):
                 vertical_tail_params,
             ]
 
-        # surface_id, command_id, command_sign, is_horizontal
-        self.surface_desc = []
-        # left aileron
-        self.surface_desc.append((0, 1, 1.0, True))
-        # right aileron
-        self.surface_desc.append((1, 1, -1.0, True))
-        # horizontal tail
-        self.surface_desc.append((2, 0, -1.0, True))
-        # main wing
-        self.surface_desc.append((3, None, 0.0, True))
-        # vertical tail
-        self.surface_desc.append((4, 2, -1.0, False))
-
-
         """ CAMERA """
         self.use_camera = use_camera
         if self.use_camera:
@@ -174,55 +160,188 @@ class FixedWing(DroneClass):
         self.pwm = self.cmd2pwm(self.cmd[3])  # Extract Throttle cmd
         self.rpm2forces(self.pwm2rpm(self.pwm))
 
-        for description in self.surface_desc:
-            self.update_lifting_surface_forces(*description)
+        # Left aileron Forces
+        self.left_aileron_forces(0)
 
-    def update_lifting_surface_forces(self, surface_id: int, command_id: None | int, command_sign: float, is_horizontal: bool):
-        local_surface_vel = np.matmul(self.rotation, self.surface_vels[surface_id])
+        # Right aileron Forces
+        self.right_aileron_forces(1)
 
-        if is_horizontal:
-            alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
-            freestream_speed = np.linalg.norm(
-                [local_surface_vel[1], local_surface_vel[2]]
-            )
-            lift_axis = np.array([0.0, 0.0, 1.0])
-            drag_axis = np.array([0.0, 1.0, 0.0])
-            torque_axis = np.array([1.0, 0.0, 0.0])
-        else:
-            alpha = np.arctan2(-local_surface_vel[0], local_surface_vel[1])
-            freestream_speed = np.linalg.norm(
-                [local_surface_vel[0], local_surface_vel[1]]
-            )
-            lift_axis = np.array([1.0, 0.0, 0.0])
-            drag_axis = np.array([0.0, 1.0, 0.0])
-            torque_axis = np.array([0.0, 0.0, 1.0])
+        # Horizontal tail Forces
+        self.horizontal_tail_forces(2)
 
-        defl = 0.0
-        if command_id is not None:
-            defl = self.aerofoil_params[surface_id]["defl_lim"] * command_sign * self.cmd[command_id]
+        # Main wing Forces
+        self.main_wing_forces(3)
 
-        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[surface_id], defl, np.rad2deg(alpha))
+        # Vertical tail Forces
+        self.vertical_tail_forces(4)
 
+    def left_aileron_forces(self, i):
+
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
+
+        alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
+        alpha_deg = np.rad2deg(alpha)
+
+        defl = self.aerofoil_params[i]["defl_lim"] * self.cmd[1]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
+
+        freestream_speed = np.linalg.norm(
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[surface_id]["chord"] * self.aerofoil_params[surface_id]["span"]
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
 
         lift = Q * area * Cl
         drag = Q * area * Cd  # Negative coz front is positive
-        pitching_moment = Q * area * CM * self.aerofoil_params[surface_id]["chord"] * torque_axis
+        pitching_moment = Q * area * CM * self.aerofoil_params[i]["chord"]
 
-        lift = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
-        drag = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
-        force = lift_axis * lift + drag_axis * drag
+        up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
+        front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
         self.p.applyExternalForce(
             self.Id,
-            self.surface_ids[surface_id],
-            force,
+            self.surface_ids[i],
+            [0, front, up],
             [0.0, 0.0, 0.0],
             self.p.LINK_FRAME,
         )
         self.p.applyExternalTorque(
-            self.Id, self.surface_ids[surface_id], pitching_moment, self.p.LINK_FRAME
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
+
+    def right_aileron_forces(self, i):
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
+
+        alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
+        alpha_deg = np.rad2deg(alpha)
+
+        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[1]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
+
+        freestream_speed = np.linalg.norm(
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
+        Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
+
+        lift = Q * area * Cl
+        drag = Q * area * Cd
+        pitching_moment = Q * area * CM * self.aerofoil_params[i]["chord"]
+
+        up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
+        front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
+
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [0, front, up],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
+
+    def horizontal_tail_forces(self, i):
+
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
+
+        alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
+        alpha_deg = np.rad2deg(alpha)
+
+        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[0]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
+
+        freestream_speed = np.linalg.norm(
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
+        Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
+
+        lift = Q * area * Cl
+        drag = Q * area * Cd
+        pitching_moment = Q * area * CM * self.aerofoil_params[i]["chord"]
+
+        up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
+        front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
+
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [0, front, up],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
+
+    def main_wing_forces(self, i):
+
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
+
+        alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
+        alpha_deg = np.rad2deg(alpha)
+
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], 0, alpha_deg)
+
+        freestream_speed = np.linalg.norm(
+            [local_surface_vel[1], local_surface_vel[2]]
+        )  # Only in Y and Z directions
+        Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
+
+        lift = Q * area * Cl
+        drag = Q * area * Cd
+        pitching_moment = Q * area * CM * self.aerofoil_params[i]["chord"]
+
+        up = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
+        front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
+
+        self.p.applyExternalForce(
+            self.Id, self.surface_ids[i], [0, front, up], [0, 0, 0], self.p.LINK_FRAME
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [pitching_moment, 0, 0], self.p.LINK_FRAME
+        )
+
+    def vertical_tail_forces(self, i):
+
+        vel = self.surface_vels[i]
+        local_surface_vel = np.matmul((vel), self.rotation)
+
+        alpha = np.arctan2(-local_surface_vel[0], local_surface_vel[1])
+        alpha_deg = np.rad2deg(alpha)
+
+        defl = self.aerofoil_params[i]["defl_lim"] * -self.cmd[2]
+        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[i], defl, alpha_deg)
+
+        freestream_speed = np.linalg.norm(
+            [local_surface_vel[0], local_surface_vel[1]]
+        )  # Only in X and Y directions
+        Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
+        area = self.aerofoil_params[i]["chord"] * self.aerofoil_params[i]["span"]
+
+        lift = Q * area * Cl
+        drag = Q * area * Cd
+        pitching_moment = Q * area * CM * self.aerofoil_params[i]["chord"]
+
+        right = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
+        front = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
+
+        self.p.applyExternalForce(
+            self.Id,
+            self.surface_ids[i],
+            [right, front, 0],
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.Id, self.surface_ids[i], [0, 0, pitching_moment], self.p.LINK_FRAME
         )
 
     def get_aero_data(self, params, defl, alpha):
@@ -308,9 +427,9 @@ class FixedWing(DroneClass):
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
         # express vels in local frame
-        self.rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        lin_vel = np.matmul(self.rotation, lin_vel)
-        ang_vel = np.matmul(self.rotation, ang_vel)
+        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        lin_vel = np.matmul(rotation, lin_vel)
+        ang_vel = np.matmul(rotation, ang_vel)
 
         # ang_pos in euler form
         ang_pos = self.p.getEulerFromQuaternion(ang_pos)
@@ -321,10 +440,28 @@ class FixedWing(DroneClass):
             state = self.p.getLinkState(self.Id, id, computeLinkVelocity=True)
             self.surface_vels[i] = state[-2]
 
+        self.orn = state[-3]
+        self.rotation = np.array(self.p.getMatrixFromQuaternion(self.orn)).reshape(3, 3)
+        # print("Vel: {}, Height:{}".format(lin_vel, lin_pos[2]))
+
     def update_control(self):
         """runs through controllers"""
+        mode = self.mode
+
+        # custom controllers run first if any
+        if self.mode in self.registered_controllers.keys():
+            custom_output = self.instanced_controllers[self.mode].step(
+                self.state, self.setpoint
+            )
+            assert custom_output.shape == (
+                4,
+            ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
+
+            mode = self.registered_base_modes[self.mode]
+
         # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
         self.cmd = self.setpoint
+        # self.cmd = cmds
 
     @property
     def view_mat(self):
@@ -388,8 +525,8 @@ class FixedWing(DroneClass):
         self.rpm = np.zeros((1))
         self.pwm = np.zeros((1))
         self.cmd = np.zeros((4))
-        self.surface_orns = [0.0, 0.0, 0.0] * 5
-        self.surface_vels = [0.0, 0.0, 0.0] * 5
+        self.surface_orns = [0] * 5
+        self.surface_vels = [0] * 5
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
 
