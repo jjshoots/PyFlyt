@@ -206,14 +206,15 @@ class FixedWing(DroneClass):
 
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
         area = aerofoil_params["chord"] * aerofoil_params["span"]
+        Q_area = Q * area
 
-        lift = Q * area * Cl
-        drag = Q * area * Cd
-        torque = Q * area * CM * aerofoil_params["chord"] * torque_axis
-
-        lift = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
-        drag = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
+        component_lift = Cl * Q_area
+        component_drag = Cd * Q_area
+        lift = (component_lift * np.cos(alpha)) + (component_drag * np.sin(alpha))
+        drag = (component_lift * np.sin(alpha)) - (component_drag * np.cos(alpha))
         force = lift_axis * lift + drag_axis * drag
+
+        torque = Q_area * CM * aerofoil_params["chord"] * torque_axis
 
         self.p.applyExternalForce(
             self.Id,
