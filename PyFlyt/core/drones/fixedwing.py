@@ -5,6 +5,7 @@ import math
 import numpy as np
 import yaml
 from pybullet_utils import bullet_client
+from multiprocessing import Pool
 
 from ..abstractions import CtrlClass, DroneClass
 from ..pid import PID
@@ -92,27 +93,18 @@ class FixedWing(DroneClass):
             self.max_rpm = np.sqrt((self.t2w * 9.81) / (self.kf))
             self.motor_tau = 0.01
 
-            # Combine [ail_left, ail_right, hori_tail, main_wing, vert_tail]
-            self.aerofoil_params = [
-                left_wing_flapped_params,
-                right_wing_flapped_params,
-                horizontal_tail_params,
-                main_wing_params,
-                vertical_tail_params,
-            ]
-
-        # surface_id, command_id, command_sign, is_horizontal
-        self.surface_desc = []
-        # left aileron
-        self.surface_desc.append((0, 1, 1.0, True))
-        # right aileron
-        self.surface_desc.append((1, 1, -1.0, True))
-        # horizontal tail
-        self.surface_desc.append((2, 0, -1.0, True))
-        # main wing
-        self.surface_desc.append((3, None, 0.0, True))
-        # vertical tail
-        self.surface_desc.append((4, 2, -1.0, False))
+            # surface_id, command_id, command_sign, z_axis_lift, aerofoil_params
+            self.surface_descriptions = []
+            # left aileron
+            self.surface_descriptions.append((0, 1, 1.0, True, left_wing_flapped_params))
+            # right aileron
+            self.surface_descriptions.append((1, 1, -1.0, True, right_wing_flapped_params))
+            # horizontal tail
+            self.surface_descriptions.append((2, 0, -1.0, True, horizontal_tail_params))
+            # main wing
+            self.surface_descriptions.append((3, None, 0.0, True, main_wing_params))
+            # vertical tail
+            self.surface_descriptions.append((4, 2, -1.0, False, vertical_tail_params))
 
 
         """ CAMERA """
@@ -174,13 +166,13 @@ class FixedWing(DroneClass):
         self.pwm = self.cmd2pwm(self.cmd[3])  # Extract Throttle cmd
         self.rpm2forces(self.pwm2rpm(self.pwm))
 
-        for description in self.surface_desc:
+        for description in self.surface_descriptions:
             self.update_lifting_surface_forces(*description)
 
-    def update_lifting_surface_forces(self, surface_id: int, command_id: None | int, command_sign: float, is_horizontal: bool):
+    def update_lifting_surface_forces(self, surface_id: int, command_id: None | int, command_sign: float, z_axis_lift: bool, aerofoil_params: dict):
         local_surface_vel = np.matmul(self.rotation, self.surface_vels[surface_id])
 
-        if is_horizontal:
+        if z_axis_lift:
             alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
             freestream_speed = np.linalg.norm(
                 [local_surface_vel[1], local_surface_vel[2]]
@@ -199,16 +191,16 @@ class FixedWing(DroneClass):
 
         defl = 0.0
         if command_id is not None:
-            defl = self.aerofoil_params[surface_id]["defl_lim"] * command_sign * self.cmd[command_id]
+            defl = aerofoil_params["defl_lim"] * command_sign * self.cmd[command_id]
 
-        [Cl, Cd, CM] = self.get_aero_data(self.aerofoil_params[surface_id], defl, np.rad2deg(alpha))
+        [Cl, Cd, CM] = self.get_aero_data(aerofoil_params, defl, np.rad2deg(alpha))
 
         Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = self.aerofoil_params[surface_id]["chord"] * self.aerofoil_params[surface_id]["span"]
+        area = aerofoil_params["chord"] * aerofoil_params["span"]
 
         lift = Q * area * Cl
-        drag = Q * area * Cd  # Negative coz front is positive
-        pitching_moment = Q * area * CM * self.aerofoil_params[surface_id]["chord"] * torque_axis
+        drag = Q * area * Cd
+        torque = Q * area * CM * aerofoil_params["chord"] * torque_axis
 
         lift = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         drag = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
@@ -222,7 +214,7 @@ class FixedWing(DroneClass):
             self.p.LINK_FRAME,
         )
         self.p.applyExternalTorque(
-            self.Id, self.surface_ids[surface_id], pitching_moment, self.p.LINK_FRAME
+            self.Id, self.surface_ids[surface_id], torque, self.p.LINK_FRAME
         )
 
     def get_aero_data(self, params, defl, alpha):
