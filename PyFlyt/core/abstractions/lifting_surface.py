@@ -119,7 +119,7 @@ class LiftingSurface:
         alpha_stall_N = alpha_0 + (Cl_max_N / self.Cl_alpha_3D)
 
         # no stall condition
-        if alpha > alpha_stall_P or alpha < alpha_stall_N:
+        if alpha_stall_N < alpha and alpha < alpha_stall_P:
             Cl = self.Cl_alpha_3D * (alpha - alpha_0)
             alpha_i = Cl / (np.pi * self.aspect)
             alpha_eff = alpha - alpha_0 - alpha_i
