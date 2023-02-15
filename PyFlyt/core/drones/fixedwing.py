@@ -6,6 +6,7 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
+from .lifting_surface import LiftingSurface
 from ..abstractions import CtrlClass, DroneClass
 from ..pid import PID
 
@@ -62,22 +63,16 @@ class FixedWing(DroneClass):
             # load all params from yaml
             all_params = yaml.safe_load(f)
 
-            # Main wing
-            main_wing_params = all_params["main_wing_params"]
+            # all lifting surfaces
+            self.lifting_surfaces: list[LiftingSurface] = []
+            self.lifting_surfaces.append(LiftingSurface(id=3, command_id=1, command_sign=+1.0, z_axis_lift=True, aerofoil_params=all_params["left_wing_flapped_params"]))
+            self.lifting_surfaces.append(LiftingSurface(id=4, command_id=1, command_sign=-1.0, z_axis_lift=True, aerofoil_params=all_params["right_wing_flapped_params"]))
+            self.lifting_surfaces.append(LiftingSurface(id=1, command_id=0, command_sign=-1.0, z_axis_lift=True, aerofoil_params=all_params["horizontal_tail_params"]))
+            self.lifting_surfaces.append(LiftingSurface(id=5, command_id=None, command_sign=+1.0, z_axis_lift=True, aerofoil_params=all_params["main_wing_params"]))
+            self.lifting_surfaces.append(LiftingSurface(id=2, command_id=2, command_sign=-1.0, z_axis_lift=False, aerofoil_params=all_params["vertical_tail_params"]))
+            self.surface_ids: list[int] = [surface.id for surface in self.lifting_surfaces]
 
-            # Left flapped wing
-            left_wing_flapped_params = all_params["left_wing_flapped_params"]
-
-            # Right flapped wing
-            right_wing_flapped_params = all_params["right_wing_flapped_params"]
-
-            # Horizontal tail
-            horizontal_tail_params = all_params["horizontal_tail_params"]
-
-            # Vertical tail
-            vertical_tail_params = all_params["vertical_tail_params"]
-
-            # Motor
+            # motor
             motor_params = all_params["motor_params"]
             self.t2w = motor_params["thrust_to_weight"]
 
@@ -91,23 +86,6 @@ class FixedWing(DroneClass):
 
             self.max_rpm = np.sqrt((self.t2w * 9.81) / (self.kf))
             self.motor_tau = 0.01
-
-            # surface_id, command_id, command_sign, z_axis_lift, aerofoil_params
-            self.surface_descriptions = []
-            # left aileron
-            self.surface_descriptions.append(
-                (0, 1, 1.0, True, left_wing_flapped_params)
-            )
-            # right aileron
-            self.surface_descriptions.append(
-                (1, 1, -1.0, True, right_wing_flapped_params)
-            )
-            # horizontal tail
-            self.surface_descriptions.append((2, 0, -1.0, True, horizontal_tail_params))
-            # main wing
-            self.surface_descriptions.append((3, None, 0.0, True, main_wing_params))
-            # vertical tail
-            self.surface_descriptions.append((4, 2, -1.0, False, vertical_tail_params))
 
         """ CAMERA """
         self.use_camera = use_camera
@@ -168,141 +146,22 @@ class FixedWing(DroneClass):
         self.pwm = self.cmd2pwm(self.cmd[3])  # Extract Throttle cmd
         self.rpm2forces(self.pwm2rpm(self.pwm))
 
-        for description in self.surface_descriptions:
-            self.update_lifting_surface_forces(*description)
+        for surface in self.lifting_surfaces:
+            actuation = float(self.cmd[surface.command_id] * surface.command_sign)
+            surface_velocity = self.surface_vels[surface.id]
+            force, torque = surface.compute_force_torque(actuation, surface_velocity, self.rotation)
 
-    def update_lifting_surface_forces(
-        self,
-        surface_id: int,
-        command_id: None | int,
-        command_sign: float,
-        z_axis_lift: bool,
-        aerofoil_params: dict,
-    ):
-        local_surface_vel = np.matmul(self.rotation, self.surface_vels[surface_id])
-
-        if z_axis_lift:
-            alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
-            freestream_speed = np.linalg.norm(
-                [local_surface_vel[1], local_surface_vel[2]]
+            self.p.applyExternalForce(
+                self.Id,
+                surface.id,
+                force,
+                [0.0, 0.0, 0.0],
+                self.p.LINK_FRAME,
             )
-            lift_axis = np.array([0.0, 0.0, 1.0])
-            drag_axis = np.array([0.0, 1.0, 0.0])
-            torque_axis = np.array([1.0, 0.0, 0.0])
-        else:
-            alpha = np.arctan2(-local_surface_vel[0], local_surface_vel[1])
-            freestream_speed = np.linalg.norm(
-                [local_surface_vel[0], local_surface_vel[1]]
+            self.p.applyExternalTorque(
+                self.Id, surface.id, torque, self.p.LINK_FRAME
             )
-            lift_axis = np.array([1.0, 0.0, 0.0])
-            drag_axis = np.array([0.0, 1.0, 0.0])
-            torque_axis = np.array([0.0, 0.0, 1.0])
 
-        defl = 0.0
-        if command_id is not None:
-            defl = aerofoil_params["defl_lim"] * command_sign * self.cmd[command_id]
-
-        [Cl, Cd, CM] = self.get_aero_data(aerofoil_params, defl, np.rad2deg(alpha))
-
-        Q = 0.5 * 1.225 * np.square(freestream_speed)  # Dynamic pressure
-        area = aerofoil_params["chord"] * aerofoil_params["span"]
-        Q_area = Q * area
-
-        component_lift = Cl * Q_area
-        component_drag = Cd * Q_area
-        lift = (component_lift * np.cos(alpha)) + (component_drag * np.sin(alpha))
-        drag = (component_lift * np.sin(alpha)) - (component_drag * np.cos(alpha))
-        force = lift_axis * lift + drag_axis * drag
-
-        torque = Q_area * CM * aerofoil_params["chord"] * torque_axis
-
-        self.p.applyExternalForce(
-            self.Id,
-            self.surface_ids[surface_id],
-            force,
-            [0.0, 0.0, 0.0],
-            self.p.LINK_FRAME,
-        )
-        self.p.applyExternalTorque(
-            self.Id, self.surface_ids[surface_id], torque, self.p.LINK_FRAME
-        )
-
-    def get_aero_data(self, params, defl, alpha):
-        """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
-
-        AR = params["span"] / params["chord"]
-        defl = np.deg2rad(defl)
-        alpha = np.deg2rad(alpha)
-
-        Cl_alpha_3D = params["Cl_alpha_2D"] * (AR / (AR + ((2 * (AR + 4)) / (AR + 2))))
-
-        theta_f = np.arccos((2 * params["flap_to_chord"]) - 1)
-        tau = 1 - ((theta_f - np.sin(theta_f)) / np.pi)
-        delta_Cl = Cl_alpha_3D * tau * params["eta"] * defl
-        delta_Cl_max = params["flap_to_chord"] * delta_Cl
-
-        alpha_stall_P_base = np.deg2rad(params["alpha_stall_P_base"])
-        alpha_stall_N_base = np.deg2rad(params["alpha_stall_N_base"])
-
-        alpha_0_base = np.deg2rad(params["alpha_0_base"])
-
-        Cl_max_P = Cl_alpha_3D * (alpha_stall_P_base - alpha_0_base) + delta_Cl_max
-        Cl_max_N = Cl_alpha_3D * (alpha_stall_N_base - alpha_0_base) + delta_Cl_max
-
-        alpha_0 = alpha_0_base - (delta_Cl / Cl_alpha_3D)
-        alpha_stall_P = alpha_0 + ((Cl_max_P) / Cl_alpha_3D)
-        alpha_stall_N = alpha_0 + ((Cl_max_N) / Cl_alpha_3D)
-
-        # Check if stalled
-        if (alpha >= alpha_stall_P) or (alpha <= alpha_stall_N):
-            if alpha >= alpha_stall_P:
-                # Stall calculations to find alpha_i at stall
-                Cl_stall = Cl_alpha_3D * (alpha_stall_P - alpha_0)
-                alpha_i_at_stall = Cl_stall / (np.pi * AR)
-                # alpha_i post-stall Pos
-                alpha_i = np.interp(
-                    alpha, [alpha_stall_P, np.pi / 2], [alpha_i_at_stall, 0]
-                )
-
-            elif alpha <= alpha_stall_N:
-                # Stall calculations to find alpha_i at stall
-                Cl_stall = Cl_alpha_3D * (alpha_stall_N - alpha_0)
-                alpha_i_at_stall = Cl_stall / (np.pi * AR)
-                # alpha_i post-stall Neg
-                alpha_i = np.interp(
-                    alpha, [-np.pi / 2, alpha_stall_N], [0, alpha_i_at_stall]
-                )
-
-            alpha_eff = alpha - alpha_0 - alpha_i
-            # Drag coefficient at 90 deg dependent on deflection angle
-            Cd_90 = (
-                ((-4.26 * (10**-2)) * (defl**2))
-                + ((2.1 * (10**-1)) * defl)
-                + 1.98
-            )
-            CN = (
-                Cd_90
-                * np.sin(alpha_eff)
-                * (
-                    1 / (0.56 + 0.44 * abs(np.sin(alpha_eff)))
-                    - 0.41 * (1 - np.exp(-17 / AR))
-                )
-            )
-            CT = 0.5 * params["Cd_0"] * np.cos(alpha_eff)
-            Cl = (CN * np.cos(alpha_eff)) - (CT * np.sin(alpha_eff))
-            Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
-            CM = -CN * (0.25 - (0.175 * (1 - ((2 * abs(alpha_eff)) / np.pi))))
-
-        else:  # No stall
-            Cl = Cl_alpha_3D * (alpha - alpha_0)
-            alpha_i = Cl / (np.pi * AR)
-            alpha_eff = alpha - alpha_0 - alpha_i
-            CT = params["Cd_0"] * np.cos(alpha_eff)
-            CN = (Cl + (CT * np.sin(alpha_eff))) / np.cos(alpha_eff)
-            Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
-            CM = -CN * (0.25 - (0.175 * (1 - ((2 * alpha_eff) / np.pi))))
-
-        return Cl, Cd, CM
 
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""
@@ -321,9 +180,9 @@ class FixedWing(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # get the surface velocities and angles
-        for i, id in enumerate(self.surface_ids):
+        for id in self.surface_ids:
             state = self.p.getLinkState(self.Id, id, computeLinkVelocity=True)
-            self.surface_vels[i] = state[-2]
+            self.surface_vels[id] = state[-2]
 
     def update_control(self):
         """runs through controllers"""
@@ -392,16 +251,13 @@ class FixedWing(DroneClass):
         self.rpm = np.zeros((1))
         self.pwm = np.zeros((1))
         self.cmd = np.zeros((4))
-        self.surface_orns = [0.0, 0.0, 0.0] * 5
-        self.surface_vels = [0.0, 0.0, 0.0] * 5
+        self.surface_orns = np.array([0.0, 0.0, 0.0]) * 5
+        self.surface_vels = np.array([0.0, 0.0, 0.0]) * 5
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
 
         self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
 
-        # [ail_left, ail_right, hori_tail, main_wing, vert_tail]
-        # Maps .urdf idx to surface_ids
-        self.surface_ids = [3, 4, 1, 5, 2]
         self.update_state()
 
         if self.use_camera:
