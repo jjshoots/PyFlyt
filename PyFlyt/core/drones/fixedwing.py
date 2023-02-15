@@ -6,9 +6,8 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from .lifting_surface import LiftingSurface
-from ..abstractions import CtrlClass, DroneClass
-from ..pid import PID
+from ..abstractions.base_drone import DroneClass
+from ..abstractions.lifting_surface import LiftingSurface
 
 
 class FixedWing(DroneClass):
@@ -147,9 +146,9 @@ class FixedWing(DroneClass):
         self.rpm2forces(self.pwm2rpm(self.pwm))
 
         for surface in self.lifting_surfaces:
-            actuation = float(self.cmd[surface.command_id] * surface.command_sign)
-            surface_velocity = self.surface_vels[surface.id]
-            force, torque = surface.compute_force_torque(actuation, surface_velocity, self.rotation)
+            actuation = 0.0 if surface.command_id is None else float(self.cmd[surface.command_id] * surface.command_sign)
+
+            force, torque = surface.compute_force_torque(actuation)
 
             self.p.applyExternalForce(
                 self.Id,
@@ -169,20 +168,20 @@ class FixedWing(DroneClass):
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
         # express vels in local frame
-        self.rotation = (
+        rotation = (
             np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
         )
-        lin_vel = np.matmul(self.rotation, lin_vel)
-        ang_vel = np.matmul(self.rotation, ang_vel)
+        lin_vel = np.matmul(rotation, lin_vel)
+        ang_vel = np.matmul(rotation, ang_vel)
 
         # ang_pos in euler form
         ang_pos = self.p.getEulerFromQuaternion(ang_pos)
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
-        # get the surface velocities and angles
-        for id in self.surface_ids:
-            state = self.p.getLinkState(self.Id, id, computeLinkVelocity=True)
-            self.surface_vels[id] = state[-2]
+        # update all lifting surface velocities
+        for surface in self.lifting_surfaces:
+            surface_velocity = self.p.getLinkState(self.Id, surface.id, computeLinkVelocity=True)[-2]
+            surface.update_local_surface_velocity(rotation, surface_velocity)
 
     def update_control(self):
         """runs through controllers"""
@@ -251,8 +250,6 @@ class FixedWing(DroneClass):
         self.rpm = np.zeros((1))
         self.pwm = np.zeros((1))
         self.cmd = np.zeros((4))
-        self.surface_orns = np.array([0.0, 0.0, 0.0]) * 5
-        self.surface_vels = np.array([0.0, 0.0, 0.0]) * 5
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
 

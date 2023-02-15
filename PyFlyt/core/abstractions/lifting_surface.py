@@ -41,23 +41,26 @@ class LiftingSurface():
         self.theta_f = np.arccos(2 * self.flap_to_chord - 1)
         self.tau = 1 - ((self.theta_f - np.sin(self.theta_f)) / np.pi)
 
+        # runtime parameters
+        self.local_surface_velocity = np.array([0.0, 0.0, 0.0])
+
+    def update_local_surface_velocity(self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray):
+        self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
+
     def compute_force_torque(
         self,
         actuation: float,
-        surface_vel: np.ndarray,
-        rotation_matrix: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        local_surface_vel = np.matmul(rotation_matrix, surface_vel)
 
         if self.z_axis_lift:
-            alpha = np.arctan2(-local_surface_vel[2], local_surface_vel[1])
+            alpha = np.arctan2(-self.local_surface_velocity[2], self.local_surface_velocity[1])
             freestream_speed = np.linalg.norm(
-                [local_surface_vel[1], local_surface_vel[2]]
+                [self.local_surface_velocity[1], self.local_surface_velocity[2]]
             )
         else:
-            alpha = np.arctan2(-local_surface_vel[0], local_surface_vel[1])
+            alpha = np.arctan2(-self.local_surface_velocity[0], self.local_surface_velocity[1])
             freestream_speed = np.linalg.norm(
-                [local_surface_vel[0], local_surface_vel[1]]
+                [self.local_surface_velocity[0], self.local_surface_velocity[1]]
             )
 
         deflection = self.deflection_limit * actuation
@@ -76,7 +79,7 @@ class LiftingSurface():
 
         return force, torque
 
-    def _compute_aero_data(self, deflection, alpha):
+    def _compute_aero_data(self, deflection: float, alpha: float) -> tuple[float, float, float]:
         """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
 
         # deflection must be in degrees because engineering uses degrees

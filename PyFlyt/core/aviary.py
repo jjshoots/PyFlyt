@@ -7,7 +7,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from .abstractions import DroneClass
+from .abstractions.base_drone import DroneClass
 from .drones.fixedwing import FixedWing
 from .drones.quadplane import Quadplane
 from .drones.quadx import QuadX

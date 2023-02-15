@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import math
 
-import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-from mpl_toolkits.mplot3d import axes3d
 from pybullet_utils import bullet_client
 
-from ..abstractions import CtrlClass, DroneClass
-from ..pid import PID
+from ..abstractions.base_drone import DroneClass
+from ..abstractions.pid import PID
 
 
 class Quadplane(DroneClass):
