@@ -1,5 +1,5 @@
-from .abstractions.base_drone import DroneClass
 from .abstractions.base_controller import CtrlClass
+from .abstractions.base_drone import DroneClass
 from .abstractions.pid import PID
 from .aviary import Aviary
 from .drones.fixedwing import FixedWing

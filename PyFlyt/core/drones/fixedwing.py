@@ -64,12 +64,54 @@ class FixedWing(DroneClass):
 
             # all lifting surfaces
             self.lifting_surfaces: list[LiftingSurface] = []
-            self.lifting_surfaces.append(LiftingSurface(id=3, command_id=1, command_sign=+1.0, z_axis_lift=True, aerofoil_params=all_params["left_wing_flapped_params"]))
-            self.lifting_surfaces.append(LiftingSurface(id=4, command_id=1, command_sign=-1.0, z_axis_lift=True, aerofoil_params=all_params["right_wing_flapped_params"]))
-            self.lifting_surfaces.append(LiftingSurface(id=1, command_id=0, command_sign=-1.0, z_axis_lift=True, aerofoil_params=all_params["horizontal_tail_params"]))
-            self.lifting_surfaces.append(LiftingSurface(id=5, command_id=None, command_sign=+1.0, z_axis_lift=True, aerofoil_params=all_params["main_wing_params"]))
-            self.lifting_surfaces.append(LiftingSurface(id=2, command_id=2, command_sign=-1.0, z_axis_lift=False, aerofoil_params=all_params["vertical_tail_params"]))
-            self.surface_ids: list[int] = [surface.id for surface in self.lifting_surfaces]
+            self.lifting_surfaces.append(
+                LiftingSurface(
+                    id=3,
+                    command_id=1,
+                    command_sign=+1.0,
+                    z_axis_lift=True,
+                    aerofoil_params=all_params["left_wing_flapped_params"],
+                )
+            )
+            self.lifting_surfaces.append(
+                LiftingSurface(
+                    id=4,
+                    command_id=1,
+                    command_sign=-1.0,
+                    z_axis_lift=True,
+                    aerofoil_params=all_params["right_wing_flapped_params"],
+                )
+            )
+            self.lifting_surfaces.append(
+                LiftingSurface(
+                    id=1,
+                    command_id=0,
+                    command_sign=-1.0,
+                    z_axis_lift=True,
+                    aerofoil_params=all_params["horizontal_tail_params"],
+                )
+            )
+            self.lifting_surfaces.append(
+                LiftingSurface(
+                    id=5,
+                    command_id=None,
+                    command_sign=+1.0,
+                    z_axis_lift=True,
+                    aerofoil_params=all_params["main_wing_params"],
+                )
+            )
+            self.lifting_surfaces.append(
+                LiftingSurface(
+                    id=2,
+                    command_id=2,
+                    command_sign=-1.0,
+                    z_axis_lift=False,
+                    aerofoil_params=all_params["vertical_tail_params"],
+                )
+            )
+            self.surface_ids: list[int] = [
+                surface.id for surface in self.lifting_surfaces
+            ]
 
             # motor
             motor_params = all_params["motor_params"]
@@ -146,7 +188,11 @@ class FixedWing(DroneClass):
         self.rpm2forces(self.pwm2rpm(self.pwm))
 
         for surface in self.lifting_surfaces:
-            actuation = 0.0 if surface.command_id is None else float(self.cmd[surface.command_id] * surface.command_sign)
+            actuation = (
+                0.0
+                if surface.command_id is None
+                else float(self.cmd[surface.command_id] * surface.command_sign)
+            )
 
             force, torque = surface.compute_force_torque(actuation)
 
@@ -157,10 +203,7 @@ class FixedWing(DroneClass):
                 [0.0, 0.0, 0.0],
                 self.p.LINK_FRAME,
             )
-            self.p.applyExternalTorque(
-                self.Id, surface.id, torque, self.p.LINK_FRAME
-            )
-
+            self.p.applyExternalTorque(self.Id, surface.id, torque, self.p.LINK_FRAME)
 
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""
@@ -168,9 +211,7 @@ class FixedWing(DroneClass):
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
         # express vels in local frame
-        rotation = (
-            np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        )
+        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
         lin_vel = np.matmul(rotation, lin_vel)
         ang_vel = np.matmul(rotation, ang_vel)
 
@@ -180,7 +221,9 @@ class FixedWing(DroneClass):
 
         # update all lifting surface velocities
         for surface in self.lifting_surfaces:
-            surface_velocity = self.p.getLinkState(self.Id, surface.id, computeLinkVelocity=True)[-2]
+            surface_velocity = self.p.getLinkState(
+                self.Id, surface.id, computeLinkVelocity=True
+            )[-2]
             surface.update_local_surface_velocity(rotation, surface_velocity)
 
     def update_control(self):

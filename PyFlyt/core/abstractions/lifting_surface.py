@@ -1,8 +1,17 @@
 from __future__ import annotations
+
 import numpy as np
 
-class LiftingSurface():
-    def __init__(self, id: int, command_id: None | int, command_sign: float, z_axis_lift: bool, aerofoil_params: dict):
+
+class LiftingSurface:
+    def __init__(
+        self,
+        id: int,
+        command_id: None | int,
+        command_sign: float,
+        z_axis_lift: bool,
+        aerofoil_params: dict,
+    ):
 
         self.id = id
         self.command_id = command_id
@@ -37,14 +46,18 @@ class LiftingSurface():
         self.alpha_stall_P_base = np.deg2rad(self.alpha_stall_P_base)
         self.alpha_stall_N_base = np.deg2rad(self.alpha_stall_N_base)
         self.alpha_0_base = np.deg2rad(self.alpha_0_base)
-        self.Cl_alpha_3D = self.Cl_alpha_2D * (self.aspect / (self.aspect + ((2 * (self.aspect + 4)) / (self.aspect + 2))))
+        self.Cl_alpha_3D = self.Cl_alpha_2D * (
+            self.aspect / (self.aspect + ((2 * (self.aspect + 4)) / (self.aspect + 2)))
+        )
         self.theta_f = np.arccos(2 * self.flap_to_chord - 1)
         self.tau = 1 - ((self.theta_f - np.sin(self.theta_f)) / np.pi)
 
         # runtime parameters
         self.local_surface_velocity = np.array([0.0, 0.0, 0.0])
 
-    def update_local_surface_velocity(self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray):
+    def update_local_surface_velocity(
+        self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray
+    ):
         self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
 
     def compute_force_torque(
@@ -53,12 +66,16 @@ class LiftingSurface():
     ) -> tuple[np.ndarray, np.ndarray]:
 
         if self.z_axis_lift:
-            alpha = np.arctan2(-self.local_surface_velocity[2], self.local_surface_velocity[1])
+            alpha = np.arctan2(
+                -self.local_surface_velocity[2], self.local_surface_velocity[1]
+            )
             freestream_speed = np.linalg.norm(
                 [self.local_surface_velocity[1], self.local_surface_velocity[2]]
             )
         else:
-            alpha = np.arctan2(-self.local_surface_velocity[0], self.local_surface_velocity[1])
+            alpha = np.arctan2(
+                -self.local_surface_velocity[0], self.local_surface_velocity[1]
+            )
             freestream_speed = np.linalg.norm(
                 [self.local_surface_velocity[0], self.local_surface_velocity[1]]
             )
@@ -79,7 +96,9 @@ class LiftingSurface():
 
         return force, torque
 
-    def _compute_aero_data(self, deflection: float, alpha: float) -> tuple[float, float, float]:
+    def _compute_aero_data(
+        self, deflection: float, alpha: float
+    ) -> tuple[float, float, float]:
         """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
 
         # deflection must be in degrees because engineering uses degrees
@@ -87,8 +106,14 @@ class LiftingSurface():
 
         delta_Cl = self.Cl_alpha_3D * self.tau * self.eta * deflection
         delta_Cl_max = self.flap_to_chord * delta_Cl
-        Cl_max_P = self.Cl_alpha_3D * (self.alpha_stall_P_base - self.alpha_0_base) + delta_Cl_max
-        Cl_max_N = self.Cl_alpha_3D * (self.alpha_stall_N_base - self.alpha_0_base) + delta_Cl_max
+        Cl_max_P = (
+            self.Cl_alpha_3D * (self.alpha_stall_P_base - self.alpha_0_base)
+            + delta_Cl_max
+        )
+        Cl_max_N = (
+            self.Cl_alpha_3D * (self.alpha_stall_N_base - self.alpha_0_base)
+            + delta_Cl_max
+        )
         alpha_0 = self.alpha_0_base - (delta_Cl / self.Cl_alpha_3D)
         alpha_stall_P = alpha_0 + (Cl_max_P / self.Cl_alpha_3D)
         alpha_stall_N = alpha_0 + (Cl_max_N / self.Cl_alpha_3D)
