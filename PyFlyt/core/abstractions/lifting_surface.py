@@ -12,7 +12,6 @@ class LiftingSurface:
         z_axis_lift: bool,
         aerofoil_params: dict,
     ):
-
         self.id = id
         self.command_id = command_id
         self.command_sign = command_sign
