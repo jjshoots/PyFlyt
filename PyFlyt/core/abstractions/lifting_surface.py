@@ -27,16 +27,16 @@ class LiftingSurface:
             self.torque_axis = np.array([0.0, 0.0, 1.0])
 
         # wing parameters
-        self.Cl_alpha_2D = aerofoil_params["Cl_alpha_2D"]
-        self.chord = aerofoil_params["chord"]
-        self.span = aerofoil_params["span"]
-        self.flap_to_chord = aerofoil_params["flap_to_chord"]
-        self.eta = aerofoil_params["eta"]
-        self.alpha_0_base = aerofoil_params["alpha_0_base"]
-        self.alpha_stall_P_base = aerofoil_params["alpha_stall_P_base"]
-        self.alpha_stall_N_base = aerofoil_params["alpha_stall_N_base"]
-        self.Cd_0 = aerofoil_params["Cd_0"]
-        self.deflection_limit = aerofoil_params["deflection_limit"]
+        self.Cl_alpha_2D = float(aerofoil_params["Cl_alpha_2D"])
+        self.chord = float(aerofoil_params["chord"])
+        self.span = float(aerofoil_params["span"])
+        self.flap_to_chord = float(aerofoil_params["flap_to_chord"])
+        self.eta = float(aerofoil_params["eta"])
+        self.alpha_0_base = float(aerofoil_params["alpha_0_base"])
+        self.alpha_stall_P_base = float(aerofoil_params["alpha_stall_P_base"])
+        self.alpha_stall_N_base = float(aerofoil_params["alpha_stall_N_base"])
+        self.Cd_0 = float(aerofoil_params["Cd_0"])
+        self.deflection_limit = float(aerofoil_params["deflection_limit"])
 
         # precompute some constants
         self.half_rho = 0.5 * 1.225
@@ -46,9 +46,10 @@ class LiftingSurface:
         self.alpha_stall_N_base = np.deg2rad(self.alpha_stall_N_base)
         self.alpha_0_base = np.deg2rad(self.alpha_0_base)
         self.Cl_alpha_3D = self.Cl_alpha_2D * (
-            self.aspect / (self.aspect + ((2 * (self.aspect + 4)) / (self.aspect + 2)))
+            self.aspect
+            / (self.aspect + ((2.0 * (self.aspect + 4.0)) / (self.aspect + 2.0)))
         )
-        self.theta_f = np.arccos(2 * self.flap_to_chord - 1)
+        self.theta_f = np.arccos(2.0 * self.flap_to_chord - 1.0)
         self.tau = 1 - ((self.theta_f - np.sin(self.theta_f)) / np.pi)
 
         # runtime parameters
@@ -117,53 +118,56 @@ class LiftingSurface:
         alpha_stall_P = alpha_0 + (Cl_max_P / self.Cl_alpha_3D)
         alpha_stall_N = alpha_0 + (Cl_max_N / self.Cl_alpha_3D)
 
-        # Check if stalled
-        if (alpha >= alpha_stall_P) or (alpha <= alpha_stall_N):
-            if alpha >= alpha_stall_P:
-                # Stall calculations to find alpha_i at stall
-                Cl_stall = self.Cl_alpha_3D * (alpha_stall_P - alpha_0)
-                alpha_i_at_stall = Cl_stall / (np.pi * self.aspect)
-                # alpha_i post-stall Pos
-                alpha_i = np.interp(
-                    alpha, [alpha_stall_P, np.pi / 2], [alpha_i_at_stall, 0]
-                )
-
-            elif alpha <= alpha_stall_N:
-                # Stall calculations to find alpha_i at stall
-                Cl_stall = self.Cl_alpha_3D * (alpha_stall_N - alpha_0)
-                alpha_i_at_stall = Cl_stall / (np.pi * self.aspect)
-                # alpha_i post-stall Neg
-                alpha_i = np.interp(
-                    alpha, [-np.pi / 2, alpha_stall_N], [0, alpha_i_at_stall]
-                )
-
-            alpha_eff = alpha - alpha_0 - alpha_i
-            # Drag coefficient at 90 deg dependent on deflection angle
-            Cd_90 = (
-                ((-4.26 * (10**-2)) * (deflection**2))
-                + ((2.1 * (10**-1)) * deflection)
-                + 1.98
-            )
-            CN = (
-                Cd_90
-                * np.sin(alpha_eff)
-                * (
-                    1 / (0.56 + 0.44 * abs(np.sin(alpha_eff)))
-                    - 0.41 * (1 - np.exp(-17 / self.aspect))
-                )
-            )
-            CT = 0.5 * self.Cd_0 * np.cos(alpha_eff)
-            Cl = (CN * np.cos(alpha_eff)) - (CT * np.sin(alpha_eff))
-            Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
-            CM = -CN * (0.25 - (0.175 * (1 - ((2 * abs(alpha_eff)) / np.pi))))
-
-        else:  # No stall
+        # no stall condition
+        if alpha > alpha_stall_P or alpha < alpha_stall_N:
             Cl = self.Cl_alpha_3D * (alpha - alpha_0)
             alpha_i = Cl / (np.pi * self.aspect)
             alpha_eff = alpha - alpha_0 - alpha_i
             CT = self.Cd_0 * np.cos(alpha_eff)
             CN = (Cl + (CT * np.sin(alpha_eff))) / np.cos(alpha_eff)
             Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
-            CM = -CN * (0.25 - (0.175 * (1 - ((2 * alpha_eff) / np.pi))))
+            CM = -CN * (0.25 - (0.175 * (1.0 - ((2.0 * alpha_eff) / np.pi))))
+
+            return Cl, Cd, CM
+
+        # positive stall
+        if alpha > 0.0:
+            # Stall calculations to find alpha_i at stall
+            Cl_stall = self.Cl_alpha_3D * (alpha_stall_P - alpha_0)
+            alpha_i_at_stall = Cl_stall / (np.pi * self.aspect)
+            # alpha_i post-stall Pos
+            alpha_i = np.interp(
+                alpha, [alpha_stall_P, np.pi / 2.0], [alpha_i_at_stall, 0.0]
+            )
+        # negative stall
+        else:
+            # Stall calculations to find alpha_i at stall
+            Cl_stall = self.Cl_alpha_3D * (alpha_stall_N - alpha_0)
+            alpha_i_at_stall = Cl_stall / (np.pi * self.aspect)
+            # alpha_i post-stall Neg
+            alpha_i = np.interp(
+                alpha, [-np.pi / 2.0, alpha_stall_N], [0.0, alpha_i_at_stall]
+            )
+
+        alpha_eff = alpha - alpha_0 - alpha_i
+
+        # Drag coefficient at 90 deg dependent on deflection angle
+        Cd_90 = (
+            ((-4.26 * (10**-2)) * (deflection**2))
+            + ((2.1 * (10**-1)) * deflection)
+            + 1.98
+        )
+        CN = (
+            Cd_90
+            * np.sin(alpha_eff)
+            * (
+                1.0 / (0.56 + 0.44 * abs(np.sin(alpha_eff)))
+                - 0.41 * (1.0 - np.exp(-17.0 / self.aspect))
+            )
+        )
+        CT = 0.5 * self.Cd_0 * np.cos(alpha_eff)
+        Cl = (CN * np.cos(alpha_eff)) - (CT * np.sin(alpha_eff))
+        Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
+        CM = -CN * (0.25 - (0.175 * (1.0 - ((2.0 * abs(alpha_eff)) / np.pi))))
 
         return Cl, Cd, CM
