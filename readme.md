@@ -64,7 +64,7 @@ obs = env.reset()
 
 done = False
 while not done:
-    observation, reward, termination, truncation, info = env.step(env.observation_space.sample())
+    observation, reward, termination, truncation, info = env.step(env.action_space.sample())
 ```
 
 ## Environments
