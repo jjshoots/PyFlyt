@@ -4,6 +4,8 @@ import numpy as np
 
 
 class LiftingSurface:
+    """LiftingSurface."""
+
     def __init__(
         self,
         id: int,
@@ -12,6 +14,48 @@ class LiftingSurface:
         z_axis_lift: bool,
         aerofoil_params: dict,
     ):
+        """__init__.
+
+        Args:
+            id (int): component_id
+            command_id (None | int): command_id, for convenience
+            command_sign (float): command_sign, for convenience
+            z_axis_lift (bool): z_axis_lift, whether the z_axis is the lift direction
+            aerofoil_params (dict): aerofoil_params, see below
+
+        Aerofoil params must have these components (everything is in degrees and is a float):
+            - Cl_alpha_2D
+            - chord
+            - span
+            - flap_to_chord
+            - eta
+            - alpha_0_base
+            - alpha_stall_P_base
+            - alpha_stall_N_base
+            - Cd_0
+            - deflection_limit
+        """
+        # check that we have all the required params
+        params_list = [
+            "Cl_alpha_2D",
+            "chord",
+            "span",
+            "flap_to_chord",
+            "eta",
+            "alpha_0_base",
+            "alpha_stall_P_base",
+            "alpha_stall_N_base",
+            "Cd_0",
+            "deflection_limit",
+        ]
+        for key in aerofoil_params:
+            if key in params_list:
+                params_list.remove(key)
+
+        assert (
+            len(params_list) == 0
+        ), f"Missing parameters: {params_list} in aerofoil_params for component {id}."
+
         self.id = id
         self.command_id = command_id
         self.command_sign = command_sign
@@ -58,13 +102,26 @@ class LiftingSurface:
     def update_local_surface_velocity(
         self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray
     ):
+        """update_local_surface_velocity.
+
+        Args:
+            rotation_matrix (np.ndarray): rotation_matrix
+            surface_velocity (np.ndarray): surface_velocity
+        """
         self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
 
     def compute_force_torque(
         self,
         actuation: float,
     ) -> tuple[np.ndarray, np.ndarray]:
+        """compute_force_torque.
 
+        Args:
+            actuation (float): normalized actuation in [-1, 1]
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
+        """
         if self.z_axis_lift:
             alpha = np.arctan2(
                 -self.local_surface_velocity[2], self.local_surface_velocity[1]
@@ -99,8 +156,15 @@ class LiftingSurface:
     def _compute_aero_data(
         self, deflection: float, alpha: float
     ) -> tuple[float, float, float]:
-        """Returns Cl, Cd, and CM for a given aerofoil, control surface deflection, and alpha"""
+        """_compute_aero_data.
 
+        Args:
+            deflection (float): deflection of the lifting surface in degrees
+            alpha (float): angle of attack in degrees
+
+        Returns:
+            tuple[float, float, float]: Cl, Cd, CM
+        """
         # deflection must be in degrees because engineering uses degrees
         deflection = np.deg2rad(deflection)
 

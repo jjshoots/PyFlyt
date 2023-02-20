@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import math
-
 import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
 from ..abstractions.base_drone import DroneClass
+from ..abstractions.camera import Camera
 from ..abstractions.lifting_surface import LiftingSurface
 
 
@@ -131,13 +130,17 @@ class FixedWing(DroneClass):
         """ CAMERA """
         self.use_camera = use_camera
         if self.use_camera:
-            self.proj_mat = self.p.computeProjectionMatrixFOV(
-                fov=camera_FOV_degrees, aspect=1.0, nearVal=0.1, farVal=255.0
+            self.camera = Camera(
+                p=self.p,
+                uav_id=self.Id,
+                camera_id=0,
+                use_gimbal=use_gimbal,
+                camera_FOV_degrees=camera_FOV_degrees,
+                camera_angle_degrees=camera_angle_degrees,
+                camera_resolution=camera_resolution,
+                camera_position_offset=np.array([0.0, -3.0, 1.0]),
+                is_tracking_camera=True,
             )
-            self.use_gimbal = use_gimbal
-            self.camera_angle_degrees = camera_angle_degrees
-            self.camera_FOV_degrees = camera_FOV_degrees
-            self.camera_resolution = np.array(camera_resolution)
 
         """ CUSTOM CONTROLLERS """
         # dictionary mapping of controller_id to controller objects
@@ -231,62 +234,6 @@ class FixedWing(DroneClass):
         # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
         self.cmd = self.setpoint
 
-    @property
-    def view_mat(self):
-        """view_mat."""
-        # get the state of the camera on the robot
-        camera_state = self.p.getLinkState(self.Id, 0)
-
-        # UAV orientation
-        orn = camera_state[1]
-        rotation = np.array(self.p.getMatrixFromQuaternion(orn)).reshape(3, 3)
-        cam_offset = [0, -3, 1]
-        cam_offset_world_frame = np.matmul(cam_offset, rotation.transpose())
-
-        # pose and rot
-        position = np.array(camera_state[0]) + cam_offset_world_frame
-
-        # simulate gimballed camera if needed
-        up_vector = None
-        if self.use_gimbal:
-            # camera tilted downward for gimballed mode
-            rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[0] = 0.0
-            rot[1] = self.camera_angle_degrees / 180 * math.pi
-            rot = np.array(self.p.getQuaternionFromEuler(rot))
-            rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
-
-            up_vector = np.matmul(rot, np.array([0.0, 0.0, 1.0]))
-        else:
-            # camera rotated upward for FPV mode
-            rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[0] += -self.camera_angle_degrees / 180 * math.pi
-            rot = np.array(self.p.getQuaternionFromEuler(rot))
-            rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
-
-            up_vector = np.matmul(rot, np.array([0, 0, 1]))
-
-        # target position is 1000 units ahead of camera relative to the current camera pos
-        target = camera_state[0]
-
-        return self.p.computeViewMatrix(
-            cameraEyePosition=position,
-            cameraTargetPosition=target,
-            cameraUpVector=up_vector,
-        )
-
-    def capture_image(self):
-        """capture_image."""
-        _, _, self.rgbaImg, self.depthImg, self.segImg = self.p.getCameraImage(
-            width=self.camera_resolution[1],
-            height=self.camera_resolution[0],
-            viewMatrix=self.view_mat,
-            projectionMatrix=self.proj_mat,
-        )
-        self.rgbaImg = np.array(self.rgbaImg).reshape(*self.camera_resolution, -1)
-        self.depthImg = np.array(self.depthImg).reshape(*self.camera_resolution, -1)
-        self.segImg = np.array(self.segImg).reshape(*self.camera_resolution, -1)
-
     def reset(self):
         self.set_mode(1)
         self.setpoint = np.zeros((4))
@@ -301,8 +248,7 @@ class FixedWing(DroneClass):
         self.update_state()
 
         if self.use_camera:
-            self.capture_image()
-        pass
+            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def set_mode(self, mode):
         """
@@ -332,4 +278,4 @@ class FixedWing(DroneClass):
         self.update_control()
 
         if self.use_camera:
-            self.capture_image()
+            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

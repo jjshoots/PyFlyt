@@ -7,7 +7,6 @@ import os
 import numpy as np
 import pybullet as p
 from gymnasium import spaces
-from gymnasium.spaces import GraphInstance
 
 from .pyflyt_base_env import PyFlytBaseEnv
 
@@ -68,14 +67,13 @@ class QuadXGatesEnv(PyFlytBaseEnv):
                 "rgba_cam": spaces.Box(
                     low=0.0, high=255.0, shape=(4, *camera_resolution), dtype=np.uint8
                 ),
-                "target_deltas": spaces.Graph(
-                    node_space=spaces.Box(
+                "target_deltas": spaces.Sequence(
+                    space=spaces.Box(
                         low=-np.inf,
                         high=np.inf,
                         shape=(3,),
                         dtype=np.float64,
                     ),
-                    edge_space=None,
                 ),
             }
         )
@@ -150,7 +148,7 @@ class QuadXGatesEnv(PyFlytBaseEnv):
             new_mat = np.array(p.getMatrixFromQuaternion(new_quat)).reshape(3, 3)
 
             # rotate new distance by old angle and then new angle
-            new_distance = np.array([new_distance, 0.0, vertical_offset])
+            new_distance = np.array([0.0, new_distance, vertical_offset])
             new_distance = new_mat @ old_mat @ new_distance
 
             # new position
@@ -247,9 +245,7 @@ class QuadXGatesEnv(PyFlytBaseEnv):
         new_state["rgba_cam"] = np.moveaxis(img, -1, 0)
 
         # distances to targets
-        new_state["target_deltas"] = GraphInstance(
-            nodes=target_deltas, edge_links=None, edges=None
-        )
+        new_state["target_deltas"] = target_deltas
 
         self.state = new_state
 

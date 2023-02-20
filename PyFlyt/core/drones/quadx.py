@@ -8,6 +8,7 @@ from pybullet_utils import bullet_client
 
 from ..abstractions.base_controller import CtrlClass
 from ..abstractions.base_drone import DroneClass
+from ..abstractions.camera import Camera
 from ..abstractions.pid import PID
 
 
@@ -143,13 +144,15 @@ class QuadX(DroneClass):
         """ CAMERA """
         self.use_camera = use_camera
         if self.use_camera:
-            self.proj_mat = self.p.computeProjectionMatrixFOV(
-                fov=camera_FOV_degrees, aspect=1.0, nearVal=0.1, farVal=255.0
+            self.camera = Camera(
+                p=self.p,
+                uav_id=self.Id,
+                camera_id=0,
+                use_gimbal=use_gimbal,
+                camera_FOV_degrees=camera_FOV_degrees,
+                camera_angle_degrees=camera_angle_degrees,
+                camera_resolution=camera_resolution,
             )
-            self.use_gimbal = use_gimbal
-            self.camera_angle_degrees = camera_angle_degrees
-            self.camera_FOV_degrees = camera_FOV_degrees
-            self.camera_resolution = np.array(camera_resolution)
 
         """ CUSTOM CONTROLLERS """
         # dictionary mapping of controller_id to controller objects
@@ -171,7 +174,7 @@ class QuadX(DroneClass):
         self.update_state()
 
         if self.use_camera:
-            self.capture_image()
+            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def update_drag(self):
         """adds drag to the model, this is not physically correct but only approximation"""
@@ -450,56 +453,6 @@ class QuadX(DroneClass):
         self.rpm2forces(self.pwm2rpm(self.pwm))
         self.update_drag()
 
-    @property
-    def view_mat(self):
-        """view_mat."""
-        # get the state of the camera on the robot
-        camera_state = self.p.getLinkState(self.Id, 0)
-
-        # pose and rot
-        position = camera_state[0]
-
-        # simulate gimballed camera if needed
-        up_vector = None
-        if self.use_gimbal:
-            # camera tilted downward for gimballed mode
-            rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[0] = 0.0
-            rot[1] = self.camera_angle_degrees / 180 * math.pi
-            rot = np.array(self.p.getQuaternionFromEuler(rot))
-            rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
-
-            up_vector = np.matmul(rot, np.array([0.0, 0.0, 1.0]))
-        else:
-            # camera rotated upward for FPV mode
-            rot = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
-            rot[1] += -self.camera_angle_degrees / 180 * math.pi
-            rot = np.array(self.p.getQuaternionFromEuler(rot))
-            rot = np.array(self.p.getMatrixFromQuaternion(rot)).reshape(3, 3)
-
-            up_vector = np.matmul(rot, np.array([0, 0, 1]))
-
-        # target position is 1000 units ahead of camera relative to the current camera pos
-        target = np.dot(rot, np.array([1000, 0, 0])) + np.array(position)
-
-        return self.p.computeViewMatrix(
-            cameraEyePosition=position,
-            cameraTargetPosition=target,
-            cameraUpVector=up_vector,
-        )
-
-    def capture_image(self):
-        """capture_image."""
-        _, _, self.rgbaImg, self.depthImg, self.segImg = self.p.getCameraImage(
-            width=self.camera_resolution[1],
-            height=self.camera_resolution[0],
-            viewMatrix=self.view_mat,
-            projectionMatrix=self.proj_mat,
-        )
-        self.rgbaImg = np.array(self.rgbaImg).reshape(*self.camera_resolution, -1)
-        self.depthImg = np.array(self.depthImg).reshape(*self.camera_resolution, -1)
-        self.segImg = np.array(self.segImg).reshape(*self.camera_resolution, -1)
-
     def register_controller(
         self,
         controller_id: int,
@@ -531,4 +484,4 @@ class QuadX(DroneClass):
         self.update_control()
 
         if self.use_camera:
-            self.capture_image()
+            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

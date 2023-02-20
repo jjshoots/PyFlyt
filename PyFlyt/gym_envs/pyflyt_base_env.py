@@ -134,6 +134,10 @@ class PyFlytBaseEnv(gymnasium.Env):
         self.info["collision"] = False
         self.info["env_complete"] = False
 
+        # handling camera is complicated... for wing we must enable camera for proper render
+        if "use_camera" not in aviary_options:
+            aviary_options["use_camera"] = self.tracking_camera and self.enable_render
+
         # init env
         self.env = Aviary(
             drone_type=self.drone_type,
@@ -141,7 +145,6 @@ class PyFlytBaseEnv(gymnasium.Env):
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             render=self.enable_render,
-            use_camera=self.tracking_camera,
             seed=seed,
             **aviary_options,
         )
