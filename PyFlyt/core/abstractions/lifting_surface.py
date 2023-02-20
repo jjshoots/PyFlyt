@@ -14,7 +14,7 @@ class LiftingSurface:
         z_axis_lift: bool,
         aerofoil_params: dict,
     ):
-        """__init__.
+        """Used for simulating a single lifting surface.
 
         Args:
             id (int): component_id

@@ -8,6 +8,8 @@ from pybullet_utils import bullet_client
 
 
 class Camera:
+    """Camera."""
+
     def __init__(
         self,
         p: bullet_client.BulletClient,
@@ -21,6 +23,20 @@ class Camera:
         is_tracking_camera: bool = False,
         cinematic: bool = False,
     ):
+        """Used for implementing camera modules.
+
+        Args:
+            p (bullet_client.BulletClient): p
+            uav_id (int): uav_id
+            camera_id (int): camera_id
+            use_gimbal (bool): use_gimbal
+            camera_FOV_degrees (float): camera_FOV_degrees
+            camera_angle_degrees (float): camera_angle_degrees
+            camera_resolution (tuple[int, int]): camera_resolution
+            camera_position_offset (np.ndarray): camera_position_offset
+            is_tracking_camera (bool): is_tracking_camera
+            cinematic (bool): cinematic mode
+        """
         if is_tracking_camera and use_gimbal:
             warnings.warn(
                 "Use_gimbal and is_tracking_camera are both enabled. This will lead to funky behaviour."
@@ -52,8 +68,12 @@ class Camera:
         self.cinematic = cinematic
 
     @property
-    def view_mat(self):
-        """view_mat."""
+    def view_mat(self) -> np.ndarray:
+        """view_mat.
+
+        Returns:
+            np.ndarray: view matrix
+        """
         # get the state of the camera on the robot
         camera_state = self.p.getLinkState(self.uav_id, self.camera_id)
 
@@ -91,8 +111,12 @@ class Camera:
             cameraUpVector=up_vector,
         )
 
-    def capture_image(self):
-        """capture_image."""
+    def capture_image(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """capture_image.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray, np.ndarray]: rgbaImg, depthImg, segImg
+        """
         _, _, rgbaImg, depthImg, segImg = self.p.getCameraImage(
             width=self.camera_resolution[1],
             height=self.camera_resolution[0],

@@ -257,8 +257,8 @@ class PyFlytBaseEnv(gymnasium.Env):
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
                 width=self.camera_parameters[0],
                 height=self.camera_parameters[1],
-                viewMatrix=self.env.drones[0].view_mat,
-                projectionMatrix=self.env.drones[0].proj_mat,
+                viewMatrix=self.env.drones[0].camera.view_mat,
+                projectionMatrix=self.env.drones[0].camera.proj_mat,
             )
 
             return np.array(rgbaImg).reshape(

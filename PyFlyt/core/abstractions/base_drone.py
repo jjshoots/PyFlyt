@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from pybullet_utils import bullet_client
 
+from .camera import Camera
 
 class DroneClass(ABC):
     """Basic Drone class for all drone models to inherit from."""
@@ -27,7 +28,7 @@ class DroneClass(ABC):
 
         self.p = p
         self.np_random = np.random.RandomState() if np_random is None else np_random
-        self.physics_hz = 1.0 / physics_hz
+        self.physics_period = 1.0 / physics_hz
         self.ctrl_period = 1.0 / ctrl_hz
         if model_dir is None:
             model_dir = os.path.join(
@@ -35,6 +36,7 @@ class DroneClass(ABC):
             )
         self.drone_dir = os.path.join(model_dir, f"{drone_model}/{drone_model}.urdf")
         self.param_path = os.path.join(model_dir, f"{drone_model}/{drone_model}.yaml")
+        self.camera: Camera
 
         """ SPAWN """
         self.start_pos = start_pos

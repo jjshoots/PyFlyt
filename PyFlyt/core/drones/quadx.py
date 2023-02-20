@@ -9,6 +9,7 @@ from pybullet_utils import bullet_client
 from ..abstractions.base_controller import CtrlClass
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.camera import Camera
+from ..abstractions.motors import Motors
 from ..abstractions.pid import PID
 
 
@@ -73,24 +74,50 @@ class QuadX(DroneClass):
             ctrl_params = all_params["control_params"]
 
             # motor thrust and torque constants
-            self.t2w = motor_params["thrust_to_weight"]
-            self.kf = motor_params["thrust_const"]
-            self.km = motor_params["torque_const"]
+            motor_ids = [0, 1, 2, 3]
+            thrust_coef = (
+                np.array(
+                    [
+                        [0.0, 0.0, +1.0],
+                        [0.0, 0.0, +1.0],
+                        [0.0, 0.0, +1.0],
+                        [0.0, 0.0, +1.0],
+                    ]
+                )
+                * motor_params["thrust_coef"]
+            )
+            torque_coef = (
+                np.array(
+                    [
+                        [0.0, 0.0, +1.0],
+                        [0.0, 0.0, +1.0],
+                        [0.0, 0.0, -1.0],
+                        [0.0, 0.0, -1.0],
+                    ]
+                )
+                * motor_params["torque_coef"]
+            )
+            noise_ratio = (
+                np.array([[1.0], [1.0], [1.0], [1.0]]) * motor_params["noise_ratio"]
+            )
+            max_rpm = np.array([[1.0], [1.0], [1.0], [1.0]]) * np.sqrt(
+                (motor_params["thrust_to_weight"] * 9.81)
+                / (4 * motor_params["thrust_coef"])
+            )
+            tau = np.array([[1.0], [1.0], [1.0], [1.0]]) * motor_params["tau"]
+            self.motors = Motors(
+                p=self.p,
+                physics_period=self.physics_period,
+                uav_id=self.Id,
+                motor_ids=motor_ids,
+                tau=tau,
+                max_rpm=max_rpm,
+                thrust_coef=thrust_coef,
+                torque_coef=torque_coef,
+                noise_ratio=noise_ratio,
+                np_random=self.np_random,
+            )
 
-            # the joint IDs corresponding to motorID 1234
-            self.thr_coeff = np.array([[0.0, 0.0, 1.0]]) * self.kf
-            self.tor_coeff = np.array([[0.0, 0.0, 1.0]]) * self.km
-            self.tor_dir = np.array([[1.0], [1.0], [-1.0], [-1.0]])
-            self.noise_ratio = motor_params["motor_noise_ratio"]
-
-            # pseudo drag coef
-            self.drag_const_xyz = drag_params["drag_const_xyz"]
-            self.drag_const_pqr = drag_params["drag_const_pqr"]
-
-            # maximum motor RPM
-            self.max_rpm = np.sqrt((self.t2w * 9.81) / (4 * self.kf))
-            # motor modelled with first order ode, below is time const
-            self.motor_tau = 0.01
             # motor mapping from command to individual motors
             self.motor_map = np.array(
                 [
@@ -100,6 +127,10 @@ class QuadX(DroneClass):
                     [-1.0, -1.0, -1.0, +1.0],
                 ]
             )
+
+            # pseudo drag coef
+            self.drag_coef_xyz = drag_params["drag_coef_xyz"]
+            self.drag_coef_pqr = drag_params["drag_coef_pqr"]
 
             self.Kp_ang_vel = np.array(ctrl_params["ang_vel"]["kp"])
             self.Ki_ang_vel = np.array(ctrl_params["ang_vel"]["ki"])
@@ -167,76 +198,14 @@ class QuadX(DroneClass):
         self.set_mode(0)
         self.state = np.zeros((4, 3))
         self.setpoint = np.zeros((4))
-        self.rpm = np.zeros((4))
         self.pwm = np.zeros((4))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
+        self.motors.reset()
         self.update_state()
 
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
-
-    def update_drag(self):
-        """adds drag to the model, this is not physically correct but only approximation"""
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
-        drag_xyz = -self.drag_const_xyz * (np.array(lin_vel) ** 2)
-        drag_pqr = -self.drag_const_pqr * (np.array(ang_vel) ** 2)
-
-        # warning, the physics is funky for bounces
-        if len(self.p.getContactPoints()) == 0:
-            self.p.applyExternalForce(
-                self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
-            )
-            self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
-
-    def rpm2forces(self, rpm):
-        """maps rpm to individual motor forces and torques"""
-        rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm**2) * self.thr_coeff
-        torque = (rpm**2) * self.tor_coeff * self.tor_dir
-
-        # add some random noise to the motor outputs
-        thrust += self.np_random.randn(*thrust.shape) * self.noise_ratio * thrust
-        torque += self.np_random.randn(*torque.shape) * self.noise_ratio * torque
-
-        for idx, (thr, tor) in enumerate(zip(thrust, torque)):
-            self.p.applyExternalForce(
-                self.Id, idx, thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
-            )
-            self.p.applyExternalTorque(self.Id, idx, tor, self.p.LINK_FRAME)
-
-    def pwm2rpm(self, pwm):
-        """model the motor using first order ODE, y' = T/tau * (setpoint - y)"""
-        self.rpm += (self.physics_hz / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
-
-        return self.rpm
-
-    def cmd2pwm(self, cmd):
-        """maps angular torque commands to motor rpms"""
-        pwm = np.matmul(self.motor_map, cmd)
-
-        # deal with motor saturations
-        if (high := np.max(pwm)) > 1.0:
-            pwm /= high
-        if (low := np.min(pwm)) < 0.05:
-            pwm += (1.0 - pwm) / (1.0 - low) * (0.05 - low)
-
-        return pwm
-
-    def update_state(self):
-        """ang_vel, ang_pos, lin_vel, lin_pos"""
-        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
-
-        # express vels in local frame
-        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        lin_vel = np.matmul(rotation, lin_vel)
-        ang_vel = np.matmul(rotation, ang_vel)
-
-        # ang_pos in euler form
-        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
-
-        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
     def set_mode(self, mode):
         """
@@ -374,6 +343,44 @@ class QuadX(DroneClass):
         for controller in self.PIDs:
             controller.reset()
 
+    def register_controller(
+        self,
+        controller_id: int,
+        controller_constructor: type[CtrlClass],
+        base_mode: int,
+    ):
+        """register_controller.
+
+        Args:
+            controller_id (int): controller_id
+            controller_constructor (type[CtrlClass]): controller_constructor
+            base_mode (int): base_mode
+        """
+        assert (
+            controller_id > 7
+        ), f"`controller_id` must be more than 7, currently {controller_id}"
+        assert (
+            base_mode >= -1 and base_mode <= 7
+        ), f"`base_mode` must be within -1 and 7, currently {base_mode}."
+
+        self.registered_controllers[controller_id] = controller_constructor
+        self.registered_base_modes[controller_id] = base_mode
+
+    def update_state(self):
+        """ang_vel, ang_pos, lin_vel, lin_pos"""
+        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
+        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
+
+        # express vels in local frame
+        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        lin_vel = np.matmul(rotation, lin_vel)
+        ang_vel = np.matmul(rotation, ang_vel)
+
+        # ang_pos in euler form
+        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
+
+        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
+
     def update_control(self):
         """runs through controllers"""
         # this is the thing we cascade down controllers
@@ -445,36 +452,33 @@ class QuadX(DroneClass):
             z_output = self.z_PIDs[0].step(self.state[2][-1], z_output)
             z_output = np.clip(z_output, 0, 1)
 
-        # mix the commands
-        self.pwm = self.cmd2pwm(np.array([*a_output, z_output]))
+        # mix the commands according to motor mix
+        cmd = np.array([*a_output, z_output])
+        self.pwm = np.matmul(self.motor_map, cmd)
+
+        # deal with motor saturations
+        if (high := np.max(self.pwm)) > 1.0:
+            self.pwm /= high
+        if (low := np.min(self.pwm)) < 0.05:
+            self.pwm += (1.0 - self.pwm) / (1.0 - low) * (0.05 - low)
+
+    def update_drag(self):
+        """adds drag to the model, this is not physically correct but only approximation"""
+        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
+        drag_xyz = -self.drag_coef_xyz * (np.array(lin_vel) ** 2)
+        drag_pqr = -self.drag_coef_pqr * (np.array(ang_vel) ** 2)
+
+        # warning, the physics is funky for bounces
+        if len(self.p.getContactPoints()) == 0:
+            self.p.applyExternalForce(
+                self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
+            )
+            self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def update_physics(self):
         """update_physics."""
-        self.rpm2forces(self.pwm2rpm(self.pwm))
+        self.motors.pwm2forces(self.pwm)
         self.update_drag()
-
-    def register_controller(
-        self,
-        controller_id: int,
-        controller_constructor: type[CtrlClass],
-        base_mode: int,
-    ):
-        """register_controller.
-
-        Args:
-            controller_id (int): controller_id
-            controller_constructor (type[CtrlClass]): controller_constructor
-            base_mode (int): base_mode
-        """
-        assert (
-            controller_id > 7
-        ), f"`controller_id` must be more than 7, currently {controller_id}"
-        assert (
-            base_mode >= -1 and base_mode <= 7
-        ), f"`base_mode` must be within -1 and 7, currently {base_mode}."
-
-        self.registered_controllers[controller_id] = controller_constructor
-        self.registered_base_modes[controller_id] = base_mode
 
     def update_avionics(self):
         """

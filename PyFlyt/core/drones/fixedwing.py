@@ -7,6 +7,7 @@ from pybullet_utils import bullet_client
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.camera import Camera
 from ..abstractions.lifting_surface import LiftingSurface
+from ..abstractions.motors import Motors
 
 
 class FixedWing(DroneClass):
@@ -114,18 +115,25 @@ class FixedWing(DroneClass):
 
             # motor
             motor_params = all_params["motor_params"]
-            self.t2w = motor_params["thrust_to_weight"]
-
-            self.kf = motor_params["thrust_const"]
-            self.km = motor_params["torque_const"]
-
-            self.thr_coeff = np.array([0.0, 1.0, 0.0]) * self.kf
-            self.tor_coeff = np.array([0.0, 1.0, 0.0]) * self.km
-            self.tor_dir = np.array([[1.0]])
-            self.noise_ratio = motor_params["motor_noise_ratio"]
-
-            self.max_rpm = np.sqrt((self.t2w * 9.81) / (self.kf))
-            self.motor_tau = 0.01
+            tau = np.array([[motor_params["tau"]]])
+            max_rpm = np.array([[1.0]]) * np.sqrt(
+                (motor_params["thrust_to_weight"] * 9.81) / motor_params["thrust_coef"]
+            )
+            thrust_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["thrust_coef"]
+            torque_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["torque_coef"]
+            noise_ratio = np.array([[motor_params["noise_ratio"]]])
+            self.motors = Motors(
+                p=self.p,
+                physics_period=self.physics_period,
+                uav_id=self.Id,
+                motor_ids=[0],
+                tau=tau,
+                max_rpm=max_rpm,
+                thrust_coef=thrust_coef,
+                torque_coef=torque_coef,
+                noise_ratio=noise_ratio,
+                np_random=self.np_random,
+            )
 
         """ CAMERA """
         self.use_camera = use_camera
@@ -140,6 +148,7 @@ class FixedWing(DroneClass):
                 camera_resolution=camera_resolution,
                 camera_position_offset=np.array([0.0, -3.0, 1.0]),
                 is_tracking_camera=True,
+                cinematic=True,
             )
 
         """ CUSTOM CONTROLLERS """
@@ -150,45 +159,10 @@ class FixedWing(DroneClass):
 
         self.reset()
 
-    def rpm2forces(self, rpm):
-        """maps rpm to individual motor force and torque"""
-        rpm = np.expand_dims(rpm, axis=1)
-        thrust = (rpm**2) * self.thr_coeff
-        torque = (rpm**2) * self.tor_coeff * self.tor_dir
-
-        # add some random noise to the motor output
-        thrust += self.np_random.randn(*thrust.shape) * self.noise_ratio * thrust
-        torque += self.np_random.randn(*torque.shape) * self.noise_ratio * torque
-
-        self.p.applyExternalForce(
-            self.Id, 0, thrust[0], [0.0, 0.0, 0.0], self.p.LINK_FRAME
-        )
-        self.p.applyExternalTorque(self.Id, 0, torque[0], self.p.LINK_FRAME)
-
-    def pwm2rpm(self, pwm):
-        """model the motor using first order ODE, y' = T/tau * (setpoint - y)"""
-        self.rpm += (self.physics_hz / self.motor_tau) * (self.max_rpm * pwm - self.rpm)
-
-        return self.rpm
-
-    def cmd2pwm(self, cmd):
-        """maps angular torque commands to motor rpms"""
-        pwm = cmd
-        # deal with motor saturations
-        if (high := np.max(pwm)) > 1.0:
-            pwm /= high
-        if (low := np.min(pwm)) < 0.05:
-            pwm += (1.0 - pwm) / (1.0 - low) * (0.05 - low)
-
-        pwm = cmd
-
-        return pwm
-
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
         # Motor thrust
-        self.pwm = self.cmd2pwm(self.cmd[3])  # Extract Throttle cmd
-        self.rpm2forces(self.pwm2rpm(self.pwm))
+        self.motors.pwm2forces(self.cmd[[3]])
 
         for surface in self.lifting_surfaces:
             actuation = (
@@ -237,14 +211,11 @@ class FixedWing(DroneClass):
     def reset(self):
         self.set_mode(1)
         self.setpoint = np.zeros((4))
-        self.rpm = np.zeros((1))
-        self.pwm = np.zeros((1))
         self.cmd = np.zeros((4))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
-
         self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
-
+        self.motors.reset()
         self.update_state()
 
         if self.use_camera:

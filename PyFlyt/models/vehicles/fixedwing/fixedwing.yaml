@@ -1,8 +1,9 @@
 motor_params:
   thrust_to_weight: 6
-  thrust_const: 3.16e-10
-  torque_const: 7.94e-12
-  motor_noise_ratio: 0.02
+  thrust_coef: 3.16e-10
+  torque_coef: 7.94e-12
+  noise_ratio: 0.02
+  tau: 0.01
 
 main_wing_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
