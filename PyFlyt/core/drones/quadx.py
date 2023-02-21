@@ -476,6 +476,7 @@ class QuadX(DroneClass):
 
     def update_physics(self):
         """update_physics."""
+        self.update_state()
         self.motors.pwm2forces(self.pwm)
         self.update_drag()
 
@@ -483,7 +484,6 @@ class QuadX(DroneClass):
         """
         updates state and control
         """
-        self.update_state()
         self.update_control()
 
         if self.use_camera:
