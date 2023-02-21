@@ -464,9 +464,8 @@ class QuadX(DroneClass):
 
     def update_drag(self):
         """adds drag to the model, this is not physically correct but only approximation"""
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
-        drag_xyz = -self.drag_coef_xyz * (np.array(lin_vel) ** 2)
-        drag_pqr = -self.drag_coef_pqr * (np.array(ang_vel) ** 2)
+        drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)
+        drag_xyz = -self.drag_coef_xyz * (np.array(self.state[2]) ** 2)
 
         # warning, the physics is funky for bounces
         if len(self.p.getContactPoints()) == 0:

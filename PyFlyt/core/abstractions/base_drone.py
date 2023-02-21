@@ -6,6 +6,7 @@ from pybullet_utils import bullet_client
 
 from .camera import Camera
 
+
 class DroneClass(ABC):
     """Basic Drone class for all drone models to inherit from."""
 
@@ -49,7 +50,8 @@ class DroneClass(ABC):
         )
 
         """ DEFINE SETPOINT """
-        self.setpoint = np.zeros((4,))
+        self.state: np.ndarray
+        self.setpoint: np.ndarray
 
     @abstractmethod
     def reset(self):

@@ -4,6 +4,7 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
+from ..abstractions.base_controller import CtrlClass
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.camera import Camera
 from ..abstractions.lifting_surface import LiftingSurface
@@ -148,7 +149,6 @@ class FixedWing(DroneClass):
                 camera_resolution=camera_resolution,
                 camera_position_offset=np.array([0.0, -3.0, 1.0]),
                 is_tracking_camera=True,
-                cinematic=True,
             )
 
         """ CUSTOM CONTROLLERS """
@@ -159,28 +159,56 @@ class FixedWing(DroneClass):
 
         self.reset()
 
-    def update_forces(self):
-        """Calculates and applies forces acting on UAV"""
-        # Motor thrust
-        self.motors.pwm2forces(self.cmd[[3]])
+    def reset(self):
+        self.set_mode(0)
+        self.cmd = np.zeros((4))
+        self.setpoint = np.zeros((4))
 
-        for surface in self.lifting_surfaces:
-            actuation = (
-                0.0
-                if surface.command_id is None
-                else float(self.cmd[surface.command_id] * surface.command_sign)
+        self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
+        self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
+        self.motors.reset()
+        self.update_state()
+
+        if self.use_camera:
+            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
+
+    def set_mode(self, mode):
+        """
+        Mode 0 - [Roll, Pitch, Yaw, Throttle]
+        """
+        if (mode != 0) and (mode not in self.registered_controllers.keys()):
+            raise ValueError(
+                f"`mode` must be either 0 or be registered in {self.registered_controllers.keys()=}, got {mode}."
             )
 
-            force, torque = surface.compute_force_torque(actuation)
+        self.mode = mode
 
-            self.p.applyExternalForce(
-                self.Id,
-                surface.id,
-                force,
-                [0.0, 0.0, 0.0],
-                self.p.LINK_FRAME,
-            )
-            self.p.applyExternalTorque(self.Id, surface.id, torque, self.p.LINK_FRAME)
+        # for custom modes
+        if mode in self.registered_controllers.keys():
+            self.instanced_controllers[mode] = self.registered_controllers[mode]()
+            mode = self.registered_base_modes[mode]
+
+    def register_controller(
+        self,
+        controller_id: int,
+        controller_constructor: type[CtrlClass],
+        base_mode: int,
+    ):
+        """register_controller.
+
+        Args:
+            controller_id (int): controller_id
+            controller_constructor (type[CtrlClass]): controller_constructor
+            base_mode (int): base_mode
+        """
+        assert (
+            controller_id > 0
+        ), f"`controller_id` must be more than 0, got {controller_id}."
+        assert (
+            base_mode == 0
+        ), f"`base_mode` must be 0, no other controllers available, got {base_mode}."
+        self.registered_controllers[controller_id] = controller_constructor
+        self.registered_base_modes[controller_id] = base_mode
 
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""
@@ -205,40 +233,45 @@ class FixedWing(DroneClass):
 
     def update_control(self):
         """runs through controllers"""
-        # Final cmd, [Roll, Pitch, Yaw, Throttle] from [-1, 1]
-        self.cmd = self.setpoint
+        # the default mode
+        if self.mode == 0:
+            self.cmd = self.setpoint
+            return
 
-    def reset(self):
-        self.set_mode(1)
-        self.setpoint = np.zeros((4))
-        self.cmd = np.zeros((4))
-
-        self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
-        self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
-        self.motors.reset()
-        self.update_state()
-
-        if self.use_camera:
-            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
-
-    def set_mode(self, mode):
-        """
-        Mode 1 - [Roll, Pitch, Yaw, Throttle]
-        """
-        # WIP, copied and pasted from quadx
-        if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
+        # otherwise, check that we have a custom controller
+        if self.mode not in self.registered_controllers.keys():
             raise ValueError(
-                f"`mode` must be between -1 and 7 or be registered in {self.registered_controllers.keys()=}, got {mode}."
+                f"Don't have other modes aside from 0, received {self.mode}."
             )
 
-        self.mode = mode
+        # custom controllers run if any
+        self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
-        # for custom modes
-        if mode in self.registered_controllers.keys():
-            self.instanced_controllers[mode] = self.registered_controllers[mode]()
-            mode = self.registered_base_modes[mode]
+    def update_forces(self):
+        """Calculates and applies forces acting on UAV"""
+        # Motor thrust
+        self.motors.pwm2forces(self.cmd[[3]])
+
+        for surface in self.lifting_surfaces:
+            actuation = (
+                0.0
+                if surface.command_id is None
+                else float(self.cmd[surface.command_id] * surface.command_sign)
+            )
+
+            force, torque = surface.compute_force_torque(actuation)
+
+            self.p.applyExternalForce(
+                self.Id,
+                surface.id,
+                force,
+                [0.0, 0.0, 0.0],
+                self.p.LINK_FRAME,
+            )
+            self.p.applyExternalTorque(self.Id, surface.id, torque, self.p.LINK_FRAME)
 
     def update_physics(self):
+        """update_physics."""
         self.update_state()
         self.update_forces()
 
