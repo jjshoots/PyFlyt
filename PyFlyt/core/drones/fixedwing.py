@@ -151,12 +151,6 @@ class FixedWing(DroneClass):
                 is_tracking_camera=True,
             )
 
-        """ CUSTOM CONTROLLERS """
-        # dictionary mapping of controller_id to controller objects
-        self.registered_controllers = dict()
-        self.instanced_controllers = dict()
-        self.registered_base_modes = dict()
-
         self.reset()
 
     def reset(self):
@@ -171,44 +165,6 @@ class FixedWing(DroneClass):
 
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
-
-    def set_mode(self, mode):
-        """
-        Mode 0 - [Roll, Pitch, Yaw, Throttle]
-        """
-        if (mode != 0) and (mode not in self.registered_controllers.keys()):
-            raise ValueError(
-                f"`mode` must be either 0 or be registered in {self.registered_controllers.keys()=}, got {mode}."
-            )
-
-        self.mode = mode
-
-        # for custom modes
-        if mode in self.registered_controllers.keys():
-            self.instanced_controllers[mode] = self.registered_controllers[mode]()
-            mode = self.registered_base_modes[mode]
-
-    def register_controller(
-        self,
-        controller_id: int,
-        controller_constructor: type[CtrlClass],
-        base_mode: int,
-    ):
-        """register_controller.
-
-        Args:
-            controller_id (int): controller_id
-            controller_constructor (type[CtrlClass]): controller_constructor
-            base_mode (int): base_mode
-        """
-        assert (
-            controller_id > 0
-        ), f"`controller_id` must be more than 0, got {controller_id}."
-        assert (
-            base_mode == 0
-        ), f"`base_mode` must be 0, no other controllers available, got {base_mode}."
-        self.registered_controllers[controller_id] = controller_constructor
-        self.registered_base_modes[controller_id] = base_mode
 
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""

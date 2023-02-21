@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from pybullet_utils import bullet_client
 
+from .base_controller import CtrlClass
 from .camera import Camera
 
 
@@ -53,12 +54,14 @@ class DroneClass(ABC):
         self.state: np.ndarray
         self.setpoint: np.ndarray
 
-    @abstractmethod
-    def reset(self):
-        pass
+        """ CUSTOM CONTROLLERS """
+        # dictionary mapping of controller_id to controller objects
+        self.registered_controllers = dict()
+        self.instanced_controllers = dict()
+        self.registered_base_modes = dict()
 
     @abstractmethod
-    def set_mode(self, mode):
+    def reset(self):
         pass
 
     @abstractmethod
@@ -68,3 +71,45 @@ class DroneClass(ABC):
     @abstractmethod
     def update_physics(self):
         pass
+
+    def set_mode(self, mode):
+        """
+        Default set_mode.
+
+        By default, mode 0 defines the following setpoint behaviour:
+        Mode 0 - [Pitch, Roll, Yaw, Thrust]
+        """
+        if (mode != 0) and (mode not in self.registered_controllers.keys()):
+            raise ValueError(
+                f"`mode` must be either 0 or be registered in {self.registered_controllers.keys()=}, got {mode}."
+            )
+
+        self.mode = mode
+
+        # for custom modes
+        if mode in self.registered_controllers.keys():
+            self.instanced_controllers[mode] = self.registered_controllers[mode]()
+            mode = self.registered_base_modes[mode]
+
+    def register_controller(
+        self,
+        controller_id: int,
+        controller_constructor: type[CtrlClass],
+        base_mode: int,
+    ):
+        """
+        Default register_controller.
+
+        Args:
+            controller_id (int): controller_id
+            controller_constructor (type[CtrlClass]): controller_constructor
+            base_mode (int): base_mode
+        """
+        assert (
+            controller_id > 0
+        ), f"`controller_id` must be more than 0, got {controller_id}."
+        assert (
+            base_mode == 0
+        ), f"`base_mode` must be 0, no other controllers available, got {base_mode}."
+        self.registered_controllers[controller_id] = controller_constructor
+        self.registered_base_modes[controller_id] = base_mode
