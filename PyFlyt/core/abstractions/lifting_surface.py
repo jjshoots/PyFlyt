@@ -11,7 +11,8 @@ class LiftingSurface:
         id: int,
         command_id: None | int,
         command_sign: float,
-        z_axis_lift: bool,
+        lifting_axis: str,
+        forward_axis: str,
         aerofoil_params: dict,
     ):
         """Used for simulating a single lifting surface.
@@ -20,7 +21,8 @@ class LiftingSurface:
             id (int): component_id
             command_id (None | int): command_id, for convenience
             command_sign (float): command_sign, for convenience
-            z_axis_lift (bool): z_axis_lift, whether the z_axis is the lift direction
+            lifting_axis (str): can be either "-x", "+x", "-y", "+y", "-z", "+z"
+            forward_axis (str): can be either "-x", "+x", "-y", "+y", "-z", "+z"
             aerofoil_params (dict): aerofoil_params, see below
 
         Aerofoil params must have these components (everything is in degrees and is a float):
@@ -56,19 +58,45 @@ class LiftingSurface:
             len(params_list) == 0
         ), f"Missing parameters: {params_list} in aerofoil_params for component {id}."
 
+        # command inputs
         self.id = id
         self.command_id = command_id
         self.command_sign = command_sign
-        self.z_axis_lift = z_axis_lift
 
-        if z_axis_lift:
-            self.lift_axis = np.array([0.0, 0.0, 1.0])
-            self.drag_axis = np.array([0.0, 1.0, 0.0])
-            self.torque_axis = np.array([1.0, 0.0, 0.0])
-        else:
-            self.lift_axis = np.array([1.0, 0.0, 0.0])
-            self.drag_axis = np.array([0.0, 1.0, 0.0])
-            self.torque_axis = np.array([0.0, 0.0, 1.0])
+        # handle lift, drag, torque axis
+        allowed_axis = ["-x", "+x", "-y", "+y", "-z", "+z"]
+        assert (
+            lifting_axis in allowed_axis
+        ), f"`lifting_axis` must be in {allowed_axis}, got {lifting_axis}."
+        assert (
+            forward_axis in allowed_axis
+        ), f"`forward_axis` must be in {allowed_axis}, got {forward_axis}."
+        assert (
+            lifting_axis[-1] != forward_axis[-1]
+        ), f"{lifting_axis=} and {forward_axis=} cannot be the same axis!"
+
+        torque_axis = ["x", "y", "z"]
+        torque_axis.remove(lifting_axis[-1])
+        torque_axis.remove(forward_axis[-1])
+        torque_axis = torque_axis[0]
+
+        self.lift_axis = np.array(
+            ["x" in lifting_axis, "y" in lifting_axis, "z" in lifting_axis],
+            dtype=np.float32,
+        )
+        self.lift_axis *= -1.0 if "-" in lifting_axis else +1.0
+
+        self.drag_axis = np.array(
+            ["x" in forward_axis, "y" in forward_axis, "z" in forward_axis],
+            dtype=np.float32,
+        )
+        self.drag_axis *= -1.0 if "-" in lifting_axis else +1.0
+
+        self.torque_axis = np.array(
+            [torque_axis == "x", torque_axis == "y", torque_axis == "z"],
+            dtype=np.float32,
+        )
+        self.torque_axis *= 1.0 if lifting_axis[0] == forward_axis[0] else -1.0
 
         # wing parameters
         self.Cl_alpha_2D = float(aerofoil_params["Cl_alpha_2D"])
@@ -122,20 +150,10 @@ class LiftingSurface:
         Returns:
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
         """
-        if self.z_axis_lift:
-            alpha = np.arctan2(
-                -self.local_surface_velocity[2], self.local_surface_velocity[1]
-            )
-            freestream_speed = np.linalg.norm(
-                [self.local_surface_velocity[1], self.local_surface_velocity[2]]
-            )
-        else:
-            alpha = np.arctan2(
-                -self.local_surface_velocity[0], self.local_surface_velocity[1]
-            )
-            freestream_speed = np.linalg.norm(
-                [self.local_surface_velocity[0], self.local_surface_velocity[1]]
-            )
+        lifting_airspeed = np.dot(self.local_surface_velocity, self.lift_axis)
+        forward_airspeed = np.dot(self.local_surface_velocity, self.drag_axis)
+        alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
+        freestream_speed = np.linalg.norm([forward_airspeed, lifting_airspeed])
 
         deflection = self.deflection_limit * actuation
         [Cl, Cd, CM] = self._compute_aero_data(deflection, alpha)
