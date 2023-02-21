@@ -8,6 +8,7 @@ import pybullet_data
 from pybullet_utils import bullet_client
 
 from .abstractions.base_drone import DroneClass
+from .drones.rocket import Rocket
 from .drones.fixedwing import FixedWing
 from .drones.quadplane import Quadplane
 from .drones.quadx import QuadX
@@ -53,6 +54,8 @@ class Aviary(bullet_client.BulletClient):
             self.drone_constructor = Quadplane
         elif drone_type == "fixedwing":
             self.drone_constructor = FixedWing
+        elif drone_type == "rocket":
+            self.drone_constructor = Rocket
 
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
@@ -63,6 +66,7 @@ class Aviary(bullet_client.BulletClient):
         self.ctrl_update_ratio = int(physics_hz / ctrl_hz)
         self.now = time.time()
 
+        # pybullet stuff
         self.start_pos = start_pos
         self.start_orn = start_orn
         self.use_camera = use_camera
@@ -72,10 +76,12 @@ class Aviary(bullet_client.BulletClient):
         self.camera_frame_size = camera_resolution
         self.worldScale = worldScale
 
+        # directories and paths
         self.model_dir = model_dir
         self.drone_model = drone_model
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
+        # render
         self.render = render
         self.rtf_debug_line = self.addUserDebugText(
             text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
@@ -116,6 +122,7 @@ class Aviary(bullet_client.BulletClient):
                     start_orn=start_orn,
                     ctrl_hz=self.ctrl_hz,
                     physics_hz=self.physics_hz,
+                    drone_model=self.drone_model,
                     model_dir=self.model_dir,
                     use_camera=self.use_camera,
                     use_gimbal=self.use_gimbal,

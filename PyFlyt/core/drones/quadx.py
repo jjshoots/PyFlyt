@@ -196,7 +196,6 @@ class QuadX(DroneClass):
     def reset(self):
         """reset."""
         self.set_mode(0)
-        self.state = np.zeros((4, 3))
         self.setpoint = np.zeros((4))
         self.pwm = np.zeros((4))
 
