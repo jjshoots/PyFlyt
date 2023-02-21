@@ -154,8 +154,8 @@ class FixedWing(DroneClass):
 
     def reset(self):
         self.set_mode(0)
-        self.cmd = np.zeros((4))
         self.setpoint = np.zeros((4))
+        self.cmd = np.zeros((4))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
