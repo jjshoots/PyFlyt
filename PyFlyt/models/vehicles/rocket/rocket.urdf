@@ -1,0 +1,178 @@
+<?xml version="1.0" ?>
+
+<robot name="rocket">
+
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.2" length="5.0"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <link name="booster_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.25" length="0.4"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="booster_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 -2.5"/>
+    <parent link="base_link"/>
+    <child link="booster_link"/>
+  </joint>
+
+
+  <link name="fin_pos_x">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.03 0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="fin_pos_x_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.35 0 2.35"/>
+    <parent link="base_link"/>
+    <child link="fin_pos_x"/>
+  </joint>
+
+
+  <link name="fin_neg_x">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.03 0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="fin_neg_x_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.35 0 2.35"/>
+    <parent link="base_link"/>
+    <child link="fin_neg_x"/>
+  </joint>
+
+
+    <link name="fin_pos_y">
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="0.05"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.3 0.03 0.2"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="fin_pos_y_joint" type="fixed">
+      <origin rpy="0 0 1.571" xyz="0 0.35 2.35"/>
+      <parent link="base_link"/>
+      <child link="fin_pos_y"/>
+    </joint>
+
+
+    <link name="fin_neg_y">
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="0.05"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.3 0.03 0.2"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="fin_neg_y_joint" type="fixed">
+      <origin rpy="0 0 1.571" xyz="0 -0.35 2.35"/>
+      <parent link="base_link"/>
+      <child link="fin_neg_y"/>
+    </joint>
+
+
+    <link name="leg_1">
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="0.00"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="1.0 0.03 0.05"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="leg_1_joint" type="fixed">
+      <origin rpy="0 1.0 0" xyz="0.35 0 -2.35"/>
+      <parent link="base_link"/>
+      <child link="leg_1"/>
+    </joint>
+
+
+    <link name="leg_2">
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="0.00"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="1.0 0.03 0.05"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="leg_2_joint" type="fixed">
+      <origin rpy="0 1.0 2.0944" xyz="-0.175 0.3031 -2.35"/>
+      <parent link="base_link"/>
+      <child link="leg_2"/>
+    </joint>
+
+
+    <link name="leg_3">
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="0.00"/>
+        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      </inertial>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="1.0 0.03 0.05"/>
+        </geometry>
+      </collision>
+    </link>
+    <joint name="leg_3_joint" type="fixed">
+      <origin rpy="0 1.0 4.1887" xyz="-0.175 -0.3031 -2.35"/>
+      <parent link="base_link"/>
+      <child link="leg_3"/>
+    </joint>
+  </robot>
