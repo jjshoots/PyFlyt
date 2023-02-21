@@ -77,44 +77,44 @@
   </joint>
 
 
-    <link name="fin_pos_y">
-      <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <mass value="0.05"/>
-        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-      </inertial>
-      <collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <geometry>
-          <box size="0.3 0.03 0.2"/>
-        </geometry>
-      </collision>
-    </link>
-    <joint name="fin_pos_y_joint" type="fixed">
-      <origin rpy="0 0 1.571" xyz="0 0.35 2.35"/>
-      <parent link="base_link"/>
-      <child link="fin_pos_y"/>
-    </joint>
+    <!-- <link name="fin_pos_y"> -->
+    <!--   <inertial> -->
+    <!--     <origin rpy="0 0 0" xyz="0 0 0"/> -->
+    <!--     <mass value="0.05"/> -->
+    <!--     <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/> -->
+    <!--   </inertial> -->
+    <!--   <collision> -->
+    <!--     <origin rpy="0 0 0" xyz="0 0 0"/> -->
+    <!--     <geometry> -->
+    <!--       <box size="0.03 0.3 0.2"/> -->
+    <!--     </geometry> -->
+    <!--   </collision> -->
+    <!-- </link> -->
+    <!-- <joint name="fin_pos_y_joint" type="fixed"> -->
+    <!--   <origin rpy="0 0 0" xyz="0 0.35 2.35"/> -->
+    <!--   <parent link="base_link"/> -->
+    <!--   <child link="fin_pos_y"/> -->
+    <!-- </joint> -->
 
 
-    <link name="fin_neg_y">
-      <inertial>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <mass value="0.05"/>
-        <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-      </inertial>
-      <collision>
-        <origin rpy="0 0 0" xyz="0 0 0"/>
-        <geometry>
-          <box size="0.3 0.03 0.2"/>
-        </geometry>
-      </collision>
-    </link>
-    <joint name="fin_neg_y_joint" type="fixed">
-      <origin rpy="0 0 1.571" xyz="0 -0.35 2.35"/>
-      <parent link="base_link"/>
-      <child link="fin_neg_y"/>
-    </joint>
+    <!-- <link name="fin_neg_y"> -->
+    <!--   <inertial> -->
+    <!--     <origin rpy="0 0 0" xyz="0 0 0"/> -->
+    <!--     <mass value="0.05"/> -->
+    <!--     <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/> -->
+    <!--   </inertial> -->
+    <!--   <collision> -->
+    <!--     <origin rpy="0 0 0" xyz="0 0 0"/> -->
+    <!--     <geometry> -->
+    <!--       <box size="0.03 0.3 0.2"/> -->
+    <!--     </geometry> -->
+    <!--   </collision> -->
+    <!-- </link> -->
+    <!-- <joint name="fin_neg_y_joint" type="fixed"> -->
+    <!--   <origin rpy="0 0 0" xyz="0 -0.35 2.35"/> -->
+    <!--   <parent link="base_link"/> -->
+    <!--   <child link="fin_neg_y"/> -->
+    <!-- </joint> -->
 
 
     <link name="leg_1">

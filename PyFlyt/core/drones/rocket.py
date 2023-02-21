@@ -66,17 +66,30 @@ class Rocket(DroneClass):
 
             # add all finlets
             self.lifting_surfaces = []
-            for finlet_id in [1, 2, 3, 4]:
+            for finlet_id in [1, 2]:
+                # pitching fins
                 self.lifting_surfaces.append(
                     LiftingSurface(
                         id=finlet_id,
                         command_id=0,
                         command_sign=+1.0,
-                        lifting_axis="+x",
+                        lifting_axis="+y",
                         forward_axis="-z",
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
+            # for finlet_id in [3, 4]:
+            #     # rolling fins
+            #     self.lifting_surfaces.append(
+            #         LiftingSurface(
+            #             id=finlet_id,
+            #             command_id=1,
+            #             command_sign=+1.0,
+            #             lifting_axis="+y",
+            #             forward_axis="-z",
+            #             aerofoil_params=all_params["finlet_params"],
+            #         )
+            #     )
 
         """ CAMERA """
         self.use_camera = use_camera

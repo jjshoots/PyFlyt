@@ -78,7 +78,6 @@ class LiftingSurface:
         torque_axis = ["x", "y", "z"]
         torque_axis.remove(lifting_axis[-1])
         torque_axis.remove(forward_axis[-1])
-        torque_axis = torque_axis[0]
 
         self.lift_axis = np.array(
             ["x" in lifting_axis, "y" in lifting_axis, "z" in lifting_axis],
@@ -90,10 +89,10 @@ class LiftingSurface:
             ["x" in forward_axis, "y" in forward_axis, "z" in forward_axis],
             dtype=np.float32,
         )
-        self.drag_axis *= -1.0 if "-" in lifting_axis else +1.0
+        self.drag_axis *= -1.0 if "-" in forward_axis else +1.0
 
         self.torque_axis = np.array(
-            [torque_axis == "x", torque_axis == "y", torque_axis == "z"],
+            ["x" in torque_axis, "y" in torque_axis, "z" in torque_axis],
             dtype=np.float32,
         )
         self.torque_axis *= 1.0 if lifting_axis[0] == forward_axis[0] else -1.0
