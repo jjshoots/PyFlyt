@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from pprint import pprint
 
 import numpy as np
 from pybullet_utils import bullet_client
@@ -62,14 +63,17 @@ class DroneClass(ABC):
 
     @abstractmethod
     def reset(self):
+        """reset."""
         pass
 
     @abstractmethod
     def update_avionics(self):
+        """update_avionics."""
         pass
 
     @abstractmethod
     def update_physics(self):
+        """update_physics."""
         pass
 
     def set_mode(self, mode):
@@ -113,3 +117,16 @@ class DroneClass(ABC):
         ), f"`base_mode` must be 0, no other controllers available, got {base_mode}."
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
+
+    def get_joint_info(self):
+        """Debugging function for displaying all joint ids and names as defined in urdf."""
+        # read out all infos
+        infos = dict()
+        for idx in range(self.p.getNumJoints(self.Id)):
+            info = self.p.getJointInfo(self.Id, idx)
+            infos[idx] = info[12]
+
+        # add the base
+        infos[-1] = "base"
+
+        pprint(infos)

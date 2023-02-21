@@ -69,7 +69,8 @@ class FixedWing(DroneClass):
                     id=3,
                     command_id=1,
                     command_sign=+1.0,
-                    z_axis_lift=True,
+                    lifting_axis="+z",
+                    forward_axis="+y",
                     aerofoil_params=all_params["left_wing_flapped_params"],
                 )
             )
@@ -78,7 +79,8 @@ class FixedWing(DroneClass):
                     id=4,
                     command_id=1,
                     command_sign=-1.0,
-                    z_axis_lift=True,
+                    lifting_axis="+z",
+                    forward_axis="+y",
                     aerofoil_params=all_params["right_wing_flapped_params"],
                 )
             )
@@ -87,7 +89,8 @@ class FixedWing(DroneClass):
                     id=1,
                     command_id=0,
                     command_sign=-1.0,
-                    z_axis_lift=True,
+                    lifting_axis="+z",
+                    forward_axis="+y",
                     aerofoil_params=all_params["horizontal_tail_params"],
                 )
             )
@@ -96,7 +99,8 @@ class FixedWing(DroneClass):
                     id=5,
                     command_id=None,
                     command_sign=+1.0,
-                    z_axis_lift=True,
+                    lifting_axis="+z",
+                    forward_axis="+y",
                     aerofoil_params=all_params["main_wing_params"],
                 )
             )
@@ -105,7 +109,8 @@ class FixedWing(DroneClass):
                     id=2,
                     command_id=2,
                     command_sign=-1.0,
-                    z_axis_lift=False,
+                    lifting_axis="+x",
+                    forward_axis="+y",
                     aerofoil_params=all_params["vertical_tail_params"],
                 )
             )
