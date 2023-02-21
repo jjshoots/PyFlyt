@@ -149,10 +149,10 @@ class LiftingSurface:
         Returns:
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
         """
+        freestream_speed = np.linalg.norm(self.local_surface_velocity)
         lifting_airspeed = np.dot(self.local_surface_velocity, self.lift_axis)
         forward_airspeed = np.dot(self.local_surface_velocity, self.drag_axis)
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
-        freestream_speed = np.linalg.norm([forward_airspeed, lifting_airspeed])
 
         deflection = self.deflection_limit * actuation
         [Cl, Cd, CM] = self._compute_aero_data(deflection, alpha)
