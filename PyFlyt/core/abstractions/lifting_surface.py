@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
+from pybullet_utils import bullet_client
 
 
 class LiftingSurface:
@@ -8,21 +11,28 @@ class LiftingSurface:
 
     def __init__(
         self,
-        id: int,
+        p: bullet_client.BulletClient,
+        physics_period: float,
+        np_random: np.random.RandomState,
+        uav_id: int,
+        surface_id: int,
         command_id: None | int,
         command_sign: float,
-        lifting_axis: str,
-        forward_axis: str,
+        lifting_vector: np.ndarray,
+        forward_vector: np.ndarray,
         aerofoil_params: dict,
     ):
         """Used for simulating a single lifting surface.
 
         Args:
-            id (int): component_id
+            p (bullet_client.BulletClient): p
+            physics_period (float): physics_period
+            uav_id (int): uav_id
+            surface_id (int): surface_id
             command_id (None | int): command_id, for convenience
             command_sign (float): command_sign, for convenience
-            lifting_axis (str): can be either "-x", "+x", "-y", "+y", "-z", "+z"
-            forward_axis (str): can be either "-x", "+x", "-y", "+y", "-z", "+z"
+            lifting_axis (np.ndarray): (3,) vector representing the direction of lift
+            forward_axis (np.ndarray): (3,) vector representing the direction of travel
             aerofoil_params (dict): aerofoil_params, see below
 
         Aerofoil params must have these components (everything is in degrees and is a float):
@@ -37,6 +47,18 @@ class LiftingSurface:
             - Cd_0
             - deflection_limit
         """
+        self.p = p
+        self.physics_period = physics_period
+        self.np_random = np_random
+
+        # store IDs
+        self.uav_id = uav_id
+        self.surface_id = surface_id
+
+        # command inputs for referencing
+        self.command_id = command_id
+        self.command_sign = command_sign
+
         # check that we have all the required params
         params_list = [
             "Cl_alpha_2D",
@@ -56,46 +78,26 @@ class LiftingSurface:
 
         assert (
             len(params_list) == 0
-        ), f"Missing parameters: {params_list} in aerofoil_params for component {id}."
+        ), f"Missing parameters: {params_list} in aerofoil_params for component {surface_id}."
 
-        # command inputs
-        self.id = id
-        self.command_id = command_id
-        self.command_sign = command_sign
+        # some checks for the lifting and norm vectors
+        assert lifting_vector.shape == (3,)
+        assert forward_vector.shape == (3,)
+        if np.linalg.norm(lifting_vector) != 1.0:
+            warnings.warn(f"Norm of `{lifting_vector=}` is not 1.0, normalizing...")
+            lifting_vector /= np.linalg.norm(lifting_vector)
+        if np.linalg.norm(forward_vector) != 1.0:
+            warnings.warn(f"Norm of `{forward_vector=}` is not 1.0, normalizing...")
+            forward_vector /= np.linalg.norm(forward_vector)
+        if np.dot(lifting_vector, forward_vector) != 0.0:
+            warnings.warn(
+                f"`{forward_vector}` and `{lifting_vector}` are not orthogonal, you have been warned..."
+            )
 
-        # handle lift, drag, torque axis
-        allowed_axis = ["-x", "+x", "-y", "+y", "-z", "+z"]
-        assert (
-            lifting_axis in allowed_axis
-        ), f"`lifting_axis` must be in {allowed_axis}, got {lifting_axis}."
-        assert (
-            forward_axis in allowed_axis
-        ), f"`forward_axis` must be in {allowed_axis}, got {forward_axis}."
-        assert (
-            lifting_axis[-1] != forward_axis[-1]
-        ), f"{lifting_axis=} and {forward_axis=} cannot be the same axis!"
-
-        torque_axis = ["x", "y", "z"]
-        torque_axis.remove(lifting_axis[-1])
-        torque_axis.remove(forward_axis[-1])
-
-        self.lift_axis = np.array(
-            ["x" in lifting_axis, "y" in lifting_axis, "z" in lifting_axis],
-            dtype=np.float32,
-        )
-        self.lift_axis *= -1.0 if "-" in lifting_axis else +1.0
-
-        self.drag_axis = np.array(
-            ["x" in forward_axis, "y" in forward_axis, "z" in forward_axis],
-            dtype=np.float32,
-        )
-        self.drag_axis *= -1.0 if "-" in forward_axis else +1.0
-
-        self.torque_axis = np.array(
-            ["x" in torque_axis, "y" in torque_axis, "z" in torque_axis],
-            dtype=np.float32,
-        )
-        self.torque_axis *= 1.0 if lifting_axis[0] == forward_axis[0] else -1.0
+        # get the lift, drag, and torque units
+        self.lift_unit = lifting_vector
+        self.drag_unit = forward_vector
+        self.torque_unit = np.cross(lifting_vector, forward_vector)
 
         # wing parameters
         self.Cl_alpha_2D = float(aerofoil_params["Cl_alpha_2D"])
@@ -137,10 +139,7 @@ class LiftingSurface:
         """
         self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
 
-    def compute_force_torque(
-        self,
-        actuation: float,
-    ) -> tuple[np.ndarray, np.ndarray]:
+    def pwm2forces(self, actuation: float):
         """compute_force_torque.
 
         Args:
@@ -150,8 +149,8 @@ class LiftingSurface:
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
         """
         freestream_speed = np.linalg.norm(self.local_surface_velocity)
-        lifting_airspeed = np.dot(self.local_surface_velocity, self.lift_axis)
-        forward_airspeed = np.dot(self.local_surface_velocity, self.drag_axis)
+        lifting_airspeed = np.dot(self.local_surface_velocity, self.lift_unit)
+        forward_airspeed = np.dot(self.local_surface_velocity, self.drag_unit)
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
 
         deflection = self.deflection_limit * actuation
@@ -165,10 +164,19 @@ class LiftingSurface:
         force_normal = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
         force_parallel = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
 
-        force = self.lift_axis * force_normal + self.drag_axis * force_parallel
-        torque = Q_area * CM * self.chord * self.torque_axis
+        force = self.lift_unit * force_normal + self.drag_unit * force_parallel
+        torque = Q_area * CM * self.chord * self.torque_unit
 
-        return force, torque
+        self.p.applyExternalForce(
+            self.uav_id,
+            self.surface_id,
+            force,
+            [0.0, 0.0, 0.0],
+            self.p.LINK_FRAME,
+        )
+        self.p.applyExternalTorque(
+            self.uav_id, self.surface_id, torque, self.p.LINK_FRAME
+        )
 
     def _compute_aero_data(
         self, deflection: float, alpha: float

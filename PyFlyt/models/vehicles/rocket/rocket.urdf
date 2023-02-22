@@ -2,56 +2,72 @@
 
 <robot name="rocket">
 
+  <!-- https://en.wikipedia.org/wiki/Falcon_9_Full_Thrust#Rocket_specifications -->
+  <!-- This is as close as an approximation to the SpaceX Falcon 9 firststage + interstage, at a 1:10 scale -->
+  <!-- The original rocket has these metrics: -->
+    <!-- All up weight: 549_000 kg -->
+    <!-- Total RP1: 123_500 kg -->
+    <!-- Total LOX: 287_400 kg -->
+    <!-- Empty weight: 138_100 kg -->
+    <!-- Firststage height: 47.7 m -->
+    <!-- Interstage height: 6.5 m -->
+    <!-- Diameter: 3.7 m -->
+    <!-- Total thrust: 7_607_000 N -->
+    <!-- Throttle capability: 39% - 100% -->
+    <!-- Gimbal range: 5 degrees -->
+  <!-- Inertia for the baselink and fueltank is calculated assuming isometric density -->
+  <!-- In this simulation, all mass is scaled 1:1000 -->
+
   <link name="base_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      <mass value="138.0"/>
+      <inertia ixx="565" ixy="0" ixz="0" iyy="565" iyz="0" izz="2.36"/>
     </inertial>
     <collision>
       <origin rpy="1.57079 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="5.0"/>
+        <cylinder radius="0.185" length="4.77"/>
       </geometry>
     </collision>
   </link>
 
 
-  <link name="payload_link">
+  <link name="fueltank_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.3"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      <mass value="410.9"/>
+      <inertia ixx="1678" ixy="0" ixz="0" iyy="1678" iyz="0" izz="7.01"/>
     </inertial>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="1.57079 0 0" xyz="0 0 0"/>
       <geometry>
-        <sphere radius="0.2"/>
+        <cylinder radius="0.1" length="1"/>
       </geometry>
     </collision>
   </link>
-  <joint name="payload_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 2.5 0"/>
+  <joint name="fueltank_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
     <parent link="base_link"/>
-    <child link="payload_link"/>
+    <child link="fueltank_link"/>
   </joint>
 
 
   <link name="booster_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.3"/>
+      <mass value="0.0"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
     <collision>
       <origin rpy="1.57079 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder radius="0.25" length="0.4"/>
+        <cylinder radius="0.25" length="0.5"/>
       </geometry>
     </collision>
   </link>
   <joint name="booster_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 -2.5 0"/>
+    <origin rpy="0 0 0" xyz="0 -2 0"/>
     <parent link="base_link"/>
     <child link="booster_link"/>
   </joint>
@@ -71,7 +87,7 @@
     </collision>
   </link>
   <joint name="fin_pos_x_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.35 2.35 0"/>
+    <origin rpy="0 0 0" xyz="0.35 2.051 0"/>
     <parent link="base_link"/>
     <child link="fin_pos_x"/>
   </joint>
@@ -91,7 +107,7 @@
     </collision>
   </link>
   <joint name="fin_neg_x_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="-0.35 2.35 0"/>
+    <origin rpy="0 0 0" xyz="-0.35 2.051 0"/>
     <parent link="base_link"/>
     <child link="fin_neg_x"/>
   </joint>
@@ -111,7 +127,7 @@
       </collision>
     </link>
     <joint name="fin_pos_y_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0 2.35 0.35"/>
+      <origin rpy="0 0 0" xyz="0 2.051 0.35"/>
       <parent link="base_link"/>
       <child link="fin_pos_z"/>
     </joint>
@@ -131,7 +147,7 @@
       </collision>
     </link>
     <joint name="fin_neg_y_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0 2.35 -0.35"/>
+      <origin rpy="0 0 0" xyz="0 2.051 -0.35"/>
       <parent link="base_link"/>
       <child link="fin_neg_z"/>
     </joint>
@@ -151,7 +167,7 @@
       </collision>
     </link>
     <joint name="leg_1_joint" type="fixed">
-      <origin rpy="0 0 0" xyz="0.0 -2.7 0.35"/>
+      <origin rpy="0 0 0" xyz="0.0 -2.4 0.35"/>
       <parent link="base_link"/>
       <child link="leg_1"/>
     </joint>
@@ -171,7 +187,7 @@
       </collision>
     </link>
     <joint name="leg_2_joint" type="fixed">
-      <origin rpy="0 4.188 0" xyz="-0.3031 -2.7 -0.175"/>
+      <origin rpy="0 4.188 0" xyz="-0.3031 -2.4 -0.175"/>
       <parent link="base_link"/>
       <child link="leg_2"/>
     </joint>
@@ -191,7 +207,7 @@
       </collision>
     </link>
     <joint name="leg_3_joint" type="fixed">
-      <origin rpy="0 -4.188 0" xyz="0.3031 -2.7 -0.175"/>
+      <origin rpy="0 -4.188 0" xyz="0.3031 -2.4 -0.175"/>
       <parent link="base_link"/>
       <child link="leg_3"/>
     </joint>

@@ -66,70 +66,88 @@ class FixedWing(DroneClass):
             self.lifting_surfaces: list[LiftingSurface] = []
             self.lifting_surfaces.append(
                 LiftingSurface(
-                    id=3,
+                    p=self.p,
+                    physics_period=self.physics_period,
+                    np_random=self.np_random,
+                    uav_id=self.Id,
+                    surface_id=3,
                     command_id=1,
                     command_sign=+1.0,
-                    lifting_axis="+z",
-                    forward_axis="+y",
+                    lifting_vector=np.array([0.0, 0.0, 1.0]),
+                    forward_vector=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["left_wing_flapped_params"],
                 )
             )
             self.lifting_surfaces.append(
                 LiftingSurface(
-                    id=4,
+                    p=self.p,
+                    physics_period=self.physics_period,
+                    np_random=self.np_random,
+                    uav_id=self.Id,
+                    surface_id=4,
                     command_id=1,
                     command_sign=-1.0,
-                    lifting_axis="+z",
-                    forward_axis="+y",
+                    lifting_vector=np.array([0.0, 0.0, 1.0]),
+                    forward_vector=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["right_wing_flapped_params"],
                 )
             )
             self.lifting_surfaces.append(
                 LiftingSurface(
-                    id=1,
+                    p=self.p,
+                    physics_period=self.physics_period,
+                    np_random=self.np_random,
+                    uav_id=self.Id,
+                    surface_id=1,
                     command_id=0,
                     command_sign=-1.0,
-                    lifting_axis="+z",
-                    forward_axis="+y",
+                    lifting_vector=np.array([0.0, 0.0, 1.0]),
+                    forward_vector=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["horizontal_tail_params"],
                 )
             )
             self.lifting_surfaces.append(
                 LiftingSurface(
-                    id=5,
+                    p=self.p,
+                    physics_period=self.physics_period,
+                    np_random=self.np_random,
+                    uav_id=self.Id,
+                    surface_id=5,
                     command_id=None,
                     command_sign=+1.0,
-                    lifting_axis="+z",
-                    forward_axis="+y",
+                    lifting_vector=np.array([0.0, 0.0, 1.0]),
+                    forward_vector=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["main_wing_params"],
                 )
             )
             self.lifting_surfaces.append(
                 LiftingSurface(
-                    id=2,
+                    p=self.p,
+                    physics_period=self.physics_period,
+                    np_random=self.np_random,
+                    uav_id=self.Id,
+                    surface_id=2,
                     command_id=2,
                     command_sign=-1.0,
-                    lifting_axis="+x",
-                    forward_axis="+y",
+                    lifting_vector=np.array([1.0, 0.0, 0.0]),
+                    forward_vector=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["vertical_tail_params"],
                 )
             )
-            self.surface_ids: list[int] = [
-                surface.id for surface in self.lifting_surfaces
-            ]
 
             # motor
             motor_params = all_params["motor_params"]
-            tau = np.array([[motor_params["tau"]]])
-            max_rpm = np.array([[1.0]]) * np.sqrt(
+            tau = np.array([motor_params["tau"]])
+            max_rpm = np.array([1.0]) * np.sqrt(
                 (motor_params["thrust_to_weight"] * 9.81) / motor_params["thrust_coef"]
             )
             thrust_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["thrust_coef"]
             torque_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["torque_coef"]
-            noise_ratio = np.array([[motor_params["noise_ratio"]]])
+            noise_ratio = np.array([motor_params["noise_ratio"]])
             self.motors = Motors(
                 p=self.p,
                 physics_period=self.physics_period,
+                np_random=self.np_random,
                 uav_id=self.Id,
                 motor_ids=[0],
                 tau=tau,
@@ -137,7 +155,6 @@ class FixedWing(DroneClass):
                 thrust_coef=thrust_coef,
                 torque_coef=torque_coef,
                 noise_ratio=noise_ratio,
-                np_random=self.np_random,
             )
 
         """ CAMERA """
@@ -189,7 +206,7 @@ class FixedWing(DroneClass):
         # update all lifting surface velocities
         for surface in self.lifting_surfaces:
             surface_velocity = self.p.getLinkState(
-                self.Id, surface.id, computeLinkVelocity=True
+                self.Id, surface.surface_id, computeLinkVelocity=True
             )[-2]
             surface.update_local_surface_velocity(rotation, surface_velocity)
 
@@ -221,16 +238,7 @@ class FixedWing(DroneClass):
                 else float(self.cmd[surface.command_id] * surface.command_sign)
             )
 
-            force, torque = surface.compute_force_torque(actuation)
-
-            self.p.applyExternalForce(
-                self.Id,
-                surface.id,
-                force,
-                [0.0, 0.0, 0.0],
-                self.p.LINK_FRAME,
-            )
-            self.p.applyExternalTorque(self.Id, surface.id, torque, self.p.LINK_FRAME)
+            surface.pwm2forces(actuation)
 
     def update_physics(self):
         """update_physics."""

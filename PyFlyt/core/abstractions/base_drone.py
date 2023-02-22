@@ -53,6 +53,7 @@ class DroneClass(ABC):
 
         """ DEFINE SETPOINT """
         self.state: np.ndarray
+        self.aux_state: np.ndarray
         self.setpoint: np.ndarray
 
         """ CUSTOM CONTROLLERS """

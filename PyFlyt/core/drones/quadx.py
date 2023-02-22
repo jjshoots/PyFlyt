@@ -97,17 +97,16 @@ class QuadX(DroneClass):
                 )
                 * motor_params["torque_coef"]
             )
-            noise_ratio = (
-                np.array([[1.0], [1.0], [1.0], [1.0]]) * motor_params["noise_ratio"]
-            )
-            max_rpm = np.array([[1.0], [1.0], [1.0], [1.0]]) * np.sqrt(
+            noise_ratio = np.array([1.0] * 4) * motor_params["noise_ratio"]
+            max_rpm = np.array([1.0] * 4) * np.sqrt(
                 (motor_params["thrust_to_weight"] * 9.81)
                 / (4 * motor_params["thrust_coef"])
             )
-            tau = np.array([[1.0], [1.0], [1.0], [1.0]]) * motor_params["tau"]
+            tau = np.array([1.0] * 4) * motor_params["tau"]
             self.motors = Motors(
                 p=self.p,
                 physics_period=self.physics_period,
+                np_random=self.np_random,
                 uav_id=self.Id,
                 motor_ids=motor_ids,
                 tau=tau,
@@ -115,7 +114,6 @@ class QuadX(DroneClass):
                 thrust_coef=thrust_coef,
                 torque_coef=torque_coef,
                 noise_ratio=noise_ratio,
-                np_random=self.np_random,
             )
 
             # motor mapping from command to individual motors

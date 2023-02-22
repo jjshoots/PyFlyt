@@ -1,9 +1,21 @@
+# Total RP1: 123_500 kg
+# Total LOX: 287_400 kg
+# Total thrust: 7_607_000 N
+# Throttle capability: 39% - 100%
+# Gimbal range: 5 degrees
+
 booster_params:
-  thrust_to_weight: 6
-  thrust_coef: 3.16e-10
-  torque_coef: 7.94e-12
-  noise_ratio: 0.02
-  tau: 0.01
+  total_fuel: 410.9
+  max_fuel_rate: 1.451
+  inertia_ixx: 1678
+  inertia_iyy: 1678
+  inertia_izz: 7.01
+  min_thrust: 2966.7
+  max_thrust: 7607.0
+  reignitable: true
+  gimbal_range_degrees: 5
+  booster_tau: 0.01
+  gimbal_tau: 0.01
 
 finlet_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil

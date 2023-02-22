@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import math
-
 import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
 from ..abstractions.base_drone import DroneClass
+from ..abstractions.boosters import Boosters
 from ..abstractions.camera import Camera
 from ..abstractions.lifting_surface import LiftingSurface
 
@@ -65,16 +64,20 @@ class Rocket(DroneClass):
             booster_params = all_params["booster_params"]
 
             # add all finlets
-            self.lifting_surfaces = []
+            self.lifting_surfaces: list[LiftingSurface] = []
             for finlet_id in [2, 3]:
                 # pitching fins
                 self.lifting_surfaces.append(
                     LiftingSurface(
-                        id=finlet_id,
+                        p=self.p,
+                        physics_period=self.physics_period,
+                        np_random=self.np_random,
+                        uav_id=self.Id,
+                        surface_id=finlet_id,
                         command_id=0,
                         command_sign=+1.0,
-                        lifting_axis="+z",
-                        forward_axis="-y",
+                        lifting_vector=np.array([0.0, 0.0, 1.0]),
+                        forward_vector=np.array([0.0, -1.0, 0.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
@@ -82,14 +85,46 @@ class Rocket(DroneClass):
                 # rolling fins
                 self.lifting_surfaces.append(
                     LiftingSurface(
-                        id=finlet_id,
+                        p=self.p,
+                        physics_period=self.physics_period,
+                        np_random=self.np_random,
+                        uav_id=self.Id,
+                        surface_id=finlet_id,
                         command_id=1,
                         command_sign=+1.0,
-                        lifting_axis="+x",
-                        forward_axis="-y",
+                        lifting_vector=np.array([1.0, 0.0, 0.0]),
+                        forward_vector=np.array([0.0, -1.0, 0.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
+
+            # add the booster
+            self.boosters = Boosters(
+                p=self.p,
+                physics_period=self.physics_period,
+                np_random=self.np_random,
+                uav_id=self.Id,
+                booster_ids=np.array([1], dtype=int),
+                fueltank_ids=np.array([0], dtype=int),
+                total_fuel_mass=np.array([booster_params["total_fuel"]]),
+                max_fuel_rate=np.array([booster_params["max_fuel_rate"]]),
+                max_inertia=np.array(
+                    [
+                        [
+                            booster_params["inertia_ixx"],
+                            booster_params["inertia_iyy"],
+                            booster_params["inertia_izz"],
+                        ]
+                    ]
+                ),
+                min_thrust=np.array([booster_params["min_thrust"]]),
+                max_thrust=np.array([booster_params["max_thrust"]]),
+                thrust_unit=np.array([[0.0, 1.0, 0.0]]),
+                reignitable=np.array([booster_params["reignitable"]], dtype=bool),
+                booster_tau=np.array([booster_params["booster_tau"]]),
+                gimbal_tau=np.array([booster_params["gimbal_tau"]]),
+                gimbal_range_degrees=np.array([booster_params["gimbal_range_degrees"]]),
+            )
 
         """ CAMERA """
         self.use_camera = use_camera
@@ -119,6 +154,7 @@ class Rocket(DroneClass):
         self.pwm = np.zeros((4))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
+        self.boosters.reset()
         self.update_state()
 
         if self.use_camera:
@@ -143,7 +179,7 @@ class Rocket(DroneClass):
         # update all lifting surface velocities
         for surface in self.lifting_surfaces:
             surface_velocity = self.p.getLinkState(
-                self.Id, surface.id, computeLinkVelocity=True
+                self.Id, surface.surface_id, computeLinkVelocity=True
             )[-2]
             surface.update_local_surface_velocity(rotation, surface_velocity)
 
@@ -165,6 +201,7 @@ class Rocket(DroneClass):
 
     def update_forces(self):
         """Calculates and applies forces acting on Rocket"""
+        # update all finlets
         for surface in self.lifting_surfaces:
             actuation = (
                 0.0
@@ -172,16 +209,15 @@ class Rocket(DroneClass):
                 else float(self.cmd[surface.command_id] * surface.command_sign)
             )
 
-            force, torque = surface.compute_force_torque(actuation)
+            surface.pwm2forces(actuation)
 
-            self.p.applyExternalForce(
-                self.Id,
-                surface.id,
-                force,
-                [0.0, 0.0, 0.0],
-                self.p.LINK_FRAME,
-            )
-            self.p.applyExternalTorque(self.Id, surface.id, torque, self.p.LINK_FRAME)
+        # update booster
+        self.boosters.settings2forces(
+            ignition=self.cmd[[2]],
+            pwm=self.cmd[[3]],
+            gimbal_x=self.cmd[[4]],
+            gimbal_y=self.cmd[[5]],
+        )
 
     def update_physics(self):
         """update_physics."""

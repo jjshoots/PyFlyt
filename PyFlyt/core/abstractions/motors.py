@@ -11,14 +11,14 @@ class Motors:
         self,
         p: bullet_client.BulletClient,
         physics_period: float,
-        uav_id: int,
-        motor_ids: list[int],
+        np_random: np.random.RandomState,
+        uav_id: np.ndarray | int,
+        motor_ids: np.ndarray | list[int],
         tau: np.ndarray,
         max_rpm: np.ndarray,
         thrust_coef: np.ndarray,
         torque_coef: np.ndarray,
         noise_ratio: np.ndarray,
-        np_random: np.random.RandomState,
     ):
         """Used for simulating an array of motors.
 
@@ -44,18 +44,18 @@ class Motors:
 
         # get number of motors and assert shapes
         self.num_motors = len(motor_ids)
-        assert tau.shape == (self.num_motors, 1)
-        assert max_rpm.shape == (self.num_motors, 1)
+        assert tau.shape == (self.num_motors,)
+        assert max_rpm.shape == (self.num_motors,)
         assert thrust_coef.shape == (self.num_motors, 3)
         assert torque_coef.shape == (self.num_motors, 3)
-        assert noise_ratio.shape == (self.num_motors, 1)
+        assert noise_ratio.shape == (self.num_motors,)
 
         # motor constants
-        self.tau = tau
-        self.max_rpm = max_rpm
+        self.tau = np.expand_dims(tau, axis=-1)
+        self.max_rpm = np.expand_dims(max_rpm, axis=-1)
         self.thrust_coef = thrust_coef
         self.torque_coef = torque_coef
-        self.noise_ratio = noise_ratio
+        self.noise_ratio = np.expand_dims(noise_ratio, axis=-1)
 
     def reset(self):
         """reset_motors."""
