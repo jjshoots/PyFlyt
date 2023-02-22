@@ -66,30 +66,30 @@ class Rocket(DroneClass):
 
             # add all finlets
             self.lifting_surfaces = []
-            for finlet_id in [1, 2]:
+            for finlet_id in [2, 3]:
                 # pitching fins
                 self.lifting_surfaces.append(
                     LiftingSurface(
                         id=finlet_id,
                         command_id=0,
                         command_sign=+1.0,
-                        lifting_axis="+y",
-                        forward_axis="-z",
+                        lifting_axis="+z",
+                        forward_axis="-y",
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
-            # for finlet_id in [3, 4]:
-            #     # rolling fins
-            #     self.lifting_surfaces.append(
-            #         LiftingSurface(
-            #             id=finlet_id,
-            #             command_id=1,
-            #             command_sign=+1.0,
-            #             lifting_axis="+y",
-            #             forward_axis="-z",
-            #             aerofoil_params=all_params["finlet_params"],
-            #         )
-            #     )
+            for finlet_id in [4, 5]:
+                # rolling fins
+                self.lifting_surfaces.append(
+                    LiftingSurface(
+                        id=finlet_id,
+                        command_id=1,
+                        command_sign=+1.0,
+                        lifting_axis="+x",
+                        forward_axis="-y",
+                        aerofoil_params=all_params["finlet_params"],
+                    )
+                )
 
         """ CAMERA """
         self.use_camera = use_camera
@@ -165,7 +165,7 @@ class Rocket(DroneClass):
 
     def update_forces(self):
         """Calculates and applies forces acting on Rocket"""
-        for surface in self.lifting_surfaces[0:1]:
+        for surface in self.lifting_surfaces:
             actuation = (
                 0.0
                 if surface.command_id is None

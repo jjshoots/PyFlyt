@@ -6,8 +6,8 @@ booster_params:
   tau: 0.01
 
 finlet_params:
-  Cl_alpha_2D: 0.0 # Average value for a 2D aerofoil
-  chord: 0.2 # meters
+  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
+  chord: 0.3 # meters
   span: 0.3
   flap_to_chord: 1.0
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
