@@ -6,13 +6,14 @@
 
 booster_params:
   total_fuel: 410.9
-  max_fuel_rate: 1.451
+  # max_fuel_rate: 1.451
+  max_fuel_rate: 145.1
   inertia_ixx: 1678
   inertia_iyy: 1678
   inertia_izz: 7.01
   min_thrust: 2966.7
   max_thrust: 7607.0
-  reignitable: true
+  reignitable: false
   gimbal_range_degrees: 5
   booster_tau: 0.01
   gimbal_tau: 0.01

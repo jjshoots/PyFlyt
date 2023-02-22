@@ -168,10 +168,11 @@ class Boosters:
         # if no fuel, hard cutoff
         self.throttle_setting *= self.ratio_fuel_remaining > 0.0
 
-        # compute fuel remaining
+        # compute fuel remaining, clip if less than 0
         self.ratio_fuel_remaining -= (
             self.throttle_setting * self.ratio_fuel_rate * self.physics_period
         )
+        self.ratio_fuel_remaining = np.clip(self.ratio_fuel_remaining, 0.0, 1.0)
 
         # compute mass properties based on remaining fuel
         mass = self.ratio_fuel_remaining * self.total_fuel_mass

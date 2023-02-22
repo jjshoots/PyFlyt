@@ -183,6 +183,9 @@ class Rocket(DroneClass):
             )[-2]
             surface.update_local_surface_velocity(rotation, surface_velocity)
 
+        # update fuel state
+        self.aux_state = self.boosters.ratio_fuel_remaining
+
     def update_control(self):
         """runs through controllers"""
         # the default mode
