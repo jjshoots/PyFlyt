@@ -183,12 +183,6 @@ class QuadX(DroneClass):
                 camera_resolution=camera_resolution,
             )
 
-        """ CUSTOM CONTROLLERS """
-        # dictionary mapping of controller_id to controller objects
-        self.registered_controllers = dict()
-        self.instanced_controllers = dict()
-        self.registered_base_modes = dict()
-
         self.reset()
 
     def reset(self):

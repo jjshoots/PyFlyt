@@ -24,7 +24,7 @@ class Rocket(DroneClass):
         model_dir: None | str = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
-        camera_angle_degrees: int = 20,
+        camera_angle_degrees: int = 45,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
         np_random: None | np.random.RandomState = None,
@@ -137,13 +137,9 @@ class Rocket(DroneClass):
                 camera_FOV_degrees=camera_FOV_degrees,
                 camera_angle_degrees=camera_angle_degrees,
                 camera_resolution=camera_resolution,
+                camera_position_offset=np.array([0.0, 10.0, -5.0]),
+                is_tracking_camera=True,
             )
-
-        """ CUSTOM CONTROLLERS """
-        # dictionary mapping of controller_id to controller objects
-        self.registered_controllers = dict()
-        self.instanced_controllers = dict()
-        self.registered_base_modes = dict()
 
         self.reset()
 
