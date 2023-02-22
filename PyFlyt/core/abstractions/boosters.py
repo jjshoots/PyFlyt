@@ -214,7 +214,5 @@ class Boosters:
 
         # get the final thrust vector
         return (
-            self.rotation1
-            @ self.rotation2
-            @ np.expand_dims(self.thrust_unit, axis=-1)
+            self.rotation1 @ self.rotation2 @ np.expand_dims(self.thrust_unit, axis=-1)
         )
