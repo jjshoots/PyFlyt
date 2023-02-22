@@ -6,8 +6,7 @@
 
 booster_params:
   total_fuel: 410.9
-  # max_fuel_rate: 1.451
-  max_fuel_rate: 145.1
+  max_fuel_rate: 1.451
   inertia_ixx: 1678
   inertia_iyy: 1678
   inertia_izz: 7.01

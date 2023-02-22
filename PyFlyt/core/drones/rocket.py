@@ -184,7 +184,9 @@ class Rocket(DroneClass):
             surface.update_local_surface_velocity(rotation, surface_velocity)
 
         # update fuel state
-        self.aux_state = self.boosters.ratio_fuel_remaining
+        self.aux_state = np.array(
+            [self.boosters.ignition_state, self.boosters.ratio_fuel_remaining]
+        )
 
     def update_control(self):
         """runs through controllers"""
