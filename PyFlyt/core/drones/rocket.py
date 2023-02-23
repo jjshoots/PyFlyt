@@ -65,38 +65,38 @@ class Rocket(DroneClass):
 
             # add all finlets
             self.lifting_surfaces: list[LiftingSurface] = []
-            # for finlet_id in [2, 3]:
-            #     # pitching fins
-            #     self.lifting_surfaces.append(
-            #         LiftingSurface(
-            #             p=self.p,
-            #             physics_period=self.physics_period,
-            #             np_random=self.np_random,
-            #             uav_id=self.Id,
-            #             surface_id=finlet_id,
-            #             command_id=0,
-            #             command_sign=+1.0,
-            #             lifting_vector=np.array([0.0, 0.0, 1.0]),
-            #             forward_vector=np.array([0.0, -1.0, 0.0]),
-            #             aerofoil_params=all_params["finlet_params"],
-            #         )
-            #     )
-            # for finlet_id in [4, 5]:
-            #     # rolling fins
-            #     self.lifting_surfaces.append(
-            #         LiftingSurface(
-            #             p=self.p,
-            #             physics_period=self.physics_period,
-            #             np_random=self.np_random,
-            #             uav_id=self.Id,
-            #             surface_id=finlet_id,
-            #             command_id=1,
-            #             command_sign=+1.0,
-            #             lifting_vector=np.array([1.0, 0.0, 0.0]),
-            #             forward_vector=np.array([0.0, -1.0, 0.0]),
-            #             aerofoil_params=all_params["finlet_params"],
-            #         )
-            #     )
+            for finlet_id in [2, 3]:
+                # pitching fins
+                self.lifting_surfaces.append(
+                    LiftingSurface(
+                        p=self.p,
+                        physics_period=self.physics_period,
+                        np_random=self.np_random,
+                        uav_id=self.Id,
+                        surface_id=finlet_id,
+                        command_id=0,
+                        command_sign=+1.0,
+                        lifting_vector=np.array([0.0, 0.0, 1.0]),
+                        forward_vector=np.array([0.0, -1.0, 0.0]),
+                        aerofoil_params=all_params["finlet_params"],
+                    )
+                )
+            for finlet_id in [4, 5]:
+                # rolling fins
+                self.lifting_surfaces.append(
+                    LiftingSurface(
+                        p=self.p,
+                        physics_period=self.physics_period,
+                        np_random=self.np_random,
+                        uav_id=self.Id,
+                        surface_id=finlet_id,
+                        command_id=1,
+                        command_sign=+1.0,
+                        lifting_vector=np.array([1.0, 0.0, 0.0]),
+                        forward_vector=np.array([0.0, -1.0, 0.0]),
+                        aerofoil_params=all_params["finlet_params"],
+                    )
+                )
 
             # add the booster
             self.boosters = Boosters(
@@ -146,8 +146,8 @@ class Rocket(DroneClass):
     def reset(self):
         """reset."""
         self.set_mode(0)
-        self.setpoint = np.zeros((4))
-        self.pwm = np.zeros((4))
+        self.setpoint = np.zeros((6))
+        self.pwm = np.zeros((6))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
