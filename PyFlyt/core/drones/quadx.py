@@ -192,6 +192,7 @@ class QuadX(DroneClass):
         self.pwm = np.zeros((4))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
+        self.disable_artificial_damping()
         self.motors.reset()
         self.update_state()
 
@@ -469,7 +470,7 @@ class QuadX(DroneClass):
         """update_physics."""
         self.update_state()
         self.motors.pwm2forces(self.pwm)
-        self.update_drag()
+        # self.update_drag()
 
     def update_avionics(self):
         """

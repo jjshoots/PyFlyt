@@ -181,11 +181,13 @@ class FixedWing(DroneClass):
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
+        self.disable_artificial_damping()
         self.motors.reset()
         self.update_state()
 
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
+
 
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""

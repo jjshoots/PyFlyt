@@ -131,3 +131,8 @@ class DroneClass(ABC):
         infos[-1] = "base"
 
         pprint(infos)
+
+    def disable_artificial_damping(self):
+        """Disable the artificial damping that pybullet has"""
+        for idx in range(-1, self.p.getNumJoints(self.Id)):
+            self.p.changeDynamics(self.Id, idx, linearDamping=0.0, angularDamping=0.0)
