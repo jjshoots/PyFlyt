@@ -4,9 +4,13 @@
 # Throttle capability: 39% - 100%
 # Gimbal range: 5 degrees
 
+# we simulate a model that only has 10% the flight time
+# this is done by increasing the fuel rate x10
+# the real max_fuel_rate is 1.451
+
 booster_params:
   total_fuel: 410.9
-  max_fuel_rate: 1.451
+  max_fuel_rate: 14.51
   inertia_ixx: 1678
   inertia_iyy: 1678
   inertia_izz: 7.01
