@@ -59,7 +59,15 @@ class Motors:
 
     def reset(self):
         """reset the motors."""
-        self.rpm = np.zeros((self.num_motors, 1))
+        self.throttle = np.zeros((self.num_motors, 1))
+
+    def get_states(self) -> np.ndarray:
+        """Gets the current state of the components.
+
+        Returns:
+            np.ndarray:
+        """
+        return self.throttle.flatten()
 
     def pwm2forces(self, pwm):
         """pwm2forces.
@@ -70,14 +78,21 @@ class Motors:
         pwm = np.expand_dims(pwm, 1)
 
         # model the motor using first order ODE, y' = T/tau * (setpoint - y)
-        self.rpm += (self.physics_period / self.tau) * (self.max_rpm * pwm - self.rpm)
+        self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
 
-        # noise in the motor rpms
-        self.rpm += self.np_random.randn(*self.rpm.shape) * self.rpm * self.noise_ratio
+        # noise in the motor
+        self.throttle += (
+            self.np_random.randn(*self.throttle.shape)
+            * self.throttle
+            * self.noise_ratio
+        )
+
+        # throttle to rpm
+        rpm = self.throttle * self.max_rpm
 
         # rpm to thrust and torque
-        thrust = (self.rpm**2) * self.thrust_coef
-        torque = (self.rpm**2) * self.torque_coef
+        thrust = (rpm**2) * self.thrust_coef
+        torque = (rpm**2) * self.torque_coef
 
         # apply the forces
         for idx, thr, tor in zip(self.motor_ids, thrust, torque):

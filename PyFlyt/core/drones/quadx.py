@@ -371,7 +371,11 @@ class QuadX(DroneClass):
         # ang_pos in euler form
         ang_pos = self.p.getEulerFromQuaternion(ang_pos)
 
+        # create the state
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
+
+        # update auxiliary information
+        self.aux_state = self.motors.get_states()
 
     def update_control(self):
         """runs through controllers"""

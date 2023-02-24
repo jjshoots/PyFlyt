@@ -138,13 +138,28 @@ class Boosters:
         """reset the boosters."""
         # deal with everything in percents
         self.ratio_fuel_remaining = np.ones((self.num_boosters,), dtype=np.float64)
-        self.throttle_setting = np.zeros((self.num_boosters,), dtype=np.float64)
+        self.throttle = np.zeros((self.num_boosters,), dtype=np.float64)
         self.ignition_state = np.zeros((self.num_boosters,), dtype=bool)
         self.gimbal_state = np.zeros((self.num_boosters, 2), dtype=np.float64)
 
         # store the rotation matrix to make compute faster
         self.rotation1 = np.array([np.eye(3)] * self.num_boosters, dtype=np.float64)
         self.rotation2 = np.array([np.eye(3)] * self.num_boosters, dtype=np.float64)
+
+    def get_states(self) -> np.ndarray:
+        """Gets the current state of the components.
+
+        Returns:
+            np.ndarray:
+        """
+        return np.concatenate(
+            [
+                self.ignition_state.flatten(),  # [n]
+                self.ratio_fuel_remaining.flatten(),  # [n]
+                self.throttle.flatten(),  # [n]
+                self.gimbal_state.flatten(),  # [n, 2]
+            ]
+        )
 
     def settings2forces(
         self,
@@ -202,16 +217,16 @@ class Boosters:
         )
 
         # model the booster using first order ODE, y' = T/tau * (setpoint - y)
-        self.throttle_setting += (self.physics_period / self.booster_tau) * (
-            target_throttle - self.throttle_setting
+        self.throttle += (self.physics_period / self.booster_tau) * (
+            target_throttle - self.throttle
         )
 
         # if no fuel, hard cutoff
-        self.throttle_setting *= self.ratio_fuel_remaining > 0.0
+        self.throttle *= self.ratio_fuel_remaining > 0.0
 
         # compute fuel remaining, clip if less than 0
         self.ratio_fuel_remaining -= (
-            self.throttle_setting * self.ratio_fuel_rate * self.physics_period
+            self.throttle * self.ratio_fuel_rate * self.physics_period
         )
         self.ratio_fuel_remaining = np.clip(self.ratio_fuel_remaining, 0.0, 1.0)
 
@@ -220,7 +235,7 @@ class Boosters:
         inertia = self.ratio_fuel_remaining * self.max_inertia
 
         # compute thrust
-        thrust = self.throttle_setting * self.max_thrust
+        thrust = self.throttle * self.max_thrust
 
         return thrust, mass, inertia
 

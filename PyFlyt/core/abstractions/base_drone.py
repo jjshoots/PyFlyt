@@ -1,6 +1,5 @@
 import os
 from abc import ABC, abstractmethod
-from pprint import pprint
 
 import numpy as np
 from pybullet_utils import bullet_client
@@ -129,6 +128,8 @@ class DroneClass(ABC):
 
         # add the base
         infos[-1] = "base"
+
+        from pprint import pprint
 
         pprint(infos)
 

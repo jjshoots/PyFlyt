@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from .quadx_fixedwing_base_env import QuadXFixedwingBaseEnv
+from .quadx_base_env import QuadXBaseEnv
 
 
-class QuadXHoverEnv(QuadXFixedwingBaseEnv):
+class QuadXHoverEnv(QuadXBaseEnv):
     """
     Simple Hover Environment
 
@@ -46,7 +46,7 @@ class QuadXHoverEnv(QuadXFixedwingBaseEnv):
         )
 
         """GYMNASIUM STUFF"""
-        self.observation_space = self.attitude_space
+        self.observation_space = self.combined_space
 
     def reset(self, seed=None, options=None):
         """reset.
@@ -68,17 +68,20 @@ class QuadXHoverEnv(QuadXFixedwingBaseEnv):
         - ang_pos (vector of 3/4 values)
         - lin_vel (vector of 3 values)
         - lin_pos (vector of 3 values)
+        - previous_action (vector of 4 values)
+        - auxiliary information (vector of 4 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        aux_state = super().compute_auxiliary()
 
         # combine everything
         if self.angle_representation == 0:
             self.state = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action]
+                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
         elif self.angle_representation == 1:
             self.state = np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action]
+                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
 
     def compute_term_trunc_reward(self):

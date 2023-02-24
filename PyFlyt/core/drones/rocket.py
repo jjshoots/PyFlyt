@@ -11,7 +11,7 @@ from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 
 
 class Rocket(DroneClass):
-    """Rocket instance that handles everything about a thrust vectored rocket with mildly throttleable boosters."""
+    """Rocket instance that handles everything about a thrust vectored rocket with throttleable boosters and controllable finlets."""
 
     def __init__(
         self,
@@ -30,6 +30,9 @@ class Rocket(DroneClass):
         np_random: None | np.random.RandomState = None,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
+
+        The setpoint for this model has 7 values:
+            - force_x, force_z, roll, ignition, throttle, booster gimbal 1, booster gimbal 2
 
         Args:
             p (bullet_client.BulletClient): p
@@ -65,8 +68,8 @@ class Rocket(DroneClass):
 
             # add all finlets
             surfaces = list()
-            for finlet_id in [2, 3]:
-                # pitching fins
+            for finlet_id, command_id in zip([2, 3], [0, 1]):
+                # x axis fins
                 surfaces.append(
                     LiftingSurface(
                         p=self.p,
@@ -74,15 +77,15 @@ class Rocket(DroneClass):
                         np_random=self.np_random,
                         uav_id=self.Id,
                         surface_id=finlet_id,
-                        command_id=0,
+                        command_id=command_id,
                         command_sign=+1.0,
                         lifting_vector=np.array([0.0, 0.0, 1.0]),
                         forward_vector=np.array([0.0, -1.0, 0.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
-            for finlet_id in [4, 5]:
-                # rolling fins
+            for finlet_id, command_id in zip([4, 5], [2, 3]):
+                # z axis fins
                 surfaces.append(
                     LiftingSurface(
                         p=self.p,
@@ -90,7 +93,7 @@ class Rocket(DroneClass):
                         np_random=self.np_random,
                         uav_id=self.Id,
                         surface_id=finlet_id,
-                        command_id=1,
+                        command_id=command_id,
                         command_sign=+1.0,
                         lifting_vector=np.array([1.0, 0.0, 0.0]),
                         forward_vector=np.array([0.0, -1.0, 0.0]),
@@ -98,6 +101,17 @@ class Rocket(DroneClass):
                     )
                 )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
+
+            # mixing matrix to map finlet force command to finlet movement
+            # force_x, force_z, roll
+            self.finlet_map = np.array(
+                [
+                    [+0.0, +1.0, -1.0],  # pos_x fin
+                    [+0.0, +1.0, +1.0],  # neg_x fin
+                    [+1.0, +0.0, +1.0],  # pos_z fin
+                    [+1.0, +0.0, -1.0],  # neg_z fin
+                ]
+            )
 
             # add the booster
             self.boosters = Boosters(
@@ -149,8 +163,8 @@ class Rocket(DroneClass):
     def reset(self):
         """reset."""
         self.set_mode(0)
-        self.setpoint = np.zeros((6))
-        self.pwm = np.zeros((6))
+        self.setpoint = np.zeros((7))
+        self.cmd = np.zeros((8))
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
@@ -180,16 +194,20 @@ class Rocket(DroneClass):
         # update all lifting surface velocities
         self.lifting_surfaces.update_local_surface_velocities(rotation)
 
-        # update fuel state
-        self.aux_state = np.array(
-            [self.boosters.ignition_state, self.boosters.ratio_fuel_remaining]
+        # update auxiliary information
+        self.aux_state = np.concatenate(
+            (self.lifting_surfaces.get_states(), self.boosters.get_states())
         )
 
     def update_control(self):
         """runs through controllers"""
         # the default mode
         if self.mode == 0:
-            self.cmd = self.setpoint
+            # finlet mapping
+            finlet_cmd = self.finlet_map @ np.expand_dims(self.setpoint[:3], axis=-1)
+
+            # prepend the finlet mapping to the command itself
+            self.cmd = np.concatenate((finlet_cmd.flatten(), self.setpoint[3:]))
             return
 
         # otherwise, check that we have a custom controller
@@ -208,10 +226,10 @@ class Rocket(DroneClass):
 
         # update booster
         self.boosters.settings2forces(
-            ignition=self.cmd[[2]],
-            pwm=self.cmd[[3]],
-            gimbal_x=self.cmd[[4]],
-            gimbal_y=self.cmd[[5]],
+            ignition=self.cmd[[4]],
+            pwm=self.cmd[[5]],
+            gimbal_x=self.cmd[[6]],
+            gimbal_y=self.cmd[[7]],
         )
 
     def update_physics(self):

@@ -162,6 +162,31 @@ class Aviary(bullet_client.BulletClient):
 
         return states
 
+    @property
+    def aux_states(self) -> np.ndarray:
+        """
+        returns a list of states for each drone in the aviary
+        """
+        aux_states = []
+        for drone in self.drones:
+            aux_states.append(drone.aux_state)
+
+        aux_states = np.stack(aux_states, axis=0)
+
+        return aux_states
+
+    def print_all_bodies(self):
+        """
+        for debugging: prints a dictionary of IDs to body names
+        """
+        bodies = dict()
+        for i in range(self.getNumBodies()):
+            bodies[i] = self.getBodyInfo(i)
+
+        from pprint import pprint
+
+        pprint(bodies)
+
     def set_armed(self, settings: int | bool | list[int | bool]):
         """
         sets the arming status for all the drones

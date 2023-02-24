@@ -73,7 +73,7 @@
   </joint>
 
 
-  <link name="fin_pos_x">
+  <link name="fin_pos_y">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <mass value="0.05"/>
@@ -86,14 +86,14 @@
       </geometry>
     </collision>
   </link>
-  <joint name="fin_pos_x_joint" type="fixed">
+  <joint name="fin_pos_y_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.35 2.051 0"/>
     <parent link="base_link"/>
-    <child link="fin_pos_x"/>
+    <child link="fin_pos_y"/>
   </joint>
 
 
-  <link name="fin_neg_x">
+  <link name="fin_neg_y">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <mass value="0.05"/>
@@ -106,10 +106,10 @@
       </geometry>
     </collision>
   </link>
-  <joint name="fin_neg_x_joint" type="fixed">
+  <joint name="fin_neg_y_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.35 2.051 0"/>
     <parent link="base_link"/>
-    <child link="fin_neg_x"/>
+    <child link="fin_neg_y"/>
   </joint>
 
 
@@ -126,7 +126,7 @@
         </geometry>
       </collision>
     </link>
-    <joint name="fin_pos_y_joint" type="fixed">
+    <joint name="fin_pos_z_joint" type="fixed">
       <origin rpy="0 0 0" xyz="0 2.051 0.35"/>
       <parent link="base_link"/>
       <child link="fin_pos_z"/>
@@ -146,7 +146,7 @@
         </geometry>
       </collision>
     </link>
-    <joint name="fin_neg_y_joint" type="fixed">
+    <joint name="fin_neg_z_joint" type="fixed">
       <origin rpy="0 0 0" xyz="0 2.051 -0.35"/>
       <parent link="base_link"/>
       <child link="fin_neg_z"/>

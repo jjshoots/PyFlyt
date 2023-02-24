@@ -209,6 +209,11 @@ class FixedWing(DroneClass):
         # update all lifting surface velocities
         self.lifting_surfaces.update_local_surface_velocities(rotation)
 
+        # update auxiliary information
+        self.aux_state = np.concatenate(
+            (self.lifting_surfaces.get_states(), self.motors.get_states())
+        )
+
     def update_control(self):
         """runs through controllers"""
         # the default mode
@@ -227,7 +232,6 @@ class FixedWing(DroneClass):
 
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
-        # Motor thrust
         self.lifting_surfaces.cmd2forces(self.cmd)
         self.motors.pwm2forces(self.cmd[[3]])
 

@@ -6,8 +6,9 @@ import numpy as np
 from pybullet_utils import bullet_client
 
 
-class LiftingSurfaces():
+class LiftingSurfaces:
     """Handler for multiple lifting surfaces."""
+
     def __init__(self, lifting_surfaces: list[LiftingSurface]):
         """__init__.
 
@@ -15,7 +16,9 @@ class LiftingSurfaces():
             lifting_surfaces (list[LiftingSurface]): lifting_surfaces
         """
         # assert all is lifting surfaces
-        assert all([isinstance(surface, LiftingSurface) for surface in lifting_surfaces])
+        assert all(
+            [isinstance(surface, LiftingSurface) for surface in lifting_surfaces]
+        )
 
         # store some stuff
         self.p = lifting_surfaces[0].p
@@ -23,9 +26,16 @@ class LiftingSurfaces():
         self.surfaces: list[LiftingSurface] = lifting_surfaces
 
     def reset(self):
-        """reset.
-        """
+        """reset."""
         [surface.reset() for surface in self.surfaces]
+
+    def get_states(self) -> np.ndarray:
+        """Gets the current state of the components.
+
+        Returns:
+            np.ndarray:
+        """
+        return np.array([surface.actuation for surface in self.surfaces])
 
     def cmd2forces(self, cmd: np.ndarray):
         """cmd2forces.
@@ -183,7 +193,7 @@ class LiftingSurface:
 
     def reset(self):
         """reset the lifting surfaces."""
-        self.deflection = 0.0
+        self.actuation = 0.0
 
     def update_local_surface_velocity(
         self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray
@@ -196,11 +206,11 @@ class LiftingSurface:
         """
         self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
 
-    def cmd2forces(self, actuation: float):
+    def cmd2forces(self, cmd: float):
         """compute_force_torque.
 
         Args:
-            actuation (float): normalized actuation in [-1, 1]
+            cmd (float): normalized actuation in [-1, 1]
 
         Returns:
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
@@ -211,9 +221,7 @@ class LiftingSurface:
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
 
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
-        self.deflection += (self.physics_period / self.tau) * (
-            self.deflection_limit * actuation - self.deflection
-        )
+        self.actuation += (self.physics_period / self.tau) * (cmd - self.actuation)
 
         # compute aerofoil parameters
         [Cl, Cd, CM] = self._compute_aero_data(alpha)
@@ -251,7 +259,7 @@ class LiftingSurface:
             tuple[float, float, float]: Cl, Cd, CM
         """
         # deflection must be in degrees because engineering uses degrees
-        deflection_radians = np.deg2rad(self.deflection)
+        deflection_radians = np.deg2rad(self.actuation * self.deflection_limit)
 
         delta_Cl = self.Cl_alpha_3D * self.tau * self.eta * deflection_radians
         delta_Cl_max = self.flap_to_chord * delta_Cl

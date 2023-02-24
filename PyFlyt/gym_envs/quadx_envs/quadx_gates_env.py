@@ -8,10 +8,10 @@ import numpy as np
 import pybullet as p
 from gymnasium import spaces
 
-from .quadx_fixedwing_base_env import QuadXFixedwingBaseEnv
+from .quadx_base_env import QuadXBaseEnv
 
 
-class QuadXGatesEnv(QuadXFixedwingBaseEnv):
+class QuadXGatesEnv(QuadXBaseEnv):
     """
     Advanced Gates Env
 
@@ -63,7 +63,7 @@ class QuadXGatesEnv(QuadXFixedwingBaseEnv):
         """GYMNASIUM STUFF"""
         self.observation_space = spaces.Dict(
             {
-                "attitude": self.attitude_space,
+                "attitude": self.combined_space,
                 "rgba_cam": spaces.Box(
                     low=0.0, high=255.0, shape=(4, *camera_resolution), dtype=np.uint8
                 ),
@@ -217,10 +217,13 @@ class QuadXGatesEnv(QuadXFixedwingBaseEnv):
             - ang_pos (vector of 3/4 values)
             - lin_vel (vector of 3 values)
             - lin_pos (vector of 3 values)
+            - previous_action (vector of 4 values)
+            - auxiliary information (vector of 4 values)
         - "target_deltas" (Graph)
             - list of body_frame distances to target (vector of 3/4 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        aux_state = super().compute_auxiliary()
 
         # rotation matrix
         rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
@@ -233,11 +236,11 @@ class QuadXGatesEnv(QuadXFixedwingBaseEnv):
         new_state = dict()
         if self.angle_representation == 0:
             new_state["attitude"] = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action]
+                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
         elif self.angle_representation == 1:
             new_state["attitude"] = np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action]
+                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
 
         # grab the image

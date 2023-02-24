@@ -16,7 +16,7 @@ main_wing_params:
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 0
-  tau: 0.01
+  tau: 0.05
 
 left_wing_flapped_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -29,7 +29,7 @@ left_wing_flapped_params:
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 30 # Control surface deflection limit in degrees
-  tau: 0.01
+  tau: 0.05
 
 right_wing_flapped_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -42,7 +42,7 @@ right_wing_flapped_params:
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 30 # Control surface deflection limit in degrees
-  tau: 0.01
+  tau: 0.05
 
 horizontal_tail_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -55,7 +55,7 @@ horizontal_tail_params:
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 20 # Control surface deflection limit in degrees
-  tau: 0.01
+  tau: 0.05
 
 vertical_tail_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -68,4 +68,4 @@ vertical_tail_params:
   alpha_stall_N_base: -9 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 20 # Control surface deflection limit in degrees
-  tau: 0.01
+  tau: 0.05
