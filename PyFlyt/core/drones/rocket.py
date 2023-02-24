@@ -120,6 +120,8 @@ class Rocket(DroneClass):
                 min_thrust=np.array([booster_params["min_thrust"]]),
                 max_thrust=np.array([booster_params["max_thrust"]]),
                 thrust_unit=np.array([[0.0, 1.0, 0.0]]),
+                gimbal_unit_1=np.array([[1.0, 0.0, 0.0]]),
+                gimbal_unit_2=np.array([[0.0, 0.0, 1.0]]),
                 reignitable=np.array([booster_params["reignitable"]], dtype=bool),
                 booster_tau=np.array([booster_params["booster_tau"]]),
                 gimbal_tau=np.array([booster_params["gimbal_tau"]]),
