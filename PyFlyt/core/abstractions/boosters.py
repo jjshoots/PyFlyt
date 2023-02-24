@@ -135,7 +135,7 @@ class Boosters:
         self.ratio_fuel_rate = self.max_fuel_rate / self.total_fuel_mass
 
     def reset(self):
-        """reset_motors."""
+        """reset the boosters."""
         # deal with everything in percents
         self.ratio_fuel_remaining = np.ones((self.num_boosters,), dtype=np.float64)
         self.throttle_setting = np.zeros((self.num_boosters,), dtype=np.float64)

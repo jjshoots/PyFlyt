@@ -58,7 +58,7 @@ class Motors:
         self.noise_ratio = np.expand_dims(noise_ratio, axis=-1)
 
     def reset(self):
-        """reset_motors."""
+        """reset the motors."""
         self.rpm = np.zeros((self.num_motors, 1))
 
     def pwm2forces(self, pwm):

@@ -6,6 +6,56 @@ import numpy as np
 from pybullet_utils import bullet_client
 
 
+class LiftingSurfaces():
+    """Handler for multiple lifting surfaces."""
+    def __init__(self, lifting_surfaces: list[LiftingSurface]):
+        """__init__.
+
+        Args:
+            lifting_surfaces (list[LiftingSurface]): lifting_surfaces
+        """
+        # assert all is lifting surfaces
+        assert all([isinstance(surface, LiftingSurface) for surface in lifting_surfaces])
+
+        # store some stuff
+        self.p = lifting_surfaces[0].p
+        self.uav_id = lifting_surfaces[0].uav_id
+        self.surfaces: list[LiftingSurface] = lifting_surfaces
+
+    def reset(self):
+        """reset.
+        """
+        [surface.reset() for surface in self.surfaces]
+
+    def cmd2forces(self, cmd: np.ndarray):
+        """cmd2forces.
+
+        Args:
+            cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface.
+        """
+        for surface in self.surfaces:
+            actuation = (
+                0.0
+                if surface.command_id is None
+                else float(cmd[surface.command_id] * surface.command_sign)
+            )
+
+            surface.cmd2forces(actuation)
+
+    def update_local_surface_velocities(self, rotation_matrix: np.ndarray):
+        """update_local_surface_velocities.
+
+        Args:
+            rotation_matrix (np.ndarray): rotation_matrix of the main body
+        """
+        # update all lifting surface velocities
+        for surface in self.surfaces:
+            surface_velocity = self.p.getLinkState(
+                self.uav_id, surface.surface_id, computeLinkVelocity=True
+            )[-2]
+            surface.update_local_surface_velocity(rotation_matrix, surface_velocity)
+
+
 class LiftingSurface:
     """LiftingSurface."""
 
@@ -46,6 +96,7 @@ class LiftingSurface:
             - alpha_stall_N_base
             - Cd_0
             - deflection_limit
+            - tau
         """
         self.p = p
         self.physics_period = physics_period
@@ -71,6 +122,7 @@ class LiftingSurface:
             "alpha_stall_N_base",
             "Cd_0",
             "deflection_limit",
+            "tau",
         ]
         for key in aerofoil_params:
             if key in params_list:
@@ -110,6 +162,7 @@ class LiftingSurface:
         self.alpha_stall_N_base = float(aerofoil_params["alpha_stall_N_base"])
         self.Cd_0 = float(aerofoil_params["Cd_0"])
         self.deflection_limit = float(aerofoil_params["deflection_limit"])
+        self.tau = float(aerofoil_params["tau"])
 
         # precompute some constants
         self.half_rho = 0.5 * 1.225
@@ -128,6 +181,10 @@ class LiftingSurface:
         # runtime parameters
         self.local_surface_velocity = np.array([0.0, 0.0, 0.0])
 
+    def reset(self):
+        """reset the lifting surfaces."""
+        self.deflection = 0.0
+
     def update_local_surface_velocity(
         self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray
     ):
@@ -139,7 +196,7 @@ class LiftingSurface:
         """
         self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
 
-    def pwm2forces(self, actuation: float):
+    def cmd2forces(self, actuation: float):
         """compute_force_torque.
 
         Args:
@@ -153,8 +210,13 @@ class LiftingSurface:
         forward_airspeed = np.dot(self.local_surface_velocity, self.drag_unit)
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
 
-        deflection = self.deflection_limit * actuation
-        [Cl, Cd, CM] = self._compute_aero_data(deflection, alpha)
+        # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
+        self.deflection += (self.physics_period / self.tau) * (
+            self.deflection_limit * actuation - self.deflection
+        )
+
+        # compute aerofoil parameters
+        [Cl, Cd, CM] = self._compute_aero_data(alpha)
 
         Q = self.half_rho * np.square(freestream_speed)  # Dynamic pressure
         Q_area = Q * self.area
@@ -178,9 +240,7 @@ class LiftingSurface:
             self.uav_id, self.surface_id, torque, self.p.LINK_FRAME
         )
 
-    def _compute_aero_data(
-        self, deflection: float, alpha: float
-    ) -> tuple[float, float, float]:
+    def _compute_aero_data(self, alpha: float) -> tuple[float, float, float]:
         """_compute_aero_data.
 
         Args:
@@ -191,9 +251,9 @@ class LiftingSurface:
             tuple[float, float, float]: Cl, Cd, CM
         """
         # deflection must be in degrees because engineering uses degrees
-        deflection = np.deg2rad(deflection)
+        deflection_radians = np.deg2rad(self.deflection)
 
-        delta_Cl = self.Cl_alpha_3D * self.tau * self.eta * deflection
+        delta_Cl = self.Cl_alpha_3D * self.tau * self.eta * deflection_radians
         delta_Cl_max = self.flap_to_chord * delta_Cl
         Cl_max_P = (
             self.Cl_alpha_3D * (self.alpha_stall_P_base - self.alpha_0_base)
@@ -242,8 +302,8 @@ class LiftingSurface:
 
         # Drag coefficient at 90 deg dependent on deflection angle
         Cd_90 = (
-            ((-4.26 * (10**-2)) * (deflection**2))
-            + ((2.1 * (10**-1)) * deflection)
+            ((-4.26 * (10**-2)) * (deflection_radians**2))
+            + ((2.1 * (10**-1)) * deflection_radians)
             + 1.98
         )
         CN = (

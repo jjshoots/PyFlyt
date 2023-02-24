@@ -7,7 +7,7 @@ from pybullet_utils import bullet_client
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.boosters import Boosters
 from ..abstractions.camera import Camera
-from ..abstractions.lifting_surface import LiftingSurface
+from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 
 
 class Rocket(DroneClass):
@@ -64,10 +64,10 @@ class Rocket(DroneClass):
             booster_params = all_params["booster_params"]
 
             # add all finlets
-            self.lifting_surfaces: list[LiftingSurface] = []
+            surfaces = list()
             for finlet_id in [2, 3]:
                 # pitching fins
-                self.lifting_surfaces.append(
+                surfaces.append(
                     LiftingSurface(
                         p=self.p,
                         physics_period=self.physics_period,
@@ -83,7 +83,7 @@ class Rocket(DroneClass):
                 )
             for finlet_id in [4, 5]:
                 # rolling fins
-                self.lifting_surfaces.append(
+                surfaces.append(
                     LiftingSurface(
                         p=self.p,
                         physics_period=self.physics_period,
@@ -97,6 +97,7 @@ class Rocket(DroneClass):
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
+            self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
 
             # add the booster
             self.boosters = Boosters(
@@ -153,6 +154,7 @@ class Rocket(DroneClass):
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
+        self.lifting_surfaces.reset()
         self.boosters.reset()
         self.update_state()
 
@@ -176,11 +178,7 @@ class Rocket(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all lifting surface velocities
-        for surface in self.lifting_surfaces:
-            surface_velocity = self.p.getLinkState(
-                self.Id, surface.surface_id, computeLinkVelocity=True
-            )[-2]
-            surface.update_local_surface_velocity(rotation, surface_velocity)
+        self.lifting_surfaces.update_local_surface_velocities(rotation)
 
         # update fuel state
         self.aux_state = np.array(
@@ -206,14 +204,7 @@ class Rocket(DroneClass):
     def update_forces(self):
         """Calculates and applies forces acting on Rocket"""
         # update all finlets
-        for surface in self.lifting_surfaces:
-            actuation = (
-                0.0
-                if surface.command_id is None
-                else float(self.cmd[surface.command_id] * surface.command_sign)
-            )
-
-            surface.pwm2forces(actuation)
+        self.lifting_surfaces.cmd2forces(self.cmd)
 
         # update booster
         self.boosters.settings2forces(

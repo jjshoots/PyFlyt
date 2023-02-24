@@ -6,7 +6,7 @@ from pybullet_utils import bullet_client
 
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.camera import Camera
-from ..abstractions.lifting_surface import LiftingSurface
+from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 from ..abstractions.motors import Motors
 
 
@@ -63,8 +63,8 @@ class FixedWing(DroneClass):
             all_params = yaml.safe_load(f)
 
             # all lifting surfaces
-            self.lifting_surfaces: list[LiftingSurface] = []
-            self.lifting_surfaces.append(
+            surfaces = list()
+            surfaces.append(
                 LiftingSurface(
                     p=self.p,
                     physics_period=self.physics_period,
@@ -78,7 +78,7 @@ class FixedWing(DroneClass):
                     aerofoil_params=all_params["left_wing_flapped_params"],
                 )
             )
-            self.lifting_surfaces.append(
+            surfaces.append(
                 LiftingSurface(
                     p=self.p,
                     physics_period=self.physics_period,
@@ -92,7 +92,7 @@ class FixedWing(DroneClass):
                     aerofoil_params=all_params["right_wing_flapped_params"],
                 )
             )
-            self.lifting_surfaces.append(
+            surfaces.append(
                 LiftingSurface(
                     p=self.p,
                     physics_period=self.physics_period,
@@ -106,7 +106,7 @@ class FixedWing(DroneClass):
                     aerofoil_params=all_params["horizontal_tail_params"],
                 )
             )
-            self.lifting_surfaces.append(
+            surfaces.append(
                 LiftingSurface(
                     p=self.p,
                     physics_period=self.physics_period,
@@ -120,7 +120,7 @@ class FixedWing(DroneClass):
                     aerofoil_params=all_params["main_wing_params"],
                 )
             )
-            self.lifting_surfaces.append(
+            surfaces.append(
                 LiftingSurface(
                     p=self.p,
                     physics_period=self.physics_period,
@@ -134,6 +134,7 @@ class FixedWing(DroneClass):
                     aerofoil_params=all_params["vertical_tail_params"],
                 )
             )
+            self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
 
             # motor
             motor_params = all_params["motor_params"]
@@ -182,12 +183,12 @@ class FixedWing(DroneClass):
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
         self.disable_artificial_damping()
+        self.lifting_surfaces.reset()
         self.motors.reset()
         self.update_state()
 
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
-
 
     def update_state(self):
         """ang_vel, ang_pos, lin_vel, lin_pos"""
@@ -206,11 +207,7 @@ class FixedWing(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all lifting surface velocities
-        for surface in self.lifting_surfaces:
-            surface_velocity = self.p.getLinkState(
-                self.Id, surface.surface_id, computeLinkVelocity=True
-            )[-2]
-            surface.update_local_surface_velocity(rotation, surface_velocity)
+        self.lifting_surfaces.update_local_surface_velocities(rotation)
 
     def update_control(self):
         """runs through controllers"""
@@ -231,16 +228,8 @@ class FixedWing(DroneClass):
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
         # Motor thrust
+        self.lifting_surfaces.cmd2forces(self.cmd)
         self.motors.pwm2forces(self.cmd[[3]])
-
-        for surface in self.lifting_surfaces:
-            actuation = (
-                0.0
-                if surface.command_id is None
-                else float(self.cmd[surface.command_id] * surface.command_sign)
-            )
-
-            surface.pwm2forces(actuation)
 
     def update_physics(self):
         """update_physics."""

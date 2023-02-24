@@ -32,6 +32,7 @@ class Aviary(bullet_client.BulletClient):
         camera_resolution: tuple[int, int] = (128, 128),
         worldScale: float = 1.0,
         seed: None | int = None,
+        drone_options: dict = {},
     ):
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
@@ -79,6 +80,7 @@ class Aviary(bullet_client.BulletClient):
         # directories and paths
         self.model_dir = model_dir
         self.drone_model = drone_model
+        self.drone_options = drone_options
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
         # render
@@ -130,6 +132,7 @@ class Aviary(bullet_client.BulletClient):
                     camera_FOV_degrees=self.camera_FOV,
                     camera_resolution=self.camera_frame_size,
                     np_random=self.np_random,
+                    **self.drone_options,
                 )
             )
         # arm everything
