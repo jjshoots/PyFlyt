@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from .pyflyt_base_env import PyFlytBaseEnv
+from .quadx_fixedwing_base_env import QuadXFixedwingBaseEnv
 
 
-class QuadXHoverEnv(PyFlytBaseEnv):
+class QuadXHoverEnv(QuadXFixedwingBaseEnv):
     """
     Simple Hover Environment
 

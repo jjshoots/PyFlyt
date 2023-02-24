@@ -8,10 +8,10 @@ import numpy as np
 import pybullet as p
 from gymnasium import spaces
 
-from .pyflyt_base_env import PyFlytBaseEnv
+from .quadx_fixedwing_base_env import QuadXFixedwingBaseEnv
 
 
-class QuadXGatesEnv(PyFlytBaseEnv):
+class QuadXGatesEnv(QuadXFixedwingBaseEnv):
     """
     Advanced Gates Env
 

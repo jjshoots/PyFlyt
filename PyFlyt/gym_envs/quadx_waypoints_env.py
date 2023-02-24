@@ -3,11 +3,11 @@ from __future__ import annotations
 import numpy as np
 from gymnasium import spaces
 
-from .pyflyt_base_env import PyFlytBaseEnv
+from .quadx_fixedwing_base_env import QuadXFixedwingBaseEnv
 from .waypoint_handler import WaypointHandler
 
 
-class QuadXWaypointsEnv(PyFlytBaseEnv):
+class QuadXWaypointsEnv(QuadXFixedwingBaseEnv):
     """
     Simple Waypoint Environment
 
