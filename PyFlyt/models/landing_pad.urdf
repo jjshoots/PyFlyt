@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<robot name="cube">
+<robot name="rocket_landing_pad">
   <link name="base_link">
 
     <collision>
       <geometry>
-        <cylinder radius="5" height="0.1"/>
+        <cylinder radius="2" length="0.1"/>
       </geometry>
     </collision>
 
@@ -15,7 +15,7 @@
 
     <visual>
       <geometry>
-        <cylinder radius="5" height="0.1"/>
+        <cylinder radius="2" length="0.1"/>
       </geometry>
     </visual>
 

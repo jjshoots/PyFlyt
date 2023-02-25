@@ -206,19 +206,19 @@ class QuadXBaseEnv(gymnasium.Env):
         """compute_base_term_trunc_reward."""
         # exceed step count
         if self.step_count > self.max_steps:
-            self.truncation = self.truncation or True
+            self.truncation |= True
 
         # collision
         if np.any(self.env.collision_array):
             self.reward = -100.0
             self.info["collision"] = True
-            self.termination = self.termination or True
+            self.termination |= True
 
         # exceed flight dome
-        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
+        if np.linalg.norm(self.env.drones[0].state[-1]) > self.flight_dome_size:
             self.reward = -100.0
             self.info["out_of_bounds"] = True
-            self.termination = self.termination or True
+            self.termination |= True
 
     def step(self, action: np.ndarray):
         """Steps the environment

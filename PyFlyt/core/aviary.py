@@ -181,7 +181,7 @@ class Aviary(bullet_client.BulletClient):
         """
         bodies = dict()
         for i in range(self.getNumBodies()):
-            bodies[i] = self.getBodyInfo(i)
+            bodies[i] = self.getBodyInfo(i)[-1].decode("UTF-8")
 
         from pprint import pprint
 

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="cube">
+<robot name="waypoint_target">
   <link name="base_link">
 
     <!-- <collision> -->

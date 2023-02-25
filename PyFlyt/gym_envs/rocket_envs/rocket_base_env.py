@@ -19,7 +19,8 @@ class RocketBaseEnv(gymnasium.Env):
         start_orn: np.ndarray = np.array([[np.pi / 2.0, 0.0, 0.0]]),
         drone_type: str = "rocket",
         drone_model: str = "rocket",
-        flight_dome_size: float = np.inf,
+        ceiling: float = np.inf,
+        max_displacement: float = np.inf,
         max_duration_seconds: float = 30.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
@@ -63,7 +64,7 @@ class RocketBaseEnv(gymnasium.Env):
             low=-np.inf, high=np.inf, shape=(attitude_shape,), dtype=np.float64
         )
         self.auxiliary_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(5,), dtype=np.float64
+            low=-np.inf, high=np.inf, shape=(9,), dtype=np.float64
         )
 
         # force_x, force_y, roll, ignition, throttle, booster_gimbal_1, booster_gimbal_2
@@ -112,7 +113,8 @@ class RocketBaseEnv(gymnasium.Env):
         self.start_orn = start_orn
         self.drone_type = drone_type
         self.drone_model = drone_model
-        self.flight_dome_size = flight_dome_size
+        self.ceiling = ceiling
+        self.max_displacement = max_displacement
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
         if angle_representation == "euler":
@@ -141,7 +143,7 @@ class RocketBaseEnv(gymnasium.Env):
         self.termination = False
         self.truncation = False
         self.state = None
-        self.action = np.zeros((4,))
+        self.action = np.zeros((self.action_space.shape[0],))
         self.reward = 0.0
         self.info = {}
         self.info["out_of_bounds"] = False
@@ -181,6 +183,7 @@ class RocketBaseEnv(gymnasium.Env):
         self.compute_state()
 
     def compute_state(self):
+        """compute_state."""
         raise NotImplementedError
 
     def compute_auxiliary(self):
@@ -214,25 +217,41 @@ class RocketBaseEnv(gymnasium.Env):
         return ang_vel, ang_pos, lin_vel, lin_pos, quarternion
 
     def compute_term_trunc_reward(self):
+        """compute_term_trunc_reward."""
         raise NotImplementedError
 
-    def compute_base_term_trunc_reward(self):
-        """compute_base_term_trunc_reward."""
+    def compute_base_term_trunc_reward(
+        self, collision_ignore_mask: np.ndarray | list[int] = []
+    ):
+        """compute_base_term_trunc_reward.
+
+        Args:
+            collision_ignore_mask (np.ndarray | list[int]): list of ids to ignore collisions between
+        """
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation = self.truncation or True
 
-        # fatal collision
-        if np.any(self.env.collision_array):
+        # mask collisions if any
+        collision_array = self.env.collision_array.copy()
+        for i, j in zip(collision_ignore_mask[1:], collision_ignore_mask[:-1]):
+            collision_array[i, j] = False
+            collision_array[j, i] = False
+
+        # fatal collision or below ground
+        if np.any(collision_array) or self.env.drones[0].state[-1, -1] < 0.0:
             self.reward = -100.0
             self.info["fatal_collision"] = True
-            self.termination = self.termination or True
+            self.termination |= True
 
         # exceed flight dome
-        if np.linalg.norm(self.env.states[0][-1]) > self.flight_dome_size:
+        if (
+            np.linalg.norm(self.env.drones[0].state[-1, :2]) > self.max_displacement
+            or self.env.drones[0].state[-1, 2] > self.ceiling
+        ):
             self.reward = -100.0
             self.info["out_of_bounds"] = True
-            self.termination = self.termination or True
+            self.termination |= True
 
     def step(self, action: np.ndarray):
         """Steps the environment

@@ -14,8 +14,7 @@ booster_params:
   inertia_ixx: 1678
   inertia_iyy: 1678
   inertia_izz: 7.01
-  # min_thrust: 2966.7
-  min_thrust: 2000.0
+  min_thrust: 2966.7
   max_thrust: 7607.0
   reignitable: false
   gimbal_range_degrees: 5
