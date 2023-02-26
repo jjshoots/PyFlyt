@@ -99,7 +99,7 @@ class QuadX(DroneClass):
             )
             noise_ratio = np.array([1.0] * 4) * motor_params["noise_ratio"]
             max_rpm = np.array([1.0] * 4) * np.sqrt(
-                (motor_params["thrust_to_weight"] * 9.81)
+                (motor_params["total_thrust"])
                 / (4 * motor_params["thrust_coef"])
             )
             tau = np.array([1.0] * 4) * motor_params["tau"]

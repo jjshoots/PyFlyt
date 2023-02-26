@@ -1,5 +1,5 @@
 motor_params:
-  thrust_to_weight: 2.25
+  total_thrust: 22
   thrust_coef: 3.16e-10
   torque_coef: 7.94e-12
   noise_ratio: 0.02

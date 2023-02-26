@@ -137,6 +137,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         )
 
         self.state = new_state
+        print(np.linalg.norm(lin_vel))
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc."""

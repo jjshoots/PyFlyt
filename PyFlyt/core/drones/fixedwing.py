@@ -140,7 +140,7 @@ class FixedWing(DroneClass):
             motor_params = all_params["motor_params"]
             tau = np.array([motor_params["tau"]])
             max_rpm = np.array([1.0]) * np.sqrt(
-                (motor_params["thrust_to_weight"] * 9.81) / motor_params["thrust_coef"]
+                (motor_params["total_thrust"]) / motor_params["thrust_coef"]
             )
             thrust_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["thrust_coef"]
             torque_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["torque_coef"]
