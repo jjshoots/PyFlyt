@@ -97,9 +97,7 @@ class RocketLandingEnv(RocketBaseEnv):
         # randomly generate the target landing location
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
         distance = self.np_random.uniform(0.0, 0.1 * self.max_displacement)
-        target = (
-            np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
-        )
+        target = np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
         self.landing_pad_id = p.loadURDF(
             self.targ_obj_dir,
             basePosition=target,

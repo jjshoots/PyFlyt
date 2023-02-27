@@ -99,8 +99,7 @@ class QuadX(DroneClass):
             )
             noise_ratio = np.array([1.0] * 4) * motor_params["noise_ratio"]
             max_rpm = np.array([1.0] * 4) * np.sqrt(
-                (motor_params["total_thrust"])
-                / (4 * motor_params["thrust_coef"])
+                (motor_params["total_thrust"]) / (4 * motor_params["thrust_coef"])
             )
             tau = np.array([1.0] * 4) * motor_params["tau"]
             self.motors = Motors(
@@ -474,7 +473,7 @@ class QuadX(DroneClass):
         """update_physics."""
         self.update_state()
         self.motors.pwm2forces(self.pwm)
-        # self.update_drag()
+        self.update_drag()
 
     def update_avionics(self):
         """

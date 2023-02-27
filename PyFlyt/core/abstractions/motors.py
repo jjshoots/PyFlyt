@@ -75,6 +75,10 @@ class Motors:
         Args:
             pwm:
         """
+        assert np.all(pwm >= -1.0) and np.all(
+            pwm <= 1.0
+        ), f"`{pwm=} has values out of bounds of -1.0 and 1.0.`"
+
         pwm = np.expand_dims(pwm, 1)
 
         # model the motor using first order ODE, y' = T/tau * (setpoint - y)

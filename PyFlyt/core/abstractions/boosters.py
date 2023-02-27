@@ -176,6 +176,20 @@ class Boosters:
             gimbal_x (np.ndarray): (num_boosters,) array of floats between [-1, 1]
             gimbal_y (np.ndarray): (num_boosters,) array of floats between [-1, 1]
         """
+
+        assert np.all(gimbal_x >= -1.0) and np.all(
+            gimbal_x <= 1.0
+        ), f"`{gimbal_x=} has values out of bounds of -1.0 and 1.0.`"
+        assert np.all(gimbal_y >= -1.0) and np.all(
+            gimbal_y <= 1.0
+        ), f"`{gimbal_y=} has values out of bounds of -1.0 and 1.0.`"
+        assert np.all(ignition >= 0.0) and np.all(
+            ignition <= 1.0
+        ), f"`{ignition=} has values out of bounds of -1.0 and 1.0.`"
+        assert np.all(pwm >= 0.0) and np.all(
+            pwm <= 1.0
+        ), f"`{pwm=} has values out of bounds of -1.0 and 1.0.`"
+
         (thrust, mass, inertia) = self._compute_thrust_mass_inertia(ignition, pwm)
         thrust_unit = self._compute_thrust_vector(gimbal_x, gimbal_y)
 

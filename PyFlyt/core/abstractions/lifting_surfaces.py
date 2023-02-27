@@ -43,6 +43,10 @@ class LiftingSurfaces:
         Args:
             cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface.
         """
+        assert np.all(cmd >= -1.0) and np.all(
+            cmd <= 1.0
+        ), f"`{cmd=} has values out of bounds of -1.0 and 1.0.`"
+
         for surface in self.surfaces:
             actuation = (
                 0.0

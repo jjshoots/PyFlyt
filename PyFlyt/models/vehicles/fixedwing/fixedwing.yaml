@@ -1,5 +1,5 @@
 motor_params:
-  total_thrust: 10
+  total_thrust: 14
   thrust_coef: 3.16e-10
   torque_coef: 7.94e-12
   noise_ratio: 0.02
@@ -14,9 +14,9 @@ main_wing_params:
   alpha_0_base: -2 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: 14 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
-  Cd_0: 0.02 # Skin friction coefficient
+  Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 0
-  tau: 0.02
+  tau: 0.01
 
 left_wing_flapped_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -27,9 +27,9 @@ left_wing_flapped_params:
   alpha_0_base: -2 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: 14 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
-  Cd_0: 0.02 # Skin friction coefficient
+  Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 30 # Control surface deflection limit in degrees
-  tau: 0.02
+  tau: 0.01
 
 right_wing_flapped_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -40,9 +40,9 @@ right_wing_flapped_params:
   alpha_0_base: -2 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: 14 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
-  Cd_0: 0.02 # Skin friction coefficient
+  Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 30 # Control surface deflection limit in degrees
-  tau: 0.02
+  tau: 0.01
 
 horizontal_tail_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -53,9 +53,9 @@ horizontal_tail_params:
   alpha_0_base: 0 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: 9 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
-  Cd_0: 0.02 # Skin friction coefficient
+  Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 20 # Control surface deflection limit in degrees
-  tau: 0.02
+  tau: 0.01
 
 vertical_tail_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
@@ -66,6 +66,6 @@ vertical_tail_params:
   alpha_0_base: 0 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: 9 # Positive stall AoA
   alpha_stall_N_base: -9 # Positive stall AoA
-  Cd_0: 0.02 # Skin friction coefficient
+  Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 20 # Control surface deflection limit in degrees
-  tau: 0.02
+  tau: 0.01

@@ -232,6 +232,8 @@ class FixedWing(DroneClass):
 
     def update_forces(self):
         """Calculates and applies forces acting on UAV"""
+        assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
+
         self.lifting_surfaces.cmd2forces(self.cmd)
         self.motors.pwm2forces(self.cmd[[3]])
 

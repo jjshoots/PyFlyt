@@ -205,6 +205,7 @@ class Rocket(DroneClass):
         if self.mode == 0:
             # finlet mapping
             finlet_cmd = self.finlet_map @ np.expand_dims(self.setpoint[:3], axis=-1)
+            finlet_cmd = np.clip(finlet_cmd, -1.0, 1.0)
 
             # prepend the finlet mapping to the command itself
             self.cmd = np.concatenate((finlet_cmd.flatten(), self.setpoint[3:]))
