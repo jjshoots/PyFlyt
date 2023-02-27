@@ -12,11 +12,10 @@ def package_files(directory):
 
 
 extra_files = package_files("PyFlyt/models/")
-print(extra_files)
 
 
 def get_version():
-    """Gets the pettingzoo version."""
+    """Gets the PyFlyt version."""
     path = "pyproject.toml"
     with open(path) as file:
         lines = file.readlines()
