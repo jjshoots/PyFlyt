@@ -15,13 +15,13 @@ class RocketBaseEnv(gymnasium.Env):
 
     def __init__(
         self,
-        start_pos: np.ndarray = np.array([[0.0, 0.0, 5.0]]),
+        start_pos: np.ndarray = np.array([[0.0, 0.0, 50.0]]),
         start_orn: np.ndarray = np.array([[np.pi / 2.0, 0.0, 0.0]]),
         drone_type: str = "rocket",
         drone_model: str = "rocket",
         ceiling: float = np.inf,
         max_displacement: float = np.inf,
-        max_duration_seconds: float = 30.0,
+        max_duration_seconds: float = 60.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
         render_mode: None | str = None,
