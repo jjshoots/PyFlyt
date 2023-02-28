@@ -176,7 +176,7 @@ class LiftingSurface:
         self.alpha_stall_N_base = float(aerofoil_params["alpha_stall_N_base"])
         self.Cd_0 = float(aerofoil_params["Cd_0"])
         self.deflection_limit = float(aerofoil_params["deflection_limit"])
-        self.tau = float(aerofoil_params["tau"])
+        self.cmd_tau = float(aerofoil_params["tau"])
 
         # precompute some constants
         self.half_rho = 0.5 * 1.225
@@ -190,7 +190,7 @@ class LiftingSurface:
             / (self.aspect + ((2.0 * (self.aspect + 4.0)) / (self.aspect + 2.0)))
         )
         self.theta_f = np.arccos(2.0 * self.flap_to_chord - 1.0)
-        self.tau = 1 - ((self.theta_f - np.sin(self.theta_f)) / np.pi)
+        self.aero_tau = 1 - ((self.theta_f - np.sin(self.theta_f)) / np.pi)
 
         # runtime parameters
         self.local_surface_velocity = np.array([0.0, 0.0, 0.0])
@@ -225,7 +225,7 @@ class LiftingSurface:
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
 
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
-        self.actuation += (self.physics_period / self.tau) * (cmd - self.actuation)
+        self.actuation += (self.physics_period / self.cmd_tau) * (cmd - self.actuation)
 
         # compute aerofoil parameters
         [Cl, Cd, CM] = self._compute_aero_data(alpha)
@@ -265,7 +265,7 @@ class LiftingSurface:
         # deflection must be in degrees because engineering uses degrees
         deflection_radians = np.deg2rad(self.actuation * self.deflection_limit)
 
-        delta_Cl = self.Cl_alpha_3D * self.tau * self.eta * deflection_radians
+        delta_Cl = self.Cl_alpha_3D * self.aero_tau * self.eta * deflection_radians
         delta_Cl_max = self.flap_to_chord * delta_Cl
         Cl_max_P = (
             self.Cl_alpha_3D * (self.alpha_stall_P_base - self.alpha_0_base)
