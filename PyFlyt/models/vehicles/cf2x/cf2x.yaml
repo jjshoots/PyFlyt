@@ -1,5 +1,5 @@
 motor_params:
-  total_thrust: 22
+  total_thrust: 2.0
   thrust_coef: 3.16e-10
   torque_coef: 7.94e-12
   noise_ratio: 0.02
@@ -11,9 +11,9 @@ drag_params:
 
 control_params:
   ang_vel:
-    description: "input: angular velocity command | output: normalized antular torque command"
-    kp: [8.0e-3, 8.0e-3, 1.0e-2]
-    ki: [2.5e-7, 2.5e-7, 1.3e-4]
+    description: "input: angular velocity command | output: normalized angular torque command"
+    kp: [4.0e-2, 4.0e-2, 8.0e-2]
+    ki: [5.0e-7, 5.0e-7, 2.7e-4]
     kd: [10.0e-5, 10.0e-5, 0.0]
     lim: [1.0, 1.0, 1.0]
 
@@ -47,7 +47,7 @@ control_params:
 
   z_vel:
     description: "input: z velocity command | output: normalized thrust command"
-    kp: 0.15
-    ki: 1.0
-    kd: 0.015
-    lim: 0.3
+    kp: 1.0
+    ki: 0.3
+    kd: 0.15
+    lim: 1.0
