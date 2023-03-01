@@ -21,8 +21,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         -0.1 otherwise
     """
 
-    metadata = {"render_modes": ["human"]}
-
     def __init__(
         self,
         sparse_reward: bool = False,
@@ -59,7 +57,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
 
         # define waypoints
         self.waypoints = WaypointHandler(
-            enable_render=self.enable_render,
+            enable_render=self.render_mode is not None,
             num_targets=num_targets,
             use_yaw_targets=False,
             goal_reach_distance=goal_reach_distance,
@@ -94,7 +92,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             options:
         """
         super().begin_reset(seed, options)
-        self.waypoints.reset()
+        self.waypoints.reset(self.env, self.np_random)
         self.info["num_targets_reached"] = 0
         self.distance_to_immediate = np.inf
         super().end_reset()

@@ -18,8 +18,6 @@ class QuadXHoverEnv(QuadXBaseEnv):
         -0.1 otherwise
     """
 
-    metadata = {"render_modes": ["human"]}
-
     def __init__(
         self,
         flight_dome_size: float = 3.0,

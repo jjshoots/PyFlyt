@@ -11,7 +11,7 @@ from PyFlyt.core.aviary import Aviary
 class FixedwingBaseEnv(gymnasium.Env):
     """Base PyFlyt Environment for the Fixedwing model using the Gymnasim API"""
 
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
     def __init__(
         self,
@@ -43,10 +43,8 @@ class FixedwingBaseEnv(gymnasium.Env):
         if render_mode is not None:
             assert (
                 render_mode in self.metadata["render_modes"]
-            ), f"Invalid render mode {render_mode}, only `human` allowed."
-            self.enable_render = True
-        else:
-            self.enable_render = False
+            ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+        self.render_mode = render_mode
 
         """GYMNASIUM STUFF"""
         # attitude size increases by 1 for quaternion
@@ -110,7 +108,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.angle_representation = 1
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options=dict()):
         """reset.
 
         Args:
@@ -119,7 +117,12 @@ class FixedwingBaseEnv(gymnasium.Env):
         """
         raise NotImplementedError
 
-    def begin_reset(self, seed=None, options=None, aviary_options=dict()):
+    def close(self):
+        # if we already have an env, disconnect from it
+        if hasattr(self, "env"):
+            self.env.disconnect()
+
+    def begin_reset(self, seed=None, options=dict(), aviary_options=dict()):
         """The first half of the reset function"""
         super().reset(seed=seed)
 
@@ -138,9 +141,11 @@ class FixedwingBaseEnv(gymnasium.Env):
         self.info["collision"] = False
         self.info["env_complete"] = False
 
-        # handling camera is complicated... for wing we must enable camera for proper render
+        # camera handling
         if "use_camera" not in aviary_options:
-            aviary_options["use_camera"] = self.enable_render
+            aviary_options["use_camera"] = self.render_mode is not None
+        else:
+            aviary_options["use_camera"] |= self.render_mode is not None
 
         # init env
         self.env = Aviary(
@@ -148,15 +153,15 @@ class FixedwingBaseEnv(gymnasium.Env):
             drone_model=self.drone_model,
             start_pos=self.start_pos,
             start_orn=self.start_orn,
-            render=self.enable_render,
+            render=self.render_mode is not None,
             seed=seed,
             **aviary_options,
         )
 
-        if self.enable_render:
+        if self.render_mode is not None:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
-    def end_reset(self, seed=None, options=None):
+    def end_reset(self, seed=None, options=dict()):
         """The tailing half of the reset function"""
         # register all new collision bodies
         self.env.register_all_new_bodies()
@@ -258,19 +263,19 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
-    def render(self):
+    def render(self, width=480, height=480):
         """render."""
         assert (
-            self.enable_render
-        ), "Please set `render_mode='human' to use this function."
+            self.render_mode is not None
+        ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=self.camera_parameters[0],
-            height=self.camera_parameters[1],
+            width=width,
+            height=height,
             viewMatrix=self.env.drones[0].camera.view_mat,
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
 
-        return np.array(rgbaImg).reshape(
-            self.camera_parameters[1], self.camera_parameters[0], -1
+        return np.array(rgbaImg, dtype=np.uint8).reshape(
+            height, width, -1
         )

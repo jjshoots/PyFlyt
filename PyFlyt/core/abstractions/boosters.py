@@ -185,10 +185,10 @@ class Boosters:
         ), f"`{gimbal_y=} has values out of bounds of -1.0 and 1.0.`"
         assert np.all(ignition >= 0.0) and np.all(
             ignition <= 1.0
-        ), f"`{ignition=} has values out of bounds of -1.0 and 1.0.`"
+        ), f"`{ignition=} has values out of bounds of 0.0 and 1.0.`"
         assert np.all(pwm >= 0.0) and np.all(
             pwm <= 1.0
-        ), f"`{pwm=} has values out of bounds of -1.0 and 1.0.`"
+        ), f"`{pwm=} has values out of bounds of 0.0 and 1.0.`"
 
         (thrust, mass, inertia) = self._compute_thrust_mass_inertia(ignition, pwm)
         thrust_unit = self._compute_thrust_vector(gimbal_x, gimbal_y)

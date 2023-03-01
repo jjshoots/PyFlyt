@@ -4,7 +4,7 @@ import math
 import os
 
 import numpy as np
-import pybullet as p
+from pybullet_utils import bullet_client
 
 
 class WaypointHandler:
@@ -31,8 +31,15 @@ class WaypointHandler:
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
 
-    def reset(self):
+    def reset(self, p: bullet_client.BulletClient, np_random: None | np.random.Generator = None):
         """TARGET GENERATION"""
+        # store the client
+        self.p = p
+
+        # update the random state
+        if np_random is not None:
+            self.np_random = np_random
+
         # reset the error
         self.new_distance = 0.0
         self.old_distance = 0.0
@@ -61,7 +68,7 @@ class WaypointHandler:
             self.target_visual = []
             for target in self.targets:
                 self.target_visual.append(
-                    p.loadURDF(
+                    self.p.loadURDF(
                         self.targ_obj_dir,
                         basePosition=target,
                         useFixedBase=True,
@@ -70,7 +77,7 @@ class WaypointHandler:
                 )
 
             for i, visual in enumerate(self.target_visual):
-                p.changeVisualShape(
+                self.p.changeVisualShape(
                     visual,
                     linkIndex=-1,
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
@@ -83,7 +90,7 @@ class WaypointHandler:
         quarternion: np.ndarray,
     ):
         # rotation matrix
-        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
+        rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
 
         # drone to target
         target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
@@ -98,6 +105,7 @@ class WaypointHandler:
             # rollover yaw
             yaw_errors[yaw_errors > math.pi] -= 2.0 * math.pi
             yaw_errors[yaw_errors < -math.pi] += 2.0 * math.pi
+            yaw_errors = np.expand_dims(yaw_errors, axis=-1)
 
             # add the yaw delta to the target deltas
             target_deltas = np.concatenate([target_deltas, yaw_errors], axis=-1)
@@ -135,12 +143,12 @@ class WaypointHandler:
 
         # delete the reached target and recolour the others
         if self.enable_render and len(self.target_visual) > 0:
-            p.removeBody(self.target_visual[0])
+            self.p.removeBody(self.target_visual[0])
             self.target_visual = self.target_visual[1:]
 
             # recolour
             for i, visual in enumerate(self.target_visual):
-                p.changeVisualShape(
+                self.p.changeVisualShape(
                     visual,
                     linkIndex=-1,
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),

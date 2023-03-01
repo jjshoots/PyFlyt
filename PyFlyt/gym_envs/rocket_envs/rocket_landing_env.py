@@ -22,8 +22,6 @@ class RocketLandingEnv(RocketBaseEnv):
         -0.1 otherwise
     """
 
-    metadata = {"render_modes": ["human"]}
-
     def __init__(
         self,
         ceiling: float = 300.0,
@@ -70,17 +68,7 @@ class RocketLandingEnv(RocketBaseEnv):
             seed: seed to pass to the base environment.
             options:
         """
-        # override the spawn location
-        min_distance = self.max_displacement * 0.1
-        start_xy = self.np_random.uniform(-min_distance, min_distance, size=(2,))
-        start_z = self.np_random.uniform(self.ceiling * 0.8, self.ceiling * 0.9)
-        self.start_pos = np.expand_dims(np.array([*start_xy, start_z]), axis=0)
-
-        # random rotation + make kind of upright
-        rotation = self.np_random.uniform(-0.3, 0.3, size=(3,))
-        rotation[0] += np.pi / 2.0
-        rotation = np.expand_dims(rotation, axis=0)
-        self.start_orn = rotation
+        options = dict(randomize_drop=True)
 
         super().begin_reset(seed, options)
 
@@ -98,7 +86,7 @@ class RocketLandingEnv(RocketBaseEnv):
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
         distance = self.np_random.uniform(0.0, 0.1 * self.max_displacement)
         target = np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
-        self.landing_pad_id = p.loadURDF(
+        self.landing_pad_id = self.env.loadURDF(
             self.targ_obj_dir,
             basePosition=target,
             useFixedBase=True,

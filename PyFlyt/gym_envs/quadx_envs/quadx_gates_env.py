@@ -23,8 +23,6 @@ class QuadXGatesEnv(QuadXBaseEnv):
     and -100.0 for hitting the ground.
     """
 
-    metadata = {"render_modes": ["human"]}
-
     def __init__(
         self,
         num_targets: int = 5,
