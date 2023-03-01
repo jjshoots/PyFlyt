@@ -6,4 +6,4 @@ for f in ./examples/core/*.py; do
 done
 
 # run all gymnasium tests
-# pytest tests/test_gym_envs.py
+pytest tests/test_gym_envs.py
