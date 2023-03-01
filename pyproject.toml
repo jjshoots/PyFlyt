@@ -1,17 +1,3 @@
-[tool.pyright]
-
-include = [
-  "PyFlyt/**",
-]
-
-exclude = [
-  "**/__pycache__",
-]
-
-strict = [
-
-]
-
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
@@ -35,4 +21,26 @@ keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "Gym
 license = { file="./LICENSE.txt" }
 
 [project.urls]
-"Homepage" = "https://github.com/jjshoots/PyFlyt"
+Repository = "https://github.com/jjshoots/PyFlyt"
+"Bug Report" = "https://github.com/jjshoots/PyFlyt/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+include = [
+  "PyFlyt/**",
+]
+
+exclude = [
+  "**/__pycache__",
+]
+
+strict = [
+
+]
+
+#######################################################################################
+# linters
+#######################################################################################
+[tool.pyright]
+reportMissingImports = "none"
