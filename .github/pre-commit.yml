@@ -2,7 +2,10 @@
 # This GitHub Action assumes that the repo contains a valid .pre-commit-config.yaml file: https://pre-commit.com
 ---
 name: pre-commit
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches: [master]
 
 permissions:
   contents: read # to fetch code (actions/checkout)
