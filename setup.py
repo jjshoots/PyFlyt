@@ -51,7 +51,7 @@ setup(
         "Gym",
         "PettingZoo",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     include_package_data=True,
     packages=[
         package for package in find_namespace_packages() if package.startswith("PyFlyt")
