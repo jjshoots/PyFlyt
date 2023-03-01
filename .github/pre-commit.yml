@@ -1,6 +1,6 @@
 # This workflow will run pre-commit checks
-# https://pre-commit.com
-# This GitHub Action assumes that the repo contains a valid .pre-commit-config.yaml file.
+# This GitHub Action assumes that the repo contains a valid .pre-commit-config.yaml file: https://pre-commit.com
+---
 name: pre-commit
 on: [pull_request, push]
 
