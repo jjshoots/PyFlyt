@@ -16,23 +16,7 @@ def package_files(directory):
             paths.append(os.path.join("..", path, filename))
     return paths
 
-
-extra_files = package_files("PyFlyt/models/")
-
-
-def get_version():
-    """Gets the PyFlyt version."""
-    path = "pyproject.toml"
-    with open(path) as file:
-        lines = file.readlines()
-
-    for line in lines:
-        if line.startswith("version"):
-            return line.strip().split()[-1].strip().strip('"')
-    raise RuntimeError("bad version data in __init__.py")
-
-
 setup(
     name="PyFlyt",
-    package_data={"PyFlyt": extra_files},
+    package_data={"PyFlyt": package_files("PyFlyt/models/")},
 )
