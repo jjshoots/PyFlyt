@@ -1,17 +1,16 @@
+"""Rocket Landing Environment."""
 from __future__ import annotations
 
 import os
 
 import numpy as np
-import pybullet as p
 from gymnasium.spaces import Box
 
 from .rocket_base_env import RocketBaseEnv
 
 
 class RocketLandingEnv(RocketBaseEnv):
-    """
-    Rocket Landing Environment
+    """Rocket Landing Environment.
 
     Actions are finlet_x, finlet_z, roll, booster ignition, throttle, booster gimbal x, booster gimbal z
 
@@ -59,14 +58,14 @@ class RocketLandingEnv(RocketBaseEnv):
 
         # the landing pad
         file_dir = os.path.dirname(os.path.realpath(__file__))
-        self.targ_obj_dir = os.path.join(file_dir, f"../../models/landing_pad.urdf")
+        self.targ_obj_dir = os.path.join(file_dir, "../../models/landing_pad.urdf")
 
     def reset(self, seed=None, options=None):
-        """reset.
+        """Resets the environment.
 
         Args:
-            seed: seed to pass to the base environment.
-            options:
+            seed: int
+            options: None
         """
         options = dict(randomize_drop=True)
 
@@ -97,7 +96,7 @@ class RocketLandingEnv(RocketBaseEnv):
         return self.state, self.info
 
     def compute_state(self):
-        """state.
+        """Computes the state of the current timestep.
 
         This returns the observation.
         - ang_vel (vector of 3 values)
@@ -137,7 +136,7 @@ class RocketLandingEnv(RocketBaseEnv):
             )
 
     def compute_term_trunc_reward(self):
-        """compute_term_trunc."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward(
             collision_ignore_mask=[self.env.drones[0].Id, self.landing_pad_id]
         )

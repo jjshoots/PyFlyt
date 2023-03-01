@@ -1,12 +1,13 @@
 motor_params:
-  thrust_to_weight: 2.25
-  thrust_const: 3.16e-10
-  torque_const: 7.94e-12
-  motor_noise_ratio: 0.02
+  total_thrust: 2.0
+  thrust_coef: 3.16e-10
+  torque_coef: 7.94e-12
+  noise_ratio: 0.02
+  tau: 0.01
 
 drag_params:
-  drag_const_xyz: 1.0e-3
-  drag_const_pqr: 1.0e-4
+  drag_coef_xyz: 1.0e-3
+  drag_coef_pqr: 1.0e-4
 
 control_params:
   ang_vel:

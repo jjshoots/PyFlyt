@@ -1,3 +1,4 @@
+"""Handler for Waypoints in the environments."""
 from __future__ import annotations
 
 import math
@@ -8,6 +9,8 @@ from pybullet_utils import bullet_client
 
 
 class WaypointHandler:
+    """Handler for Waypoints in the environments."""
+
     def __init__(
         self,
         enable_render: bool,
@@ -18,6 +21,17 @@ class WaypointHandler:
         flight_dome_size: float,
         np_random: np.random.Generator,
     ):
+        """__init__.
+
+        Args:
+            enable_render (bool): enable_render
+            num_targets (int): num_targets
+            use_yaw_targets (bool): use_yaw_targets
+            goal_reach_distance (float): goal_reach_distance
+            goal_reach_angle (float): goal_reach_angle
+            flight_dome_size (float): flight_dome_size
+            np_random (np.random.Generator): np_random
+        """
         # constants
         self.enable_render = enable_render
         self.num_targets = num_targets
@@ -29,10 +43,14 @@ class WaypointHandler:
 
         # the target visual
         file_dir = os.path.dirname(os.path.realpath(__file__))
-        self.targ_obj_dir = os.path.join(file_dir, f"../models/target.urdf")
+        self.targ_obj_dir = os.path.join(file_dir, "../models/target.urdf")
 
-    def reset(self, p: bullet_client.BulletClient, np_random: None | np.random.Generator = None):
-        """TARGET GENERATION"""
+    def reset(
+        self,
+        p: bullet_client.BulletClient,
+        np_random: None | np.random.Generator = None,
+    ):
+        """Resets the waypoints."""
         # store the client
         self.p = p
 
@@ -46,12 +64,12 @@ class WaypointHandler:
 
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(self.num_targets, 3))
-        thts = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
+        thetas = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
         phis = self.np_random.uniform(0.0, 2.0 * math.pi, size=(self.num_targets,))
-        for i, tht, phi in zip(range(self.num_targets), thts, phis):
+        for i, theta, phi in zip(range(self.num_targets), thetas, phis):
             dist = self.np_random.uniform(low=1.0, high=self.flight_dome_size * 0.9)
-            x = dist * math.sin(phi) * math.cos(tht)
-            y = dist * math.sin(phi) * math.sin(tht)
+            x = dist * math.sin(phi) * math.cos(theta)
+            y = dist * math.sin(phi) * math.sin(theta)
             z = abs(dist * math.cos(phi))
 
             # check for floor of z
@@ -63,7 +81,7 @@ class WaypointHandler:
                 low=-math.pi, high=math.pi, size=(self.num_targets,)
             )
 
-        # if we are rendering, laod in the targets
+        # if we are rendering, load in the targets
         if self.enable_render:
             self.target_visual = []
             for target in self.targets:
@@ -89,6 +107,13 @@ class WaypointHandler:
         lin_pos: np.ndarray,
         quarternion: np.ndarray,
     ):
+        """distance_to_target.
+
+        Args:
+            ang_pos (np.ndarray): ang_pos
+            lin_pos (np.ndarray): lin_pos
+            quarternion (np.ndarray): quarternion
+        """
         # rotation matrix
         rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
 
@@ -116,6 +141,7 @@ class WaypointHandler:
         return target_deltas
 
     def progress_to_target(self):
+        """progress_to_target."""
         return self.old_distance - self.new_distance
 
     def target_reached(self):
@@ -132,6 +158,7 @@ class WaypointHandler:
         return False
 
     def advance_targets(self):
+        """advance_targets."""
         if len(self.targets) > 1:
             # still have targets to go
             self.targets = self.targets[1:]
@@ -155,7 +182,9 @@ class WaypointHandler:
                 )
 
     def num_targets_reached(self):
+        """num_targets_reached."""
         return self.num_targets - len(self.targets)
 
     def all_targets_reached(self):
+        """all_targets_reached."""
         return len(self.targets) == 0

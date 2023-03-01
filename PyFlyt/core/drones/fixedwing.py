@@ -1,3 +1,4 @@
+"""Implementation of a Fixedwing UAV."""
 from __future__ import annotations
 
 import numpy as np
@@ -29,7 +30,7 @@ class FixedWing(DroneClass):
         camera_resolution: tuple[int, int] = (128, 128),
         np_random: None | np.random.RandomState = None,
     ):
-        """Creates a fixed wing UAV and handles all relevant control and physics.
+        """Creates a Fixedwing UAV and handles all relevant control and physics.
 
         Args:
             p (bullet_client.BulletClient): p
@@ -176,9 +177,10 @@ class FixedWing(DroneClass):
         self.reset()
 
     def reset(self):
+        """Resets the vehicle to the initial state."""
         self.set_mode(0)
-        self.setpoint = np.zeros((4))
-        self.cmd = np.zeros((4))
+        self.setpoint = np.zeros(4)
+        self.cmd = np.zeros(4)
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
@@ -191,7 +193,10 @@ class FixedWing(DroneClass):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def update_state(self):
-        """ang_vel, ang_pos, lin_vel, lin_pos"""
+        """Updates the current state of the UAV.
+
+        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
+        """
         lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
@@ -215,7 +220,7 @@ class FixedWing(DroneClass):
         )
 
     def update_control(self):
-        """runs through controllers"""
+        """Runs through controllers."""
         # the default mode
         if self.mode == 0:
             self.cmd = self.setpoint
@@ -231,21 +236,19 @@ class FixedWing(DroneClass):
         self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
     def update_forces(self):
-        """Calculates and applies forces acting on UAV"""
+        """Calculates and applies forces acting on UAV."""
         assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
 
         self.lifting_surfaces.cmd2forces(self.cmd)
         self.motors.pwm2forces(self.cmd[[3]])
 
     def update_physics(self):
-        """update_physics."""
+        """Updates the physics of the vehicle."""
         self.update_state()
         self.update_forces()
 
     def update_avionics(self):
-        """
-        updates state and control
-        """
+        """Updates state and control."""
         self.update_control()
 
         if self.use_camera:

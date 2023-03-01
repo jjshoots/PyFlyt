@@ -1,3 +1,4 @@
+"""A component to simulate lifting surfaces vehicle."""
 from __future__ import annotations
 
 import warnings
@@ -26,7 +27,7 @@ class LiftingSurfaces:
         self.surfaces: list[LiftingSurface] = lifting_surfaces
 
     def reset(self):
-        """reset."""
+        """Resets all lifting surfaces."""
         [surface.reset() for surface in self.surfaces]
 
     def get_states(self) -> np.ndarray:
@@ -38,7 +39,7 @@ class LiftingSurfaces:
         return np.array([surface.actuation for surface in self.surfaces])
 
     def cmd2forces(self, cmd: np.ndarray):
-        """cmd2forces.
+        """Converts actuation commands into forces on the lifting surfaces.
 
         Args:
             cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface.
@@ -57,7 +58,7 @@ class LiftingSurfaces:
             surface.cmd2forces(actuation)
 
     def update_local_surface_velocities(self, rotation_matrix: np.ndarray):
-        """update_local_surface_velocities.
+        """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
             rotation_matrix (np.ndarray): rotation_matrix of the main body
@@ -91,12 +92,13 @@ class LiftingSurface:
         Args:
             p (bullet_client.BulletClient): p
             physics_period (float): physics_period
+            np_random (np.random.RandomState): np_random
             uav_id (int): uav_id
             surface_id (int): surface_id
             command_id (None | int): command_id, for convenience
             command_sign (float): command_sign, for convenience
-            lifting_axis (np.ndarray): (3,) vector representing the direction of lift
-            forward_axis (np.ndarray): (3,) vector representing the direction of travel
+            lifting_vector (np.ndarray): (3,) vector representing the direction of lift
+            forward_vector (np.ndarray): (3,) vector representing the direction of travel
             aerofoil_params (dict): aerofoil_params, see below
 
         Aerofoil params must have these components (everything is in degrees and is a float):
@@ -196,13 +198,13 @@ class LiftingSurface:
         self.local_surface_velocity = np.array([0.0, 0.0, 0.0])
 
     def reset(self):
-        """reset the lifting surfaces."""
+        """Reset the lifting surfaces."""
         self.actuation = 0.0
 
     def update_local_surface_velocity(
         self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray
     ):
-        """update_local_surface_velocity.
+        """Updates the local surface velocity of the lifting surface.
 
         Args:
             rotation_matrix (np.ndarray): rotation_matrix
@@ -211,7 +213,7 @@ class LiftingSurface:
         self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
 
     def cmd2forces(self, cmd: float):
-        """compute_force_torque.
+        """Converts a commanded actuation state into forces on the lifting surface.
 
         Args:
             cmd (float): normalized actuation in [-1, 1]
@@ -253,7 +255,7 @@ class LiftingSurface:
         )
 
     def _compute_aero_data(self, alpha: float) -> tuple[float, float, float]:
-        """_compute_aero_data.
+        """Computes the relevant aerodynamic data depending on the current state of the lifting surface.
 
         Args:
             deflection (float): deflection of the lifting surface in degrees

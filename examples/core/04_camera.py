@@ -24,8 +24,8 @@ DEPTH_img = env.drones[0].depthImg
 SEG_img = env.drones[0].segImg
 
 plt.imshow(RGBA_img)
-plt.show()
+# plt.show()
 plt.imshow(DEPTH_img)
-plt.show()
+# plt.show()
 plt.imshow(SEG_img)
-plt.show()
+# plt.show()

@@ -1,5 +1,4 @@
-import os
-
+"""Registers PyFlyt environments into Gymnasium."""
 from gymnasium.envs.registration import register
 
 # QuadX Envs

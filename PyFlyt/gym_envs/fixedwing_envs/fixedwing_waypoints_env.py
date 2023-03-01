@@ -1,3 +1,4 @@
+"""Fixedwing Waypoints Environment."""
 from __future__ import annotations
 
 import numpy as np
@@ -8,8 +9,7 @@ from .fixedwing_base_env import FixedwingBaseEnv
 
 
 class FixedwingWaypointsEnv(FixedwingBaseEnv):
-    """
-    Simple Waypoint Environment
+    """Fixedwing Waypoints Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
@@ -35,15 +35,15 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """__init__.
 
         Args:
+            sparse_reward (bool): sparse_reward
             num_targets (int): num_targets
             goal_reach_distance (float): goal_reach_distance
-            flight_dome_size (float): size of the allowable flying area
-            max_duration_seconds (float): maximum simulatiaon time of the environment
-            angle_representation (str): can be "euler" or "quaternion"
-            agent_hz (int): looprate of the agent to environment interaction
-            render_mode (None | str): can be "human" or None
+            flight_dome_size (float): flight_dome_size
+            max_duration_seconds (float): max_duration_seconds
+            angle_representation (str): angle_representation
+            agent_hz (int): agent_hz
+            render_mode (None | str): render_mode
         """
-
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 10.0]]),
             drone_type="fixedwing",
@@ -89,7 +89,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
 
         Args:
             seed: seed to pass to the base environment.
-            options:
+            options: None
         """
         super().begin_reset(seed, options)
         self.waypoints.reset(self.env, self.np_random)
@@ -100,7 +100,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         return self.state, self.info
 
     def compute_state(self):
-        """state.
+        """Computes the state of the current timestep.
 
         This returns the observation as well as the distances to target.
         - "attitude" (Box)
@@ -137,7 +137,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         self.state = new_state
 
     def compute_term_trunc_reward(self):
-        """compute_term_trunc."""
+        """Computes the termination, trunction, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse

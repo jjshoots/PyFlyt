@@ -1,3 +1,4 @@
+"""QuadX Hover Environment."""
 from __future__ import annotations
 
 import numpy as np
@@ -6,8 +7,7 @@ from .quadx_base_env import QuadXBaseEnv
 
 
 class QuadXHoverEnv(QuadXBaseEnv):
-    """
-    Simple Hover Environment
+    """Simple Hover Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
@@ -51,7 +51,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
         Args:
             seed: seed to pass to the base environment.
-            options:
+            options: None
         """
         super().begin_reset(seed, options)
         super().end_reset(seed, options)
@@ -59,7 +59,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         return self.state, self.info
 
     def compute_state(self):
-        """state.
+        """Computes the state of the current timestep.
 
         This returns the observation.
         - ang_vel (vector of 3 values)
@@ -83,5 +83,5 @@ class QuadXHoverEnv(QuadXBaseEnv):
             )
 
     def compute_term_trunc_reward(self):
-        """compute_term_trunc."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()

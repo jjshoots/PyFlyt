@@ -1,3 +1,4 @@
+"""The Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment."""
 from __future__ import annotations
 
 import time
@@ -9,12 +10,13 @@ from pybullet_utils import bullet_client
 
 from .abstractions.base_drone import DroneClass
 from .drones.fixedwing import FixedWing
-from .drones.quadplane import Quadplane
 from .drones.quadx import QuadX
 from .drones.rocket import Rocket
 
 
 class Aviary(bullet_client.BulletClient):
+    """Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment."""
+
     def __init__(
         self,
         start_pos: np.ndarray,
@@ -34,6 +36,29 @@ class Aviary(bullet_client.BulletClient):
         seed: None | int = None,
         drone_options: dict = {},
     ):
+        """Initializes a PyBullet environment that hosts UAVs and other entities.
+
+        The Aviary class itself inherits from a BulletClient, so any function that a PyBullet client has, this class will have.
+        The Aviary also handles dealing with physics and control looprates, as well as automatic construction of several default UAVs and their corresponding cameras.
+
+        Args:
+            start_pos (np.ndarray): start_pos
+            start_orn (np.ndarray): start_orn
+            render (bool): render
+            physics_hz (int): physics_hz
+            ctrl_hz (int): ctrl_hz
+            drone_type (str): drone_type
+            drone_model (str): drone_model
+            model_dir (None | str): model_dir
+            use_camera (bool): use_camera
+            use_gimbal (bool): use_gimbal
+            camera_angle_degrees (int): camera_angle_degrees
+            camera_FOV_degrees (int): camera_FOV_degrees
+            camera_resolution (tuple[int, int]): camera_resolution
+            worldScale (float): worldScale
+            seed (None | int): seed
+            drone_options (dict): drone_options
+        """
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
 
@@ -51,8 +76,6 @@ class Aviary(bullet_client.BulletClient):
         # define the drone types
         if drone_type == "quadx":
             self.drone_constructor = QuadX
-        elif drone_type == "quadplane":
-            self.drone_constructor = Quadplane
         elif drone_type == "fixedwing":
             self.drone_constructor = FixedWing
         elif drone_type == "rocket":
@@ -92,6 +115,11 @@ class Aviary(bullet_client.BulletClient):
         self.reset(seed)
 
     def reset(self, seed: None | int = None):
+        """Resets the simulation.
+
+        Args:
+            seed (None | int): seed
+        """
         self.resetSimulation()
         self.setGravity(0, 0, -9.81)
         self.steps = 0
@@ -140,6 +168,10 @@ class Aviary(bullet_client.BulletClient):
         self.set_armed(True)
 
     def register_all_new_bodies(self):
+        """Registers all new bodies in the environment to be able to handle collisions later.
+
+        Call this when there is an update in the number of bodies in the environment.
+        """
         # collision array
         self.collision_array = np.zeros(
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
@@ -147,12 +179,19 @@ class Aviary(bullet_client.BulletClient):
 
     @property
     def num_drones(self) -> int:
+        """Returns the number of drones in the environment.
+
+        Returns:
+            int: number of drones in the environment
+        """
         return len(self.drones)
 
     @property
     def states(self) -> np.ndarray:
-        """
-        returns a list of states for each drone in the aviary
+        """Returns a list of states for all drones in the environment.
+
+        Returns:
+            np.ndarray: list of states
         """
         states = []
         for drone in self.drones:
@@ -164,8 +203,10 @@ class Aviary(bullet_client.BulletClient):
 
     @property
     def aux_states(self) -> np.ndarray:
-        """
-        returns a list of states for each drone in the aviary
+        """Returns a list of auxiliary states for all drones in the environment.
+
+        Returns:
+            np.ndarray: list of auxiliary states
         """
         aux_states = []
         for drone in self.drones:
@@ -176,9 +217,7 @@ class Aviary(bullet_client.BulletClient):
         return aux_states
 
     def print_all_bodies(self):
-        """
-        for debugging: prints a dictionary of IDs to body names
-        """
+        """Debugging function used to print out all bodies in the environment along with their IDs."""
         bodies = dict()
         for i in range(self.getNumBodies()):
             bodies[i] = self.getBodyInfo(i)[-1].decode("UTF-8")
@@ -188,8 +227,10 @@ class Aviary(bullet_client.BulletClient):
         pprint(bodies)
 
     def set_armed(self, settings: int | bool | list[int | bool]):
-        """
-        sets the arming status for all the drones
+        """Sets the arming state of each drone in the environment.
+
+        Args:
+            settings (int | bool | list[int | bool]): arm setting
         """
         if isinstance(settings, list):
             assert len(settings) == len(
@@ -202,8 +243,10 @@ class Aviary(bullet_client.BulletClient):
             self.armed_drones = [drone for drone in self.drones] if settings else []
 
     def set_mode(self, flight_modes: int | list[int]):
-        """
-        sets the flight mode for each drone
+        """Sets the flight mode of each drone in the environment.
+
+        Args:
+            flight_modes (int | list[int]): flight mode
         """
         if isinstance(flight_modes, list):
             assert len(flight_modes) == len(
@@ -216,16 +259,16 @@ class Aviary(bullet_client.BulletClient):
                 drone.set_mode(flight_modes)
 
     def set_setpoints(self, setpoints: np.ndarray):
-        """
-        commands each drone to go to a setpoint as specified in a list
+        """Sets the setpoints of each drone in the environment.
+
+        Args:
+            setpoints (np.ndarray): list of setpoints
         """
         for i, drone in enumerate(self.drones):
             drone.setpoint = setpoints[i]
 
     def step(self):
-        """
-        Steps the environment
-        """
+        """Steps the environment, this automatically handles physics and control looprates, one step is equivalent to one control loop step."""
         # compute rtf if we're rendering
         if self.render:
             elapsed = time.time() - self.now

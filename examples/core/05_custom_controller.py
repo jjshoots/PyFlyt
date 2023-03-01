@@ -8,12 +8,20 @@ class CustomController(CtrlClass):
     """A custom controller that inherits from the CtrlClass."""
 
     def __init__(self):
+        """Initialize the controller here."""
         pass
 
     def reset(self):
+        """Reset the internal state of the controller here."""
         pass
 
-    def step(self, state, setpoint):
+    def step(self, state: np.ndarray, setpoint: np.ndarray):
+        """Step the controller here.
+
+        Args:
+            state (np.ndarray): Current state of the UAV
+            setpoint (np.ndarray): Desired setpoint
+        """
         # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.1
         target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]
         target_yaw_rate = 0.5
@@ -37,5 +45,5 @@ env.drones[0].register_controller(
 env.set_mode(8)
 
 # run the sim
-while True:
+for i in range(1000):
     env.step()

@@ -1,19 +1,11 @@
+"""Spawns an object into the environment from a urdf file."""
 import time
-from signal import SIGINT, signal
 
 import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-
-def shutdown_handler(*_):
-    print("ctrl-c invoked")
-    exit(0)
-
-
 if __name__ == "__main__":
-    signal(SIGINT, shutdown_handler)
-
     env = bullet_client.BulletClient(p.GUI)
     env.setAdditionalSearchPath(pybullet_data.getDataPath())  # optionally
     env.setGravity(0, 0, -9.81)

@@ -1,3 +1,4 @@
+"""QuadX Gates Environment."""
 from __future__ import annotations
 
 import copy
@@ -12,15 +13,13 @@ from .quadx_base_env import QuadXBaseEnv
 
 
 class QuadXGatesEnv(QuadXBaseEnv):
-    """
-    Advanced Gates Env
+    """QuadX Gates Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
     The target is a set of `[x, y, z, yaw]` targets in space
 
-    Reward is -(distance from waypoint + angle error) for each timestep,
-    and -100.0 for hitting the ground.
+    Reward is -(distance from waypoint + angle error) for each timestep, and -100.0 for hitting the ground.
     """
 
     def __init__(
@@ -40,16 +39,17 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+            num_targets (int): num_targets
             goal_reach_distance (float): goal_reach_distance
-            min_gate_height (float): the minimum height of any gate
+            min_gate_height (float): min_gate_height
             max_gate_angles (list[float]): max_gate_angles
             min_gate_distance (float): min_gate_distance
             max_gate_distance (float): max_gate_distance
             camera_resolution (tuple[int, int]): camera_resolution
-            max_duration_seconds (float): maximum simulatiaon time of the environment
-            angle_representation (str): can be "euler" or "quaternion"
-            agent_hz (int): looprate of the agent to environment interaction
-            render_mode (None | str): can be "human" or None
+            max_duration_seconds (float): max_duration_seconds
+            angle_representation (str): angle_representation
+            agent_hz (int): agent_hz
+            render_mode (None | str): render_mode
         """
         super().__init__(
             max_duration_seconds=max_duration_seconds,
@@ -84,16 +84,16 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.goal_reach_distance = goal_reach_distance
 
         file_dir = os.path.dirname(os.path.realpath(__file__))
-        self.gate_obj_dir = os.path.join(file_dir, f"../models/race_gate.urdf")
+        self.gate_obj_dir = os.path.join(file_dir, "../models/race_gate.urdf")
         self.camera_resolution = camera_resolution
         self.num_targets = num_targets
 
     def reset(self, seed=None, options=None):
-        """reset.
+        """Resets the environment.
 
         Args:
             seed: seed to pass to the base environment.
-            options:
+            options: None
         """
         aviary_options = dict()
         aviary_options["use_camera"] = True
@@ -112,7 +112,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         return self.state, self.info
 
     def generate_gates(self):
-        """generate_gates."""
+        """Generates the gates."""
         # sample a bunch of distances for gate distances
         distances = self.np_random.uniform(
             self.min_gate_distance, self.max_gate_distance, size=(self.num_targets,)
@@ -171,11 +171,11 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.colour_first_gate()
         self.colour_other_gate()
 
-    def colour_dead_gate(self, gate):
-        """colour_dead_gate.
+    def colour_dead_gate(self, gate: int):
+        """Colours the gates that are done.
 
         Args:
-            gate:
+            gate (int): body ID of the gate
         """
         # colour the dead gates red
         for i in range(p.getNumJoints(gate)):
@@ -186,7 +186,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
             )
 
     def colour_first_gate(self):
-        """colour_first_gate."""
+        """Colours the immediate target gate."""
         # colour the first gate green
         for i in range(p.getNumJoints(self.gates[0])):
             p.changeVisualShape(
@@ -196,7 +196,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
             )
 
     def colour_other_gate(self):
-        """colour_other_gate."""
+        """Colours gates that are neither targets nor dead."""
         # colour all other gates yellow
         for gate in self.gates[1:]:
             for i in range(p.getNumJoints(gate)):
@@ -207,9 +207,8 @@ class QuadXGatesEnv(QuadXBaseEnv):
                 )
 
     def compute_state(self):
-        """state.
+        """This returns the observation as well as the distances to target.
 
-        This returns the observation as well as the distances to target.
         - "attitude" (Box)
             - ang_vel (vector of 3 values)
             - ang_pos (vector of 3/4 values)
@@ -252,14 +251,14 @@ class QuadXGatesEnv(QuadXBaseEnv):
 
     @property
     def target_reached(self):
-        """target_reached."""
+        """Checks if the immediate target has been reached."""
         if self.dis_error_scalar < self.goal_reach_distance:
             return True
         else:
             return False
 
     def compute_term_trunc_reward(self):
-        """compute_term_trunc_reward."""
+        """Computes the termination, truncation, and reward of the current step."""
         super().compute_base_term_trunc_reward()
 
         # out of range of next gate

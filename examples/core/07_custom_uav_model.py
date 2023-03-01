@@ -1,4 +1,6 @@
 """Spawn a single drone on x=0, y=0, z=1, with 0 rpy."""
+import os
+
 import numpy as np
 
 from PyFlyt.core import Aviary
@@ -11,7 +13,7 @@ start_orn = np.array([[0.0, 0.0, 0.0]])
 env = Aviary(
     start_pos=start_pos,
     start_orn=start_orn,
-    model_dir="./",
+    model_dir=os.path.dirname(os.path.abspath(__file__)),
     drone_model="new_uav",
     render=True,
 )

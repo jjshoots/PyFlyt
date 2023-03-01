@@ -1,3 +1,4 @@
+"""Basic Drone class for all drone models to inherit from."""
 import os
 from abc import ABC, abstractmethod
 
@@ -9,7 +10,7 @@ from .camera import Camera
 
 
 class DroneClass(ABC):
-    """Basic Drone class for all drone models to inherit from."""
+    """DroneClass."""
 
     def __init__(
         self,
@@ -22,7 +23,8 @@ class DroneClass(ABC):
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
     ):
-        """DEFAULT CONFIGURATION FOR DRONES"""
+        """Defines the default configuration for UAVS, to be used in conjunction with the Aviary class."""
+        """ DEFAULT CONFIG """
         if physics_hz != 240.0:
             raise UserWarning(
                 f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
@@ -61,24 +63,28 @@ class DroneClass(ABC):
         self.instanced_controllers = dict()
         self.registered_base_modes = dict()
 
+        """ OPTIONAL CAMERA IMAGES """
+        self.rgbaImg: np.ndarray
+        self.depthImg: np.ndarray
+        self.segImg: np.ndarray
+
     @abstractmethod
     def reset(self):
-        """reset."""
+        """Resets the vehicle to the initial state."""
         pass
 
     @abstractmethod
     def update_avionics(self):
-        """update_avionics."""
+        """Updates all onboard avionics computations."""
         pass
 
     @abstractmethod
     def update_physics(self):
-        """update_physics."""
+        """Updates all physics on the vehicle."""
         pass
 
     def set_mode(self, mode):
-        """
-        Default set_mode.
+        """Default set_mode.
 
         By default, mode 0 defines the following setpoint behaviour:
         Mode 0 - [Pitch, Roll, Yaw, Thrust]
@@ -101,8 +107,7 @@ class DroneClass(ABC):
         controller_constructor: type[CtrlClass],
         base_mode: int,
     ):
-        """
-        Default register_controller.
+        """Default register_controller.
 
         Args:
             controller_id (int): controller_id
@@ -134,6 +139,6 @@ class DroneClass(ABC):
         pprint(infos)
 
     def disable_artificial_damping(self):
-        """Disable the artificial damping that pybullet has"""
+        """Disable the artificial damping that pybullet has."""
         for idx in range(-1, self.p.getNumJoints(self.Id)):
             self.p.changeDynamics(self.Id, idx, linearDamping=0.0, angularDamping=0.0)

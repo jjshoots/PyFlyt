@@ -1,9 +1,15 @@
+"""Setup PyFlyt."""
 import os
 
 from setuptools import find_namespace_packages, setup
 
 
 def package_files(directory):
+    """package_files.
+
+    Args:
+        directory: directory of non-python files
+    """
     paths = []
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:

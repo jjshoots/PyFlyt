@@ -1,3 +1,4 @@
+"""A component to simulate an array of boosters on vehicle."""
 from __future__ import annotations
 
 import warnings
@@ -135,7 +136,7 @@ class Boosters:
         self.ratio_fuel_rate = self.max_fuel_rate / self.total_fuel_mass
 
     def reset(self):
-        """reset the boosters."""
+        """Reset the boosters."""
         # deal with everything in percents
         self.ratio_fuel_remaining = np.ones((self.num_boosters,), dtype=np.float64)
         self.throttle = np.zeros((self.num_boosters,), dtype=np.float64)
@@ -168,7 +169,7 @@ class Boosters:
         gimbal_x: np.ndarray,
         gimbal_y: np.ndarray,
     ):
-        """settings2forces.
+        """Converts booster settings into forces on the booster and inertia change on fuel tank.
 
         Args:
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off
@@ -176,7 +177,6 @@ class Boosters:
             gimbal_x (np.ndarray): (num_boosters,) array of floats between [-1, 1]
             gimbal_y (np.ndarray): (num_boosters,) array of floats between [-1, 1]
         """
-
         assert np.all(gimbal_x >= -1.0) and np.all(
             gimbal_x <= 1.0
         ), f"`{gimbal_x=} has values out of bounds of -1.0 and 1.0.`"

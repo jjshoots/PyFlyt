@@ -1,3 +1,4 @@
+"""A component to simulate a camera on a vehicle."""
 from __future__ import annotations
 
 import math
@@ -69,7 +70,7 @@ class Camera:
 
     @property
     def view_mat(self) -> np.ndarray:
-        """view_mat.
+        """Generates the view matrix for the camera depending on the current orientation and implicit parameters.
 
         Returns:
             np.ndarray: view matrix
@@ -112,7 +113,7 @@ class Camera:
         )
 
     def capture_image(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """capture_image.
+        """Captures the 3 relevant images from the camera.
 
         Returns:
             tuple[np.ndarray, np.ndarray, np.ndarray]: rgbaImg, depthImg, segImg

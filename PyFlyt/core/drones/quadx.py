@@ -1,3 +1,4 @@
+"""Implementation of a CrazyFlie 2.x UAV."""
 from __future__ import annotations
 
 import math
@@ -185,10 +186,10 @@ class QuadX(DroneClass):
         self.reset()
 
     def reset(self):
-        """reset."""
+        """Resets the vehicle to the initial state."""
         self.set_mode(0)
-        self.setpoint = np.zeros((4))
-        self.pwm = np.zeros((4))
+        self.setpoint = np.zeros(4)
+        self.pwm = np.zeros(4)
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
@@ -198,14 +199,8 @@ class QuadX(DroneClass):
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
-    def set_mode(self, mode):
-        """
-        vp, vq, vr = angular velocities
-        p, q, r = angular positions
-        u, v, w = local linear velocities
-        x, y, z = linear positions
-        vx, vy, vz = ground linear velocities
-        T = thrust
+    def set_mode(self, mode: int):
+        """Sets the current flight mode of the vehicle.
 
         sets the flight mode:
            -1 - m1, m2, m3, m4
@@ -217,6 +212,17 @@ class QuadX(DroneClass):
             5 - u, v, vr, vz
             6 - vx, vy, vr, vz
             7 - x, y, r, z
+
+        vp, vq, vr = angular velocities
+        p, q, r = angular positions
+        u, v, w = local linear velocities
+        x, y, z = linear positions
+        vx, vy, vz = ground linear velocities
+        T = thrust
+
+        Args:
+            mode (int): flight mode
+
         """
         if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
             raise ValueError(
@@ -340,7 +346,7 @@ class QuadX(DroneClass):
         controller_constructor: type[CtrlClass],
         base_mode: int,
     ):
-        """register_controller.
+        """Registers a new controller for the UAV.
 
         Args:
             controller_id (int): controller_id
@@ -358,7 +364,10 @@ class QuadX(DroneClass):
         self.registered_base_modes[controller_id] = base_mode
 
     def update_state(self):
-        """ang_vel, ang_pos, lin_vel, lin_pos"""
+        """Updates the current state of the UAV.
+
+        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
+        """
         lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
@@ -377,7 +386,7 @@ class QuadX(DroneClass):
         self.aux_state = self.motors.get_states()
 
     def update_control(self):
-        """runs through controllers"""
+        """Runs through controllers."""
         # this is the thing we cascade down controllers
         a_output = self.setpoint[:3].copy()
         z_output = self.setpoint[-1].copy()
@@ -458,7 +467,7 @@ class QuadX(DroneClass):
             self.pwm += (1.0 - self.pwm) / (1.0 - low) * (0.05 - low)
 
     def update_drag(self):
-        """adds drag to the model, this is not physically correct but only approximation"""
+        """Adds drag to the model, this is not physically correct but only approximation."""
         drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)
         drag_xyz = -self.drag_coef_xyz * (np.array(self.state[2]) ** 2)
 
@@ -470,15 +479,13 @@ class QuadX(DroneClass):
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def update_physics(self):
-        """update_physics."""
+        """Updates the physics of the vehicle."""
         self.update_state()
         self.motors.pwm2forces(self.pwm)
         self.update_drag()
 
     def update_avionics(self):
-        """
-        updates state and control
-        """
+        """Updates state and control."""
         self.update_control()
 
         if self.use_camera:

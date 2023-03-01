@@ -57,7 +57,7 @@ import PyFlyt.gym_envs
 
 env = gymnasium.make("PyFlyt/QuadX-Hover-v0")
 
-# ommit the below line to remove renderring and let
+# omit the below line to remove rendering and let
 # the simulation go as fast as possible
 env.render()
 obs = env.reset()

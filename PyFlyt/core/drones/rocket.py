@@ -1,3 +1,4 @@
+"""Implementation of a 1:10 scale SpaceX Rocket UAV."""
 from __future__ import annotations
 
 import numpy as np
@@ -161,10 +162,10 @@ class Rocket(DroneClass):
         self.reset()
 
     def reset(self):
-        """reset."""
+        """Resets the vehicle to the initial state."""
         self.set_mode(0)
-        self.setpoint = np.zeros((7))
-        self.cmd = np.zeros((8))
+        self.setpoint = np.zeros(7)
+        self.cmd = np.zeros(8)
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
@@ -176,7 +177,10 @@ class Rocket(DroneClass):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def update_state(self):
-        """ang_vel, ang_pos, lin_vel, lin_pos"""
+        """Updates the current state of the UAV.
+
+        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
+        """
         lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
         lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
@@ -200,7 +204,7 @@ class Rocket(DroneClass):
         )
 
     def update_control(self):
-        """runs through controllers"""
+        """Runs through controllers."""
         # the default mode
         if self.mode == 0:
             # finlet mapping
@@ -221,7 +225,7 @@ class Rocket(DroneClass):
         self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
     def update_forces(self):
-        """Calculates and applies forces acting on Rocket"""
+        """Calculates and applies forces acting on Rocket."""
         # update all finlets
         self.lifting_surfaces.cmd2forces(self.cmd)
 
@@ -234,14 +238,12 @@ class Rocket(DroneClass):
         )
 
     def update_physics(self):
-        """update_physics."""
+        """Updates the physics of the vehicle."""
         self.update_state()
         self.update_forces()
 
     def update_avionics(self):
-        """
-        updates state and control
-        """
+        """Updates state and control."""
         self.update_control()
 
         if self.use_camera:

@@ -1,3 +1,4 @@
+"""Class implementations for creating custom UAVs in the PyBullet simulation environment."""
 from .abstractions.base_controller import CtrlClass
 from .abstractions.base_drone import DroneClass
 from .abstractions.pid import PID

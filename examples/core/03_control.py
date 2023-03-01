@@ -38,5 +38,5 @@ for i in range(500, 1000):
     log[i] = env.states[0][-1]
 
 # plot stuff out
+# do plt.show() to show the plot
 plt.plot(np.arange(1000), log)
-plt.show()

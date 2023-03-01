@@ -1,3 +1,4 @@
+"""A component to simulate an array of electric propeller motors on vehicle."""
 from __future__ import annotations
 
 import numpy as np
@@ -25,6 +26,7 @@ class Motors:
         Args:
             p (bullet_client.BulletClient): p
             physics_period (float): physics_period
+            np_random (np.random.RandomState): np_random
             uav_id (int): uav_id
             motor_ids (list[int]): motor_ids
             tau (np.ndarray): motor ramp time constant
@@ -58,7 +60,7 @@ class Motors:
         self.noise_ratio = np.expand_dims(noise_ratio, axis=-1)
 
     def reset(self):
-        """reset the motors."""
+        """Reset the motors."""
         self.throttle = np.zeros((self.num_motors, 1))
 
     def get_states(self) -> np.ndarray:
@@ -69,11 +71,11 @@ class Motors:
         """
         return self.throttle.flatten()
 
-    def pwm2forces(self, pwm):
-        """pwm2forces.
+    def pwm2forces(self, pwm: np.ndarray):
+        """Converts motor PWM values to forces, this motor allows negative thrust.
 
         Args:
-            pwm:
+            pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1
         """
         assert np.all(pwm >= -1.0) and np.all(
             pwm <= 1.0

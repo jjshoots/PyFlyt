@@ -1,3 +1,4 @@
+"""Base PyFlyt Environment for the Rocket model using the Gymnasim API."""
 from __future__ import annotations
 
 import gymnasium
@@ -9,7 +10,7 @@ from PyFlyt.core.aviary import Aviary
 
 
 class RocketBaseEnv(gymnasium.Env):
-    """Base PyFlyt Environment for the Rocket model using the Gymnasim API"""
+    """Base PyFlyt Environment for the Rocket model using the Gymnasim API."""
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
@@ -29,10 +30,16 @@ class RocketBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
-            max_duration_seconds (float): maximum simulatiaon time of the environment
-            angle_representation (str): can be "euler" or "quaternion"
-            agent_hz (int): looprate of the agent to environment interaction
-            render_mode (None | str): can be "human" or None
+            start_pos (np.ndarray): start_pos
+            start_orn (np.ndarray): start_orn
+            drone_type (str): drone_type
+            drone_model (str): drone_model
+            ceiling (float): ceiling
+            max_displacement (float): max_displacement
+            max_duration_seconds (float): max_duration_seconds
+            angle_representation (str): angle_representation
+            agent_hz (int): agent_hz
+            render_mode (None | str): render_mode
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -120,21 +127,22 @@ class RocketBaseEnv(gymnasium.Env):
             self.angle_representation = 1
 
     def reset(self, seed=None, options=dict()):
-        """reset.
+        """Resets the environment.
 
         Args:
-            seed: seed to pass to the base environment.
-            options:
+            seed: int
+            options: None
         """
         raise NotImplementedError
 
     def close(self):
+        """Disconnects the internal Aviary."""
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
             self.env.disconnect()
 
     def begin_reset(self, seed=None, options=dict(), aviary_options=dict()):
-        """The first half of the reset function"""
+        """The first half of the reset function."""
         super().reset(seed=seed)
 
         # if we already have an env, disconnect from it
@@ -145,7 +153,7 @@ class RocketBaseEnv(gymnasium.Env):
         self.termination = False
         self.truncation = False
         self.state = None
-        self.action = np.zeros((self.action_space.shape[0],))
+        self.action = np.zeros((7,))
         self.reward = 0.0
         self.info = {}
         self.info["out_of_bounds"] = False
@@ -186,7 +194,7 @@ class RocketBaseEnv(gymnasium.Env):
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(self, seed=None, options=dict()):
-        """The tailing half of the reset function"""
+        """The tailing half of the reset function."""
         # register all new collision bodies
         self.env.register_all_new_bodies()
 
@@ -200,14 +208,11 @@ class RocketBaseEnv(gymnasium.Env):
         self.compute_state()
 
     def compute_state(self):
-        """compute_state."""
+        """Computes the state of the Rocket."""
         raise NotImplementedError
 
     def compute_auxiliary(self):
-        """auxiliary_state
-
-        This returns the auxiliary state form the drone.
-        """
+        """This returns the auxiliary state form the drone."""
         return self.env.drones[0].aux_state
 
     def compute_attitude(self):
@@ -271,7 +276,7 @@ class RocketBaseEnv(gymnasium.Env):
             self.termination |= True
 
     def step(self, action: np.ndarray):
-        """Steps the environment
+        """Steps the environment.
 
         Args:
             action (np.ndarray): action
@@ -317,6 +322,4 @@ class RocketBaseEnv(gymnasium.Env):
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
 
-        return np.array(rgbaImg, dtype=np.uint8).reshape(
-            height, width, -1
-        )
+        return np.array(rgbaImg, dtype=np.uint8).reshape(height, width, -1)

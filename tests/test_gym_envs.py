@@ -1,32 +1,99 @@
 """Tests the API compatibility of all PyFlyt Envs."""
 import warnings
 
-import PyFlyt.gym_envs
 import gymnasium as gym
 import pytest
 from gymnasium.error import Error
 from gymnasium.utils.env_checker import check_env, data_equivalence
 
+import PyFlyt.gym_envs
+
 _ALL_ENV_CONFIGS = []
 # quadx envs
 _ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v0", dict(angle_representation="euler")))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v0", dict(angle_representation="quaternion")))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="euler", sparse_reward=True)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="quaternion", sparse_reward=True)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="euler", sparse_reward=False)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="quaternion", sparse_reward=False)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="euler", use_yaw_targets=True)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="quaternion", use_yaw_targets=True)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="euler", use_yaw_targets=False)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Waypoints-v0", dict(angle_representation="quaternion", use_yaw_targets=False)))
+_ALL_ENV_CONFIGS.append(
+    ("PyFlyt/QuadX-Hover-v0", dict(angle_representation="quaternion"))
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="euler", sparse_reward=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="quaternion", sparse_reward=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="euler", sparse_reward=False),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="quaternion", sparse_reward=False),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="euler", use_yaw_targets=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="quaternion", use_yaw_targets=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="euler", use_yaw_targets=False),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Waypoints-v0",
+        dict(angle_representation="quaternion", use_yaw_targets=False),
+    )
+)
 # fixedwing envs
-_ALL_ENV_CONFIGS.append(("PyFlyt/Fixedwing-Waypoints-v0", dict(angle_representation="euler", sparse_reward=True)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/Fixedwing-Waypoints-v0", dict(angle_representation="quaternion", sparse_reward=True)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/Fixedwing-Waypoints-v0", dict(angle_representation="euler", sparse_reward=False)))
-_ALL_ENV_CONFIGS.append(("PyFlyt/Fixedwing-Waypoints-v0", dict(angle_representation="quaternion", sparse_reward=False)))
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/Fixedwing-Waypoints-v0",
+        dict(angle_representation="euler", sparse_reward=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/Fixedwing-Waypoints-v0",
+        dict(angle_representation="quaternion", sparse_reward=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/Fixedwing-Waypoints-v0",
+        dict(angle_representation="euler", sparse_reward=False),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        "PyFlyt/Fixedwing-Waypoints-v0",
+        dict(angle_representation="quaternion", sparse_reward=False),
+    )
+)
 # rocket envs
-_ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v0", dict(angle_representation="euler")))
-_ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v0", dict(angle_representation="quaternion")))
+_ALL_ENV_CONFIGS.append(
+    ("PyFlyt/Rocket-Landing-v0", dict(angle_representation="euler"))
+)
+_ALL_ENV_CONFIGS.append(
+    ("PyFlyt/Rocket-Landing-v0", dict(angle_representation="quaternion"))
+)
 
 # todo - gymnasium v27 should remove the need for some of these warnings
 CHECK_ENV_IGNORE_WARNINGS = [
@@ -39,6 +106,7 @@ CHECK_ENV_IGNORE_WARNINGS = [
         "RGB-array rendering should return a numpy array in which the last axis has three dimensions, got 4",
     ]
 ]
+
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
 def test_check_env(env_config):
@@ -77,6 +145,7 @@ def test_seeding(env_config):
 
     env_1.close()
     env_2.close()
+
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
 def test_render(env_config):
