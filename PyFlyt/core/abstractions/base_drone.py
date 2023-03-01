@@ -1,4 +1,6 @@
 """Basic Drone class for all drone models to inherit from."""
+from __future__ import annotations
+
 import os
 from abc import ABC, abstractmethod
 
