@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyFlyt"
-version = "0.4.0"
+version = "0.5.1"
 authors = [
   { name="Jet", email="taijunjet@hotmail.com" },
 ]
@@ -20,24 +20,15 @@ dependencies = ["wheel", "matplotlib", "gymnasium", "numpy", "pybullet", "cflib"
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "Gym", "PettingZoo"]
 license = { file="./LICENSE.txt" }
 
-[project.urls]
-Repository = "https://github.com/jjshoots/PyFlyt"
-"Bug Report" = "https://github.com/jjshoots/PyFlyt/issues"
-
 [tool.setuptools]
 include-package-data = true
 
-include = [
-  "PyFlyt/**",
-]
+[tool.setuptools.packages.find]
+include = ["PyFlyt", "PyFlyt.*"]
 
-exclude = [
-  "**/__pycache__",
-]
-
-strict = [
-
-]
+[project.urls]
+Repository = "https://github.com/jjshoots/PyFlyt"
+"Bug Report" = "https://github.com/jjshoots/PyFlyt/issues"
 
 #######################################################################################
 # linters

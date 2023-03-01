@@ -34,6 +34,5 @@ def get_version():
 
 setup(
     name="PyFlyt",
-    version=get_version(),
     package_data={"PyFlyt": extra_files},
 )
