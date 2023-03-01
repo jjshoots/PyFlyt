@@ -125,7 +125,6 @@ class QuadXGatesEnv(QuadXBaseEnv):
         gate_ang = np.array([0.0, 0.0, 0.0])
 
         for new_distance, new_angle in zip(distances, angles):
-
             # check that the gate we're about to make doesn't go below the minimum height
             vertical_offset = 0.0
             if (

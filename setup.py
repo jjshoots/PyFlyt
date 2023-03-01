@@ -11,7 +11,7 @@ def package_files(directory):
         directory: directory of non-python files
     """
     paths = []
-    for (path, directories, filenames) in os.walk(directory):
+    for path, directories, filenames in os.walk(directory):
         for filename in filenames:
             paths.append(os.path.join("..", path, filename))
     return paths
