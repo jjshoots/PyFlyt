@@ -1,17 +1,17 @@
 ---
 repos:
   - repo: https://github.com/python/black
-    rev: 22.3.0
+    rev: 23.1.0
     hooks:
       - id: black
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.1.0
+    rev: v2.2.2
     hooks:
       - id: codespell
         args:
           - --ignore-words-list=reacher
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 6.0.0
     hooks:
       - id: flake8
         args:
@@ -26,14 +26,14 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.1.1
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         args:
           - --source
           - --explain
           - --convention=google
-        additional_dependencies: ["toml"]
+        additional_dependencies: ["tomli"]
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
     hooks:
