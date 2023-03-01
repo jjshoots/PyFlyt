@@ -1,7 +1,7 @@
 """Setup PyFlyt."""
 import os
 
-from setuptools import find_namespace_packages, setup
+from setuptools import setup
 
 
 def package_files(directory):
