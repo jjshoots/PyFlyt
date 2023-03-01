@@ -16,6 +16,7 @@ def package_files(directory):
             paths.append(os.path.join("..", path, filename))
     return paths
 
+
 setup(
     name="PyFlyt",
     package_data={"PyFlyt": package_files("PyFlyt/models/")},
