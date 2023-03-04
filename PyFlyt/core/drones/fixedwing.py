@@ -143,8 +143,9 @@ class FixedWing(DroneClass):
             max_rpm = np.array([1.0]) * np.sqrt(
                 (motor_params["total_thrust"]) / motor_params["thrust_coef"]
             )
-            thrust_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["thrust_coef"]
-            torque_coef = np.array([[0.0, 1.0, 0.0]]) * motor_params["torque_coef"]
+            thrust_coef = np.array([motor_params["thrust_coef"]])
+            torque_coef = np.array([motor_params["torque_coef"]])
+            thrust_unit = np.array([[0.0, 1.0, 0.0]])
             noise_ratio = np.array([motor_params["noise_ratio"]])
             self.motors = Motors(
                 p=self.p,
@@ -156,6 +157,7 @@ class FixedWing(DroneClass):
                 max_rpm=max_rpm,
                 thrust_coef=thrust_coef,
                 torque_coef=torque_coef,
+                thrust_unit=thrust_unit,
                 noise_ratio=noise_ratio,
             )
 

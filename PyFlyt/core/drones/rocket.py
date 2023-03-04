@@ -8,6 +8,7 @@ from pybullet_utils import bullet_client
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.boosters import Boosters
 from ..abstractions.camera import Camera
+from ..abstractions.gimbal import Gimbals
 from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 
 
@@ -136,10 +137,17 @@ class Rocket(DroneClass):
                 min_thrust=np.array([booster_params["min_thrust"]]),
                 max_thrust=np.array([booster_params["max_thrust"]]),
                 thrust_unit=np.array([[0.0, 1.0, 0.0]]),
-                gimbal_unit_1=np.array([[1.0, 0.0, 0.0]]),
-                gimbal_unit_2=np.array([[0.0, 0.0, 1.0]]),
                 reignitable=np.array([booster_params["reignitable"]], dtype=bool),
                 booster_tau=np.array([booster_params["booster_tau"]]),
+            )
+
+            # add the gimbal for the booster
+            self.gimbals = Gimbals(
+                p=self.p,
+                physics_period=self.physics_period,
+                np_random=self.np_random,
+                gimbal_unit_1=np.array([[1.0, 0.0, 0.0]]),
+                gimbal_unit_2=np.array([[0.0, 0.0, 1.0]]),
                 gimbal_tau=np.array([booster_params["gimbal_tau"]]),
                 gimbal_range_degrees=np.array([booster_params["gimbal_range_degrees"]]),
             )
@@ -170,6 +178,7 @@ class Rocket(DroneClass):
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
         self.lifting_surfaces.reset()
+        self.gimbals.reset()
         self.boosters.reset()
         self.update_state()
 
@@ -200,7 +209,11 @@ class Rocket(DroneClass):
 
         # update auxiliary information
         self.aux_state = np.concatenate(
-            (self.lifting_surfaces.get_states(), self.boosters.get_states())
+            (
+                self.lifting_surfaces.get_states(),
+                self.boosters.get_states(),
+                self.gimbals.get_states(),
+            )
         )
 
     def update_control(self):
@@ -229,12 +242,16 @@ class Rocket(DroneClass):
         # update all finlets
         self.lifting_surfaces.cmd2forces(self.cmd)
 
+        # move the booster gimbal
+        gimbal_rotation = self.gimbals.compute_rotation(
+            np.array([self.cmd[6], self.cmd[7]])
+        )
+
         # update booster
         self.boosters.settings2forces(
             ignition=self.cmd[[4]],
             pwm=self.cmd[[5]],
-            gimbal_x=self.cmd[[6]],
-            gimbal_y=self.cmd[[7]],
+            rotation=gimbal_rotation,
         )
 
     def update_physics(self):

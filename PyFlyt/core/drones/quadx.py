@@ -76,27 +76,22 @@ class QuadX(DroneClass):
 
             # motor thrust and torque constants
             motor_ids = [0, 1, 2, 3]
-            thrust_coef = (
-                np.array(
-                    [
-                        [0.0, 0.0, +1.0],
-                        [0.0, 0.0, +1.0],
-                        [0.0, 0.0, +1.0],
-                        [0.0, 0.0, +1.0],
-                    ]
-                )
-                * motor_params["thrust_coef"]
+            thrust_coef = np.array([motor_params["thrust_coef"]] * 4)
+            torque_coef = np.array(
+                [
+                    +motor_params["torque_coef"],
+                    +motor_params["torque_coef"],
+                    -motor_params["torque_coef"],
+                    -motor_params["torque_coef"],
+                ]
             )
-            torque_coef = (
-                np.array(
-                    [
-                        [0.0, 0.0, +1.0],
-                        [0.0, 0.0, +1.0],
-                        [0.0, 0.0, -1.0],
-                        [0.0, 0.0, -1.0],
-                    ]
-                )
-                * motor_params["torque_coef"]
+            thrust_unit = np.array(
+                [
+                    [0.0, 0.0, 1.0],
+                    [0.0, 0.0, 1.0],
+                    [0.0, 0.0, 1.0],
+                    [0.0, 0.0, 1.0],
+                ]
             )
             noise_ratio = np.array([1.0] * 4) * motor_params["noise_ratio"]
             max_rpm = np.array([1.0] * 4) * np.sqrt(
@@ -113,6 +108,7 @@ class QuadX(DroneClass):
                 max_rpm=max_rpm,
                 thrust_coef=thrust_coef,
                 torque_coef=torque_coef,
+                thrust_unit=thrust_unit,
                 noise_ratio=noise_ratio,
             )
 

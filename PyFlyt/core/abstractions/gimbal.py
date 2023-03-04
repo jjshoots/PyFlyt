@@ -1,0 +1,137 @@
+"""A component to simulate an array of gimbals on vehicle."""
+from __future__ import annotations
+
+import warnings
+
+import numpy as np
+from pybullet_utils import bullet_client
+
+
+class Gimbals:
+    """Gimbals."""
+
+    def __init__(
+        self,
+        p: bullet_client.BulletClient,
+        physics_period: float,
+        np_random: np.random.RandomState,
+        gimbal_unit_1: np.ndarray,
+        gimbal_unit_2: np.ndarray,
+        gimbal_tau: np.ndarray,
+        gimbal_range_degrees: np.ndarray,
+    ):
+        """Used for simulating an array of gimbals.
+
+        Args:
+            p (bullet_client.BulletClient): p
+            physics_period (float): physics_period
+            np_random (np.random.RandomState): np_random
+            gimbal_unit_1 (np.ndarray): first unit vector that the gimbal rotates around
+            gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around
+            gimbal_tau (np.ndarray): gimbal ramp time constant
+            gimbal_range_degrees (np.ndarray): gimbal_range_degrees
+        """
+        self.p = p
+        self.physics_period = physics_period
+        self.np_random = np_random
+
+        assert len(gimbal_unit_1.shape) == 2 and gimbal_unit_1.shape[-1] == 3, f"Expected `gimbal_unit_1` to be of shape (n, 3), got {gimbal_unit_1.shape}"
+        assert len(gimbal_unit_2.shape) == 2 and gimbal_unit_2.shape[-1] == 3, f"Expected `gimbal_unit_2` to be of shape (n, 3), got {gimbal_unit_1.shape}"
+        assert gimbal_unit_1.shape[0] == gimbal_unit_2.shape[0], f"Expected both gimbal_units to have equal number of elements, got {gimbal_unit_1.shape} and {gimbal_unit_2.shape}"
+        assert gimbal_tau.shape == (gimbal_unit_1.shape[0],)
+        assert gimbal_range_degrees.shape == (gimbal_unit_1.shape[0],)
+
+        self.num_gimbals = gimbal_unit_1.shape[0]
+
+        # check that the gimbal_axis is normalized
+        for i, axis in enumerate(gimbal_unit_1):
+            if np.linalg.norm(axis) != 1.0:
+                warnings.warn(f"Norm of `gimbal_unit_1` at element {i}: {gimbal_unit_1[i]=} is not 1.0, normalizing...")
+                gimbal_unit_1[i] /= np.linalg.norm(gimbal_unit_1[i])
+        for i, axis in enumerate(gimbal_unit_2):
+            if np.linalg.norm(axis) != 1.0:
+                warnings.warn(f"Norm of `gimbal_unit_2` at element {i}: {gimbal_unit_2[i]=} is not 1.0, normalizing...")
+                gimbal_unit_2[i] /= np.linalg.norm(gimbal_unit_2[i])
+
+        # check that gimbal axes are orthogonal
+        for i, (ax1, ax2) in enumerate(zip(gimbal_unit_1, gimbal_unit_2)):
+            if np.dot(ax1, ax2) != 0.0:
+                warnings.warn(
+                    f"gimbal units at element {i} ({gimbal_unit_1[i], gimbal_unit_2[i]}) are not orthogonal, you have been warned."
+                )
+
+        # constants
+        self.gimbal_tau = gimbal_tau
+        self.gimbal_range_radians = np.deg2rad(gimbal_range_degrees)
+
+        # runtime variables
+        # rotation matrices using
+        # https://math.stackexchange.com/questions/142821/matrix-for-rotation-around-a-vector
+        self.w1 = np.zeros((self.num_gimbals, 3, 3))
+        self.w1[:, 2, 1] = gimbal_unit_1[:, 0]
+        self.w1[:, 1, 2] = -gimbal_unit_1[:, 0]
+        self.w1[:, 0, 2] = gimbal_unit_1[:, 1]
+        self.w1[:, 2, 0] = -gimbal_unit_1[:, 1]
+        self.w1[:, 1, 0] = gimbal_unit_1[:, 2]
+        self.w1[:, 0, 1] = -gimbal_unit_1[:, 2]
+        self.w1_squared = self.w1 @ self.w1
+
+        self.w2 = np.zeros((self.num_gimbals, 3, 3))
+        self.w2[:, 2, 1] = gimbal_unit_2[:, 0]
+        self.w2[:, 1, 2] = -gimbal_unit_2[:, 0]
+        self.w2[:, 0, 2] = gimbal_unit_2[:, 1]
+        self.w2[:, 2, 0] = -gimbal_unit_2[:, 1]
+        self.w2[:, 1, 0] = gimbal_unit_2[:, 2]
+        self.w2[:, 0, 1] = -gimbal_unit_2[:, 2]
+        self.w2_squared = self.w2 @ self.w2
+
+    def reset(self):
+        """Reset the gimbals."""
+        self.gimbal_state = np.zeros((self.num_gimbals, 2), dtype=np.float64)
+        self.rotation1 = np.array([np.eye(3)] * self.num_gimbals, dtype=np.float64)
+        self.rotation2 = np.array([np.eye(3)] * self.num_gimbals, dtype=np.float64)
+
+    def get_states(self) -> np.ndarray:
+        """Gets the current state of the components.
+
+        Returns:
+            np.ndarray:
+        """
+        return np.concatenate(
+            [
+                self.gimbal_state.flatten(), # [n, 2]
+            ]
+        )
+
+    def compute_rotation(self, gimbal_command) -> np.ndarray:
+        """Returns a rotation vector after the gimbal rotation
+
+        Args:
+            gimbal_command (np.ndarray): (num_gimbals, 2) array of floats between [-1, 1]
+
+        Returns:
+            rotation_vector (np.ndarray): (num_gimbals, 3, 3) rotation matrices for all gimbals
+        """
+        assert np.all(gimbal_command >= -1.0) and np.all(gimbal_command <= 1.0), f"`{gimbal_command=} has values out of bounds of -1.0 and 1.0.`"
+
+        # model the gimbal using first order ODE, y' = T/tau * (setpoint - y)
+        self.gimbal_state += (self.physics_period / self.gimbal_tau) * (
+            gimbal_command - self.gimbal_state
+        )
+        gimbal_angles = self.gimbal_state * self.gimbal_range_radians
+
+        # start calculating rotation matrices
+        # https://math.stackexchange.com/questions/142821/matrix-for-rotation-around-a-vector
+        rotation1 = (
+            np.eye(3)
+            + np.sin(gimbal_angles[:, 0]) * self.w1
+            + 2 * (np.sin(gimbal_angles[:, 0]) ** 2) * self.w1_squared
+        )
+        rotation2 = (
+            np.eye(3)
+            + np.sin(gimbal_angles[:, 1]) * self.w2
+            + 2 * (np.sin(gimbal_angles[:, 1]) ** 2) * self.w2_squared
+        )
+
+        # get the final thrust vector
+        return rotation1 @ rotation2
