@@ -35,9 +35,15 @@ class Gimbals:
         self.physics_period = physics_period
         self.np_random = np_random
 
-        assert len(gimbal_unit_1.shape) == 2 and gimbal_unit_1.shape[-1] == 3, f"Expected `gimbal_unit_1` to be of shape (n, 3), got {gimbal_unit_1.shape}"
-        assert len(gimbal_unit_2.shape) == 2 and gimbal_unit_2.shape[-1] == 3, f"Expected `gimbal_unit_2` to be of shape (n, 3), got {gimbal_unit_1.shape}"
-        assert gimbal_unit_1.shape[0] == gimbal_unit_2.shape[0], f"Expected both gimbal_units to have equal number of elements, got {gimbal_unit_1.shape} and {gimbal_unit_2.shape}"
+        assert (
+            len(gimbal_unit_1.shape) == 2 and gimbal_unit_1.shape[-1] == 3
+        ), f"Expected `gimbal_unit_1` to be of shape (n, 3), got {gimbal_unit_1.shape}"
+        assert (
+            len(gimbal_unit_2.shape) == 2 and gimbal_unit_2.shape[-1] == 3
+        ), f"Expected `gimbal_unit_2` to be of shape (n, 3), got {gimbal_unit_1.shape}"
+        assert (
+            gimbal_unit_1.shape[0] == gimbal_unit_2.shape[0]
+        ), f"Expected both gimbal_units to have equal number of elements, got {gimbal_unit_1.shape} and {gimbal_unit_2.shape}"
         assert gimbal_tau.shape == (gimbal_unit_1.shape[0],)
         assert gimbal_range_degrees.shape == (gimbal_unit_1.shape[0],)
 
@@ -46,11 +52,15 @@ class Gimbals:
         # check that the gimbal_axis is normalized
         for i, axis in enumerate(gimbal_unit_1):
             if np.linalg.norm(axis) != 1.0:
-                warnings.warn(f"Norm of `gimbal_unit_1` at element {i}: {gimbal_unit_1[i]=} is not 1.0, normalizing...")
+                warnings.warn(
+                    f"Norm of `gimbal_unit_1` at element {i}: {gimbal_unit_1[i]=} is not 1.0, normalizing..."
+                )
                 gimbal_unit_1[i] /= np.linalg.norm(gimbal_unit_1[i])
         for i, axis in enumerate(gimbal_unit_2):
             if np.linalg.norm(axis) != 1.0:
-                warnings.warn(f"Norm of `gimbal_unit_2` at element {i}: {gimbal_unit_2[i]=} is not 1.0, normalizing...")
+                warnings.warn(
+                    f"Norm of `gimbal_unit_2` at element {i}: {gimbal_unit_2[i]=} is not 1.0, normalizing..."
+                )
                 gimbal_unit_2[i] /= np.linalg.norm(gimbal_unit_2[i])
 
         # check that gimbal axes are orthogonal
@@ -99,12 +109,12 @@ class Gimbals:
         """
         return np.concatenate(
             [
-                self.gimbal_state.flatten(), # [n, 2]
+                self.gimbal_state.flatten(),  # [n, 2]
             ]
         )
 
     def compute_rotation(self, gimbal_command) -> np.ndarray:
-        """Returns a rotation vector after the gimbal rotation
+        """Returns a rotation vector after the gimbal rotation.
 
         Args:
             gimbal_command (np.ndarray): (num_gimbals, 2) array of floats between [-1, 1]
@@ -112,7 +122,9 @@ class Gimbals:
         Returns:
             rotation_vector (np.ndarray): (num_gimbals, 3, 3) rotation matrices for all gimbals
         """
-        assert np.all(gimbal_command >= -1.0) and np.all(gimbal_command <= 1.0), f"`{gimbal_command=} has values out of bounds of -1.0 and 1.0.`"
+        assert np.all(gimbal_command >= -1.0) and np.all(
+            gimbal_command <= 1.0
+        ), f"`{gimbal_command=} has values out of bounds of -1.0 and 1.0.`"
 
         # model the gimbal using first order ODE, y' = T/tau * (setpoint - y)
         self.gimbal_state += (self.physics_period / self.gimbal_tau) * (
