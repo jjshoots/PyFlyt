@@ -115,7 +115,7 @@ env = gymnasium.make(
 > `render_mode` can be either `"human"` or `None`.
 
 <p align="center">
-    <img src="/readme_assets/quadx_waypoint.gif" width="500px"/>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" width="500px"/>
 </p>
 
 ### `PyFlyt/Fixedwing-Waypoints-v0`
@@ -142,5 +142,5 @@ env = gymnasium.make(
 > `render_mode` can be either `"human"` or `None`.
 
 <p align="center">
-    <img src="/readme_assets/fixedwing_waypoint.gif" width="500px"/>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" width="500px"/>
 </p>
