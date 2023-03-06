@@ -1,9 +1,10 @@
 """Tests the the core API functionality."""
 import numpy as np
+from custom_uavs.rocket_brick import RocketBrick
 
 from PyFlyt.core import Aviary
 from PyFlyt.core.abstractions import CtrlClass
-from custom_uavs.rocket_brick import RocketBrick
+
 
 def test_simple_spawn():
     """Tests spawning a single drone."""
@@ -12,7 +13,9 @@ def test_simple_spawn():
     start_orn = np.array([[0.0, 0.0, 0.0]])
 
     # environment setup
-    env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx")
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
 
     # set to position control
     env.set_mode(7)
@@ -20,6 +23,7 @@ def test_simple_spawn():
     # simulate for 1000 steps (1000/120 ~= 8 seconds)
     for i in range(1000):
         env.step()
+
 
 def test_multi_spawn():
     """Tests spawning multiple drones."""
@@ -28,7 +32,9 @@ def test_multi_spawn():
     start_orn = np.zeros_like(start_pos)
 
     # environment setup
-    env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx")
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
 
     # set to position control
     env.set_mode(7)
@@ -37,6 +43,7 @@ def test_multi_spawn():
     for i in range(1000):
         env.step()
 
+
 def test_default_control():
     """Tests spawning a single drone and sending control commands."""
     # the starting position and orientations
@@ -44,7 +51,9 @@ def test_default_control():
     start_orn = np.array([[0.0, 0.0, 0.0]])
 
     # environment setup
-    env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx")
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
 
     # set to position control
     env.set_mode(7)
@@ -62,6 +71,7 @@ def test_default_control():
 
     for i in range(500, 1000):
         env.step()
+
 
 def test_camera():
     """Tests the camera module."""
@@ -84,6 +94,7 @@ def test_camera():
     # simulate for 1000 steps (1000/120 ~= 8 seconds)
     for i in range(100):
         env.step()
+
 
 def test_custom_controller():
     """Tests implementing a custom controller"""
@@ -109,16 +120,19 @@ def test_custom_controller():
             # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.1
             target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]
             target_yaw_rate = 0.5
-            output = np.array([*target_velocity[:2], target_yaw_rate, target_velocity[-1]])
+            output = np.array(
+                [*target_velocity[:2], target_yaw_rate, target_velocity[-1]]
+            )
             return output
-
 
     # the starting position and orientations
     start_pos = np.array([[0.0, 0.0, 1.0]])
     start_orn = np.array([[0.0, 0.0, 0.0]])
 
     # environment setup
-    env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx")
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
 
     # register our custom controller for the first drone, this controller is id 8, and is based off 6
     env.drones[0].register_controller(
@@ -132,6 +146,7 @@ def test_custom_controller():
     for i in range(1000):
         env.step()
 
+
 def test_custom_uav():
     """Tests spawning in a custom UAV."""
     # the starting position and orientations
@@ -143,7 +158,13 @@ def test_custom_uav():
     drone_type_mappings["rocket_brick"] = RocketBrick
 
     # environment setup
-    env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type_mappings=drone_type_mappings, drone_type="rocket_brick")
+    env = Aviary(
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type_mappings=drone_type_mappings,
+        drone_type="rocket_brick",
+    )
 
     # print out the links and their names in the urdf for debugging
     env.drones[0].get_joint_info()
@@ -155,4 +176,3 @@ def test_custom_uav():
         # ignite the rocket after ~1 seconds
         if i > 100:
             env.set_setpoints(np.array([[1.0, 1.0]]))
-
