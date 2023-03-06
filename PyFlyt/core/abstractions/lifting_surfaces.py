@@ -151,6 +151,9 @@ class LiftingSurface:
         # some checks for the lifting and norm vectors
         assert lifting_vector.shape == (3,)
         assert forward_vector.shape == (3,)
+        assert (
+            aerofoil_params["tau"] >= 0.0 / physics_period
+        ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {aerofoil_params['tau']}."
         if np.linalg.norm(lifting_vector) != 1.0:
             warnings.warn(f"Norm of `{lifting_vector=}` is not 1.0, normalizing...")
             lifting_vector /= np.linalg.norm(lifting_vector)
@@ -227,12 +230,7 @@ class LiftingSurface:
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
 
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
-        if self.cmd_tau == 0.0:
-            self.actuation = cmd
-        else:
-            self.actuation += (self.physics_period / self.cmd_tau) * (
-                cmd - self.actuation
-            )
+        self.actuation += (self.physics_period / self.cmd_tau) * (cmd - self.actuation)
 
         # compute aerofoil parameters
         [Cl, Cd, CM] = self._compute_aero_data(alpha)

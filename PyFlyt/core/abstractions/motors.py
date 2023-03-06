@@ -53,6 +53,9 @@ class Motors:
         assert torque_coef.shape == (self.num_motors,)
         assert thrust_unit.shape == (self.num_motors, 3)
         assert noise_ratio.shape == (self.num_motors,)
+        assert all(
+            tau >= 0.0 / physics_period
+        ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {tau}."
 
         # motor constants
         self.tau = tau
@@ -92,10 +95,7 @@ class Motors:
             ), f"`rotation` should be of shape (num_motors, 3, 3), got {rotation.shape}"
 
         # model the motor using first order ODE, y' = T/tau * (setpoint - y)
-        if self.tau == 0.0:
-            self.throttle = pwm
-        else:
-            self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
+        self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
 
         # noise in the motor
         self.throttle += (

@@ -65,6 +65,9 @@ class Boosters:
         assert len(reignitable) == self.num_boosters
         assert min_thrust.shape == (self.num_boosters,)
         assert tau.shape == (self.num_boosters,)
+        assert all(
+            tau >= 0.0 / physics_period
+        ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {tau}."
 
         # check that the thrust_axis is normalized
         if np.linalg.norm(thrust_unit) != 1.0:
@@ -179,12 +182,9 @@ class Boosters:
         )
 
         # model the booster using first order ODE, y' = T/tau * (setpoint - y)
-        if self.tau == 0.0:
-            self.throttle = target_throttle
-        else:
-            self.throttle += (self.physics_period / self.tau) * (
-                target_throttle - self.throttle
-            )
+        self.throttle += (self.physics_period / self.tau) * (
+            target_throttle - self.throttle
+        )
 
         # if no fuel, hard cutoff
         self.throttle *= self.ratio_fuel_remaining > 0.0
