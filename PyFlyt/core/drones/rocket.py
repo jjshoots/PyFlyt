@@ -142,7 +142,7 @@ class Rocket(DroneClass):
             )
 
             # add the gimbal for the booster
-            self.gimbals = Gimbals(
+            self.booster_gimbal = Gimbals(
                 p=self.p,
                 physics_period=self.physics_period,
                 np_random=self.np_random,
@@ -178,7 +178,7 @@ class Rocket(DroneClass):
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
         self.lifting_surfaces.reset()
-        self.gimbals.reset()
+        self.booster_gimbal.reset()
         self.boosters.reset()
         self.update_state()
 
@@ -212,7 +212,7 @@ class Rocket(DroneClass):
             (
                 self.lifting_surfaces.get_states(),
                 self.boosters.get_states(),
-                self.gimbals.get_states(),
+                self.booster_gimbal.get_states(),
             )
         )
 
@@ -237,13 +237,15 @@ class Rocket(DroneClass):
         # custom controllers run if any
         self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
-    def update_forces(self):
-        """Calculates and applies forces acting on Rocket."""
-        # update all finlets
+    def update_physics(self):
+        """Updates the physics of the vehicle."""
+        self.update_state()
+
+        # actuate lifting surfaces
         self.lifting_surfaces.cmd2forces(self.cmd)
 
         # move the booster gimbal
-        gimbal_rotation = self.gimbals.compute_rotation(
+        rotation = self.booster_gimbal.compute_rotation(
             np.array([self.cmd[6], self.cmd[7]])
         )
 
@@ -251,13 +253,8 @@ class Rocket(DroneClass):
         self.boosters.settings2forces(
             ignition=self.cmd[[4]],
             pwm=self.cmd[[5]],
-            rotation=gimbal_rotation,
+            rotation=rotation,
         )
-
-    def update_physics(self):
-        """Updates the physics of the vehicle."""
-        self.update_state()
-        self.update_forces()
 
     def update_avionics(self):
         """Updates state and control."""

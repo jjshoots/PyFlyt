@@ -237,17 +237,13 @@ class FixedWing(DroneClass):
         # custom controllers run if any
         self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
-    def update_forces(self):
-        """Calculates and applies forces acting on UAV."""
-        assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
-
-        self.lifting_surfaces.cmd2forces(self.cmd)
-        self.motors.pwm2forces(self.cmd[[3]])
-
     def update_physics(self):
         """Updates the physics of the vehicle."""
+        assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
+
         self.update_state()
-        self.update_forces()
+        self.lifting_surfaces.cmd2forces(self.cmd)
+        self.motors.pwm2forces(self.cmd[[3]])
 
     def update_avionics(self):
         """Updates state and control."""
