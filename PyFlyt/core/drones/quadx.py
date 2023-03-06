@@ -462,8 +462,14 @@ class QuadX(DroneClass):
         if (low := np.min(self.pwm)) < 0.05:
             self.pwm += (1.0 - self.pwm) / (1.0 - low) * (0.05 - low)
 
-    def update_drag(self):
-        """Adds drag to the model, this is not physically correct but only approximation."""
+    def update_physics(self):
+        """Updates the physics of the vehicle."""
+        self.update_state()
+
+        # update the motors
+        self.motors.pwm2forces(self.pwm)
+
+        # simulate drag
         drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)
         drag_xyz = -self.drag_coef_xyz * (np.array(self.state[2]) ** 2)
 
@@ -473,12 +479,6 @@ class QuadX(DroneClass):
                 self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
             )
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
-
-    def update_physics(self):
-        """Updates the physics of the vehicle."""
-        self.update_state()
-        self.motors.pwm2forces(self.pwm)
-        self.update_drag()
 
     def update_avionics(self):
         """Updates state and control."""
