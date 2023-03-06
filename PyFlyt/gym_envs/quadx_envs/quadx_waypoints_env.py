@@ -50,8 +50,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 1.0]]),
-            drone_type="quadx",
-            drone_model="cf2x",
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,

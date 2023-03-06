@@ -24,12 +24,12 @@ class Rocket(DroneClass):
         physics_hz: int,
         drone_model: str = "rocket",
         model_dir: None | str = None,
+        np_random: None | np.random.RandomState = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
         camera_angle_degrees: int = 45,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
-        np_random: None | np.random.RandomState = None,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
@@ -42,14 +42,14 @@ class Rocket(DroneClass):
             start_orn (np.ndarray): start_orn
             ctrl_hz (int): ctrl_hz
             physics_hz (int): physics_hz
-            model_dir (None | str): model_dir
             drone_model (str): drone_model
+            model_dir (None | str): model_dir
+            np_random (None | np.random.RandomState): np_random
             use_camera (bool): use_camera
             use_gimbal (bool): use_gimbal
             camera_angle_degrees (int): camera_angle_degrees
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
-            np_random (None | np.random.RandomState): np_random
         """
         super().__init__(
             p=p,

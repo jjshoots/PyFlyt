@@ -21,20 +21,14 @@ class Aviary(bullet_client.BulletClient):
         self,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
+        drone_type: str | list[str],
+        drone_type_mappings: None | dict[str, DroneClass] = None,
         render: bool = False,
         physics_hz: int = 240,
         ctrl_hz: int = 120,
-        drone_type: str = "quadx",
-        drone_model: str = "cf2x",
-        model_dir: None | str = None,
-        use_camera: bool = False,
-        use_gimbal: bool = False,
-        camera_angle_degrees: int = 20,
-        camera_FOV_degrees: int = 90,
-        camera_resolution: tuple[int, int] = (128, 128),
         worldScale: float = 1.0,
+        drone_options: dict | list[dict] = {},
         seed: None | int = None,
-        drone_options: dict = {},
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
 
@@ -44,20 +38,14 @@ class Aviary(bullet_client.BulletClient):
         Args:
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
+            drone_type (str | list[str]): drone_types
+            drone_type_mappings (None | dict[str, DroneClass]): string to mapping of custom drone classes
             render (bool): render
             physics_hz (int): physics_hz
             ctrl_hz (int): ctrl_hz
-            drone_type (str): drone_type
-            drone_model (str): drone_model
-            model_dir (None | str): model_dir
-            use_camera (bool): use_camera
-            use_gimbal (bool): use_gimbal
-            camera_angle_degrees (int): camera_angle_degrees
-            camera_FOV_degrees (int): camera_FOV_degrees
-            camera_resolution (tuple[int, int]): camera_resolution
             worldScale (float): worldScale
+            drone_options (dict | list[dict]): drone_options
             seed (None | int): seed
-            drone_options (dict): drone_options
         """
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
@@ -72,14 +60,10 @@ class Aviary(bullet_client.BulletClient):
         assert (
             start_orn.shape == start_pos.shape
         ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
-
-        # define the drone types
-        if drone_type == "quadx":
-            self.drone_constructor = QuadX
-        elif drone_type == "fixedwing":
-            self.drone_constructor = FixedWing
-        elif drone_type == "rocket":
-            self.drone_constructor = Rocket
+        if isinstance(drone_type, list):
+            assert (
+                len(drone_type) == start_pos.shape[0]
+            ), f"Must have same number of `drone_types` ({len(drone_type)}) as starting positions."
 
         # default physics looprate is 240 Hz
         # do not change because pybullet doesn't like it
@@ -90,19 +74,26 @@ class Aviary(bullet_client.BulletClient):
         self.ctrl_update_ratio = int(physics_hz / ctrl_hz)
         self.now = time.time()
 
+        # mapping of drone type string to the constructors
+        self.drone_type_mappings = dict()
+        self.drone_type_mappings["quadx"] = QuadX
+        self.drone_type_mappings["fixedwing"] = FixedWing
+        self.drone_type_mappings["rocket"] = Rocket
+        if drone_type_mappings is not None:
+            self.drone_type_mappings = {
+                **self.drone_type_mappings,
+                **drone_type_mappings,
+            }
+
+        # store all drone types
+        self.drone_type = drone_type
+
         # pybullet stuff
         self.start_pos = start_pos
         self.start_orn = start_orn
-        self.use_camera = use_camera
-        self.use_gimbal = use_gimbal
-        self.camera_angle = camera_angle_degrees
-        self.camera_FOV = camera_FOV_degrees
-        self.camera_frame_size = camera_resolution
         self.worldScale = worldScale
 
         # directories and paths
-        self.model_dir = model_dir
-        self.drone_model = drone_model
         self.drone_options = drone_options
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
@@ -131,8 +122,6 @@ class Aviary(bullet_client.BulletClient):
             cameraPitch=-30,
             cameraTargetPosition=[0, 0, 1],
         )
-        if not self.use_camera:
-            self.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
 
         # define new RNG
         self.np_random = np.random.RandomState(seed=seed)
@@ -145,24 +134,35 @@ class Aviary(bullet_client.BulletClient):
         # spawn drones
         self.drones: list[DroneClass] = []
         for start_pos, start_orn in zip(self.start_pos, self.start_orn):
-            self.drones.append(
-                self.drone_constructor(
-                    self,
-                    start_pos=start_pos,
-                    start_orn=start_orn,
-                    ctrl_hz=self.ctrl_hz,
-                    physics_hz=self.physics_hz,
-                    drone_model=self.drone_model,
-                    model_dir=self.model_dir,
-                    use_camera=self.use_camera,
-                    use_gimbal=self.use_gimbal,
-                    camera_angle_degrees=self.camera_angle,
-                    camera_FOV_degrees=self.camera_FOV,
-                    camera_resolution=self.camera_frame_size,
-                    np_random=self.np_random,
-                    **self.drone_options,
-                )
-            )
+            if isinstance(self.drone_type, list):
+                # if we have a list of drone types, spawn them
+                for dt in self.drone_type:
+                    self.drones.append(
+                        self.drone_type_mappings[dt](
+                            self,
+                            start_pos=start_pos,
+                            start_orn=start_orn,
+                            ctrl_hz=self.ctrl_hz,
+                            physics_hz=self.physics_hz,
+                            np_random=self.np_random,
+                            **self.drone_options,
+                        )
+                    )
+            else:
+                # if we only have one drone type
+                for _ in range(len(self.start_pos)):
+                    self.drones.append(
+                        self.drone_type_mappings[self.drone_type](
+                            self,
+                            start_pos=start_pos,
+                            start_orn=start_orn,
+                            ctrl_hz=self.ctrl_hz,
+                            physics_hz=self.physics_hz,
+                            np_random=self.np_random,
+                            **self.drone_options,
+                        )
+                    )
+
         # arm everything
         self.register_all_new_bodies()
         self.set_armed(True)

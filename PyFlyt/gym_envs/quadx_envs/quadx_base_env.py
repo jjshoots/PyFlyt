@@ -18,8 +18,6 @@ class QuadXBaseEnv(gymnasium.Env):
         self,
         start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
         start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
-        drone_type: str = "quadx",
-        drone_model: str = "cf2x",
         flight_dome_size: float = np.inf,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
@@ -31,8 +29,6 @@ class QuadXBaseEnv(gymnasium.Env):
         Args:
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
-            drone_type (str): drone_type
-            drone_model (str): drone_model
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
             angle_representation (str): angle_representation
@@ -104,8 +100,6 @@ class QuadXBaseEnv(gymnasium.Env):
         """ ENVIRONMENT CONSTANTS """
         self.start_pos = start_pos
         self.start_orn = start_orn
-        self.drone_type = drone_type
-        self.drone_model = drone_model
         self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
@@ -129,7 +123,7 @@ class QuadXBaseEnv(gymnasium.Env):
         """
         raise NotImplementedError
 
-    def begin_reset(self, seed=None, options=dict(), aviary_options=dict()):
+    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
         """The first half of the reset function."""
         super().reset(seed=seed)
 
@@ -150,13 +144,12 @@ class QuadXBaseEnv(gymnasium.Env):
 
         # init env
         self.env = Aviary(
-            drone_type=self.drone_type,
-            drone_model=self.drone_model,
             start_pos=self.start_pos,
             start_orn=self.start_orn,
+            drone_type="quadx",
             render=self.render_mode is not None,
+            drone_options=drone_options,
             seed=seed,
-            **aviary_options,
         )
 
         if self.render_mode is not None:

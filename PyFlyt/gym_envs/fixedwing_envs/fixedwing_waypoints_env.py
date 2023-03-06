@@ -46,8 +46,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 10.0]]),
-            drone_type="fixedwing",
-            drone_model="fixedwing",
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,

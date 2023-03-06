@@ -34,7 +34,7 @@ start_pos = np.array([[0.0, 0.0, 1.0]])
 start_orn = np.array([[0.0, 0.0, 0.0]])
 
 # environment setup
-env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True)
+env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True, drone_type="quadx")
 
 # register our custom controller for the first drone, this controller is id 8, and is based off 6
 env.drones[0].register_controller(

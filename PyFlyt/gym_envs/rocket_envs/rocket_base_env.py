@@ -18,8 +18,6 @@ class RocketBaseEnv(gymnasium.Env):
         self,
         start_pos: np.ndarray = np.array([[0.0, 0.0, 50.0]]),
         start_orn: np.ndarray = np.array([[np.pi / 2.0, 0.0, 0.0]]),
-        drone_type: str = "rocket",
-        drone_model: str = "rocket",
         ceiling: float = np.inf,
         max_displacement: float = np.inf,
         max_duration_seconds: float = 60.0,
@@ -115,8 +113,6 @@ class RocketBaseEnv(gymnasium.Env):
         """ ENVIRONMENT CONSTANTS """
         self.start_pos = start_pos
         self.start_orn = start_orn
-        self.drone_type = drone_type
-        self.drone_model = drone_model
         self.ceiling = ceiling
         self.max_displacement = max_displacement
         self.max_steps = int(agent_hz * max_duration_seconds)
@@ -141,7 +137,7 @@ class RocketBaseEnv(gymnasium.Env):
         if hasattr(self, "env"):
             self.env.disconnect()
 
-    def begin_reset(self, seed=None, options=dict(), aviary_options=dict()):
+    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
         """The first half of the reset function."""
         super().reset(seed=seed)
 
@@ -174,20 +170,19 @@ class RocketBaseEnv(gymnasium.Env):
             self.start_orn = rotation
 
         # camera handling
-        if "use_camera" not in aviary_options:
-            aviary_options["use_camera"] = self.render_mode is not None
+        if "use_camera" not in drone_options:
+            drone_options["use_camera"] = self.render_mode is not None
         else:
-            aviary_options["use_camera"] |= self.render_mode is not None
+            drone_options["use_camera"] |= self.render_mode is not None
 
         # init env
         self.env = Aviary(
-            drone_type=self.drone_type,
-            drone_model=self.drone_model,
             start_pos=self.start_pos,
             start_orn=self.start_orn,
+            drone_type="rocket",
             render=self.render_mode is not None,
+            drone_options=drone_options,
             seed=seed,
-            **aviary_options,
         )
 
         if self.render_mode is not None:
