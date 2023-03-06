@@ -8,10 +8,8 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from .abstractions.base_drone import DroneClass
-from .drones.fixedwing import FixedWing
-from .drones.quadx import QuadX
-from .drones.rocket import Rocket
+from .abstractions import DroneClass
+from .drones import FixedWing, QuadX, Rocket
 
 
 class Aviary(bullet_client.BulletClient):

@@ -8,7 +8,7 @@ from pybullet_utils import bullet_client
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.boosters import Boosters
 from ..abstractions.camera import Camera
-from ..abstractions.gimbal import Gimbals
+from ..abstractions.gimbals import Gimbals
 from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 
 
