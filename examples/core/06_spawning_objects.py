@@ -1,4 +1,4 @@
-"""Spawn a single drone on x=0, y=0, z=1, with 0 rpy."""
+"""Spawn a duck object above the drone."""
 import numpy as np
 
 from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual

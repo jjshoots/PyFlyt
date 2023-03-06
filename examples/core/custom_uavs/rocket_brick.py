@@ -1,19 +1,16 @@
-"""Implementation of a 1:10 scale SpaceX Rocket UAV."""
+"""Implements a custom brick with a booster attached."""
 from __future__ import annotations
 
+import os
 import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from ..abstractions.base_drone import DroneClass
-from ..abstractions.boosters import Boosters
-from ..abstractions.camera import Camera
-from ..abstractions.gimbals import Gimbals
-from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
+from PyFlyt.core.abstractions import DroneClass, Camera, LiftingSurface, LiftingSurfaces, Boosters
 
 
-class Rocket(DroneClass):
-    """Rocket instance that handles everything about a thrust vectored rocket with throttleable boosters and controllable finlets."""
+class RocketBrick(DroneClass):
+    """With enough thrust, you can make a brick fly."""
 
     def __init__(
         self,
@@ -22,19 +19,16 @@ class Rocket(DroneClass):
         start_orn: np.ndarray,
         ctrl_hz: int,
         physics_hz: int,
-        drone_model: str = "rocket",
-        model_dir: None | str = None,
+        drone_model: str = "rocket_brick",
+        model_dir: None | str = os.path.dirname(os.path.realpath(__file__)),
         np_random: None | np.random.RandomState = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
-        camera_angle_degrees: int = 45,
+        camera_angle_degrees: int = 0,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
     ):
-        """Creates a drone in the QuadX configuration and handles all relevant control and physics.
-
-        The setpoint for this model has 7 values:
-            - force_x, force_z, roll, ignition, throttle, booster gimbal 1, booster gimbal 2
+        """Creates a UAV a brick acting as a lifting surface with a rocket attached.
 
         Args:
             p (bullet_client.BulletClient): p
@@ -62,60 +56,31 @@ class Rocket(DroneClass):
             np_random=np_random,
         )
 
-        """Reads fixedwing.yaml file and load UAV parameters"""
+        """Reads rocket_brick.yaml file and load UAV parameters"""
         with open(self.param_path, "rb") as f:
             # load all params from yaml
             all_params = yaml.safe_load(f)
-            booster_params = all_params["booster_params"]
 
-            # add all finlets
+            # all lifting surfaces
             surfaces = list()
-            for finlet_id, command_id in zip([2, 3], [0, 1]):
-                # x axis fins
-                surfaces.append(
-                    LiftingSurface(
-                        p=self.p,
-                        physics_period=self.physics_period,
-                        np_random=self.np_random,
-                        uav_id=self.Id,
-                        surface_id=finlet_id,
-                        command_id=command_id,
-                        command_sign=+1.0,
-                        lifting_vector=np.array([0.0, 0.0, 1.0]),
-                        forward_vector=np.array([0.0, -1.0, 0.0]),
-                        aerofoil_params=all_params["finlet_params"],
-                    )
+            surfaces.append(
+                LiftingSurface(
+                    p=self.p,
+                    physics_period=self.physics_period,
+                    np_random=self.np_random,
+                    uav_id=self.Id,
+                    surface_id=0,
+                    command_id=None,
+                    command_sign=+1.0,
+                    lifting_vector=np.array([0.0, 0.0, 1.0]),
+                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    aerofoil_params=all_params["brick_params"],
                 )
-            for finlet_id, command_id in zip([4, 5], [2, 3]):
-                # z axis fins
-                surfaces.append(
-                    LiftingSurface(
-                        p=self.p,
-                        physics_period=self.physics_period,
-                        np_random=self.np_random,
-                        uav_id=self.Id,
-                        surface_id=finlet_id,
-                        command_id=command_id,
-                        command_sign=+1.0,
-                        lifting_vector=np.array([1.0, 0.0, 0.0]),
-                        forward_vector=np.array([0.0, -1.0, 0.0]),
-                        aerofoil_params=all_params["finlet_params"],
-                    )
-                )
+            )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
 
-            # mixing matrix to map finlet force command to finlet movement
-            # force_x, force_z, roll
-            self.finlet_map = np.array(
-                [
-                    [+0.0, +1.0, -1.0],  # pos_x fin
-                    [+0.0, +1.0, +1.0],  # neg_x fin
-                    [+1.0, +0.0, +1.0],  # pos_z fin
-                    [+1.0, +0.0, -1.0],  # neg_z fin
-                ]
-            )
-
-            # add the booster
+            # motor
+            booster_params = all_params["booster_params"]
             self.boosters = Boosters(
                 p=self.p,
                 physics_period=self.physics_period,
@@ -141,17 +106,6 @@ class Rocket(DroneClass):
                 tau=np.array([booster_params["booster_tau"]]),
             )
 
-            # add the gimbal for the booster
-            self.booster_gimbal = Gimbals(
-                p=self.p,
-                physics_period=self.physics_period,
-                np_random=self.np_random,
-                gimbal_unit_1=np.array([[1.0, 0.0, 0.0]]),
-                gimbal_unit_2=np.array([[0.0, 0.0, 1.0]]),
-                gimbal_tau=np.array([booster_params["gimbal_tau"]]),
-                gimbal_range_degrees=np.array([booster_params["gimbal_range_degrees"]]),
-            )
-
         """ CAMERA """
         self.use_camera = use_camera
         if self.use_camera:
@@ -163,7 +117,7 @@ class Rocket(DroneClass):
                 camera_FOV_degrees=camera_FOV_degrees,
                 camera_angle_degrees=camera_angle_degrees,
                 camera_resolution=camera_resolution,
-                camera_position_offset=np.array([0.0, 10.0, -5.0]),
+                camera_position_offset=np.array([0.0, -3.0, 1.0]),
                 is_tracking_camera=True,
             )
 
@@ -172,13 +126,12 @@ class Rocket(DroneClass):
     def reset(self):
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
-        self.setpoint = np.zeros(7)
-        self.cmd = np.zeros(8)
+        self.setpoint = np.zeros(2)
+        self.cmd = np.zeros(2)
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
         self.lifting_surfaces.reset()
-        self.booster_gimbal.reset()
         self.boosters.reset()
         self.update_state()
 
@@ -209,23 +162,14 @@ class Rocket(DroneClass):
 
         # update auxiliary information
         self.aux_state = np.concatenate(
-            (
-                self.lifting_surfaces.get_states(),
-                self.boosters.get_states(),
-                self.booster_gimbal.get_states(),
-            )
+            (self.lifting_surfaces.get_states(), self.boosters.get_states())
         )
 
     def update_control(self):
         """Runs through controllers."""
         # the default mode
         if self.mode == 0:
-            # finlet mapping
-            finlet_cmd = self.finlet_map @ np.expand_dims(self.setpoint[:3], axis=-1)
-            finlet_cmd = np.clip(finlet_cmd, -1.0, 1.0)
-
-            # prepend the finlet mapping to the command itself
-            self.cmd = np.concatenate((finlet_cmd.flatten(), self.setpoint[3:]))
+            self.cmd = self.setpoint
             return
 
         # otherwise, check that we have a custom controller
@@ -240,21 +184,8 @@ class Rocket(DroneClass):
     def update_physics(self):
         """Updates the physics of the vehicle."""
         self.update_state()
-
-        # actuate lifting surfaces
         self.lifting_surfaces.cmd2forces(self.cmd)
-
-        # move the booster gimbal
-        rotation = self.booster_gimbal.compute_rotation(
-            np.array([self.cmd[6], self.cmd[7]])
-        )
-
-        # update booster
-        self.boosters.settings2forces(
-            ignition=self.cmd[[4]],
-            pwm=self.cmd[[5]],
-            rotation=rotation,
-        )
+        self.boosters.settings2forces(self.cmd[[0]], self.cmd[[1]])
 
     def update_avionics(self):
         """Updates state and control."""

@@ -17,7 +17,7 @@ class Boosters:
         np_random: np.random.RandomState,
         uav_id: int,
         booster_ids: np.ndarray | list[int],
-        fueltank_ids: np.ndarray | list[int],
+        fueltank_ids: np.ndarray | list[None | int],
         total_fuel_mass: np.ndarray,
         max_fuel_rate: np.ndarray,
         max_inertia: np.ndarray,
@@ -25,7 +25,7 @@ class Boosters:
         max_thrust: np.ndarray,
         thrust_unit: np.ndarray,
         reignitable: np.ndarray | list[bool],
-        booster_tau: np.ndarray,
+        tau: np.ndarray,
     ):
         """Used for simulating an array of boosters.
 
@@ -35,7 +35,7 @@ class Boosters:
             np_random (np.random.RandomState): np_random
             uav_id (int): uav_id
             booster_ids (list[int]): booster_ids
-            fueltank_ids (list[int]): fueltank_ids
+            fueltank_ids (list[None | int]): fueltank_ids
             total_fuel_mass (np.ndarray): total_fuel_mass
             max_fuel_rate (np.ndarray): max_fuel_rate
             max_inertia (np.ndarray): diagonal elements of the inertia tensor
@@ -43,7 +43,7 @@ class Boosters:
             max_thrust (np.ndarray): max_thrust
             thrust_unit (np.ndarray): unit vector of the direction thrust is pointing
             reignitable (list[bool]): whether we can turn off and on the booster
-            booster_tau (np.ndarray): booster ramp time constant
+            tau (np.ndarray): booster ramp time constant
         """
         self.p = p
         self.physics_period = physics_period
@@ -64,7 +64,7 @@ class Boosters:
         assert thrust_unit.shape == (self.num_boosters, 3)
         assert len(reignitable) == self.num_boosters
         assert min_thrust.shape == (self.num_boosters,)
-        assert booster_tau.shape == (self.num_boosters,)
+        assert tau.shape == (self.num_boosters,)
 
         # check that the thrust_axis is normalized
         if np.linalg.norm(thrust_unit) != 1.0:
@@ -79,7 +79,7 @@ class Boosters:
         self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
         self.reignitable = np.array(reignitable, dtype=bool)
         self.min_thrust = min_thrust
-        self.booster_tau = booster_tau
+        self.tau = tau
         self.ratio_min_throttle = self.min_thrust / self.max_thrust
         self.ratio_throttleable = 1.0 - self.ratio_min_throttle
         self.ratio_fuel_rate = self.max_fuel_rate / self.total_fuel_mass
@@ -139,7 +139,7 @@ class Boosters:
         # final thrust vector is unit vector * scalar
         thrust_vector = thrust_unit * thrust
 
-        # apply the forces
+        # apply the forces and fueltanks
         for i in range(self.num_boosters):
             self.p.applyExternalForce(
                 self.uav_id,
@@ -148,6 +148,11 @@ class Boosters:
                 [0.0, 0.0, 0.0],
                 self.p.LINK_FRAME,
             )
+
+            # no need to update inertia if no fueltank
+            if self.fueltank_ids[i] is None:
+                continue
+
             self.p.changeDynamics(
                 self.uav_id,
                 self.fueltank_ids[i],
@@ -174,9 +179,12 @@ class Boosters:
         )
 
         # model the booster using first order ODE, y' = T/tau * (setpoint - y)
-        self.throttle += (self.physics_period / self.booster_tau) * (
-            target_throttle - self.throttle
-        )
+        if self.tau == 0.0:
+            self.throttle = target_throttle
+        else:
+            self.throttle += (self.physics_period / self.tau) * (
+                target_throttle - self.throttle
+            )
 
         # if no fuel, hard cutoff
         self.throttle *= self.ratio_fuel_remaining > 0.0

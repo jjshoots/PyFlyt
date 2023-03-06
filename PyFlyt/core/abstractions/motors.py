@@ -92,7 +92,10 @@ class Motors:
             ), f"`rotation` should be of shape (num_motors, 3, 3), got {rotation.shape}"
 
         # model the motor using first order ODE, y' = T/tau * (setpoint - y)
-        self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
+        if self.tau == 0.0:
+            self.throttle = pwm
+        else:
+            self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
 
         # noise in the motor
         self.throttle += (

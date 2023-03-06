@@ -1,4 +1,4 @@
 """Implementations of default drone models."""
-from .quadx import QuadX
 from .fixedwing import FixedWing
+from .quadx import QuadX
 from .rocket import Rocket

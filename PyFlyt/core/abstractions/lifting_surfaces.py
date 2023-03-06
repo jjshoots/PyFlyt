@@ -227,7 +227,12 @@ class LiftingSurface:
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
 
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
-        self.actuation += (self.physics_period / self.cmd_tau) * (cmd - self.actuation)
+        if self.cmd_tau == 0.0:
+            self.actuation = cmd
+        else:
+            self.actuation += (self.physics_period / self.cmd_tau) * (
+                cmd - self.actuation
+            )
 
         # compute aerofoil parameters
         [Cl, Cd, CM] = self._compute_aero_data(alpha)

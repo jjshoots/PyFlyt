@@ -1,4 +1,4 @@
-"""Spawn a single drone on x=0, y=0, z=1, with 0 rpy, enable camera."""
+"""Spawn a single drone and get its camera image."""
 import matplotlib.pyplot as plt
 import numpy as np
 
