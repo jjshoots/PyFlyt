@@ -195,7 +195,7 @@ class Aviary(bullet_client.BulletClient):
         )
 
     @property
-    def states(self) -> np.ndarray:
+    def states(self) -> list[np.ndarray]:
         """Returns a list of states for all drones in the environment.
 
         Returns:
@@ -205,12 +205,10 @@ class Aviary(bullet_client.BulletClient):
         for drone in self.drones:
             states.append(drone.state)
 
-        states = np.stack(states, axis=0)
-
         return states
 
     @property
-    def aux_states(self) -> np.ndarray:
+    def aux_states(self) -> list[np.ndarray]:
         """Returns a list of auxiliary states for all drones in the environment.
 
         Returns:
@@ -219,8 +217,6 @@ class Aviary(bullet_client.BulletClient):
         aux_states = []
         for drone in self.drones:
             aux_states.append(drone.aux_state)
-
-        aux_states = np.stack(aux_states, axis=0)
 
         return aux_states
 

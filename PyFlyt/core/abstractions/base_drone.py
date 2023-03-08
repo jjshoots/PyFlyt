@@ -55,7 +55,7 @@ class DroneClass(ABC):
             useFixedBase=False,
         )
 
-        """ DEFINE SETPOINT """
+        """ DEFINE STATES AND SETPOINT """
         self.state: np.ndarray
         self.aux_state: np.ndarray
         self.setpoint: np.ndarray
