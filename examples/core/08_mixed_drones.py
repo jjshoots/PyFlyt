@@ -22,7 +22,7 @@ env = Aviary(
     render=True,
     drone_type=["rocket", "quadx", "fixedwing"],
     control_hz=120,
-    drone_options=[rocket_options, quadx_options, fixedwing_options]
+    drone_options=[rocket_options, quadx_options, fixedwing_options],
 )
 
 # set quadx to position control and fixedwing as nothing
