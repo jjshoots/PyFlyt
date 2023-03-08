@@ -30,5 +30,6 @@ env.set_mode([0, 7, 0])
 
 # simulate for 1000 steps (1000/120 ~= 8 seconds)
 for i in range(1000):
-    state = env.states
+    states = env.all_states
+    aux_states = env.all_aux_states
     env.step()
