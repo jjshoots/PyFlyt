@@ -61,12 +61,12 @@ class Aviary(bullet_client.BulletClient):
         ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
 
         # check to ensure drone type has same number as drones if is list/tuple
-        if isinstance(drone_type, tuple | list):
+        if isinstance(drone_type, (tuple, list)):
             assert (
                 len(drone_type) == start_pos.shape[0]
             ), f"If multiple `drone_types` are used, must have same number of `drone_types` ({len(drone_type)}) as number of drones ({start_pos.shape[0]})."
         # check to ensure drone type has same number as drones if is list/tuple
-        if isinstance(drone_options, tuple | list):
+        if isinstance(drone_options, (tuple, list)):
             assert (
                 len(drone_options) == start_pos.shape[0]
             ), f"If multiple `drone_options` ({len(drone_options)}) are used, must have same number of `drone_options` as number of drones ({start_pos.shape[0]})."
@@ -117,7 +117,7 @@ class Aviary(bullet_client.BulletClient):
             }
 
         # store all drone types
-        if isinstance(drone_type, tuple | list):
+        if isinstance(drone_type, (tuple, list)):
             self.drone_type = drone_type
         else:
             self.drone_type = [drone_type] * self.num_drones

@@ -79,8 +79,8 @@ class RocketBrick(DroneClass):
                     surface_id=0,
                     command_id=None,
                     command_sign=+1.0,
-                    lifting_vector=np.array([0.0, 0.0, 1.0]),
-                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 0.0, 1.0]),
+                    forward_unit=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["brick_params"],
                 )
             )

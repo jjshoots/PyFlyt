@@ -74,8 +74,8 @@ class FixedWing(DroneClass):
                     surface_id=3,
                     command_id=1,
                     command_sign=+1.0,
-                    lifting_vector=np.array([0.0, 0.0, 1.0]),
-                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 0.0, 1.0]),
+                    forward_unit=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["left_wing_flapped_params"],
                 )
             )
@@ -88,8 +88,8 @@ class FixedWing(DroneClass):
                     surface_id=4,
                     command_id=1,
                     command_sign=-1.0,
-                    lifting_vector=np.array([0.0, 0.0, 1.0]),
-                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 0.0, 1.0]),
+                    forward_unit=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["right_wing_flapped_params"],
                 )
             )
@@ -102,8 +102,8 @@ class FixedWing(DroneClass):
                     surface_id=1,
                     command_id=0,
                     command_sign=-1.0,
-                    lifting_vector=np.array([0.0, 0.0, 1.0]),
-                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 0.0, 1.0]),
+                    forward_unit=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["horizontal_tail_params"],
                 )
             )
@@ -116,8 +116,8 @@ class FixedWing(DroneClass):
                     surface_id=5,
                     command_id=None,
                     command_sign=+1.0,
-                    lifting_vector=np.array([0.0, 0.0, 1.0]),
-                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 0.0, 1.0]),
+                    forward_unit=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["main_wing_params"],
                 )
             )
@@ -130,8 +130,8 @@ class FixedWing(DroneClass):
                     surface_id=2,
                     command_id=2,
                     command_sign=-1.0,
-                    lifting_vector=np.array([1.0, 0.0, 0.0]),
-                    forward_vector=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([1.0, 0.0, 0.0]),
+                    forward_unit=np.array([0.0, 1.0, 0.0]),
                     aerofoil_params=all_params["vertical_tail_params"],
                 )
             )

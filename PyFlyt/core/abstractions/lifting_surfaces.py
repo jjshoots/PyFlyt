@@ -83,8 +83,8 @@ class LiftingSurface:
         surface_id: int,
         command_id: None | int,
         command_sign: float,
-        lifting_vector: np.ndarray,
-        forward_vector: np.ndarray,
+        lifting_unit: np.ndarray,
+        forward_unit: np.ndarray,
         aerofoil_params: dict,
     ):
         """Used for simulating a single lifting surface.
@@ -97,8 +97,8 @@ class LiftingSurface:
             surface_id (int): surface_id
             command_id (None | int): command_id, for convenience
             command_sign (float): command_sign, for convenience
-            lifting_vector (np.ndarray): (3,) vector representing the direction of lift
-            forward_vector (np.ndarray): (3,) vector representing the direction of travel
+            lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift
+            forward_unit (np.ndarray): (3,) unit vector representing the direction of travel
             aerofoil_params (dict): aerofoil_params, see below
 
         Aerofoil params must have these components (everything is in degrees and is a float):
@@ -149,26 +149,26 @@ class LiftingSurface:
         ), f"Missing parameters: {params_list} in aerofoil_params for component {surface_id}."
 
         # some checks for the lifting and norm vectors
-        assert lifting_vector.shape == (3,)
-        assert forward_vector.shape == (3,)
+        assert lifting_unit.shape == (3,)
+        assert forward_unit.shape == (3,)
         assert (
             aerofoil_params["tau"] >= 0.0 / physics_period
         ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {aerofoil_params['tau']}."
-        if np.linalg.norm(lifting_vector) != 1.0:
-            warnings.warn(f"Norm of `{lifting_vector=}` is not 1.0, normalizing...")
-            lifting_vector /= np.linalg.norm(lifting_vector)
-        if np.linalg.norm(forward_vector) != 1.0:
-            warnings.warn(f"Norm of `{forward_vector=}` is not 1.0, normalizing...")
-            forward_vector /= np.linalg.norm(forward_vector)
-        if np.dot(lifting_vector, forward_vector) != 0.0:
+        if np.linalg.norm(lifting_unit) != 1.0:
+            warnings.warn(f"Norm of `{lifting_unit=}` is not 1.0, normalizing...")
+            lifting_unit /= np.linalg.norm(lifting_unit)
+        if np.linalg.norm(forward_unit) != 1.0:
+            warnings.warn(f"Norm of `{forward_unit=}` is not 1.0, normalizing...")
+            forward_unit /= np.linalg.norm(forward_unit)
+        if np.dot(lifting_unit, forward_unit) != 0.0:
             warnings.warn(
-                f"`{forward_vector}` and `{lifting_vector}` are not orthogonal, you have been warned..."
+                f"`{forward_unit}` and `{lifting_unit}` are not orthogonal, you have been warned..."
             )
 
         # get the lift, drag, and torque units
-        self.lift_unit = lifting_vector
-        self.drag_unit = forward_vector
-        self.torque_unit = np.cross(lifting_vector, forward_vector)
+        self.lift_unit = lifting_unit
+        self.drag_unit = forward_unit
+        self.torque_unit = np.cross(lifting_unit, forward_unit)
 
         # wing parameters
         self.Cl_alpha_2D = float(aerofoil_params["Cl_alpha_2D"])

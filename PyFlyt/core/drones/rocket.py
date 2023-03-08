@@ -81,8 +81,8 @@ class Rocket(DroneClass):
                         surface_id=finlet_id,
                         command_id=command_id,
                         command_sign=+1.0,
-                        lifting_vector=np.array([0.0, 0.0, 1.0]),
-                        forward_vector=np.array([0.0, -1.0, 0.0]),
+                        lifting_unit=np.array([0.0, 0.0, 1.0]),
+                        forward_unit=np.array([0.0, -1.0, 0.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
@@ -97,8 +97,8 @@ class Rocket(DroneClass):
                         surface_id=finlet_id,
                         command_id=command_id,
                         command_sign=+1.0,
-                        lifting_vector=np.array([1.0, 0.0, 0.0]),
-                        forward_vector=np.array([0.0, -1.0, 0.0]),
+                        lifting_unit=np.array([1.0, 0.0, 0.0]),
+                        forward_unit=np.array([0.0, -1.0, 0.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
