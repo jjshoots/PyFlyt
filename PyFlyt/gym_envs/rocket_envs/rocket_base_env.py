@@ -16,8 +16,8 @@ class RocketBaseEnv(gymnasium.Env):
 
     def __init__(
         self,
-        start_pos: np.ndarray = np.array([[0.0, 0.0, 50.0]]),
-        start_orn: np.ndarray = np.array([[np.pi / 2.0, 0.0, 0.0]]),
+        start_pos: np.ndarray = np.array([[0.0, 0.0, 300.0]]),
+        start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
         ceiling: float = np.inf,
         max_displacement: float = np.inf,
         max_duration_seconds: float = 60.0,
@@ -157,7 +157,7 @@ class RocketBaseEnv(gymnasium.Env):
         self.info["env_complete"] = False
 
         # override the spawn location if needed
-        if "randomize_drop" in options:
+        if "randomize_drop" in options and options["randomize_drop"]:
             spawn_range = self.max_displacement * 0.1
             start_xy = self.np_random.uniform(-spawn_range, spawn_range, size=(2,))
             start_z = self.np_random.uniform(self.ceiling * 0.8, self.ceiling * 0.9)
@@ -165,7 +165,6 @@ class RocketBaseEnv(gymnasium.Env):
 
             # random rotation + make kind of upright
             rotation = self.np_random.uniform(-0.3, 0.3, size=(3,))
-            rotation[0] += np.pi / 2.0
             rotation = np.expand_dims(rotation, axis=0)
             self.start_orn = rotation
 

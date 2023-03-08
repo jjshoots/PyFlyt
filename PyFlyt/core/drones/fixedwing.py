@@ -29,7 +29,8 @@ class FixedWing(DroneClass):
         camera_angle_degrees: int = 0,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
-        starting_velocity: np.ndarray = np.array([0.0, 20.0, 0.0]),
+        camera_position_offset: np.ndarray = np.array([-3.0, 0.0, 1.0]),
+        starting_velocity: np.ndarray = np.array([20.0, 0.0, 0.0]),
     ):
         """Creates a Fixedwing UAV and handles all relevant control and physics.
 
@@ -47,6 +48,7 @@ class FixedWing(DroneClass):
             camera_angle_degrees (int): camera_angle_degrees
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
+            camera_position_offset (np.ndarray): offset position of the camera
             starting_velocity (np.ndarray): vector representing the velocity at spawn
         """
         super().__init__(
@@ -77,10 +79,10 @@ class FixedWing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=3,
-                    command_id=1,
+                    command_id=0,
                     command_sign=+1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
-                    forward_unit=np.array([0.0, 1.0, 0.0]),
+                    forward_unit=np.array([1.0, 0.0, 0.0]),
                     aerofoil_params=all_params["left_wing_flapped_params"],
                 )
             )
@@ -91,10 +93,10 @@ class FixedWing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=4,
-                    command_id=1,
+                    command_id=0,
                     command_sign=-1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
-                    forward_unit=np.array([0.0, 1.0, 0.0]),
+                    forward_unit=np.array([1.0, 0.0, 0.0]),
                     aerofoil_params=all_params["right_wing_flapped_params"],
                 )
             )
@@ -105,10 +107,10 @@ class FixedWing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=1,
-                    command_id=0,
+                    command_id=1,
                     command_sign=-1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
-                    forward_unit=np.array([0.0, 1.0, 0.0]),
+                    forward_unit=np.array([1.0, 0.0, 0.0]),
                     aerofoil_params=all_params["horizontal_tail_params"],
                 )
             )
@@ -122,7 +124,7 @@ class FixedWing(DroneClass):
                     command_id=None,
                     command_sign=+1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
-                    forward_unit=np.array([0.0, 1.0, 0.0]),
+                    forward_unit=np.array([1.0, 0.0, 0.0]),
                     aerofoil_params=all_params["main_wing_params"],
                 )
             )
@@ -135,8 +137,8 @@ class FixedWing(DroneClass):
                     surface_id=2,
                     command_id=2,
                     command_sign=-1.0,
-                    lifting_unit=np.array([1.0, 0.0, 0.0]),
-                    forward_unit=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 1.0, 0.0]),
+                    forward_unit=np.array([1.0, 0.0, 0.0]),
                     aerofoil_params=all_params["vertical_tail_params"],
                 )
             )
@@ -150,7 +152,7 @@ class FixedWing(DroneClass):
             )
             thrust_coef = np.array([motor_params["thrust_coef"]])
             torque_coef = np.array([motor_params["torque_coef"]])
-            thrust_unit = np.array([[0.0, 1.0, 0.0]])
+            thrust_unit = np.array([[1.0, 0.0, 0.0]])
             noise_ratio = np.array([motor_params["noise_ratio"]])
             self.motors = Motors(
                 p=self.p,
@@ -177,7 +179,7 @@ class FixedWing(DroneClass):
                 camera_FOV_degrees=camera_FOV_degrees,
                 camera_angle_degrees=camera_angle_degrees,
                 camera_resolution=camera_resolution,
-                camera_position_offset=np.array([0.0, -3.0, 1.0]),
+                camera_position_offset=camera_position_offset,
                 is_tracking_camera=True,
             )
 

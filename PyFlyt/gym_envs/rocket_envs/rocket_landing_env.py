@@ -60,7 +60,7 @@ class RocketLandingEnv(RocketBaseEnv):
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.targ_obj_dir = os.path.join(file_dir, "../../models/landing_pad.urdf")
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options=dict()):
         """Resets the environment.
 
         Args:

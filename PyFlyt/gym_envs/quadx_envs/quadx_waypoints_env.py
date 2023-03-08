@@ -86,7 +86,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options=dict()):
         """Resets the environment.
 
         Args:

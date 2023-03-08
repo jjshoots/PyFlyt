@@ -7,9 +7,6 @@ from PyFlyt.core import Aviary
 start_pos = np.array([[0.0, 5.0, 5.0], [0.0, 0.0, 1.0], [5.0, 0.0, 1.0]])
 start_orn = np.zeros_like(start_pos)
 
-# rotate the rocket upright
-start_orn[0, 0] = np.pi / 2
-
 # individual spawn options for each drone
 rocket_options = dict()
 quadx_options = dict(use_camera=True)

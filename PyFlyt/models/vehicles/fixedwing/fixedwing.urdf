@@ -11,7 +11,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.2 0.1 0.2"/>
+        <box size="0.1 0.2 0.2"/>
       </geometry>
     </collision>
   </link>
@@ -40,12 +40,12 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.6 0.3 0.1"/>
+        <box size="0.3 0.6 0.1"/>
       </geometry>
     </collision>
   </link>
   <joint name="horizontal_tail_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 -1.1 0"/>
+    <origin rpy="0 0 0" xyz="-1.1 0 0"/>
     <parent link="base_link"/>
     <child link="horizontal_tail_link"/>
   </joint>
@@ -60,12 +60,12 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.1 0.3 0.3"/>
+        <box size="0.3 0.1 0.3"/>
       </geometry>
     </collision>
   </link>
   <joint name="vertical_tail_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 -1.1 0.15"/>
+    <origin rpy="0 0 0" xyz="-1.1 0 0.15"/>
     <parent link="base_link"/>
     <child link="vertical_tail_link"/>
   </joint>
@@ -85,7 +85,7 @@
     </collision>
   </link>
   <joint name="ail_left_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="-0.95 -0.5 0"/>
+    <origin rpy="0 0 0" xyz="-0.5 0.95 0"/>
     <parent link="base_link"/>
     <child link="ail_left_link"/>
   </joint>
@@ -105,7 +105,7 @@
     </collision>
   </link>
   <joint name="ail_right_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.95 -0.5  0"/>
+    <origin rpy="0 0 0" xyz="-0.5 -0.95  0"/>
     <parent link="base_link"/>
     <child link="ail_right_link"/>
   </joint>
@@ -120,12 +120,12 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="1.8 0.3 0.1"/>
+        <box size="0.3 1.8 0.1"/>
       </geometry>
     </collision>
   </link>
   <joint name="main_wing_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 -0.5 0"/>
+    <origin rpy="0 0 0" xyz="-0.5 0 0"/>
     <parent link="base_link"/>
     <child link="main_wing_link"/>
   </joint>
@@ -140,12 +140,12 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.2 1.4 0.2"/>
+        <box size="1.4 0.2 0.2"/>
       </geometry>
     </collision>
   </link>
   <joint name="fuselage_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 -0.45 0"/>
+    <origin rpy="0 0 0" xyz="-0.45 0 0"/>
     <parent link="base_link"/>
     <child link="fuselage_link"/>
   </joint>

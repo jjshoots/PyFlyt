@@ -91,11 +91,11 @@ class Camera:
         rotation = np.array(self.p.getEulerFromQuaternion(camera_state[1]))
         if self.use_gimbal:
             # camera tilted downward for gimballed mode
-            rotation[1] = 0.0
-            rotation[0] = -self.camera_angle_degrees / 180 * math.pi
+            rotation[0] = 0.0
+            rotation[1] = -self.camera_angle_degrees / 180 * math.pi
         else:
             # camera tilted upward for FPV mode
-            rotation[0] += self.camera_angle_degrees / 180 * math.pi
+            rotation[1] += self.camera_angle_degrees / 180 * math.pi
         rotation = np.array(self.p.getQuaternionFromEuler(rotation))
         rotation = np.array(self.p.getMatrixFromQuaternion(rotation)).reshape(3, 3)
         up_vector = np.matmul(rotation, np.array([0.0, 0.0, 1.0]))
@@ -104,7 +104,7 @@ class Camera:
         if self.is_tracking_camera:
             target = camera_state[0]
         else:
-            target = np.matmul(rotation, np.array([0, 1000, 0])) + position
+            target = np.matmul(rotation, np.array([1000, 0, 0])) + position
 
         return self.p.computeViewMatrix(
             cameraEyePosition=position,

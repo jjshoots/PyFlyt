@@ -46,7 +46,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """GYMNASIUM STUFF"""
         self.observation_space = self.combined_space
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options=dict()):
         """reset.
 
         Args:

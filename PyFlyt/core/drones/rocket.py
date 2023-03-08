@@ -27,14 +27,15 @@ class Rocket(DroneClass):
         np_random: None | np.random.RandomState = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
-        camera_angle_degrees: int = 45,
+        camera_angle_degrees: int = 30,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
+        camera_position_offset: np.ndarray = np.array([-1.0, 0.0, 3.0]),
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         The setpoint for this model has 7 values:
-            - force_x, force_z, roll, ignition, throttle, booster gimbal 1, booster gimbal 2
+            - force_x, force_y, yaw, ignition, throttle, booster gimbal 1, booster gimbal 2
 
         Args:
             p (bullet_client.BulletClient): p
@@ -50,6 +51,7 @@ class Rocket(DroneClass):
             camera_angle_degrees (int): camera_angle_degrees
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
+            camera_position_offset (np.ndarray): offset position of the camera
         """
         super().__init__(
             p=p,
@@ -81,13 +83,13 @@ class Rocket(DroneClass):
                         surface_id=finlet_id,
                         command_id=command_id,
                         command_sign=+1.0,
-                        lifting_unit=np.array([0.0, 0.0, 1.0]),
-                        forward_unit=np.array([0.0, -1.0, 0.0]),
+                        lifting_unit=np.array([0.0, 1.0, 0.0]),
+                        forward_unit=np.array([0.0, 0.0, -1.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
             for finlet_id, command_id in zip([4, 5], [2, 3]):
-                # z axis fins
+                # y axis fins
                 surfaces.append(
                     LiftingSurface(
                         p=self.p,
@@ -98,20 +100,20 @@ class Rocket(DroneClass):
                         command_id=command_id,
                         command_sign=+1.0,
                         lifting_unit=np.array([1.0, 0.0, 0.0]),
-                        forward_unit=np.array([0.0, -1.0, 0.0]),
+                        forward_unit=np.array([0.0, 0.0, -1.0]),
                         aerofoil_params=all_params["finlet_params"],
                     )
                 )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
 
             # mixing matrix to map finlet force command to finlet movement
-            # force_x, force_z, roll
+            # force_x, force_y, yaw
             self.finlet_map = np.array(
                 [
-                    [+0.0, +1.0, -1.0],  # pos_x fin
-                    [+0.0, +1.0, +1.0],  # neg_x fin
-                    [+1.0, +0.0, +1.0],  # pos_z fin
-                    [+1.0, +0.0, -1.0],  # neg_z fin
+                    [+0.0, +1.0, +1.0],  # pos_x fin
+                    [+0.0, +1.0, -1.0],  # neg_x fin
+                    [+1.0, +0.0, -1.0],  # pos_y fin
+                    [+1.0, +0.0, +1.0],  # neg_y fin
                 ]
             )
 
@@ -136,7 +138,7 @@ class Rocket(DroneClass):
                 ),
                 min_thrust=np.array([booster_params["min_thrust"]]),
                 max_thrust=np.array([booster_params["max_thrust"]]),
-                thrust_unit=np.array([[0.0, 1.0, 0.0]]),
+                thrust_unit=np.array([[0.0, 0.0, 1.0]]),
                 reignitable=np.array([booster_params["reignitable"]], dtype=bool),
                 tau=np.array([booster_params["booster_tau"]]),
             )
@@ -147,7 +149,7 @@ class Rocket(DroneClass):
                 physics_period=self.physics_period,
                 np_random=self.np_random,
                 gimbal_unit_1=np.array([[1.0, 0.0, 0.0]]),
-                gimbal_unit_2=np.array([[0.0, 0.0, 1.0]]),
+                gimbal_unit_2=np.array([[0.0, 1.0, 0.0]]),
                 gimbal_tau=np.array([booster_params["gimbal_tau"]]),
                 gimbal_range_degrees=np.array(
                     [[booster_params["gimbal_range_degrees"]] * 2]
@@ -165,7 +167,7 @@ class Rocket(DroneClass):
                 camera_FOV_degrees=camera_FOV_degrees,
                 camera_angle_degrees=camera_angle_degrees,
                 camera_resolution=camera_resolution,
-                camera_position_offset=np.array([0.0, 10.0, -5.0]),
+                camera_position_offset=camera_position_offset,
                 is_tracking_camera=True,
             )
 
