@@ -1,5 +1,5 @@
 """Abstractions for PyFlyt drones."""
-from .base_controller import CtrlClass
+from .base_controller import ControlClass
 from .base_drone import DroneClass
 from .boosters import Boosters
 from .camera import Camera

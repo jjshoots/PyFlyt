@@ -20,7 +20,7 @@ class Rocket(DroneClass):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        ctrl_hz: int,
+        control_hz: int,
         physics_hz: int,
         drone_model: str = "rocket",
         model_dir: None | str = None,
@@ -40,7 +40,7 @@ class Rocket(DroneClass):
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
-            ctrl_hz (int): ctrl_hz
+            control_hz (int): control_hz
             physics_hz (int): physics_hz
             drone_model (str): drone_model
             model_dir (None | str): model_dir
@@ -55,7 +55,7 @@ class Rocket(DroneClass):
             p=p,
             start_pos=start_pos,
             start_orn=start_orn,
-            ctrl_hz=ctrl_hz,
+            control_hz=control_hz,
             physics_hz=physics_hz,
             model_dir=model_dir,
             drone_model=drone_model,

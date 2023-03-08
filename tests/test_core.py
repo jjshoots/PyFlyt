@@ -3,7 +3,7 @@ import numpy as np
 from custom_uavs.rocket_brick import RocketBrick
 
 from PyFlyt.core import Aviary
-from PyFlyt.core.abstractions import CtrlClass
+from PyFlyt.core.abstractions import ControlClass
 
 
 def test_simple_spawn():
@@ -26,14 +26,18 @@ def test_simple_spawn():
 
 
 def test_multi_spawn():
-    """Tests spawning multiple drones."""
+    """Tests spawning multiple drones, and sets them all to have different control looprates."""
     # the starting position and orientations
-    start_pos = np.array([[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]])
+    start_pos = np.array([[-1.0, 0.0, 1.0], [0.0, 0.0, 1.0], [1.0, 0.0, 1.0]])
     start_orn = np.zeros_like(start_pos)
 
     # environment setup
     env = Aviary(
-        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type="quadx",
+        control_hz=[60, 120, 240],
     )
 
     # set to position control
@@ -99,7 +103,7 @@ def test_camera():
 def test_custom_controller():
     """Tests implementing a custom controller"""
 
-    class CustomController(CtrlClass):
+    class CustomController(ControlClass):
         """A custom controller that inherits from the CtrlClass."""
 
         def __init__(self):

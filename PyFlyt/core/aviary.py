@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import time
+from typing import Sequence
 
 import numpy as np
 import pybullet as p
@@ -19,13 +20,13 @@ class Aviary(bullet_client.BulletClient):
         self,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        drone_type: str | list[str],
+        drone_type: str | Sequence[str],
         drone_type_mappings: None | dict[str, DroneClass] = None,
         render: bool = False,
         physics_hz: int = 240,
-        ctrl_hz: int = 120,
+        control_hz: int | Sequence[int] = 120,
         worldScale: float = 1.0,
-        drone_options: dict | list[dict] = {},
+        drone_options: dict | Sequence[dict] = {},
         seed: None | int = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
@@ -36,19 +37,19 @@ class Aviary(bullet_client.BulletClient):
         Args:
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
-            drone_type (str | list[str]): drone_types
+            drone_type (str | Sequence[str]): drone_types
             drone_type_mappings (None | dict[str, DroneClass]): string to mapping of custom drone classes
             render (bool): render
             physics_hz (int): physics_hz
-            ctrl_hz (int): ctrl_hz
+            control_hz (int | Sequence[int]): control_hz
             worldScale (float): worldScale
-            drone_options (dict | list[dict]): drone_options
+            drone_options (dict | Sequence[dict]): drone_options
             seed (None | int): seed
         """
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
 
-        # assertations
+        # check for starting position and orientation shapes
         assert (
             len(start_pos.shape) == 2
         ), f"start_pos must be shape (n, 3), currently {start_pos.shape}."
@@ -58,18 +59,50 @@ class Aviary(bullet_client.BulletClient):
         assert (
             start_orn.shape == start_pos.shape
         ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
-        if isinstance(drone_type, list):
+
+        # check to ensure drone type has same number as drones if is list/tuple
+        if isinstance(drone_type, tuple | list):
             assert (
                 len(drone_type) == start_pos.shape[0]
-            ), f"Must have same number of `drone_types` ({len(drone_type)}) as starting positions."
+            ), f"If multiple `drone_types` are used, must have same number of `drone_types` ({len(drone_type)}) as number of drones ({start_pos.shape[0]})."
+        # check to ensure drone type has same number as drones if is list/tuple
+        if isinstance(drone_options, tuple | list):
+            assert (
+                len(drone_options) == start_pos.shape[0]
+            ), f"If multiple `drone_options` ({len(drone_options)}) are used, must have same number of `drone_options` as number of drones ({start_pos.shape[0]})."
 
-        # default physics looprate is 240 Hz
+        # check for control hz to be same length and be common denominator of physics hz
+        if isinstance(control_hz, Sequence):
+            assert (
+                len(control_hz) == start_pos.shape[0]
+            ), f"If multiple `control_hz` ({len(control_hz)})are to be used, must have same number of `control_hz` as number of drones ({start_pos.shape[0]})."
+            assert all(
+                [physics_hz % hz == 0 for hz in control_hz]
+            ), f"All `control_hz` ({control_hz}) must be common denominator of `physics_hz` ({physics_hz})."
+        else:
+            assert (
+                physics_hz % control_hz == 0
+            ), f"`control_hz` ({control_hz}) must be common denominator of `physics_hz` ({physics_hz})."
+
+        # constants
+        self.num_drones = start_pos.shape[0]
+        self.start_pos = start_pos
+        self.start_orn = start_orn
+
         # do not change because pybullet doesn't like it
+        # default physics looprate is 240 Hz
         self.physics_hz = physics_hz
         self.physics_period = 1.0 / physics_hz
-        self.ctrl_hz = ctrl_hz
-        self.ctrl_period = 1.0 / ctrl_hz
-        self.ctrl_update_ratio = int(physics_hz / ctrl_hz)
+
+        # handle multiple control_hz
+        if isinstance(control_hz, Sequence):
+            self.control_hz = np.array(control_hz)
+        else:
+            self.control_hz = np.array([control_hz] * self.num_drones)
+
+        # constants for tracking how many times to step
+        self.updates_per_step = int(physics_hz / np.min(self.control_hz))
+        self.update_period = 1.0 / np.min(self.control_hz)
         self.now = time.time()
 
         # mapping of drone type string to the constructors
@@ -84,15 +117,16 @@ class Aviary(bullet_client.BulletClient):
             }
 
         # store all drone types
-        self.drone_type = drone_type
+        if isinstance(drone_type, tuple | list):
+            self.drone_type = drone_type
+        else:
+            self.drone_type = [drone_type] * self.num_drones
 
-        # pybullet stuff
-        self.start_pos = start_pos
-        self.start_orn = start_orn
-        self.worldScale = worldScale
-
-        # directories and paths
+        # store the drone options
         self.drone_options = drone_options
+
+        # set the world scale and directories
+        self.worldScale = worldScale
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
         # render
@@ -124,42 +158,27 @@ class Aviary(bullet_client.BulletClient):
         # define new RNG
         self.np_random = np.random.RandomState(seed=seed)
 
-        """ CONSTRUCT THE WORLD """
+        # construct the world
         self.planeId = self.loadURDF(
             "plane.urdf", useFixedBase=True, globalScaling=self.worldScale
         )
 
         # spawn drones
         self.drones: list[DroneClass] = []
-        for start_pos, start_orn in zip(self.start_pos, self.start_orn):
-            if isinstance(self.drone_type, list):
-                # if we have a list of drone types, spawn them
-                for dt in self.drone_type:
-                    self.drones.append(
-                        self.drone_type_mappings[dt](
-                            self,
-                            start_pos=start_pos,
-                            start_orn=start_orn,
-                            ctrl_hz=self.ctrl_hz,
-                            physics_hz=self.physics_hz,
-                            np_random=self.np_random,
-                            **self.drone_options,
-                        )
-                    )
-            else:
-                # if we only have one drone type
-                for _ in range(len(self.start_pos)):
-                    self.drones.append(
-                        self.drone_type_mappings[self.drone_type](
-                            self,
-                            start_pos=start_pos,
-                            start_orn=start_orn,
-                            ctrl_hz=self.ctrl_hz,
-                            physics_hz=self.physics_hz,
-                            np_random=self.np_random,
-                            **self.drone_options,
-                        )
-                    )
+        for start_pos, start_orn, control_hz, drone_type in zip(
+            self.start_pos, self.start_orn, self.control_hz, self.drone_type
+        ):
+            self.drones.append(
+                self.drone_type_mappings[drone_type](
+                    self,
+                    start_pos=start_pos,
+                    start_orn=start_orn,
+                    control_hz=control_hz,
+                    physics_hz=self.physics_hz,
+                    np_random=self.np_random,
+                    **self.drone_options,
+                )
+            )
 
         # arm everything
         self.register_all_new_bodies()
@@ -174,15 +193,6 @@ class Aviary(bullet_client.BulletClient):
         self.collision_array = np.zeros(
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
-
-    @property
-    def num_drones(self) -> int:
-        """Returns the number of drones in the environment.
-
-        Returns:
-            int: number of drones in the environment
-        """
-        return len(self.drones)
 
     @property
     def states(self) -> np.ndarray:
@@ -273,10 +283,10 @@ class Aviary(bullet_client.BulletClient):
             self.now = time.time()
 
             # sleep to maintain real time factor
-            time.sleep(max(0, self.ctrl_period - elapsed))
+            time.sleep(max(0, self.update_period - elapsed))
 
             # calculate real time factor
-            RTF = self.ctrl_period / (elapsed + 1e-6)
+            RTF = self.update_period / (elapsed + 1e-6)
 
             # handle case where sometimes elapsed becomes 0
             if elapsed != 0.0:
@@ -290,11 +300,16 @@ class Aviary(bullet_client.BulletClient):
         # reset collisions
         self.collision_array &= False
 
-        # update onboard avionics compute
-        [drone.update_avionics() for drone in self.armed_drones]
+        # step the environment enough times for one control loop of the slowest controller
+        physics_steps = 1
+        while physics_steps <= self.updates_per_step:
+            # update onboard avionics conditionally
+            [
+                drone.update_avionics()
+                for drone in self.armed_drones
+                if physics_steps % drone.physics_control_ratio == 0
+            ]
 
-        # step the environment enough times for one control loop
-        for _ in range(self.ctrl_update_ratio):
             # compute physics
             [drone.update_physics() for drone in self.armed_drones]
 
@@ -305,5 +320,7 @@ class Aviary(bullet_client.BulletClient):
             for collision in self.getContactPoints():
                 self.collision_array[collision[1], collision[2]] = True
                 self.collision_array[collision[2], collision[1]] = True
+
+            physics_steps += 1
 
         self.steps += 1

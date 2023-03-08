@@ -2,10 +2,10 @@
 import numpy as np
 
 from PyFlyt.core import Aviary
-from PyFlyt.core.abstractions import CtrlClass
+from PyFlyt.core.abstractions import ControlClass
 
 
-class CustomController(CtrlClass):
+class CustomController(ControlClass):
     """A custom controller that inherits from the CtrlClass."""
 
     def __init__(self):

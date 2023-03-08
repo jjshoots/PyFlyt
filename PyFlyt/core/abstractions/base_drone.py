@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from pybullet_utils import bullet_client
 
-from .base_controller import CtrlClass
+from .base_controller import ControlClass
 from .camera import Camera
 
 
@@ -19,7 +19,7 @@ class DroneClass(ABC):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        ctrl_hz: int,
+        control_hz: int,
         physics_hz: int,
         drone_model: str,
         model_dir: None | str = None,
@@ -34,8 +34,9 @@ class DroneClass(ABC):
 
         self.p = p
         self.np_random = np.random.RandomState() if np_random is None else np_random
+        self.physics_control_ratio = int(physics_hz / control_hz)
         self.physics_period = 1.0 / physics_hz
-        self.ctrl_period = 1.0 / ctrl_hz
+        self.control_period = 1.0 / control_hz
         if model_dir is None:
             model_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "../../models/vehicles/"
@@ -106,7 +107,7 @@ class DroneClass(ABC):
     def register_controller(
         self,
         controller_id: int,
-        controller_constructor: type[CtrlClass],
+        controller_constructor: type[ControlClass],
         base_mode: int,
     ):
         """Default register_controller.

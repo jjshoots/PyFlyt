@@ -7,7 +7,7 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from ..abstractions.base_controller import CtrlClass
+from ..abstractions.base_controller import ControlClass
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.camera import Camera
 from ..abstractions.motors import Motors
@@ -22,7 +22,7 @@ class QuadX(DroneClass):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        ctrl_hz: int,
+        control_hz: int,
         physics_hz: int,
         drone_model: str = "cf2x",
         model_dir: None | str = None,
@@ -39,7 +39,7 @@ class QuadX(DroneClass):
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
-            ctrl_hz (int): ctrl_hz
+            control_hz (int): control_hz
             physics_hz (int): physics_hz
             drone_model (str): drone_model
             model_dir (None | str): model_dir
@@ -54,7 +54,7 @@ class QuadX(DroneClass):
             p=p,
             start_pos=start_pos,
             start_orn=start_orn,
-            ctrl_hz=ctrl_hz,
+            control_hz=control_hz,
             physics_hz=physics_hz,
             model_dir=model_dir,
             drone_model=drone_model,
@@ -154,14 +154,14 @@ class QuadX(DroneClass):
                 ctrl_params["z_pos"]["ki"],
                 ctrl_params["z_pos"]["kd"],
                 ctrl_params["z_pos"]["lim"],
-                self.ctrl_period,
+                self.control_period,
             )
             z_vel_PID = PID(
                 ctrl_params["z_vel"]["kp"],
                 ctrl_params["z_vel"]["ki"],
                 ctrl_params["z_vel"]["kd"],
                 ctrl_params["z_vel"]["lim"],
-                self.ctrl_period,
+                self.control_period,
             )
             self.z_PIDs = [z_vel_PID, z_pos_PID]
             self.PIDs = []
@@ -260,7 +260,7 @@ class QuadX(DroneClass):
                 self.Ki_ang_vel,
                 self.Kd_ang_vel,
                 self.lim_ang_vel,
-                self.ctrl_period,
+                self.control_period,
             )
             self.PIDs = [ang_vel_PID]
         elif mode in [1, 3]:
@@ -269,14 +269,14 @@ class QuadX(DroneClass):
                 self.Ki_ang_vel,
                 self.Kd_ang_vel,
                 self.lim_ang_vel,
-                self.ctrl_period,
+                self.control_period,
             )
             ang_pos_PID = PID(
                 self.Kp_ang_pos,
                 self.Ki_ang_pos,
                 self.Kd_ang_pos,
                 self.lim_ang_pos,
-                self.ctrl_period,
+                self.control_period,
             )
             self.PIDs = [ang_vel_PID, ang_pos_PID]
         elif mode in [4, 5, 6]:
@@ -285,21 +285,21 @@ class QuadX(DroneClass):
                 self.Ki_ang_vel,
                 self.Kd_ang_vel,
                 self.lim_ang_vel,
-                self.ctrl_period,
+                self.control_period,
             )
             ang_pos_PID = PID(
                 self.Kp_ang_pos[:2],
                 self.Ki_ang_pos[:2],
                 self.Kd_ang_pos[:2],
                 self.lim_ang_pos[:2],
-                self.ctrl_period,
+                self.control_period,
             )
             lin_vel_PID = PID(
                 self.Kp_lin_vel,
                 self.Ki_lin_vel,
                 self.Kd_lin_vel,
                 self.lim_lin_vel,
-                self.ctrl_period,
+                self.control_period,
             )
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID]
         elif mode == 7:
@@ -308,28 +308,28 @@ class QuadX(DroneClass):
                 self.Ki_ang_vel,
                 self.Kd_ang_vel,
                 self.lim_ang_vel,
-                self.ctrl_period,
+                self.control_period,
             )
             ang_pos_PID = PID(
                 self.Kp_ang_pos,
                 self.Ki_ang_pos,
                 self.Kd_ang_pos,
                 self.lim_ang_pos,
-                self.ctrl_period,
+                self.control_period,
             )
             lin_vel_PID = PID(
                 self.Kp_lin_vel,
                 self.Ki_lin_vel,
                 self.Kd_lin_vel,
                 self.lim_lin_vel,
-                self.ctrl_period,
+                self.control_period,
             )
             lin_pos_PID = PID(
                 self.Kp_lin_pos,
                 self.Ki_lin_pos,
                 self.Kd_lin_pos,
                 self.lim_lin_pos,
-                self.ctrl_period,
+                self.control_period,
             )
             self.PIDs = [ang_vel_PID, ang_pos_PID, lin_vel_PID, lin_pos_PID]
 
@@ -339,7 +339,7 @@ class QuadX(DroneClass):
     def register_controller(
         self,
         controller_id: int,
-        controller_constructor: type[CtrlClass],
+        controller_constructor: type[ControlClass],
         base_mode: int,
     ):
         """Registers a new controller for the UAV.
