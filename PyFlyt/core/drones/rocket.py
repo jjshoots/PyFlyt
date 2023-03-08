@@ -149,7 +149,9 @@ class Rocket(DroneClass):
                 gimbal_unit_1=np.array([[1.0, 0.0, 0.0]]),
                 gimbal_unit_2=np.array([[0.0, 0.0, 1.0]]),
                 gimbal_tau=np.array([booster_params["gimbal_tau"]]),
-                gimbal_range_degrees=np.array([booster_params["gimbal_range_degrees"]]),
+                gimbal_range_degrees=np.array(
+                    [[booster_params["gimbal_range_degrees"]] * 2]
+                ),
             )
 
         """ CAMERA """

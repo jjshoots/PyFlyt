@@ -45,7 +45,7 @@ class Gimbals:
             gimbal_unit_1.shape[0] == gimbal_unit_2.shape[0]
         ), f"Expected both gimbal_units to have equal number of elements, got {gimbal_unit_1.shape} and {gimbal_unit_2.shape}"
         assert gimbal_tau.shape == (gimbal_unit_1.shape[0],)
-        assert gimbal_range_degrees.shape == (gimbal_unit_1.shape[0],)
+        assert gimbal_range_degrees.shape == (gimbal_unit_1.shape[0], 2)
 
         self.num_gimbals = gimbal_unit_1.shape[0]
 
