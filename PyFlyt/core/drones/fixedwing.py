@@ -29,6 +29,7 @@ class FixedWing(DroneClass):
         camera_angle_degrees: int = 0,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
+        starting_velocity: np.ndarray = np.array([0.0, 20.0, 0.0]),
     ):
         """Creates a Fixedwing UAV and handles all relevant control and physics.
 
@@ -46,6 +47,7 @@ class FixedWing(DroneClass):
             camera_angle_degrees (int): camera_angle_degrees
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
+            starting_velocity (np.ndarray): vector representing the velocity at spawn
         """
         super().__init__(
             p=p,
@@ -57,6 +59,9 @@ class FixedWing(DroneClass):
             drone_model=drone_model,
             np_random=np_random,
         )
+
+        # constants
+        self.starting_velocity = starting_velocity
 
         """Reads fixedwing.yaml file and load UAV parameters"""
         with open(self.param_path, "rb") as f:
@@ -185,7 +190,7 @@ class FixedWing(DroneClass):
         self.cmd = np.zeros(4)
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
-        self.p.resetBaseVelocity(self.Id, [0, 20, 0], [0, 0, 0])
+        self.p.resetBaseVelocity(self.Id, self.starting_velocity, [0, 0, 0])
         self.disable_artificial_damping()
         self.lifting_surfaces.reset()
         self.motors.reset()

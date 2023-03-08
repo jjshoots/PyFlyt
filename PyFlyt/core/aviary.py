@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import time
+from itertools import repeat
 from typing import Sequence
 
 import numpy as np
@@ -120,10 +121,13 @@ class Aviary(bullet_client.BulletClient):
         if isinstance(drone_type, (tuple, list)):
             self.drone_type = drone_type
         else:
-            self.drone_type = [drone_type] * self.num_drones
+            self.drone_type = repeat(drone_type)
 
         # store the drone options
-        self.drone_options = drone_options
+        if isinstance(drone_options, (tuple, list)):
+            self.drone_options = drone_options
+        else:
+            self.drone_options = repeat(drone_options)
 
         # set the world scale and directories
         self.worldScale = worldScale
@@ -165,8 +169,12 @@ class Aviary(bullet_client.BulletClient):
 
         # spawn drones
         self.drones: list[DroneClass] = []
-        for start_pos, start_orn, control_hz, drone_type in zip(
-            self.start_pos, self.start_orn, self.control_hz, self.drone_type
+        for start_pos, start_orn, control_hz, drone_type, drone_options in zip(
+            self.start_pos,
+            self.start_orn,
+            self.control_hz,
+            self.drone_type,
+            self.drone_options,
         ):
             self.drones.append(
                 self.drone_type_mappings[drone_type](
@@ -176,7 +184,7 @@ class Aviary(bullet_client.BulletClient):
                     control_hz=control_hz,
                     physics_hz=self.physics_hz,
                     np_random=self.np_random,
-                    **self.drone_options,
+                    **drone_options,
                 )
             )
 
@@ -194,9 +202,27 @@ class Aviary(bullet_client.BulletClient):
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
 
+    def state(self, index) -> np.ndarray:
+        """Returns the state for the indexed drone.
+
+        Returns:
+            np.ndarray: state
+        """
+        return self.drones[index].state
+
+    def aux_state(self, index) -> np.ndarray:
+        """Returns the auxiliary state for the indexed drone.
+
+        Returns:
+            np.ndarray: auxiliary state
+        """
+        return self.drones[index].aux_state
+
     @property
-    def states(self) -> list[np.ndarray]:
+    def all_states(self) -> list[np.ndarray]:
         """Returns a list of states for all drones in the environment.
+
+        This function is not very optimized, if you want the state of a single drone, do `state(i)`.
 
         Returns:
             np.ndarray: list of states
@@ -208,8 +234,10 @@ class Aviary(bullet_client.BulletClient):
         return states
 
     @property
-    def aux_states(self) -> list[np.ndarray]:
+    def all_aux_states(self) -> list[np.ndarray]:
         """Returns a list of auxiliary states for all drones in the environment.
+
+        This function is not very optimized, if you want the aux state of a single drone, do `aux_state(i)`.
 
         Returns:
             np.ndarray: list of auxiliary states

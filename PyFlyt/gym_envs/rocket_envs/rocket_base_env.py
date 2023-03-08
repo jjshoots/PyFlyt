@@ -208,7 +208,7 @@ class RocketBaseEnv(gymnasium.Env):
 
     def compute_auxiliary(self):
         """This returns the auxiliary state form the drone."""
-        return self.env.drones[0].aux_state
+        return self.env.aux_state(0)
 
     def compute_attitude(self):
         """state.
@@ -220,7 +220,7 @@ class RocketBaseEnv(gymnasium.Env):
         - lin_pos (vector of 3 values)
         - previous_action (vector of 4 values)
         """
-        raw_state = self.env.drones[0].state
+        raw_state = self.env.state(0)
 
         # state breakdown
         ang_vel = raw_state[0]
@@ -256,15 +256,15 @@ class RocketBaseEnv(gymnasium.Env):
             collision_array[j, i] = False
 
         # fatal collision or below ground
-        if np.any(collision_array) or self.env.drones[0].state[-1, -1] < 0.0:
+        if np.any(collision_array) or self.env.state(0)[-1, -1] < 0.0:
             self.reward = -100.0
             self.info["fatal_collision"] = True
             self.termination |= True
 
         # exceed flight dome
         if (
-            np.linalg.norm(self.env.drones[0].state[-1, :2]) > self.max_displacement
-            or self.env.drones[0].state[-1, 2] > self.ceiling
+            np.linalg.norm(self.env.state(0)[-1, :2]) > self.max_displacement
+            or self.env.state(0)[-1, 2] > self.ceiling
         ):
             self.reward = -100.0
             self.info["out_of_bounds"] = True

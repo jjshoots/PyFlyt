@@ -181,7 +181,7 @@ class FixedwingBaseEnv(gymnasium.Env):
 
     def compute_auxiliary(self):
         """This returns the auxiliary state form the drone."""
-        return self.env.drones[0].aux_state
+        return self.env.aux_state(0)
 
     def compute_attitude(self):
         """state.
@@ -193,7 +193,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         - lin_pos (vector of 3 values)
         - previous_action (vector of 4 values)
         """
-        raw_state = self.env.drones[0].state
+        raw_state = self.env.state(0)
 
         # state breakdown
         ang_vel = raw_state[0]
@@ -223,7 +223,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             self.termination |= True
 
         # exceed flight dome
-        if np.linalg.norm(self.env.drones[0].state[-1]) > self.flight_dome_size:
+        if np.linalg.norm(self.env.state(-1)) > self.flight_dome_size:
             self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination |= True
