@@ -20,6 +20,7 @@ booster_params:
   gimbal_range_degrees: 5
   booster_tau: 0.01
   gimbal_tau: 0.01
+  noise_ratio: 0.01
 
 finlet_params:
   Cl_alpha_2D: 20.0 # since it's a gridfin, this is guesstimated

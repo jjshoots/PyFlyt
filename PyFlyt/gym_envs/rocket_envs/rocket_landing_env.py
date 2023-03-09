@@ -51,9 +51,9 @@ class RocketLandingEnv(RocketBaseEnv):
 
         """GYMNASIUM STUFF"""
         low = self.combined_space.low
-        low = np.concatenate((low, [0.0]))
+        low = np.concatenate((low, np.array([0.0])))
         high = self.combined_space.high
-        high = np.concatenate((high, [1.0]))
+        high = np.concatenate((high, np.array([1.0])))
         self.observation_space = Box(low=low, high=high, dtype=np.float64)
 
         # the landing pad

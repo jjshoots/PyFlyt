@@ -18,6 +18,7 @@ class Boosters:
         uav_id: int,
         booster_ids: np.ndarray | list[int],
         fueltank_ids: np.ndarray | list[None | int],
+        tau: np.ndarray,
         total_fuel_mass: np.ndarray,
         max_fuel_rate: np.ndarray,
         max_inertia: np.ndarray,
@@ -25,7 +26,7 @@ class Boosters:
         max_thrust: np.ndarray,
         thrust_unit: np.ndarray,
         reignitable: np.ndarray | list[bool],
-        tau: np.ndarray,
+        noise_ratio: np.ndarray,
     ):
         """Used for simulating an array of boosters.
 
@@ -36,6 +37,7 @@ class Boosters:
             uav_id (int): uav_id
             booster_ids (list[int]): booster_ids
             fueltank_ids (list[None | int]): fueltank_ids
+            tau (np.ndarray): booster ramp time constant
             total_fuel_mass (np.ndarray): total_fuel_mass
             max_fuel_rate (np.ndarray): max_fuel_rate
             max_inertia (np.ndarray): diagonal elements of the inertia tensor
@@ -43,7 +45,7 @@ class Boosters:
             max_thrust (np.ndarray): max_thrust
             thrust_unit (np.ndarray): unit vector of the direction thrust is pointing
             reignitable (list[bool]): whether we can turn off and on the booster
-            tau (np.ndarray): booster ramp time constant
+            noise_ratio (np.ndarray): noise_ratio
         """
         self.p = p
         self.physics_period = physics_period
@@ -57,6 +59,7 @@ class Boosters:
         # get number of motors and assert shapes
         self.num_boosters = len(booster_ids)
         assert len(fueltank_ids) == self.num_boosters
+        assert tau.shape == (self.num_boosters,)
         assert total_fuel_mass.shape == (self.num_boosters,)
         assert max_fuel_rate.shape == (self.num_boosters,)
         assert max_inertia.shape == (self.num_boosters, 3)
@@ -64,7 +67,7 @@ class Boosters:
         assert thrust_unit.shape == (self.num_boosters, 3)
         assert len(reignitable) == self.num_boosters
         assert min_thrust.shape == (self.num_boosters,)
-        assert tau.shape == (self.num_boosters,)
+        assert noise_ratio.shape == (self.num_boosters,)
         assert all(
             tau >= 0.0 / physics_period
         ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {tau}."
@@ -75,6 +78,7 @@ class Boosters:
             thrust_unit /= np.linalg.norm(thrust_unit)
 
         # constants
+        self.tau = tau
         self.total_fuel_mass = total_fuel_mass
         self.max_fuel_rate = max_fuel_rate
         self.max_inertia = max_inertia
@@ -82,10 +86,10 @@ class Boosters:
         self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
         self.reignitable = np.array(reignitable, dtype=bool)
         self.min_thrust = min_thrust
-        self.tau = tau
         self.ratio_min_throttle = self.min_thrust / self.max_thrust
         self.ratio_throttleable = 1.0 - self.ratio_min_throttle
         self.ratio_fuel_rate = self.max_fuel_rate / self.total_fuel_mass
+        self.noise_ratio = noise_ratio
 
     def reset(self):
         """Reset the boosters."""
@@ -184,6 +188,13 @@ class Boosters:
         # model the booster using first order ODE, y' = T/tau * (setpoint - y)
         self.throttle += (self.physics_period / self.tau) * (
             target_throttle - self.throttle
+        )
+
+        # noise in the motor
+        self.throttle += (
+            self.np_random.randn(*self.throttle.shape)
+            * self.throttle
+            * self.noise_ratio
         )
 
         # if no fuel, hard cutoff

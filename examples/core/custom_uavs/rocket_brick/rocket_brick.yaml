@@ -21,3 +21,4 @@ booster_params:
   max_thrust: 100.0
   reignitable: false
   booster_tau: 0.01
+  noise_ratio: 0.01

@@ -95,6 +95,7 @@ class RocketBrick(DroneClass):
                 uav_id=self.Id,
                 booster_ids=np.array([1], dtype=int),
                 fueltank_ids=np.array([0], dtype=int),
+                tau=np.array([booster_params["booster_tau"]]),
                 total_fuel_mass=np.array([booster_params["total_fuel"]]),
                 max_fuel_rate=np.array([booster_params["max_fuel_rate"]]),
                 max_inertia=np.array(
@@ -110,7 +111,7 @@ class RocketBrick(DroneClass):
                 max_thrust=np.array([booster_params["max_thrust"]]),
                 thrust_unit=np.array([[0.0, 1.0, 0.0]]),
                 reignitable=np.array([booster_params["reignitable"]], dtype=bool),
-                tau=np.array([booster_params["booster_tau"]]),
+                noise_ratio=np.array([booster_params["noise_ratio"]]),
             )
 
         """ CAMERA """
