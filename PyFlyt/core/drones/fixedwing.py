@@ -108,7 +108,7 @@ class FixedWing(DroneClass):
                     uav_id=self.Id,
                     surface_id=1,
                     command_id=1,
-                    command_sign=-1.0,
+                    command_sign=1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
                     aerofoil_params=all_params["horizontal_tail_params"],
