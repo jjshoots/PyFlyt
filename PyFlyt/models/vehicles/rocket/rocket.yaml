@@ -4,11 +4,11 @@
 # Throttle capability: 39% - 100%
 # Gimbal range: 5 degrees
 
-# we simulate a model that only has 10% fuel remaining
-# this is done by changing the total fuel from 410.9 to 41.9
+# we simulate a model that only has 5% fuel remaining
+# this is done by changing the total fuel from 410.9 to 20.45
 
 booster_params:
-  total_fuel: 41.09
+  total_fuel: 20.45
   max_fuel_rate: 1.451
   inertia_ixx: 1678
   inertia_iyy: 1678
