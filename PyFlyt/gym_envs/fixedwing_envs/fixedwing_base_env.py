@@ -223,7 +223,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             self.termination |= True
 
         # exceed flight dome
-        if np.linalg.norm(self.env.state(-1)) > self.flight_dome_size:
+        if np.linalg.norm(self.env.state(0)[-1]) > self.flight_dome_size:
             self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination |= True
