@@ -23,8 +23,8 @@ class RocketLandingEnv(RocketBaseEnv):
 
     def __init__(
         self,
-        ceiling: float = 300.0,
-        max_displacement: float = 300.0,
+        ceiling: float = 500.0,
+        max_displacement: float = 200.0,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 40,
@@ -41,6 +41,8 @@ class RocketLandingEnv(RocketBaseEnv):
             render_mode (None | str): can be "human" or None
         """
         super().__init__(
+            start_pos=np.array([[0.0, 0.0, 450.0]]),
+            start_orn=np.array([[0.0, 0.0, 0.0]]),
             ceiling=ceiling,
             max_displacement=max_displacement,
             max_duration_seconds=max_duration_seconds,

@@ -16,7 +16,7 @@ class RocketBaseEnv(gymnasium.Env):
 
     def __init__(
         self,
-        start_pos: np.ndarray = np.array([[0.0, 0.0, 300.0]]),
+        start_pos: np.ndarray = np.array([[0.0, 0.0, 10.0]]),
         start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
         ceiling: float = np.inf,
         max_displacement: float = np.inf,

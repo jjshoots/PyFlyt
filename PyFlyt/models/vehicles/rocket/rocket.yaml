@@ -22,14 +22,14 @@ booster_params:
   noise_ratio: 0.01
 
 finlet_params:
-  Cl_alpha_2D: 20.0 # since it's a gridfin, this is guesstimated
+  Cl_alpha_2D: 6.283 # since it's a gridfin, this is guesstimated
   chord: 0.3 # meters
-  span: 1.0
+  span: 0.3
   flap_to_chord: 1.0
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: -2.0 # 2D dCl_dalpha X-intercept
-  alpha_stall_P_base: +9.0 # Positive stall AoA
-  alpha_stall_N_base: -9.0 # Negative stall AoA
+  alpha_stall_P_base: +20.0 # Positive stall AoA
+  alpha_stall_N_base: -20.0 # Negative stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 30.0
   tau: 0.05
