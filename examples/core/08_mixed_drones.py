@@ -4,12 +4,12 @@ import numpy as np
 from PyFlyt.core import Aviary
 
 # the starting position and orientations
-start_pos = np.array([[0.0, 5.0, 5.0], [0.0, 0.0, 1.0], [5.0, 0.0, 1.0]])
+start_pos = np.array([[0.0, 5.0, 5.0], [3.0, 3.0, 1.0], [5.0, 0.0, 1.0]])
 start_orn = np.zeros_like(start_pos)
 
 # individual spawn options for each drone
 rocket_options = dict()
-quadx_options = dict(use_camera=True)
+quadx_options = dict(use_camera=True, drone_model="primitive_drone")
 fixedwing_options = dict(starting_velocity=np.array([0.0, 0.0, 0.0]))
 
 # environment setup

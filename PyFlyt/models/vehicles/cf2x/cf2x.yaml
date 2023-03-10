@@ -48,6 +48,6 @@ control_params:
   z_vel:
     description: "input: z velocity command | output: normalized thrust command"
     kp: 1.0
-    ki: 0.3
+    ki: 0.15
     kd: 0.15
     lim: 1.0

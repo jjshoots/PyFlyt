@@ -2,18 +2,19 @@
 
 <robot name="fixedwing">
 
+  <material name="blue">
+    <color rgba="0.0 0.0 0.8 1.0"/>
+  </material>
+  <material name="white">
+    <color rgba="0.8 0.8 0.8 1.0"/>
+  </material>
+
   <link name="base_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <mass value="0.3"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <box size="0.1 0.2 0.2"/>
-      </geometry>
-    </collision>
   </link>
 
 
@@ -40,9 +41,15 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.3 0.6 0.1"/>
+        <box size="0.3 0.6 0.05"/>
       </geometry>
     </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 0.6 0.05"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
   </link>
   <joint name="horizontal_tail_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-1.1 0 0"/>
@@ -60,9 +67,15 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.3 0.1 0.3"/>
+        <box size="0.3 0.05 0.3"/>
       </geometry>
     </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 0.05 0.3"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
   </link>
   <joint name="vertical_tail_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-1.1 0 0.15"/>
@@ -80,9 +93,15 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.3 0.3 0.1"/>
+        <box size="0.31 0.3 0.06"/>
       </geometry>
     </collision>
+    <visual>
+      <geometry>
+        <box size="0.31 0.3 0.06"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
   </link>
   <joint name="ail_left_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.5 0.95 0"/>
@@ -100,9 +119,15 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.3 0.3 0.1"/>
+        <box size="0.31 0.3 0.06"/>
       </geometry>
     </collision>
+    <visual>
+      <geometry>
+        <box size="0.31 0.3 0.06"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
   </link>
   <joint name="ail_right_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.5 -0.95  0"/>
@@ -120,9 +145,15 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.3 1.8 0.1"/>
+        <box size="0.3 1.8 0.05"/>
       </geometry>
     </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 1.8 0.05"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
   </link>
   <joint name="main_wing_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.5 0 0"/>
@@ -143,6 +174,12 @@
         <box size="1.4 0.2 0.2"/>
       </geometry>
     </collision>
+    <visual>
+      <geometry>
+        <box size="1.4 0.2 0.2"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
   </link>
   <joint name="fuselage_joint" type="fixed">
     <origin rpy="0 0 0" xyz="-0.45 0 0"/>
