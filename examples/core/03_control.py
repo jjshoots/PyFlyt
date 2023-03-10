@@ -25,7 +25,7 @@ for i in range(500):
     env.step()
 
     # record the linear position state
-    log[i] = env.states[0][-1]
+    log[i] = env.state(0)[-1]
 
 # for the next 500 steps, go to x=0, y=0, z=2, rotate 45 degrees
 setpoint = np.array([[0.0, 0.0, np.pi / 4, 2.0]])
@@ -35,8 +35,8 @@ for i in range(500, 1000):
     env.step()
 
     # record the linear position state
-    log[i] = env.states[0][-1]
+    log[i] = env.state(0)[-1]
 
 # plot stuff out
-# do plt.show() to show the plot
 plt.plot(np.arange(1000), log)
+plt.show()
