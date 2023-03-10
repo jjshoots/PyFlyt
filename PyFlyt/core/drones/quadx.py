@@ -63,14 +63,14 @@ class QuadX(DroneClass):
         """
         DRONE CONTROL
             motor ids correspond to quadrotor X in PX4,
-            -------------------
-            |    2  0         |
-            |    \\//      x  |
-            |    //\\    y_|  |
-            |    1  3         |
-            -------------------
+            -------------------------
+            |  (cw)2  0(ccw)        |
+            |      \\//           x |
+            |      //\\         y_| |
+            | (ccw)1  3(cw)         |
+            -------------------------
             using the ENU convention
-            control commands are in the form of pitch-roll-yaw-thrust
+            control commands are in the form of roll-pitch-yaw-thrust
         """
 
         # All the params for the drone
@@ -86,10 +86,10 @@ class QuadX(DroneClass):
             thrust_coef = np.array([motor_params["thrust_coef"]] * 4)
             torque_coef = np.array(
                 [
-                    +motor_params["torque_coef"],
-                    +motor_params["torque_coef"],
                     -motor_params["torque_coef"],
                     -motor_params["torque_coef"],
+                    +motor_params["torque_coef"],
+                    +motor_params["torque_coef"],
                 ]
             )
             thrust_unit = np.array(
@@ -122,10 +122,10 @@ class QuadX(DroneClass):
             # motor mapping from command to individual motors
             self.motor_map = np.array(
                 [
+                    [-1.0, -1.0, -1.0, +1.0],
+                    [+1.0, +1.0, -1.0, +1.0],
                     [+1.0, -1.0, +1.0, +1.0],
                     [-1.0, +1.0, +1.0, +1.0],
-                    [+1.0, +1.0, -1.0, +1.0],
-                    [-1.0, -1.0, -1.0, +1.0],
                 ]
             )
 

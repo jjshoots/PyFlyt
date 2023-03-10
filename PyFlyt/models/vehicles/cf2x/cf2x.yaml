@@ -14,7 +14,7 @@ control_params:
     description: "input: angular velocity command | output: normalized angular torque command"
     kp: [4.0e-2, 4.0e-2, 8.0e-2]
     ki: [5.0e-7, 5.0e-7, 2.7e-4]
-    kd: [10.0e-5, 10.0e-5, 0.0]
+    kd: [1.0e-4, 1.0e-4, 0.0]
     lim: [1.0, 1.0, 1.0]
 
   ang_pos:
