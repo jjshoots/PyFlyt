@@ -25,7 +25,6 @@ class Aviary(bullet_client.BulletClient):
         drone_type_mappings: None | dict[str, DroneClass] = None,
         render: bool = False,
         physics_hz: int = 240,
-        control_hz: int | Sequence[int] = 120,
         worldScale: float = 1.0,
         drone_options: dict | Sequence[dict] = {},
         seed: None | int = None,
@@ -42,7 +41,6 @@ class Aviary(bullet_client.BulletClient):
             drone_type_mappings (None | dict[str, DroneClass]): string to mapping of custom drone classes
             render (bool): render
             physics_hz (int): physics_hz
-            control_hz (int | Sequence[int]): control_hz
             worldScale (float): worldScale
             drone_options (dict | Sequence[dict]): drone_options
             seed (None | int): seed
@@ -72,19 +70,6 @@ class Aviary(bullet_client.BulletClient):
                 len(drone_options) == start_pos.shape[0]
             ), f"If multiple `drone_options` ({len(drone_options)}) are used, must have same number of `drone_options` as number of drones ({start_pos.shape[0]})."
 
-        # check for control hz to be same length and be common denominator of physics hz
-        if isinstance(control_hz, Sequence):
-            assert (
-                len(control_hz) == start_pos.shape[0]
-            ), f"If multiple `control_hz` ({len(control_hz)})are to be used, must have same number of `control_hz` as number of drones ({start_pos.shape[0]})."
-            assert all(
-                [physics_hz % hz == 0 for hz in control_hz]
-            ), f"All `control_hz` ({control_hz}) must be common denominator of `physics_hz` ({physics_hz})."
-        else:
-            assert (
-                physics_hz % control_hz == 0
-            ), f"`control_hz` ({control_hz}) must be common denominator of `physics_hz` ({physics_hz})."
-
         # constants
         self.num_drones = start_pos.shape[0]
         self.start_pos = start_pos
@@ -94,17 +79,6 @@ class Aviary(bullet_client.BulletClient):
         # default physics looprate is 240 Hz
         self.physics_hz = physics_hz
         self.physics_period = 1.0 / physics_hz
-
-        # handle multiple control_hz
-        if isinstance(control_hz, Sequence):
-            self.control_hz = np.array(control_hz)
-        else:
-            self.control_hz = np.array([control_hz] * self.num_drones)
-
-        # constants for tracking how many times to step
-        self.updates_per_step = int(physics_hz / np.min(self.control_hz))
-        self.update_period = 1.0 / np.min(self.control_hz)
-        self.now = time.time()
 
         # mapping of drone type string to the constructors
         self.drone_type_mappings = dict()
@@ -169,10 +143,9 @@ class Aviary(bullet_client.BulletClient):
 
         # spawn drones
         self.drones: list[DroneClass] = []
-        for start_pos, start_orn, control_hz, drone_type, drone_options in zip(
+        for start_pos, start_orn, drone_type, drone_options in zip(
             self.start_pos,
             self.start_orn,
-            self.control_hz,
             self.drone_type,
             self.drone_options,
         ):
@@ -181,12 +154,17 @@ class Aviary(bullet_client.BulletClient):
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
-                    control_hz=control_hz,
                     physics_hz=self.physics_hz,
                     np_random=self.np_random,
                     **drone_options,
                 )
             )
+
+        # constants for tracking how many times to step depending on control hz
+        all_control_hz = [1.0 / drone.control_period for drone in self.drones]
+        self.updates_per_step = int(self.physics_hz / np.min(all_control_hz))
+        self.update_period = 1.0 / np.min(all_control_hz)
+        self.now = time.time()
 
         # arm everything
         self.register_all_new_bodies()

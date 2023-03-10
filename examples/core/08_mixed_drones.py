@@ -18,7 +18,6 @@ env = Aviary(
     start_orn=start_orn,
     render=True,
     drone_type=["rocket", "quadx", "fixedwing"],
-    control_hz=120,
     drone_options=[rocket_options, quadx_options, fixedwing_options],
 )
 

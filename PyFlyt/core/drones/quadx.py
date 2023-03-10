@@ -22,8 +22,8 @@ class QuadX(DroneClass):
         p: bullet_client.BulletClient,
         start_pos: np.ndarray,
         start_orn: np.ndarray,
-        control_hz: int,
-        physics_hz: int,
+        control_hz: int = 120,
+        physics_hz: int = 240,
         drone_model: str = "cf2x",
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
@@ -62,7 +62,14 @@ class QuadX(DroneClass):
         )
         """
         DRONE CONTROL
-            motor ids correspond to quadrotor X in PX4, using the ENU convention
+            motor ids correspond to quadrotor X in PX4,
+            -------------------
+            |    2  0         |
+            |    \\//      x  |
+            |    //\\    y_|  |
+            |    1  3         |
+            -------------------
+            using the ENU convention
             control commands are in the form of pitch-roll-yaw-thrust
         """
 

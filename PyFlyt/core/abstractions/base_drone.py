@@ -26,10 +26,13 @@ class DroneClass(ABC):
         np_random: None | np.random.RandomState = None,
     ):
         """Defines the default configuration for UAVS, to be used in conjunction with the Aviary class."""
-        """ DEFAULT CONFIG """
         if physics_hz != 240.0:
             raise UserWarning(
                 f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
+            )
+        if physics_hz % control_hz != 0:
+            raise ValueError(
+                f"`physics_hz` ({physics_hz}) must be multiple of `control_hz` ({control_hz})."
             )
 
         self.p = p

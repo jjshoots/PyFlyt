@@ -31,13 +31,19 @@ def test_multi_spawn():
     start_pos = np.array([[-1.0, 0.0, 1.0], [0.0, 0.0, 1.0], [1.0, 0.0, 1.0]])
     start_orn = np.zeros_like(start_pos)
 
+    # modify the control hz of the individual drones
+    drone_options = []
+    drone_options.append(dict(control_hz=60))
+    drone_options.append(dict(control_hz=120))
+    drone_options.append(dict(control_hz=240))
+
     # environment setup
     env = Aviary(
         start_pos=start_pos,
         start_orn=start_orn,
         render=False,
         drone_type="quadx",
-        control_hz=[60, 120, 240],
+        drone_options=drone_options,
     )
 
     # set to position control
@@ -202,7 +208,6 @@ def test_mixed_drones():
         start_orn=start_orn,
         render=False,
         drone_type=["rocket", "quadx", "fixedwing"],
-        control_hz=120,
         drone_options=[rocket_options, quadx_options, fixedwing_options],
     )
 
