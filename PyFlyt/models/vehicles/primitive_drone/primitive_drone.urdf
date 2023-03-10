@@ -2,29 +2,11 @@
 
 <robot name="drone">
 
-  <material name="black">
-    <color rgba="0.0 0.0 0.0 1.0"/>
-  </material>
-  <material name="blue">
-    <color rgba="0.0 0.0 0.8 1.0"/>
-  </material>
-  <material name="green">
-    <color rgba="0.0 0.8 0.0 1.0"/>
-  </material>
   <material name="grey">
     <color rgba="0.2 0.2 0.2 1.0"/>
   </material>
-  <material name="orange">
-    <color rgba="1.0 0.4235294117647059 0.0392156862745098 1.0"/>
-  </material>
-  <material name="brown">
-    <color rgba="0.8705882352941177 0.8117647058823529 0.7647058823529411 1.0"/>
-  </material>
   <material name="red">
     <color rgba="0.8 0.0 0.0 1.0"/>
-  </material>
-  <material name="white">
-    <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
 
 
@@ -39,7 +21,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="0.15 0.1 0.05"/>
+        <box size="0.2 0.1 0.05"/>
       </geometry>
     </collision>
     <inertial>
@@ -60,7 +42,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder length="0.01" radius="0.01"/>
+        <cylinder length="0.01" radius="0.12"/>
       </geometry>
     </collision>
     <inertial>
@@ -87,7 +69,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder length="0.01" radius="0.01"/>
+        <cylinder length="0.01" radius="0.12"/>
       </geometry>
     </collision>
     <inertial>
@@ -114,7 +96,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder length="0.01" radius="0.01"/>
+        <cylinder length="0.01" radius="0.12"/>
       </geometry>
     </collision>
     <inertial>
@@ -141,7 +123,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <cylinder length="0.01" radius="0.01"/>
+        <cylinder length="0.01" radius="0.12"/>
       </geometry>
     </collision>
     <inertial>
