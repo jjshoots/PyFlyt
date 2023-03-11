@@ -3,10 +3,13 @@
 <robot name="fixedwing">
 
   <material name="blue">
-    <color rgba="0.0 0.0 0.8 1.0"/>
+    <color rgba="0.0 0.0 1.0 1.0"/>
   </material>
   <material name="white">
     <color rgba="0.8 0.8 0.8 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.2 0.2 0.2 1.0"/>
   </material>
 
   <link name="base_link">

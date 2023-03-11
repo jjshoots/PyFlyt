@@ -24,8 +24,8 @@
   <material name="grey">
     <color rgba="0.2 0.2 0.2 1.0"/>
   </material>
-  <material name="white">
-    <color rgba="0.8 0.8 0.8 1.0"/>
+  <material name="yellow">
+    <color rgba="1.0 0.8 0.0 1.0"/>
   </material>
 
   <link name="base_link">
@@ -44,7 +44,7 @@
       <geometry>
         <cylinder radius="0.185" length="4.77"/>
       </geometry>
-      <material name="white"/>
+      <material name="yellow"/>
     </visual>
   </link>
 

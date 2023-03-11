@@ -2,6 +2,10 @@
 
 <robot name="cf2">
 
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+
   <link name="base_link">
 
     <inertial>
@@ -21,9 +25,7 @@
       <geometry>
         <mesh filename="./cf2.dae" scale=" 1 1 1"/>
       </geometry>
-      <material name="grey">
-        <color rgba=".5 .5 .5 1"/>
-      </material>
+      <material name="red"/>
     </visual>
 
     <collision>

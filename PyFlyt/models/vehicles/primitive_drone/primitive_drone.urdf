@@ -2,11 +2,11 @@
 
 <robot name="drone">
 
-  <material name="grey">
-    <color rgba="0.2 0.2 0.2 1.0"/>
+  <material name="white">
+    <color rgba="0.9 0.9 0.9 1.0"/>
   </material>
-  <material name="red">
-    <color rgba="0.8 0.0 0.0 1.0"/>
+  <material name="green">
+    <color rgba="0.0 0.8 0.0 1.0"/>
   </material>
 
 
@@ -16,7 +16,7 @@
       <geometry>
         <box size="0.2 0.1 0.05"/>
       </geometry>
-      <material name="grey"/>
+      <material name="white"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -37,7 +37,7 @@
       <geometry>
         <cylinder length="0.01" radius="0.12"/>
       </geometry>
-      <material name="red"/>
+      <material name="green"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -64,7 +64,7 @@
       <geometry>
         <cylinder length="0.01" radius="0.12"/>
       </geometry>
-      <material name="red"/>
+      <material name="green"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -91,7 +91,7 @@
       <geometry>
         <cylinder length="0.01" radius="0.12"/>
       </geometry>
-      <material name="red"/>
+      <material name="green"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -118,7 +118,7 @@
       <geometry>
         <cylinder length="0.01" radius="0.12"/>
       </geometry>
-      <material name="red"/>
+      <material name="green"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
