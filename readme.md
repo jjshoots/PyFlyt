@@ -1,5 +1,9 @@
 # PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
 
+<p align="center">
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/pyflyt_cover_photo.png?raw=true" width="800px"/>
+</p>
+
 This is a library for testing reinforcement learning algorithms on UAVs.
 This repo is still under development.
 We are also actively looking for users and developers, if this sounds like you, don't hesitate to get in touch!
@@ -27,18 +31,6 @@ PyFlyt currently supports two separate UAV platforms:
   - [`PyFlyt/QuadX-Hover-v0`](#pyflytquadx-hover-v0)
   - [`PyFlyt/QuadX-Waypoints-v0`](#pyflytquadx-waypoints-v0)
   - [`PyFlyt/Fixedwing-Waypoints-v0`](#pyflytfixedwing-waypoints-v0)
-- [Non-Gymnasium examples](#non-gymnasium-examples)
-  - [Simulation Only](#simulation-only)
-    - [`sim_single.py`](#sim_singlepy)
-    - [`sim_swarm.py`](#sim_swarmpy)
-    - [`sim_cube.py`](#sim_cubepy)
-  - [Hardware Only](#hardware-only)
-    - [`fly_single.py`](#fly_singlepy)
-    - [`fly_swarm.py`](#fly_swarmpy)
-  - [Simulation or Hardware](#simulation-or-hardware)
-    - [`sim_n_fly_single.py`](#sim_n_fly_singlepy)
-    - [`sim_n_fly_multiple.py`](#sim_n_fly_multiplepy)
-    - [`sim_n_fly_cube_from_scratch.py`](#sim_n_fly_cube_from_scratchpy)
 
 
 ## Installation
