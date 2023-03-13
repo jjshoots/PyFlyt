@@ -288,16 +288,16 @@ class Aviary(bullet_client.BulletClient):
             time.sleep(max(0, self.update_period - elapsed))
 
             # calculate real time factor
-            RTF = self.update_period / (elapsed + 1e-6)
+            # RTF = self.update_period / (elapsed + 1e-6)
 
             # handle case where sometimes elapsed becomes 0
-            if elapsed != 0.0:
-                self.rtf_debug_line = self.addUserDebugText(
-                    text=f"RTF: {str(RTF)[:7]}",
-                    textPosition=[0, 0, 0],
-                    textColorRGB=[1, 0, 0],
-                    replaceItemUniqueId=self.rtf_debug_line,
-                )
+            # if elapsed != 0.0:
+            #     self.rtf_debug_line = self.addUserDebugText(
+            #         text=f"RTF: {str(RTF)[:7]}",
+            #         textPosition=[0, 0, 0],
+            #         textColorRGB=[1, 0, 0],
+            #         replaceItemUniqueId=self.rtf_debug_line,
+            #     )
 
         # reset collisions
         self.collision_array &= False
