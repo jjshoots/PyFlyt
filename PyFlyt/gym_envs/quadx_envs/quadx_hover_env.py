@@ -20,6 +20,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
     def __init__(
         self,
+        sparse_reward: bool = False,
         flight_dome_size: float = 3.0,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
@@ -29,6 +30,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+            sparse_reward (bool): sparse_reward
             flight_dome_size (float): size of the allowable flying area
             max_duration_seconds (float): maximum simulatiaon time of the environment
             angle_representation (str): can be "euler" or "quaternion"
@@ -45,6 +47,9 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
         """GYMNASIUM STUFF"""
         self.observation_space = self.combined_space
+
+        """ ENVIRONMENT CONSTANTS """
+        self.sparse_reward = sparse_reward
 
     def reset(self, seed=None, options=dict()):
         """reset.
@@ -85,3 +90,14 @@ class QuadXHoverEnv(QuadXBaseEnv):
     def compute_term_trunc_reward(self):
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
+
+        if self.sparse_reward:
+            # distance from 0, 0, 1 hover point
+            linear_distance = np.linalg.norm(
+                self.env.state(0)[-1] - np.array([0.0, 0.0, 1.0])
+            )
+
+            # how far are we from 0 roll pitch
+            angular_distance = np.linalg.norm(self.env.state(0)[1][:2])
+
+            self.reward -= linear_distance + angular_distance

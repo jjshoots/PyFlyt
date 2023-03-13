@@ -16,6 +16,15 @@ _ALL_ENV_CONFIGS.append(
 )
 _ALL_ENV_CONFIGS.append(
     (
+        "PyFlyt/QuadX-Hover-v0",
+        dict(angle_representation="quaternion", sparse_reward=True),
+    )
+)
+_ALL_ENV_CONFIGS.append(
+    ("PyFlyt/QuadX-Hover-v0", dict(angle_representation="quaternion"))
+)
+_ALL_ENV_CONFIGS.append(
+    (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="euler", sparse_reward=True),
     )
