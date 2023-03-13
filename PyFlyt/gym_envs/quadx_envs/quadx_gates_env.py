@@ -35,6 +35,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         angle_representation: str = "quaternion",
         agent_hz: int = 40,
         render_mode: None | str = None,
+        render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
 
@@ -50,12 +51,14 @@ class QuadXGatesEnv(QuadXBaseEnv):
             angle_representation (str): angle_representation
             agent_hz (int): agent_hz
             render_mode (None | str): render_mode
+            render_resolution (tuple[int, int]): render_resolution
         """
         super().__init__(
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
             agent_hz=agent_hz,
             render_mode=render_mode,
+            render_resolution=render_resolution,
         )
 
         """GYMNASIUM STUFF"""

@@ -23,6 +23,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
         render_mode: None | str = None,
+        render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
 
@@ -34,6 +35,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             angle_representation (str): angle_representation
             agent_hz (int): agent_hz
             render_mode (None | str): render_mode
+            render_resolution (tuple[int, int]): render_resolution
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -47,6 +49,7 @@ class FixedwingBaseEnv(gymnasium.Env):
                 render_mode in self.metadata["render_modes"]
             ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
         self.render_mode = render_mode
+        self.render_resolution = render_resolution
 
         """GYMNASIUM STUFF"""
         # attitude size increases by 1 for quaternion
@@ -262,17 +265,19 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
-    def render(self, width=480, height=480):
+    def render(self):
         """render."""
         assert (
             self.render_mode is not None
         ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=width,
-            height=height,
+            width=self.render_resolution[0],
+            height=self.render_resolution[1],
             viewMatrix=self.env.drones[0].camera.view_mat,
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
 
-        return np.array(rgbaImg, dtype=np.uint8).reshape(height, width, -1)
+        return np.array(rgbaImg, dtype=np.uint8).reshape(
+            self.render_resolution[1], self.render_resolution[0], -1
+        )
