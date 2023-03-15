@@ -158,8 +158,6 @@ class RocketLandingEnv(RocketBaseEnv):
             collision_ignore_mask=[self.env.drones[0].Id, self.landing_pad_id]
         )
 
-        print(self.state[3:5])
-
         # check if we touched the landing pad
         if not self.env.collision_array[self.env.drones[0].Id, self.landing_pad_id]:
             # track the velocity for the next time
