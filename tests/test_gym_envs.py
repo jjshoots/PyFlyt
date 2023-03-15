@@ -103,9 +103,7 @@ _ALL_ENV_CONFIGS.append(
 _ALL_ENV_CONFIGS.append(
     ("PyFlyt/Rocket-Landing-v0", dict(angle_representation="quaternion"))
 )
-_ALL_ENV_CONFIGS.append(
-    ("PyFlyt/Rocket-Landing-v0", dict(sparse_reward=True))
-)
+_ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v0", dict(sparse_reward=True)))
 
 # todo - gymnasium v27 should remove the need for some of these warnings
 CHECK_ENV_IGNORE_WARNINGS = [
