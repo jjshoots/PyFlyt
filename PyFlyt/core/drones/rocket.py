@@ -31,6 +31,7 @@ class Rocket(DroneClass):
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
         camera_position_offset: np.ndarray = np.array([-1.0, 0.0, 3.0]),
+        starting_fuel_ratio: float = 0.05,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
@@ -52,6 +53,7 @@ class Rocket(DroneClass):
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
             camera_position_offset (np.ndarray): offset position of the camera
+            starting_fuel_ratio (float): amount of fuel that the rocket has to beginwith
         """
         super().__init__(
             p=p,
@@ -63,6 +65,9 @@ class Rocket(DroneClass):
             drone_model=drone_model,
             np_random=np_random,
         )
+
+        # constants
+        self.starting_fuel_ratio = starting_fuel_ratio
 
         """Reads fixedwing.yaml file and load UAV parameters"""
         with open(self.param_path, "rb") as f:
@@ -184,7 +189,7 @@ class Rocket(DroneClass):
         self.disable_artificial_damping()
         self.lifting_surfaces.reset()
         self.booster_gimbal.reset()
-        self.boosters.reset()
+        self.boosters.reset(starting_fuel_ratio=self.starting_fuel_ratio)
         self.update_state()
 
         if self.use_camera:

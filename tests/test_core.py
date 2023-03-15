@@ -24,6 +24,8 @@ def test_simple_spawn():
     for i in range(1000):
         env.step()
 
+    env.disconnect()
+
 
 def test_multi_spawn():
     """Tests spawning multiple drones, and sets them all to have different control looprates."""
@@ -52,6 +54,8 @@ def test_multi_spawn():
     # simulate for 1000 steps (1000/120 ~= 8 seconds)
     for i in range(1000):
         env.step()
+
+    env.disconnect()
 
 
 def test_default_control():
@@ -82,6 +86,8 @@ def test_default_control():
     for i in range(500, 1000):
         env.step()
 
+    env.disconnect()
+
 
 def test_camera():
     """Tests the camera module."""
@@ -104,6 +110,8 @@ def test_camera():
     # simulate for 1000 steps (1000/120 ~= 8 seconds)
     for i in range(100):
         env.step()
+
+    env.disconnect()
 
 
 def test_custom_controller():
@@ -156,6 +164,8 @@ def test_custom_controller():
     for i in range(1000):
         env.step()
 
+    env.disconnect()
+
 
 def test_custom_uav():
     """Tests spawning in a custom UAV."""
@@ -186,6 +196,8 @@ def test_custom_uav():
         # ignite the rocket after ~1 seconds
         if i > 100:
             env.set_setpoints(np.array([[1.0, 1.0]]))
+
+    env.disconnect()
 
 
 def test_mixed_drones():
@@ -218,3 +230,5 @@ def test_mixed_drones():
     for i in range(1000):
         _ = env.all_states
         env.step()
+
+    env.disconnect()

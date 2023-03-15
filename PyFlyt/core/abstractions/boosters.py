@@ -91,10 +91,16 @@ class Boosters:
         self.ratio_fuel_rate = self.max_fuel_rate / self.total_fuel_mass
         self.noise_ratio = noise_ratio
 
-    def reset(self):
-        """Reset the boosters."""
+    def reset(self, starting_fuel_ratio: float | np.ndarray = 1.0):
+        """Reset the boosters.
+
+        Args:
+            starting_fuel_ratio (float | np.ndarray): starting_fuel_ratio
+        """
         # deal with everything in percents
-        self.ratio_fuel_remaining = np.ones((self.num_boosters,), dtype=np.float64)
+        self.ratio_fuel_remaining = (
+            np.ones((self.num_boosters,), dtype=np.float64) * starting_fuel_ratio
+        )
         self.throttle = np.zeros((self.num_boosters,), dtype=np.float64)
         self.ignition_state = np.zeros((self.num_boosters,), dtype=bool)
 
