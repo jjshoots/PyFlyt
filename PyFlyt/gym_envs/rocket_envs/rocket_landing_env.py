@@ -78,7 +78,7 @@ class RocketLandingEnv(RocketBaseEnv):
             seed: int
             options: None
         """
-        options = dict(randomize_drop=True)
+        # options = dict(randomize_drop=True)
         drone_options = dict(starting_fuel_ratio=0.01)
 
         super().begin_reset(seed, options, drone_options)
@@ -158,6 +158,8 @@ class RocketLandingEnv(RocketBaseEnv):
             collision_ignore_mask=[self.env.drones[0].Id, self.landing_pad_id]
         )
 
+        print(self.state[3:5])
+
         # check if we touched the landing pad
         if not self.env.collision_array[self.env.drones[0].Id, self.landing_pad_id]:
             # track the velocity for the next time
@@ -183,10 +185,11 @@ class RocketLandingEnv(RocketBaseEnv):
             self.termination |= True
             return
 
-        # if our both velocities are less than 0.02 m/s, we LANDED!
+        # if our both velocities are less than 0.02 m/s and we upright, we LANDED!
         if (
             np.linalg.norm(self.previous_ang_vel) < 0.02
-            or np.linalg.norm(self.previous_lin_vel) < 0.02
+            and np.linalg.norm(self.previous_lin_vel) < 0.02
+            and np.linalg.norm(self.state[3:5]) < 0.1
         ):
             self.reward = 100.0
             self.info["env_complete"] = True
