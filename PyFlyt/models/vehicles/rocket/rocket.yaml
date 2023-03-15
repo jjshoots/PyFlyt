@@ -24,7 +24,7 @@ finlet_params:
   span: 0.3
   flap_to_chord: 1.0
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
-  alpha_0_base: -2.0 # 2D dCl_dalpha X-intercept
+  alpha_0_base: 0.0 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: +20.0 # Positive stall AoA
   alpha_stall_N_base: -20.0 # Negative stall AoA
   Cd_0: 0.01 # Skin friction coefficient

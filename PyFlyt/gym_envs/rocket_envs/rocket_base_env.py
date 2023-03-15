@@ -187,6 +187,17 @@ class RocketBaseEnv(gymnasium.Env):
             seed=seed,
         )
 
+        # add the random velocities to our base
+        start_ang_vel = np.array([0.0, 0.0, 0.0])
+        start_lin_vel = np.array([0.0, 0.0, -80.0])
+
+        # impart some random velocities if randomize
+        if "randomize_drop" in options and options["randomize_drop"]:
+            start_lin_vel += self.np_random.uniform(-5.0, 5.0, size=(3,))
+            start_ang_vel += self.np_random.uniform(-0.5, 0.5, size=(3,))
+
+        self.env.resetBaseVelocity(self.env.drones[0].Id, start_lin_vel, start_ang_vel)
+
         if self.render_mode is not None:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 

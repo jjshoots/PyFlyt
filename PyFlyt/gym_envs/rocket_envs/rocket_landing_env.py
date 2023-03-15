@@ -43,7 +43,7 @@ class RocketLandingEnv(RocketBaseEnv):
             render_resolution (tuple[int, int]): render_resolution
         """
         super().__init__(
-            start_pos=np.array([[0.0, 0.0, 450.0]]),
+            start_pos=np.array([[0.0, 0.0, ceiling * 0.9]]),
             start_orn=np.array([[0.0, 0.0, 0.0]]),
             ceiling=ceiling,
             max_displacement=max_displacement,
@@ -55,10 +55,16 @@ class RocketLandingEnv(RocketBaseEnv):
         )
 
         """GYMNASIUM STUFF"""
+        # the space is the standard space + pad touch indicator + relative pad location
+        max_offset = max(ceiling, max_displacement)
         low = self.combined_space.low
-        low = np.concatenate((low, np.array([0.0])))
+        low = np.concatenate(
+            (low, np.array([0.0, -max_offset, -max_offset, -max_offset]))
+        )
         high = self.combined_space.high
-        high = np.concatenate((high, np.array([1.0])))
+        high = np.concatenate(
+            (high, np.array([1.0, max_offset, max_offset, max_offset]))
+        )
         self.observation_space = Box(low=low, high=high, dtype=np.float64)
 
         # the landing pad
@@ -73,13 +79,9 @@ class RocketLandingEnv(RocketBaseEnv):
             options: None
         """
         options = dict(randomize_drop=True)
+        drone_options = dict(starting_fuel_ratio=0.01)
 
-        super().begin_reset(seed, options)
-
-        # impart some sidewards velocity
-        start_lin_vel = self.np_random.uniform(-5.0, 5.0, size=(3,))
-        start_ang_vel = self.np_random.uniform(-0.5, 0.5, size=(3,))
-        self.env.resetBaseVelocity(self.env.drones[0].Id, start_lin_vel, start_ang_vel)
+        super().begin_reset(seed, options, drone_options)
 
         # reset the tracked parameters
         self.previous_ang_vel = np.zeros((3,))
@@ -89,10 +91,12 @@ class RocketLandingEnv(RocketBaseEnv):
         # randomly generate the target landing location
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
         distance = self.np_random.uniform(0.0, 0.1 * self.max_displacement)
-        target = np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
+        self.landing_pad_position = (
+            np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
+        )
         self.landing_pad_id = self.env.loadURDF(
             self.targ_obj_dir,
-            basePosition=target,
+            basePosition=self.landing_pad_position,
             useFixedBase=True,
         )
 
@@ -114,6 +118,12 @@ class RocketLandingEnv(RocketBaseEnv):
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
+        # drone to target
+        rotation = (
+            np.array(self.env.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
+        )
+        distance_to_pad = np.matmul(rotation, (self.landing_pad_position - lin_pos).T).T
+
         # combine everything
         if self.angle_representation == 0:
             self.state = np.array(
@@ -125,6 +135,7 @@ class RocketLandingEnv(RocketBaseEnv):
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
+                    *distance_to_pad,
                 ]
             )
         elif self.angle_representation == 1:
@@ -137,6 +148,7 @@ class RocketLandingEnv(RocketBaseEnv):
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
+                    *distance_to_pad,
                 ]
             )
 
