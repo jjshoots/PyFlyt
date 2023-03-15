@@ -148,7 +148,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
-            self.reward += 1.0 / self.distance_to_immediate
+            self.reward += 0.1 / self.distance_to_immediate
 
         # target reached
         if self.waypoints.target_reached():
