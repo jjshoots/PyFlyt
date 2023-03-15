@@ -23,6 +23,7 @@ class RocketLandingEnv(RocketBaseEnv):
 
     def __init__(
         self,
+        sparse_reward: bool = False,
         ceiling: float = 500.0,
         max_displacement: float = 200.0,
         max_duration_seconds: float = 10.0,
@@ -34,6 +35,7 @@ class RocketLandingEnv(RocketBaseEnv):
         """__init__.
 
         Args:
+            sparse_reward (bool): sparse_reward
             ceiling (float): the absolute ceiling of the flying area
             max_displacement (float): the maximum horizontal distance the rocket can go
             max_duration_seconds (float): maximum simulatiaon time of the environment
@@ -71,6 +73,9 @@ class RocketLandingEnv(RocketBaseEnv):
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.targ_obj_dir = os.path.join(file_dir, "../../models/landing_pad.urdf")
 
+        """CONSTANTS"""
+        self.sparse_reward = sparse_reward
+
     def reset(self, seed=None, options=dict()):
         """Resets the environment.
 
@@ -87,6 +92,7 @@ class RocketLandingEnv(RocketBaseEnv):
         self.previous_ang_vel = np.zeros((3,))
         self.previous_lin_vel = np.zeros((3,))
         self.landing_pad_contact = 0.0
+        self.distance_to_pad = np.array([100.0, 100.0, 100.0])
 
         # randomly generate the target landing location
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
@@ -122,7 +128,9 @@ class RocketLandingEnv(RocketBaseEnv):
         rotation = (
             np.array(self.env.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
         )
-        distance_to_pad = np.matmul(rotation, (self.landing_pad_position - lin_pos).T).T
+        self.distance_to_pad = np.matmul(
+            rotation, (self.landing_pad_position - lin_pos).T
+        ).T
 
         # combine everything
         if self.angle_representation == 0:
@@ -135,7 +143,7 @@ class RocketLandingEnv(RocketBaseEnv):
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
-                    *distance_to_pad,
+                    *self.distance_to_pad,
                 ]
             )
         elif self.angle_representation == 1:
@@ -148,7 +156,7 @@ class RocketLandingEnv(RocketBaseEnv):
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
-                    *distance_to_pad,
+                    *self.distance_to_pad,
                 ]
             )
 
@@ -158,6 +166,17 @@ class RocketLandingEnv(RocketBaseEnv):
             collision_ignore_mask=[self.env.drones[0].Id, self.landing_pad_id]
         )
 
+        if not self.sparse_reward:
+            # distance penalty
+            self.reward -= 0.2 * np.linalg.norm(self.distance_to_pad[:2])
+
+            # velocity penalty
+            # the closer we are to the landing pad, the more we care about velocity
+            distance_scalar = 1.0 / (np.linalg.norm(self.distance_to_pad) ** 2)
+            self.reward -= distance_scalar * (
+                np.linalg.norm(self.state[6:9]) + np.linalg.norm(self.state[0:3])
+            )
+
         # check if we touched the landing pad
         if not self.env.collision_array[self.env.drones[0].Id, self.landing_pad_id]:
             # track the velocity for the next time
@@ -166,8 +185,12 @@ class RocketLandingEnv(RocketBaseEnv):
             self.landing_pad_contact = 0.0
             return
 
-        # update that we touched the landing pad
-        self.landing_pad_contact = 1.0
+        if not self.sparse_reward:
+            # update that we touched the landing pad
+            self.landing_pad_contact = 1.0
+
+            # landing pad contact reward
+            self.reward += 5.0
 
         # if collision has more than 0.35 rad/s angular velocity, we dead
         # truthfully, if collision has more than 0.55 m/s linear acceleration, we dead
@@ -192,4 +215,8 @@ class RocketLandingEnv(RocketBaseEnv):
             self.reward = 100.0
             self.info["env_complete"] = True
             self.termination |= True
+
+            # success reward
+            self.reward += 100.0
+
             return
