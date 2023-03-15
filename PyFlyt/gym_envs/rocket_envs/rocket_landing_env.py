@@ -185,12 +185,8 @@ class RocketLandingEnv(RocketBaseEnv):
             self.landing_pad_contact = 0.0
             return
 
-        if not self.sparse_reward:
-            # update that we touched the landing pad
-            self.landing_pad_contact = 1.0
-
-            # landing pad contact reward
-            self.reward += 5.0
+        # update that we touched the landing pad
+        self.landing_pad_contact = 1.0
 
         # if collision has more than 0.35 rad/s angular velocity, we dead
         # truthfully, if collision has more than 0.55 m/s linear acceleration, we dead
@@ -201,7 +197,7 @@ class RocketLandingEnv(RocketBaseEnv):
             np.linalg.norm(self.previous_ang_vel) > 0.35
             or np.linalg.norm(self.previous_lin_vel) > 1.0
         ):
-            self.reward = -100.0
+            self.reward = -20.0
             self.info["fatal_collision"] = True
             self.termination |= True
             return
@@ -215,8 +211,5 @@ class RocketLandingEnv(RocketBaseEnv):
             self.reward = 100.0
             self.info["env_complete"] = True
             self.termination |= True
-
-            # success reward
-            self.reward += 100.0
 
             return
