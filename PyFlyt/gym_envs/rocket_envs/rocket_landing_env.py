@@ -211,5 +211,4 @@ class RocketLandingEnv(RocketBaseEnv):
             self.reward = 100.0
             self.info["env_complete"] = True
             self.termination |= True
-
             return
