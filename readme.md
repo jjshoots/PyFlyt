@@ -49,13 +49,13 @@ import PyFlyt.gym_envs
 
 env = gymnasium.make("PyFlyt/QuadX-Hover-v0")
 
-# omit the below line to remove rendering and let
-# the simulation go as fast as possible
+# omit the below line to remove rendering and let the simulation go as fast as possible
 env.render()
 obs = env.reset()
 
-done = False
-while not done:
+termination = False
+truncation = False
+while not termination and not truncation:
     observation, reward, termination, truncation, info = env.step(env.action_space.sample())
 ```
 
