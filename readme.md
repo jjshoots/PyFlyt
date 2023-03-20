@@ -9,19 +9,20 @@ This repo is still under development.
 We are also actively looking for users and developers, if this sounds like you, don't hesitate to get in touch!
 
 PyFlyt currently supports two separate UAV platforms:
-- QuadX UAV
-  - Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones)
+- QuadX
   - Quadrotor UAV in the X configuration
+  - Inspired by [the original pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones)
   - Actual full cascaded PID flight controller implementations for each drone.
   - Actual motor RPM simulation using first order differential equation.
-  - Modular control structure
   - For developers - 8 implemented flight modes that use tuned cascaded PID flight controllers, available in `PyFlyt/core/drones/quadx.py`.
 
-- Fixedwing UAV
-  - Flight model designed for a small fixed wing UAV (< 10 Kg)
-  - Assumes a conventional tube and wing design
-  - Single puller propeller with thrust line passing through CG
+- Fixedwing
+  - Small tube-and-wing fixed wing UAV with a single motor (< 3 Kg)
   - Aerofoil characteristics derived from the paper: [*Real-time modeling of agile fixed-wing UAV aerodynamics*](https://ieeexplore.ieee.org/document/7152411)
+
+- Rocket
+  - 1:10th scale SpaceX Falcon 9 v1.2 first stage and interstage
+  - Mass and geometry properties extracted from [Space Launch Report datasheet](https://web.archive.org/web/20170825204357/spacelaunchreport.com/falcon9ft.html#f9stglog)
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -31,6 +32,7 @@ PyFlyt currently supports two separate UAV platforms:
   - [`PyFlyt/QuadX-Hover-v0`](#pyflytquadx-hover-v0)
   - [`PyFlyt/QuadX-Waypoints-v0`](#pyflytquadx-waypoints-v0)
   - [`PyFlyt/Fixedwing-Waypoints-v0`](#pyflytfixedwing-waypoints-v0)
+  - [`PyFlyt/Rocket-Landing-v0`](#pyflytrocket-landing-v0)
 
 
 ## Installation
@@ -79,7 +81,8 @@ env = gymnasium.make(
 
 > `angle_representation` can be either `"quaternion"` or `"euler"`.
 >
-> `render_mode` can be either `"human"` or `None`.
+> `render_mode` can be either `"human"` or `rgb_array` or `None`.
+
 
 ### `PyFlyt/QuadX-Waypoints-v0`
 
@@ -104,7 +107,8 @@ env = gymnasium.make(
 
 > `angle_representation` can be either `"quaternion"` or `"euler"`.
 >
-> `render_mode` can be either `"human"` or `None`.
+> `render_mode` can be either `"human"` or `rgb_array` or `None`.
+
 
 <p align="center">
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" width="500px"/>
@@ -131,7 +135,36 @@ env = gymnasium.make(
 
 > `angle_representation` can be either `"quaternion"` or `"euler"`.
 >
-> `render_mode` can be either `"human"` or `None`.
+> `render_mode` can be either `"human"` or `rgb_array` or `None`.
+
+
+<p align="center">
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" width="500px"/>
+</p>
+
+### `PyFlyt/Rocket-Landing-v0`
+
+An environment where the goal is to land a rocket on a landing pad at a speed of less than 1 m/s and comes to a halt successfully.
+The 4 m tall rocket starts off with only 1% of fuel and is dropped from a height of 450 meters with a random linear and rotational velocity.
+The environment ends when the rocket lands outside of the landing pad, or hits the landing pad at more than 1 m/s.
+
+```py
+env = gymnasium.make(
+  "PyFlyt/Fixedwing-Waypoints-v0",
+  sparse_reward: bool = False,
+  ceiling: float = 500.0,
+  max_displacement: float = 200.0,
+  max_duration_seconds: float = 10.0,
+  angle_representation: str = "quaternion",
+  agent_hz: int = 40,
+  render_mode: None | str = None,
+  render_resolution: tuple[int, int] = (480, 480),
+)
+```
+
+> `angle_representation` can be either `"quaternion"` or `"euler"`.
+>
+> `render_mode` can be either `"human"` or `rgb_array` or `None`.
 
 <p align="center">
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" width="500px"/>
