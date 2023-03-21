@@ -1,4 +1,4 @@
-[![Downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/pyflyt)
+[![Downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=month&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://pepy.tech/project/pyflyt)
 
 # PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
 
