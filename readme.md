@@ -1,4 +1,8 @@
+![Test Status](https://circleci.com/gh/jjshoots/PyFlyt.png?circle-token=:circle-token)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=month&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://pepy.tech/project/pyflyt)
+
 
 # PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
 
