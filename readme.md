@@ -1,3 +1,5 @@
+[![Downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=month&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/pyflyt)
+
 # PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
 
 <p align="center">
@@ -150,7 +152,7 @@ The environment ends when the rocket lands outside of the landing pad, or hits t
 
 ```py
 env = gymnasium.make(
-  "PyFlyt/Fixedwing-Waypoints-v0",
+  "PyFlyt/Rocket-Landing-v0",
   sparse_reward: bool = False,
   ceiling: float = 500.0,
   max_displacement: float = 200.0,
