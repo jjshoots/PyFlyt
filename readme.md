@@ -1,9 +1,8 @@
 ![GitHub CI](https://github.com/jjshoots/PyFlyt/actions/workflows/linux-test.yml/badge.svg)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://pre-commit.com/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![HitCount](https://hits.dwyl.com/jjshoots/PyFlyt.svg)](https://hits.dwyl.com/jjshoots/PyFlyt)
-[![Downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=month&units=international_system&left_color=black&right_color=green&left_text=Downloads)](https://pepy.tech/project/pyflyt)
-
+[![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![hits](https://hits.dwyl.com/jjshoots/PyFlyt.svg)](https://hits.dwyl.com/jjshoots/PyFlyt)
+[![downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=total&units=international_system&left_color=lightgrey&right_color=green&left_text=Downloads)](https://pepy.tech/project/pyflyt)
 
 # PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
 
