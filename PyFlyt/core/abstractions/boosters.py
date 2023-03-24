@@ -182,9 +182,9 @@ class Boosters:
         """
         # if not reignitable, logical or ignition_state with ignition
         # otherwise, just follow ignition
-        self.ignition_state = (
-            (not self.reignitable) & self.ignition_state
-        ) | ignition > 0.5
+        self.ignition_state = ((not self.reignitable) & self.ignition_state) | (
+            ignition > 0.5
+        )
 
         # target throttle depends on ignition status and pwm
         target_throttle = self.ignition_state * (
