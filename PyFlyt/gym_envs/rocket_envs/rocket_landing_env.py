@@ -89,6 +89,7 @@ class RocketLandingEnv(RocketBaseEnv):
         super().begin_reset(seed, options, drone_options)
 
         # reset the tracked parameters
+        self.ang_pos = np.zeros((3,))
         self.previous_ang_vel = np.zeros((3,))
         self.previous_lin_vel = np.zeros((3,))
         self.landing_pad_contact = 0.0
@@ -123,6 +124,9 @@ class RocketLandingEnv(RocketBaseEnv):
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
+
+        # store our angular position in euler
+        self.ang_pos = ang_pos
 
         # drone to target
         rotation = (
@@ -167,14 +171,20 @@ class RocketLandingEnv(RocketBaseEnv):
         )
 
         if not self.sparse_reward:
-            # distance penalty
-            self.reward -= 0.05 * np.linalg.norm(self.distance_to_pad[:2])
+            # we penalize things more the nearer to the pad we go
+            distance_scalar = 0.1 / (np.linalg.norm(self.distance_to_pad) ** 2)
+
+            # position and orientation penalty
+            self.reward -= distance_scalar * (
+                0.01 * np.linalg.norm(self.distance_to_pad[:2])
+                + (0.3 * np.linalg.norm(self.ang_pos[:2]))
+            )
 
             # velocity penalty
             # the closer we are to the landing pad, the more we care about velocity
-            distance_scalar = 0.1 / (np.linalg.norm(self.distance_to_pad) ** 2)
             self.reward -= distance_scalar * (
-                np.linalg.norm(self.state[6:9]) + np.linalg.norm(self.state[0:3])
+                (0.01 * np.linalg.norm(self.state[6:9]))
+                + (0.3 * np.linalg.norm(self.state[0:3]))
             )
 
         # check if we touched the landing pad
