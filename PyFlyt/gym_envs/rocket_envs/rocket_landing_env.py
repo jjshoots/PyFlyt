@@ -172,10 +172,10 @@ class RocketLandingEnv(RocketBaseEnv):
 
         if not self.sparse_reward:
             # we penalize things more the nearer to the pad we go
-            distance_scalar = 0.3 / (np.linalg.norm(self.distance_to_pad) ** 2)
+            distance_scalar = 1 / np.linalg.norm(self.distance_to_pad)
 
             # position and orientation penalty
-            self.reward -= distance_scalar * (
+            self.reward -= 0.3 * (
                 0.1 * np.linalg.norm(self.distance_to_pad[:2])
                 + (0.5 * np.linalg.norm(self.ang_pos[:2]))
             )
