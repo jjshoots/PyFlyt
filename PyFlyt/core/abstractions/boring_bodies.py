@@ -81,7 +81,6 @@ class BoringBodies:
     def update_forces(self):
         """Applies a force to the boring bodies depending on their local surface velocities."""
         forces = -self.local_body_velocities * self.drag_consts
-        print(forces)
         for i, force in enumerate(forces):
             self.p.applyExternalForce(
                 self.uav_id,
