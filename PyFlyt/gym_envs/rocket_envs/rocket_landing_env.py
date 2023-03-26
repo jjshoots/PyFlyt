@@ -83,7 +83,7 @@ class RocketLandingEnv(RocketBaseEnv):
             seed: int
             options: None
         """
-        # options = dict(randomize_drop=True)
+        options = dict(randomize_drop=True, accelerate_drop=True)
         drone_options = dict(starting_fuel_ratio=0.01)
 
         super().begin_reset(seed, options, drone_options)
@@ -171,21 +171,18 @@ class RocketLandingEnv(RocketBaseEnv):
         )
 
         if not self.sparse_reward:
-            # we penalize things more the nearer to the pad we go
-            distance_scalar = 1 / np.linalg.norm(self.distance_to_pad)
-
-            # position and orientation penalty
-            self.reward -= 0.3 * (
-                0.1 * np.linalg.norm(self.distance_to_pad[:2])
-                + (0.5 * np.linalg.norm(self.ang_pos[:2]))
+            # position, orientation, and angular velocity penalties
+            self.reward -= (
+                (0.1 * np.linalg.norm(self.distance_to_pad[:2]))
+                + (2.0 * np.linalg.norm(self.ang_pos[:2]))
+                + (0.1 * np.linalg.norm(self.state[0:3]))
             )
 
             # velocity penalty
             # the closer we are to the landing pad, the more we care about velocity
-            self.reward -= distance_scalar * (
-                (0.3 * np.linalg.norm(self.state[6:9]))
-                + (0.3 * np.linalg.norm(self.state[0:3]))
-            )
+            # distance_scalar = 0.3 / np.linalg.norm(self.distance_to_pad)
+            # self.reward -= distance_scalar * np.linalg.norm(self.state[6:9])
+            #
 
         # check if we touched the landing pad
         if not self.env.collision_array[self.env.drones[0].Id, self.landing_pad_id]:
@@ -207,7 +204,7 @@ class RocketLandingEnv(RocketBaseEnv):
             np.linalg.norm(self.previous_ang_vel) > 0.35
             or np.linalg.norm(self.previous_lin_vel) > 1.0
         ):
-            self.reward = -20.0
+            # self.reward = -20.0
             self.info["fatal_collision"] = True
             self.termination |= True
             return

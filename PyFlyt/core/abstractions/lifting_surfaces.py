@@ -25,6 +25,7 @@ class LiftingSurfaces:
         self.p = lifting_surfaces[0].p
         self.uav_id = lifting_surfaces[0].uav_id
         self.surfaces: list[LiftingSurface] = lifting_surfaces
+        self.surface_ids = np.array([s.surface_id for s in self.surfaces])
 
     def reset(self):
         """Resets all lifting surfaces."""
@@ -63,12 +64,20 @@ class LiftingSurfaces:
         Args:
             rotation_matrix (np.ndarray): rotation_matrix of the main body
         """
-        # update all lifting surface velocities
-        for surface in self.surfaces:
-            surface_velocity = self.p.getLinkState(
-                self.uav_id, surface.surface_id, computeLinkVelocity=True
-            )[-2]
-            surface.update_local_surface_velocity(rotation_matrix, surface_velocity)
+        # get all the states for all the surfaces
+        surface_velocities = self.p.getLinkStates(
+            self.uav_id, self.surface_ids, computeLinkVelocity=True
+        )
+
+        # get all the velocities
+        surface_velocities = np.array([item[-2] for item in surface_velocities])
+
+        # convert all to local velocities
+        surface_velocities = np.matmul(rotation_matrix, surface_velocities.T).T
+
+        # update the velocities of all surfaces
+        for surface, velocity in zip(self.surfaces, surface_velocities):
+            surface.update_local_surface_velocity(velocity)
 
 
 class LiftingSurface:
@@ -204,16 +213,13 @@ class LiftingSurface:
         """Reset the lifting surfaces."""
         self.actuation = 0.0
 
-    def update_local_surface_velocity(
-        self, rotation_matrix: np.ndarray, surface_velocity: np.ndarray
-    ):
+    def update_local_surface_velocity(self, surface_velocity: np.ndarray):
         """Updates the local surface velocity of the lifting surface.
 
         Args:
-            rotation_matrix (np.ndarray): rotation_matrix
             surface_velocity (np.ndarray): surface_velocity
         """
-        self.local_surface_velocity = np.matmul(rotation_matrix, surface_velocity)
+        self.local_surface_velocity = surface_velocity
 
     def cmd2forces(self, cmd: float):
         """Converts a commanded actuation state into forces on the lifting surface.

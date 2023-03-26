@@ -28,5 +28,13 @@ finlet_params:
   alpha_stall_P_base: +20.0 # Positive stall AoA
   alpha_stall_N_base: -20.0 # Negative stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 30.0
+  deflection_limit: 45.0
   tau: 0.05
+
+body_params:
+  drag_coef_x: 0.47
+  drag_coef_y: 0.47
+  drag_coef_z: 0.82
+  area_x: 1.7649
+  area_y: 1.7649
+  area_z: 0.1075

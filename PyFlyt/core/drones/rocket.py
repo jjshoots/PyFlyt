@@ -7,6 +7,7 @@ from pybullet_utils import bullet_client
 
 from ..abstractions.base_drone import DroneClass
 from ..abstractions.boosters import Boosters
+from ..abstractions.boring_bodies import BoringBodies
 from ..abstractions.camera import Camera
 from ..abstractions.gimbals import Gimbals
 from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
@@ -74,6 +75,34 @@ class Rocket(DroneClass):
             # load all params from yaml
             all_params = yaml.safe_load(f)
             booster_params = all_params["booster_params"]
+            body_params = all_params["body_params"]
+
+            # add the main body
+            self.bodies = BoringBodies(
+                p=self.p,
+                physics_period=self.physics_period,
+                np_random=self.np_random,
+                uav_id=self.Id,
+                body_ids=np.array([0]),
+                drag_coefs=np.array(
+                    [
+                        [
+                            body_params["drag_coef_x"],
+                            body_params["drag_coef_y"],
+                            body_params["drag_coef_z"],
+                        ]
+                    ]
+                ),
+                normal_areas=np.array(
+                    [
+                        [
+                            body_params["area_x"],
+                            body_params["area_y"],
+                            body_params["area_z"],
+                        ]
+                    ]
+                ),
+            )
 
             # add all finlets
             surfaces = list()
@@ -187,6 +216,7 @@ class Rocket(DroneClass):
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
+        self.bodies.reset()
         self.lifting_surfaces.reset()
         self.booster_gimbal.reset()
         self.boosters.reset(starting_fuel_ratio=self.starting_fuel_ratio)
@@ -213,6 +243,9 @@ class Rocket(DroneClass):
 
         # create the state
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
+
+        # update all bodies, which is just the booster here
+        self.bodies.update_local_surface_velocity(np.expand_dims(rotation, axis=0))
 
         # update all lifting surface velocities
         self.lifting_surfaces.update_local_surface_velocities(rotation)
@@ -250,6 +283,9 @@ class Rocket(DroneClass):
     def update_physics(self):
         """Updates the physics of the vehicle."""
         self.update_state()
+
+        # update the forces on the main body
+        self.bodies.update_forces()
 
         # actuate lifting surfaces
         self.lifting_surfaces.cmd2forces(self.cmd)
