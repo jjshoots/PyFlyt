@@ -54,9 +54,7 @@ class BoringBodies:
         """Reset the boring bodies."""
         self.local_body_velocities = np.zeros((len(self.body_ids), 3))
 
-    def update_local_surface_velocity(
-        self, rotation_matrices: np.ndarray
-    ):
+    def update_local_surface_velocity(self, rotation_matrices: np.ndarray):
         """Updates the local surface velocity of the boring body.
 
         Args:
