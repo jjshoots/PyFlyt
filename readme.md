@@ -175,3 +175,17 @@ env = gymnasium.make(
 <p align="center">
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" width="500px"/>
 </p>
+
+## Citation
+
+If you use our work in your research and would like to cite it, please use the following bibtex entry:
+
+```
+@software{pyflyt2023github,
+  author = {Jun Jet Tai and Jim Wong},
+  title = {PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research},
+  url = {http://github.com/jjshoots/PyFlyt},
+  version = {1.0.0},
+  year = {2023},
+}
+```
