@@ -30,4 +30,4 @@ for i in range(1000):
 
     # ignite the rocket after ~1 seconds
     if i > 100:
-        env.set_setpoints(np.array([[1.0, 1.0]]))
+        env.set_setpoint(0, np.array([1.0, 1.0]))

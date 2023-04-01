@@ -13,6 +13,8 @@ from pybullet_utils import bullet_client
 from .abstractions import DroneClass
 from .drones import FixedWing, QuadX, Rocket
 
+DroneIndex = int
+
 
 class Aviary(bullet_client.BulletClient):
     """Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment."""
@@ -180,16 +182,22 @@ class Aviary(bullet_client.BulletClient):
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
 
-    def state(self, index) -> np.ndarray:
+    def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.
+
+        Args:
+            index (DRONE_INDEX): index
 
         Returns:
             np.ndarray: state
         """
         return self.drones[index].state
 
-    def aux_state(self, index) -> np.ndarray:
+    def aux_state(self, index: DroneIndex) -> np.ndarray:
         """Returns the auxiliary state for the indexed drone.
+
+        Args:
+            index (DRONE_INDEX): index
 
         Returns:
             np.ndarray: auxiliary state
@@ -268,7 +276,16 @@ class Aviary(bullet_client.BulletClient):
             for drone in self.drones:
                 drone.set_mode(flight_modes)
 
-    def set_setpoints(self, setpoints: np.ndarray):
+    def set_setpoint(self, index: DroneIndex, setpoint: np.ndarray):
+        """Sets the setpoint of one drone in the environment.
+
+        Args:
+            index (DRONE_INDEX): index
+            setpoint (np.ndarray): setpoint
+        """
+        self.drones[index].setpoint = setpoint
+
+    def set_all_setpoints(self, setpoints: np.ndarray):
         """Sets the setpoints of each drone in the environment.
 
         Args:

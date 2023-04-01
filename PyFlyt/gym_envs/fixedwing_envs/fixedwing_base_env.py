@@ -242,11 +242,10 @@ class FixedwingBaseEnv(gymnasium.Env):
         """
         # unsqueeze the action to be usable in aviary
         self.action = action.copy()
-        action = np.expand_dims(action, axis=0)
 
         # reset the reward and set the action
         self.reward = -0.1
-        self.env.set_setpoints(action)
+        self.env.set_setpoint(0, action)
 
         # step through env, the internal env updates a few steps before the outer env
         for _ in range(self.env_step_ratio):

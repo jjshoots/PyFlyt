@@ -73,15 +73,15 @@ def test_default_control():
     env.set_mode(7)
 
     # for the first 500 steps, go to x=1, y=0, z=1
-    setpoint = np.array([[1.0, 0.0, 0.0, 1.0]])
-    env.set_setpoints(setpoint)
+    setpoint = np.array([1.0, 0.0, 0.0, 1.0])
+    env.set_setpoint(0, setpoint)
 
     for i in range(500):
         env.step()
 
     # for the next 500 steps, go to x=0, y=0, z=2, rotate 45 degrees
-    setpoint = np.array([[0.0, 0.0, np.pi / 4, 2.0]])
-    env.set_setpoints(setpoint)
+    setpoint = np.array([0.0, 0.0, np.pi / 4, 2.0])
+    env.set_setpoint(0, setpoint)
 
     for i in range(500, 1000):
         env.step()
@@ -195,7 +195,7 @@ def test_custom_uav():
 
         # ignite the rocket after ~1 seconds
         if i > 100:
-            env.set_setpoints(np.array([[1.0, 1.0]]))
+            env.set_all_setpoints(np.array([[1.0, 1.0]]))
 
     env.disconnect()
 

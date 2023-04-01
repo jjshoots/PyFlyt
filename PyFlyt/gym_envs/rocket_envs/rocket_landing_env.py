@@ -97,7 +97,7 @@ class RocketLandingEnv(RocketBaseEnv):
 
         # randomly generate the target landing location
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
-        distance = self.np_random.uniform(0.0, 0.1 * self.max_displacement)
+        distance = self.np_random.uniform(0.0, 0.5 * self.max_displacement)
         self.landing_pad_position = (
             np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
         )
@@ -129,12 +129,7 @@ class RocketLandingEnv(RocketBaseEnv):
         self.ang_pos = ang_pos
 
         # drone to target
-        rotation = (
-            np.array(self.env.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
-        )
-        self.distance_to_pad = np.matmul(
-            rotation, (self.landing_pad_position - lin_pos).T
-        ).T
+        self.distance_to_pad = self.landing_pad_position - lin_pos
 
         # combine everything
         if self.angle_representation == 0:
@@ -172,10 +167,12 @@ class RocketLandingEnv(RocketBaseEnv):
 
         if not self.sparse_reward:
             # position, orientation, and angular velocity penalties
-            self.reward -= (
-                (0.1 * np.linalg.norm(self.distance_to_pad[:2]))
-                + (2.0 * np.linalg.norm(self.ang_pos[:2]))
-                + (0.1 * np.linalg.norm(self.state[0:3]))
+            distance_to_pad = np.linalg.norm(self.distance_to_pad[:2] + 0.1)
+            self.reward += (
+                +(0.1 / np.linalg.norm(distance_to_pad))
+                - (0.1 * np.linalg.norm(distance_to_pad))
+                - (1.0 * np.linalg.norm(self.ang_pos[:2]))
+                - (0.2 * np.linalg.norm(self.state[0:3]))
             )
 
             # velocity penalty
