@@ -189,7 +189,7 @@ class RocketBaseEnv(gymnasium.Env):
 
         # add the random velocities to our base
         start_ang_vel = np.array([0.0, 0.0, 0.0])
-        start_lin_vel = np.array([0.0, 0.0, -80.0])
+        start_lin_vel = np.array([0.0, 0.0, 0.0])
 
         # impart some random velocities if randomize
         if options.get("randoimize_drop", False):
@@ -198,7 +198,7 @@ class RocketBaseEnv(gymnasium.Env):
 
         # speed up the drop if required
         if options.get("accelerate_drop", False):
-            start_lin_vel += np.array([0.0, 0.0, -70.0])
+            start_lin_vel += np.array([0.0, 0.0, -100.0])
 
         self.env.resetBaseVelocity(self.env.drones[0].Id, start_lin_vel, start_ang_vel)
 

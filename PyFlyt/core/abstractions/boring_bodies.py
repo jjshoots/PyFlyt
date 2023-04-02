@@ -54,7 +54,7 @@ class BoringBodies:
         """Reset the boring bodies."""
         self.local_body_velocities = np.zeros((len(self.body_ids), 3))
 
-    def update_local_surface_velocity(self, rotation_matrices: np.ndarray):
+    def update_local_velocity(self, rotation_matrices: np.ndarray):
         """Updates the local surface velocity of the boring body.
 
         Args:
@@ -78,7 +78,11 @@ class BoringBodies:
 
     def update_forces(self):
         """Applies a force to the boring bodies depending on their local surface velocities."""
-        forces = -self.local_body_velocities * self.drag_consts
+        forces = (
+            -np.sign(self.local_body_velocities)
+            * self.drag_consts
+            * self.local_body_velocities**2
+        )
         for i, force in enumerate(forces):
             self.p.applyExternalForce(
                 self.uav_id,

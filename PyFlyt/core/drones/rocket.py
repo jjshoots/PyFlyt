@@ -245,7 +245,7 @@ class Rocket(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all bodies, which is just the booster here
-        self.bodies.update_local_surface_velocity(np.expand_dims(rotation, axis=0))
+        self.bodies.update_local_velocity(np.expand_dims(rotation, axis=0))
 
         # update all lifting surface velocities
         self.lifting_surfaces.update_local_surface_velocities(rotation)

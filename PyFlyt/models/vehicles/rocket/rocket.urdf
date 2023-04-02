@@ -31,8 +31,8 @@
   <link name="base_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="138.0"/>
-      <inertia ixx="565" ixy="0" ixz="0" iyy="565" iyz="0" izz="2.36"/>
+      <mass value="69.0"/>
+      <inertia ixx="282.5" ixy="0" ixz="0" iyy="282.5" iyz="0" izz="1.18"/>
     </inertial>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -72,8 +72,8 @@
   <link name="booster_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+      <mass value="69.0"/>
+      <inertia ixx="282.5" ixy="0" ixz="0" iyy="282.5" iyz="0" izz="1.18"/>
     </inertial>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>

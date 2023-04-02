@@ -20,8 +20,8 @@ booster_params:
 
 finlet_params:
   Cl_alpha_2D: 6.283 # since it's a gridfin, this is guesstimated
-  chord: 0.3 # meters
-  span: 0.3
+  chord: 0.5 # meters
+  span: 0.5
   flap_to_chord: 1.0
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: 0.0 # 2D dCl_dalpha X-intercept
@@ -32,9 +32,9 @@ finlet_params:
   tau: 0.05
 
 body_params:
-  drag_coef_x: 0.47
-  drag_coef_y: 0.47
-  drag_coef_z: 0.82
+  drag_coef_x: 1.16
+  drag_coef_y: 1.16
+  drag_coef_z: 2.0
   area_x: 1.7649
   area_y: 1.7649
   area_z: 0.1075
