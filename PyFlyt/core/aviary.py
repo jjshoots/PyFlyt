@@ -95,8 +95,14 @@ class Aviary(bullet_client.BulletClient):
 
         # store all drone types
         if isinstance(drone_type, (tuple, list)):
+            assert all(
+                dt in self.drone_type_mappings for dt in drone_type
+            ), f"One of types in `drone_type` {drone_type} is not amongst known types {self.drone_type_mappings.keys()}."
             self.drone_type = drone_type
         else:
+            assert (
+                drone_type in self.drone_type_mappings
+            ), f"Can't find `drone_type` {drone_type} amongst known types {self.drone_type_mappings.keys()}."
             self.drone_type = repeat(drone_type)
 
         # store the drone options
