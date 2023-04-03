@@ -26,7 +26,7 @@ class RocketLandingEnv(RocketBaseEnv):
         sparse_reward: bool = False,
         ceiling: float = 500.0,
         max_displacement: float = 200.0,
-        max_duration_seconds: float = 10.0,
+        max_duration_seconds: float = 30.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 40,
         render_mode: None | str = None,
@@ -83,13 +83,12 @@ class RocketLandingEnv(RocketBaseEnv):
             seed: int
             options: None
         """
-        options = dict(randomize_drop=True, accelerate_drop=True)
+        options = dict(randomize_drop=False, accelerate_drop=True)
         drone_options = dict(starting_fuel_ratio=0.01)
 
         super().begin_reset(seed, options, drone_options)
 
         # reset the tracked parameters
-        self.ang_pos = np.zeros((3,))
         self.previous_ang_vel = np.zeros((3,))
         self.previous_lin_vel = np.zeros((3,))
         self.landing_pad_contact = 0.0
@@ -97,7 +96,7 @@ class RocketLandingEnv(RocketBaseEnv):
 
         # randomly generate the target landing location
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
-        distance = self.np_random.uniform(0.0, 0.5 * self.max_displacement)
+        distance = self.np_random.uniform(0.0, 0.05 * self.ceiling)
         self.landing_pad_position = (
             np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
         )
@@ -124,9 +123,6 @@ class RocketLandingEnv(RocketBaseEnv):
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
-
-        # store our angular position in euler
-        self.ang_pos = ang_pos
 
         # drone to target
         self.distance_to_pad = self.landing_pad_position - lin_pos
@@ -171,7 +167,7 @@ class RocketLandingEnv(RocketBaseEnv):
             self.reward += (
                 +(0.1 / np.linalg.norm(distance_to_pad))
                 - (0.1 * np.linalg.norm(distance_to_pad))
-                - (1.0 * np.linalg.norm(self.ang_pos[:2]))
+                - (1.0 * np.linalg.norm(self.state[3:6]))
                 - (0.2 * np.linalg.norm(self.state[0:3]))
             )
 
