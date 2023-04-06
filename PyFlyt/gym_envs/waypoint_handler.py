@@ -115,10 +115,10 @@ class WaypointHandler:
             quarternion (np.ndarray): quarternion
         """
         # rotation matrix
-        rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
+        rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
 
         # drone to target
-        target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
+        target_deltas = np.matmul((self.targets - lin_pos), rotation)
 
         # record distance to the next target
         self.old_distance = self.new_distance
