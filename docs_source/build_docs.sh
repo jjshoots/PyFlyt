@@ -2,4 +2,4 @@
 
 rm -r ../docs
 make html
-cp ./docs/html/ ../docs -r
+cp ./build/html/ ../docs -r
