@@ -105,14 +105,14 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
 
         This returns the observation as well as the distances to target.
         - "attitude" (Box)
-            - ang_vel (vector of 3 values)
-            - ang_pos (vector of 3/4 values)
-            - lin_vel (vector of 3 values)
-            - lin_pos (vector of 3 values)
-            - previous_action (vector of 4 values)
-            - auxiliary information (vector of 4 values)
+        ----- ang_vel (vector of 3 values)
+        ----- ang_pos (vector of 3/4 values)
+        ----- lin_vel (vector of 3 values)
+        ----- lin_pos (vector of 3 values)
+        ----- previous_action (vector of 4 values)
+        ----- auxiliary information (vector of 4 values)
         - "target_deltas" (Sequence)
-            - list of body_frame distances to target (vector of 3/4 values)
+        ----- list of body_frame distances to target (vector of 3/4 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()

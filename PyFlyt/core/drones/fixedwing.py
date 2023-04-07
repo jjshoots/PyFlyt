@@ -11,8 +11,8 @@ from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 from ..abstractions.motors import Motors
 
 
-class FixedWing(DroneClass):
-    """FixedWing instance that handles everything about a FixedWing."""
+class Fixedwing(DroneClass):
+    """Fixedwing instance that handles everything about a FixedWing."""
 
     def __init__(
         self,
