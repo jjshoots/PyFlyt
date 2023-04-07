@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -211,7 +211,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -219,6 +219,153 @@
         <article role="main">
           <section id="aviary">
 <h1>Aviary<a class="headerlink" href="#aviary" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.aviary.</span></span><span class="sig-name descname"><span class="pre">Aviary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_type_mappings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PyFlyt.core.abstractions.base_drone.DroneClass</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worldScale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary" title="Permalink to this definition">#</a></dt>
+<dd><p>Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.all_aux_states">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_aux_states</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.all_aux_states" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a list of auxiliary states for all drones in the environment.</p>
+<p>This function is not very optimized, if you want the aux state of a single drone, do <cite>aux_state(i)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of auxiliary states</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.all_states">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_states</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.all_states" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a list of states for all drones in the environment.</p>
+<p>This function is not very optimized, if you want the state of a single drone, do <cite>state(i)</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of states</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.aux_state">
+<span class="sig-name descname"><span class="pre">aux_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.aux_state" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the auxiliary state for the indexed drone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>DRONE_INDEX</em>) – index</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>auxiliary state</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.print_all_bodies">
+<span class="sig-name descname"><span class="pre">print_all_bodies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.print_all_bodies" title="Permalink to this definition">#</a></dt>
+<dd><p>Debugging function used to print out all bodies in the environment along with their IDs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.register_all_new_bodies">
+<span class="sig-name descname"><span class="pre">register_all_new_bodies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.register_all_new_bodies" title="Permalink to this definition">#</a></dt>
+<dd><p>Registers all new bodies in the environment to be able to handle collisions later.</p>
+<p>Call this when there is an update in the number of bodies in the environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.reset" title="Permalink to this definition">#</a></dt>
+<dd><p>Resets the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<em>None</em><em> | </em><em>int</em>) – seed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.set_all_setpoints">
+<span class="sig-name descname"><span class="pre">set_all_setpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.set_all_setpoints" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the setpoints of each drone in the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>setpoints</strong> (<em>np.ndarray</em>) – list of setpoints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.set_armed">
+<span class="sig-name descname"><span class="pre">set_armed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.set_armed" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the arming state of each drone in the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>int</em><em> | </em><em>bool</em><em> | </em><em>list</em><em>[</em><em>int</em><em> | </em><em>bool</em><em>]</em>) – arm setting</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.set_mode">
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flight_modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.set_mode" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the flight mode of each drone in the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flight_modes</strong> (<em>int</em><em> | </em><em>list</em><em>[</em><em>int</em><em>]</em>) – flight mode</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.set_setpoint">
+<span class="sig-name descname"><span class="pre">set_setpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.set_setpoint" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the setpoint of one drone in the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>DRONE_INDEX</em>) – index</p></li>
+<li><p><strong>setpoint</strong> (<em>np.ndarray</em>) – setpoint</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.state">
+<span class="sig-name descname"><span class="pre">state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.state" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the state for the indexed drone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>index</strong> (<em>DRONE_INDEX</em>) – index</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>state</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.aviary.Aviary.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.aviary.Aviary.step" title="Permalink to this definition">#</a></dt>
+<dd><p>Steps the environment, this automatically handles physics and control looprates, one step is equivalent to one control loop step.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -264,8 +411,41 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Aviary</a><ul>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary"><code class="docutils literal notranslate"><span class="pre">Aviary</span></code></a><ul>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.all_aux_states"><code class="docutils literal notranslate"><span class="pre">Aviary.all_aux_states</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.all_states"><code class="docutils literal notranslate"><span class="pre">Aviary.all_states</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.aux_state"><code class="docutils literal notranslate"><span class="pre">Aviary.aux_state()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.print_all_bodies"><code class="docutils literal notranslate"><span class="pre">Aviary.print_all_bodies()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.register_all_new_bodies"><code class="docutils literal notranslate"><span class="pre">Aviary.register_all_new_bodies()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.reset"><code class="docutils literal notranslate"><span class="pre">Aviary.reset()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.set_all_setpoints"><code class="docutils literal notranslate"><span class="pre">Aviary.set_all_setpoints()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.set_armed"><code class="docutils literal notranslate"><span class="pre">Aviary.set_armed()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.set_mode"><code class="docutils literal notranslate"><span class="pre">Aviary.set_mode()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.set_setpoint"><code class="docutils literal notranslate"><span class="pre">Aviary.set_setpoint()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.state"><code class="docutils literal notranslate"><span class="pre">Aviary.state()</span></code></a></li>
+<li><a class="reference internal" href="#PyFlyt.core.aviary.Aviary.step"><code class="docutils literal notranslate"><span class="pre">Aviary.step()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

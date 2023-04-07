@@ -1,6 +1,6 @@
 # Aviary
 
 ```{eval-rst}
-.. autoclass:: my.module.SomeClass
-:members:
+.. autoclass:: PyFlyt.core.aviary.Aviary
+    :members:
 ```
