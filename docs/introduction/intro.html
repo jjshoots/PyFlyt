@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -211,7 +211,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -227,7 +227,17 @@
 It handles collision/contact tracking between entities and performs step scheduling according to the various looprates.
 It also includes convenience functions for setting setpoints, arming status, and flight modes for all drones.</p>
 <p>The aviary can accommodate any number of <code class="docutils literal notranslate"><span class="pre">drones</span></code>.
-Each drone is defined by its own Python class, which inherits from a common</p>
+Each drone is defined by its own Python class, allowing for user-defined drones to be built.</p>
+<section id="custom-drones">
+<h2>Custom Drones<a class="headerlink" href="#custom-drones" title="Permalink to this heading">#</a></h2>
+<p>The best place to get started would be by going through the <a class="reference external" href="https://github.com/jjshoots/PyFlyt/tree/master/examples/core">examples section</a>.
+If you’re interested in building custom drones, read the <a class="reference internal" href="../core/aviary.html"><span class="std std-doc">aviary documentation</span></a> first, then the <a class="reference external" href="https://github.com/jjshoots/PyFlyt/blob/master/examples/core/07_custom_uav.py">custom drone example</a>.
+PyFlyt natively has several components pre-implemented, visit the Abstractions section.</p>
+</section>
+<section id="gymnasium-environments">
+<h2>Gymnasium Environments<a class="headerlink" href="#gymnasium-environments" title="Permalink to this heading">#</a></h2>
+<p>If all you want are the gymnasium environments, you can skip everything and go straight to the Gymnasium Environments section.</p>
+</section>
 </section>
 
         </article>
@@ -273,8 +283,28 @@ Each drone is defined by its own Python class, which inherits from a common</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#custom-drones">Custom Drones</a></li>
+<li><a class="reference internal" href="#gymnasium-environments">Gymnasium Environments</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

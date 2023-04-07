@@ -1,6 +1,7 @@
 #!/bin/sh
 
-rm -r ../docs
+rm -r ../docs ./build
 make html
 cp ./build/html/ ../docs -r
-touch ../docs/.nojekyll
+cd ../docs
+touch .nojekyll
