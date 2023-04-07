@@ -2,6 +2,6 @@
 
 ## Class Descriptions
 ```{eval-rst}
-.. autoclass:: PyFlyt.core.abstractions.gimbals.Gimbals
+.. autoclass:: PyFlyt.core.abstractions.Gimbals
     :members:
 ```

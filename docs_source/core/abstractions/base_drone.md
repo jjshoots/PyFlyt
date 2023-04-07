@@ -2,6 +2,6 @@
 
 ## Class Descriptions
 ```{eval-rst}
-.. autoclass:: PyFlyt.core.abstractions.base_drone.DroneClass
+.. autoclass:: PyFlyt.core.abstractions.DroneClass
     :members:
 ```

@@ -2,6 +2,7 @@
 from .base_controller import ControlClass
 from .base_drone import DroneClass
 from .boosters import Boosters
+from .boring_bodies import BoringBodies
 from .camera import Camera
 from .gimbals import Gimbals
 from .lifting_surfaces import LiftingSurface, LiftingSurfaces

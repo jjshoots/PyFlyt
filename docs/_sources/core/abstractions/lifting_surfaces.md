@@ -2,11 +2,11 @@
 
 ## Class Descriptions
 ```{eval-rst}
-.. autoclass:: PyFlyt.core.abstractions.lifting_surfaces.LiftingSurface
+.. autoclass:: PyFlyt.core.abstractions.LiftingSurface
     :members:
 ```
 
 ```{eval-rst}
-.. autoclass:: PyFlyt.core.abstractions.lifting_surfaces.LiftingSurfaces
+.. autoclass:: PyFlyt.core.abstractions.LiftingSurfaces
     :members:
 ```
