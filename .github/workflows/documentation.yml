@@ -1,24 +1,36 @@
-name: documentation
-on: [push, pull_request, workflow_dispatch]
+name: Build Documentation website
+on:
+  push:
+    branches: [master]
 permissions:
-    contents: write
+  contents: write
 jobs:
   docs:
+    name: Generate Website
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - name: Install dependencies
-        run: |
-          pip install sphinx myst_parser furo
-      - name: Sphinx build
-        run: |
-          sphinx-build docs/source/ _build
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+      - uses: actions/setup-python@v4
         with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/
-          force_orphan: true
+            python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Install PyFlyt
+        run: pip install .
+
+      - name: Build
+        run: sphinx-build -b dirhtml -v docs _build
+
+      - name: Remove .doctrees
+        run: rm -r _build/.doctrees
+
+      - name: Upload to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: _build
+          target-folder: main
+          clean: false
