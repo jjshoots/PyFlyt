@@ -55,17 +55,15 @@ Usage is similar to any other Gymnasium and (soon) PettingZoo environment:
 
 ```py
 import gymnasium
-import PyFlyt.gym_envs
+import PyFlyt.gym_envs # noqa
 
-env = gymnasium.make("PyFlyt/QuadX-Hover-v0")
-
-# omit the below line to remove rendering and let the simulation go as fast as possible
-env.render()
+env = gymnasium.make("PyFlyt/QuadX-Hover-v0", render_mode="human")
 obs = env.reset()
 
 termination = False
 truncation = False
-while not termination and not truncation:
+
+while not termination or truncation:
     observation, reward, termination, truncation, info = env.step(env.action_space.sample())
 ```
 
