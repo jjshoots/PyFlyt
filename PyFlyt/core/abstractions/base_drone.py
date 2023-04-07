@@ -12,7 +12,7 @@ from .camera import Camera
 
 
 class DroneClass(ABC):
-    """DroneClass."""
+    """Defines the default configuration for UAVS, to be used in conjunction with the Aviary class."""
 
     def __init__(
         self,
