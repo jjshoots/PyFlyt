@@ -9,11 +9,12 @@
 project = "PyFlyt"
 copyright = "2023, Jet"
 author = "Jet"
+release = "lol"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["myst_parser"]
+extensions = ["myst_parser", "recommonmark", "sphinx.ext.napolean", "sphinx.ext.duration", "sphinx.ext.doctest", "sphinx.ext.autodoc"]
 
 source_suffix = [".rst", ".md"]
 templates_path = ["_templates"]
