@@ -267,14 +267,14 @@ class RocketBaseEnv(gymnasium.Env):
             self.truncation = self.truncation or True
 
         # mask collisions if any
-        collision_array = self.env.collision_array.copy()
+        collision_array = self.env.contact_array.copy()
         for i, j in zip(collision_ignore_mask[1:], collision_ignore_mask[:-1]):
             collision_array[i, j] = False
             collision_array[j, i] = False
 
         # fatal collision or below ground
         if np.any(collision_array) or self.env.state(0)[-1, -1] < 0.0:
-            # self.reward = -100.0
+            self.reward = -100.0
             self.info["fatal_collision"] = True
             self.termination |= True
 
@@ -283,7 +283,7 @@ class RocketBaseEnv(gymnasium.Env):
             np.linalg.norm(self.env.state(0)[-1, :2]) > self.max_displacement
             or self.env.state(0)[-1, 2] > self.ceiling
         ):
-            # self.reward = -100.0
+            self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination |= True
 
@@ -300,7 +300,7 @@ class RocketBaseEnv(gymnasium.Env):
         self.action = action.copy()
 
         # reset the reward and set the action
-        self.reward = -0.1
+        self.reward = 0.0
         self.env.set_setpoint(0, action)
 
         # step through env, the internal env updates a few steps before the outer env

@@ -214,7 +214,7 @@ class QuadXBaseEnv(gymnasium.Env):
             self.truncation |= True
 
         # collision
-        if np.any(self.env.collision_array):
+        if np.any(self.env.contact_array):
             self.reward = -100.0
             self.info["collision"] = True
             self.termination |= True

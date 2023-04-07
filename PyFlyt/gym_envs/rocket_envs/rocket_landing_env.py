@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 
 import numpy as np
+import pybullet as p
 from gymnasium.spaces import Box
 
 from .rocket_base_env import RocketBaseEnv
@@ -89,10 +90,13 @@ class RocketLandingEnv(RocketBaseEnv):
         super().begin_reset(seed, options, drone_options)
 
         # reset the tracked parameters
+        self.landing_pad_contact = 0.0
+        self.ang_vel = np.zeros((3,))
+        self.lin_vel = np.zeros((3,))
+        self.distance = np.zeros((3,))
         self.previous_ang_vel = np.zeros((3,))
         self.previous_lin_vel = np.zeros((3,))
-        self.landing_pad_contact = 0.0
-        self.distance_to_pad = np.array([100.0, 100.0, 100.0])
+        self.previous_distance = np.zeros((3,))
 
         # randomly generate the target landing location
         theta = self.np_random.uniform(0.0, 2.0 * np.pi)
@@ -121,37 +125,50 @@ class RocketLandingEnv(RocketBaseEnv):
         - previous_action (vector of 4 values)
         - auxiliary information (vector of 4 values)
         """
-        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        # update the previous values to current values
+        self.previous_ang_vel = self.ang_vel.copy()
+        self.previous_lin_vel = self.lin_vel.copy()
+        self.previous_distance = self.distance.copy()
+
+        # update current values
+        (
+            self.ang_vel,
+            self.ang_pos,
+            self.lin_vel,
+            lin_pos,
+            quarternion,
+        ) = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
-        # drone to target
-        self.distance_to_pad = self.landing_pad_position - lin_pos
+        # drone to landing pad
+        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
+        self.distance = np.matmul((lin_pos - self.landing_pad_position), rotation)
 
         # combine everything
         if self.angle_representation == 0:
             self.state = np.array(
                 [
-                    *ang_vel,
-                    *ang_pos,
-                    *lin_vel,
+                    *self.ang_vel,
+                    *self.ang_pos,
+                    *self.lin_vel,
                     *lin_pos,
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
-                    *self.distance_to_pad,
+                    *self.distance,
                 ]
             )
         elif self.angle_representation == 1:
             self.state = np.array(
                 [
-                    *ang_vel,
+                    *self.ang_vel,
                     *quarternion,
-                    *lin_vel,
+                    *self.lin_vel,
                     *lin_pos,
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
-                    *self.distance_to_pad,
+                    *self.distance,
                 ]
             )
 
@@ -161,32 +178,49 @@ class RocketLandingEnv(RocketBaseEnv):
             collision_ignore_mask=[self.env.drones[0].Id, self.landing_pad_id]
         )
 
+        # compute reward
         if not self.sparse_reward:
-            # position, orientation, and angular velocity penalties
-            distance_to_pad = np.linalg.norm(self.distance_to_pad[:2] + 0.1)
-            self.reward += (
-                +(0.1 / np.linalg.norm(distance_to_pad))
-                - (0.1 * np.linalg.norm(distance_to_pad))
-                - (1.0 * np.linalg.norm(self.state[3:6]))
-                - (0.2 * np.linalg.norm(self.state[0:3]))
+            # progress and distance to pad
+            progress_to_pad = float(
+                np.linalg.norm(self.previous_distance[:2])
+                - np.linalg.norm(self.distance[:2])
+            )
+            offset_to_pad = np.linalg.norm(self.distance[:2]) + 0.1
+
+            # deceleration as long as we're still falling
+            deceleration_bonus = (
+                max(
+                    (self.lin_vel[-1] < 0.0)
+                    * (self.lin_vel[-1] - self.previous_lin_vel[-1]),
+                    0.0,
+                )
+                / self.distance[-1]
             )
 
-            # velocity penalty
-            # the closer we are to the landing pad, the more we care about velocity
-            # distance_scalar = 0.3 / np.linalg.norm(self.distance_to_pad)
-            # self.reward -= distance_scalar * np.linalg.norm(self.state[6:9])
-            #
+            # composite reward together
+            self.reward += (
+                -10.0  # negative offset to discourage staying in the air
+                + (3.0 / offset_to_pad)  # encourage being near the pad
+                + (5.0 * progress_to_pad)  # encourage progress to landing pad
+                - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
+                - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+                + (500.0 * deceleration_bonus)  # reward deceleration when near pad
+            )
+            # last working configuration
+            # -5.0  # negative offset to discourage staying in the air
+            # + (3.0 / offset_to_pad)  # encourage being near the pad
+            # + (5.0 * progress_to_pad)  # encourage progress to landing pad
+            # - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
+            # - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+            # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
 
         # check if we touched the landing pad
-        if not self.env.collision_array[self.env.drones[0].Id, self.landing_pad_id]:
-            # track the velocity for the next time
-            self.previous_ang_vel = self.state[0:3]
-            self.previous_lin_vel = self.state[6:9]
+        if self.env.contact_array[self.env.drones[0].Id, self.landing_pad_id]:
+            self.landing_pad_contact = 1.0
+            self.reward += 20
+        else:
             self.landing_pad_contact = 0.0
             return
-
-        # update that we touched the landing pad
-        self.landing_pad_contact = 1.0
 
         # if collision has more than 0.35 rad/s angular velocity, we dead
         # truthfully, if collision has more than 0.55 m/s linear acceleration, we dead
@@ -197,7 +231,6 @@ class RocketLandingEnv(RocketBaseEnv):
             np.linalg.norm(self.previous_ang_vel) > 0.35
             or np.linalg.norm(self.previous_lin_vel) > 1.0
         ):
-            # self.reward = -20.0
             self.info["fatal_collision"] = True
             self.termination |= True
             return
@@ -206,9 +239,9 @@ class RocketLandingEnv(RocketBaseEnv):
         if (
             np.linalg.norm(self.previous_ang_vel) < 0.02
             and np.linalg.norm(self.previous_lin_vel) < 0.02
-            and np.linalg.norm(self.state[3:5]) < 0.1
+            and np.linalg.norm(self.ang_pos[:2]) < 0.1
         ):
-            self.reward = 100.0
+            self.reward += 500.0
             self.info["env_complete"] = True
             self.termination |= True
             return

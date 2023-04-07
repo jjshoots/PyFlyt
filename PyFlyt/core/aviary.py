@@ -184,7 +184,7 @@ class Aviary(bullet_client.BulletClient):
         Call this when there is an update in the number of bodies in the environment.
         """
         # collision array
-        self.collision_array = np.zeros(
+        self.contact_array = np.zeros(
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
 
@@ -323,7 +323,7 @@ class Aviary(bullet_client.BulletClient):
                 )
 
         # reset collisions
-        self.collision_array &= False
+        self.contact_array &= False
 
         # step the environment enough times for one control loop of the slowest controller
         physics_steps = 1
@@ -343,8 +343,8 @@ class Aviary(bullet_client.BulletClient):
 
             # splice out collisions
             for collision in self.getContactPoints():
-                self.collision_array[collision[1], collision[2]] = True
-                self.collision_array[collision[2], collision[1]] = True
+                self.contact_array[collision[1], collision[2]] = True
+                self.contact_array[collision[2], collision[1]] = True
 
             physics_steps += 1
 
