@@ -1,10 +1,4 @@
----
-hide-toc: true
-firstpage:
-lastpage:
----
-
-# PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
+# Documentation
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png
     :width: 80%
@@ -20,6 +14,6 @@ pip3 install PyFlyt
 
 ```{toctree}
 :hidden:
-documentation
-paper
+documentation/core
+documentation/gym_envs
 ```

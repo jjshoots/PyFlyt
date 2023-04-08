@@ -7,6 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "PyFlyt"
+html_title = "PyFlyt"
 copyright = "2023, Jet"
 author = "Jet"
 
@@ -29,4 +30,5 @@ exclude_patterns = ["readme.md"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_book_theme"
+html_theme = "pydata_sphinx_theme"
+html_theme_options = {"show_nav_level": 5, "show_prev_next": False}
