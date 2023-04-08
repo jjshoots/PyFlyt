@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research &#8212; PyFlyt  documentation</title>
+    <title>Core &#8212; PyFlyt  documentation</title>
   
   
   
@@ -40,10 +40,11 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'core';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Core" href="core.html" />
+    <link rel="next" title="Aviary" href="core/aviary.html" />
+    <link rel="prev" title="PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -109,7 +110,7 @@
         <div class="sidebar-primary-item">
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -120,8 +121,8 @@
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="core.html">Core</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Core</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="core/aviary.html">Aviary</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="core/abstractions.html">Abstractions</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="core/abstractions/base_drone.html">Base Drone Class</a></li>
@@ -211,7 +212,7 @@
       
       
       
-      <li><a href="_sources/index.md" target="_blank"
+      <li><a href="_sources/core.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -293,7 +294,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research</h1>
+    <h1>Core</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -303,7 +304,8 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-drones">Custom Drones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gymnasium-environments">Gymnasium Environments</a></li>
 </ul>
             </nav>
         </div>
@@ -315,21 +317,27 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="pyflyt-uav-flight-simulator-gymnasium-environments-for-reinforcement-learning-research">
-<h1>PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research<a class="headerlink" href="#pyflyt-uav-flight-simulator-gymnasium-environments-for-reinforcement-learning-research" title="Permalink to this heading">#</a></h1>
-<figure class="align-default">
-<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png" style="width: 80%;" /></a>
-</figure>
-<blockquote>
-<div><p>This repo is still under development. We are also actively looking for users and developers, if this sounds like you, don’t hesitate to get in touch!</p>
-</div></blockquote>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install PyFlyt
-</pre></div>
-</div>
+  <section id="core">
+<h1>Core<a class="headerlink" href="#core" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
+<p>Loosely put, PyFlyt has the following architecture:</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" style="width: 50%;" /></a>
+</figure>
+<p>At the core lies the <a class="reference internal" href="core/aviary.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">aviary</span></code></span></a>, serving as a domain for all <a class="reference internal" href="core/drones.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drones</span></code></span></a>.
+Each drone is defined by its own Python class, allowing for user-defined drones to be built.
+The aviary also handles collision/contact tracking between entities and performs step scheduling according to the various looprates.
+It also includes convenience functions for setting setpoints, arming status, and flight modes for all drones.</p>
+<section id="custom-drones">
+<h2>Custom Drones<a class="headerlink" href="#custom-drones" title="Permalink to this heading">#</a></h2>
+<p>If you’re interested in constructing your own drone, the best place to get started would be by going through the <a class="reference external" href="https://github.com/jjshoots/PyFlyt/tree/master/examples/core">examples section</a>.
+First, read the <a class="reference internal" href="core/aviary.html"><span class="std std-doc">aviary documentation</span></a> first, then the <a class="reference external" href="https://github.com/jjshoots/PyFlyt/blob/master/examples/core/07_custom_uav.py">custom drone example</a>, which demonstrates how to construct a custom drone using various pre-implemented components, listed in the <a class="reference internal" href="core/abstractions.html"><span class="doc std std-doc">abstractions</span></a> section.</p>
+<p>Should you encounter any difficulty in doing so, don’t hesitate to <a class="reference external" href="https://github.com/jjshoots/PyFlyt/issues">get in touch</a>!</p>
+</section>
+<section id="gymnasium-environments">
+<h2>Gymnasium Environments<a class="headerlink" href="#gymnasium-environments" title="Permalink to this heading">#</a></h2>
+<p>If all you want are the gymnasium environments, you can skip everything and go straight to the <a class="reference internal" href="gym_envs.html"><span class="doc std std-doc">Gymnasium Environments</span></a> section.</p>
 </section>
 </section>
 
@@ -345,12 +353,21 @@ document.write(`
   
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research</p>
+      </div>
+    </a>
     <a class="right-next"
-       href="core.html"
+       href="core/aviary.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Core</p>
+        <p class="prev-next-title">Aviary</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -372,7 +389,8 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-drones">Custom Drones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gymnasium-environments">Gymnasium Environments</a></li>
 </ul>
   </nav></div>
 

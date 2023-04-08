@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>How To Do Thing &#8212; PyFlyt  documentation</title>
+    <title>Gymnasium Enviroments &#8212; PyFlyt  documentation</title>
   
   
   
@@ -40,9 +40,11 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'readme';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'gym_envs';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Fixedwing Environments" href="gym_envs/fixedwing_envs.html" />
+    <link rel="prev" title="QuadX" href="core/drones/quadx.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -119,35 +121,43 @@
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Introduction</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="introduction/intro.html">Introduction</a></li>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="core.html">Core</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="core/aviary.html">Aviary</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="core/abstractions.html">Abstractions</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/base_drone.html">Base Drone Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/boosters.html">Boosters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/boring_bodies.html">Boring Bodies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/camera.html">Camera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/gimbals.html">Gimbals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/lifting_surfaces.html">Lifting Surfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/abstractions/motors.html">Motors</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="core/aviary.html">Aviary</a></li>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="core/drones.html">Drones</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="core/drones/fixedwing.html">Fixedwing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/drones/rocket.html">Rocket</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core/drones/quadx.html">QuadX</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core.Drones</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="core/drones/fixedwing.html">Fixedwing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/drones/rocket.html">Rocket</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/drones/quadx.html">QuadX</a></li>
+</li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Core.Abstractions</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/base_drone.html">Base Drone Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/boring_bodies.html">Boring Bodies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/boosters.html">Boosters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/camera.html">Camera</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/gimbals.html">Gimbals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/lifting_surfaces.html">Lifting Surfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="core/abstractions/motors.html">Motors</a></li>
+</li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Gymnasium Enviroments</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="gym_envs/fixedwing_envs.html">Fixedwing Environments</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="gym_envs/fixedwing_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v0</span></code></a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Gymnasium Environments</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="gym_envs/quadx.html">QuadX</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gym_envs/fixedwing.html">Fixedwing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gym_envs/rocket.html">Rocket</a></li>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="gym_envs/rocket_envs.html">Rocket Environments</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="gym_envs/rocket_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v0</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="gym_envs/quadx_envs.html">QuadX Environments</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="gym_envs/quadx_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gym_envs/quadx_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v0</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
     </div>
@@ -202,7 +212,7 @@
       
       
       
-      <li><a href="_sources/readme.md" target="_blank"
+      <li><a href="_sources/gym_envs.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -282,7 +292,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>How To Do Thing</h1>
+    <h1>Gymnasium Enviroments</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -296,23 +306,28 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="how-to-do-thing">
-<h1>How To Do Thing<a class="headerlink" href="#how-to-do-thing" title="Permalink to this heading">#</a></h1>
-<ol class="arabic simple">
-<li><p>Install things.</p></li>
-</ol>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install -r requirements.txt
+  <section id="gymnasium-enviroments">
+<h1>Gymnasium Enviroments<a class="headerlink" href="#gymnasium-enviroments" title="Permalink to this heading">#</a></h1>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_waypoint.gif"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_waypoint.gif" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_waypoint.gif" style="width: 65%;" /></a>
+</figure>
+<p>Natively, PyFlyt provides various default <a class="reference external" href="https://gymnasium.farama.org/">Gymnasium</a> environments for testing reinforcement learning algorithms.
+Usage is no different to how Gymnasium environments are initialized:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span>
+<span class="kn">import</span> <span class="nn">PyFlyt.gym_envs</span> <span class="c1"># noqa</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/QuadX-Hover-v0&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<span class="n">termination</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">truncation</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">termination</span> <span class="ow">or</span> <span class="n">truncation</span><span class="p">:</span>
+    <span class="n">observation</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">termination</span><span class="p">,</span> <span class="n">truncation</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li><p>Build things.</p></li>
-</ol>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./build_docs.sh
-</pre></div>
+<div class="toctree-wrapper compound">
 </div>
-<ol class="arabic simple" start="3">
-<li><p>The documentation is under <code class="docutils literal notranslate"><span class="pre">../docs/</span></code>.</p></li>
-</ol>
 </section>
 
 
@@ -327,6 +342,24 @@ document.write(`
   
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="core/drones/quadx.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">QuadX</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gym_envs/fixedwing_envs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Fixedwing Environments</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div></div>
   
 </div>
