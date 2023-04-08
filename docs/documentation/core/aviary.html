@@ -360,11 +360,190 @@ document.write(`
                   
   <section id="aviary">
 <h1>Aviary<a class="headerlink" href="#aviary" title="Permalink to this heading">#</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">aviary</span></code> is a handler for physics stepping, setpoint handling, collisions tracking, and much more.
+It provides a common endpoint from where users may control drones or define tasks.
+This page briefly goes through the key usage traits,
+although more experienced users may wish to consult the whole class description at the bottom of this page,
+or even (oh shit!) consult <a class="reference external" href="https://github.com/jjshoots/PyFlyt/blob/master/PyFlyt/core/aviary.py">the source code</a>.</p>
+</section>
+<section id="setup-options">
+<h2>Setup Options<a class="headerlink" href="#setup-options" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">aviary</span></code> accepts these basic arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">start_pos</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array for the starting X, Y, Z positions for each drone.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start_orn</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array for the starting orientations for each drone, in terms of Euler angles.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drone_type</span></code> <code class="docutils literal notranslate"><span class="pre">(str)</span></code>: a <em>lowercase</em> string representing what type of drone to spawn.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drone_type_mappings</span></code> <code class="docutils literal notranslate"><span class="pre">(dict(str:</span> <span class="pre">DroneClass))</span></code>: a dictionary mapping of <code class="docutils literal notranslate"><span class="pre">{str:</span> <span class="pre">DroneClass}</span></code> for spawning custom drones.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drone_options</span></code> <code class="docutils literal notranslate"><span class="pre">(dict(str:</span> <span class="pre">Any))</span></code>: dictionary mapping of custom parameters for each drone.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render</span></code> <code class="docutils literal notranslate"><span class="pre">(bool)</span></code>: a boolean whether to render the simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_hz</span></code> <code class="docutils literal notranslate"><span class="pre">(int)</span></code>: physics looprate (not recommended to be changed).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">worldScale</span></code> <code class="docutils literal notranslate"><span class="pre">(float)</span></code>: how big to spawn the floor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code> <code class="docutils literal notranslate"><span class="pre">(None</span> <span class="pre">|</span> <span class="pre">int)</span></code>: optional int for seeding the simulation RNG.</p></li>
+</ul>
+<p>Some of these are elaborated below.</p>
+<section id="drone-type">
+<h3>Drone Type<a class="headerlink" href="#drone-type" title="Permalink to this heading">#</a></h3>
+<p>The drone type is a <em>lowercase</em> string that defines the type of drone(s) to spawn in the <code class="docutils literal notranslate"><span class="pre">aviary</span></code>.
+By default, PyFlyt ships with three different drones, listed under the <a class="reference internal" href="drones.html"><span class="doc std std-doc">drones</span></a> section.
+These are:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Fixedwing</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Rocket</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QuadX</span></code></p></li>
+</ol>
+<p>So, for example, to spawn the <code class="docutils literal notranslate"><span class="pre">Fixedwing</span></code> drone instead of the <code class="docutils literal notranslate"><span class="pre">QuadX</span></code>, simply do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;fixedwing&quot;</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="drone-type-mappings">
+<h3>Drone Type Mappings<a class="headerlink" href="#drone-type-mappings" title="Permalink to this heading">#</a></h3>
+<p>For custom drones not shipped in PyFlyt (such as the <a class="reference external" href="https://github.com/jjshoots/PyFlyt/tree/master/examples/core/custom_uavs"><code class="docutils literal notranslate"><span class="pre">RocketBrick</span></code></a>), you can call them into the <code class="docutils literal notranslate"><span class="pre">aviary</span></code> via:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="c1"># import the drone class so it&#39;s callable</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">MyCustomDrone</span>
+
+<span class="c1"># define a new drone so the aviary can call it</span>
+<span class="c1"># note we do not instantiate the object, this is only a class pointer</span>
+<span class="n">drone_type_mappings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">drone_type_mappings</span><span class="p">[</span><span class="s2">&quot;mycustomdrone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">MyCustomDrone</span>
+
+<span class="c1"># pass the relevant arguments to the `aviary`</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;mycustomdrone&quot;</span><span class="p">,</span> <span class="n">drone_type_mappings</span><span class="o">=</span><span class="n">drone_type_mappings</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="drone-options">
+<h3>Drone Options<a class="headerlink" href="#drone-options" title="Permalink to this heading">#</a></h3>
+<p>Various drones can have different instantiation parameters, such as the <code class="docutils literal notranslate"><span class="pre">Fixedwing</span></code> drone having a configurable starting velocity which the <code class="docutils literal notranslate"><span class="pre">QuadX</span></code> drone does not have.</p>
+<p>To define these custom parameters, use the <code class="docutils literal notranslate"><span class="pre">drone_options</span></code> argument as so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="c1"># define the parameters for the underlying drone</span>
+<span class="n">drone_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">drone_options</span><span class="p">[</span><span class="s2">&quot;starting_velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+
+<span class="c1"># pass the relevant arguments to the `aviary`</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;fixedwing&quot;</span><span class="p">,</span> <span class="n">drone_options</span><span class="o">=</span><span class="n">drone_options</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="multi-drone-setup">
+<h2>Multi Drone Setup<a class="headerlink" href="#multi-drone-setup" title="Permalink to this heading">#</a></h2>
+<p>To spawn multiple drones with different types and parameters for each, the lists of <code class="docutils literal notranslate"><span class="pre">drone_type</span></code> and <code class="docutils literal notranslate"><span class="pre">drone_options</span></code> can be used instead to give each drone a unique set of parameters.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="c1"># the starting position and orientations</span>
+<span class="n">start_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="n">start_orn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">start_pos</span><span class="p">)</span>
+
+<span class="c1"># spawn different types of drones</span>
+<span class="n">drone_type</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rocket&quot;</span><span class="p">,</span> <span class="s2">&quot;quadx&quot;</span><span class="p">,</span> <span class="s2">&quot;fixedwing&quot;</span><span class="p">]</span>
+
+<span class="c1"># individual spawn options for each drone</span>
+<span class="n">rocket_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">quadx_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">use_camera</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drone_model</span><span class="o">=</span><span class="s2">&quot;primitive_drone&quot;</span><span class="p">)</span>
+<span class="n">fixedwing_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">starting_velocity</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]))</span>
+<span class="n">drone_options</span> <span class="o">=</span> <span class="p">[</span><span class="n">rocket_options</span><span class="p">,</span> <span class="n">quadx_options</span><span class="p">,</span> <span class="n">fixedwing_options</span><span class="p">]</span>
+
+<span class="c1"># environment setup</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">,</span>
+    <span class="n">start_orn</span><span class="o">=</span><span class="n">start_orn</span><span class="p">,</span>
+    <span class="n">render</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">drone_type</span><span class="o">=</span><span class="n">drone_type</span><span class="p">,</span>
+    <span class="n">drone_options</span><span class="o">=</span><span class="n">drone_options</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># set quadx to position control, rocket and fixedwing as nothing</span>
+<span class="n">env</span><span class="o">.</span><span class="n">set_mode</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># simulate for 1000 steps (1000/120 ~= 8 seconds)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here, we spawn three drones, a <code class="docutils literal notranslate"><span class="pre">Rocket</span></code>, a <code class="docutils literal notranslate"><span class="pre">QuadX</span></code> and a <code class="docutils literal notranslate"><span class="pre">Fixedwing</span></code>, at three different positions.
+Each of the drones has different options.</p>
+</section>
+<section id="accessing-individual-drones">
+<h2>Accessing Individual Drones<a class="headerlink" href="#accessing-individual-drones" title="Permalink to this heading">#</a></h2>
+<p>All drones are stored within a <code class="docutils literal notranslate"><span class="pre">drones</span></code> attribute (very creatively named).
+This allows raw access for any <code class="docutils literal notranslate"><span class="pre">drone</span></code> from outside the <code class="docutils literal notranslate"><span class="pre">aviary</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="c1"># instantiate the aviary</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># assuming there are 3 drones and the last drone has a camera,</span>
+<span class="c1"># we can get the camera image like so</span>
+<span class="n">rgbImg</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">drones</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rgbImg</span>
+</pre></div>
+</div>
+</section>
+<section id="looprates">
+<h2>Looprates<a class="headerlink" href="#looprates" title="Permalink to this heading">#</a></h2>
+<p>By default, PyFlyt runs the simulation at 240 Hz - the default for a PyBullet environment.
+Although not recommended, this can be changed via the <code class="docutils literal notranslate"><span class="pre">physics_hz</span></code> argument.</p>
+<p>The various drones within the environment can also be configured to have a control looprate different to the physics looprate.
+This is configured through the <code class="docutils literal notranslate"><span class="pre">drone_options</span></code> argument, like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="c1"># define a control looprate</span>
+<span class="n">drone_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">drone_options</span><span class="p">[</span><span class="s2">&quot;control_hz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">120</span>
+
+<span class="c1"># pass the relevant arguments to the `aviary`</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;quadx&quot;</span><span class="p">,</span> <span class="n">drone_options</span><span class="o">=</span><span class="n">drone_options</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>All control looprates must be a common denominator of the physics looprate.</strong>
+For instance, for a physics looprate of 240 Hz, a control looprate of 60 Hz is valid, but 50 is not since <code class="docutils literal notranslate"><span class="pre">240</span> <span class="pre">%</span> <span class="pre">50</span> <span class="pre">!=</span> <span class="pre">0</span></code>.</p>
+<section id="single-drone-physics-stepping">
+<h3>Single Drone Physics Stepping<a class="headerlink" href="#single-drone-physics-stepping" title="Permalink to this heading">#</a></h3>
+<p>Every call to <code class="docutils literal notranslate"><span class="pre">step</span></code> of the <code class="docutils literal notranslate"><span class="pre">aviary</span></code> steps the simulation enough times for one control loop to elapse.
+For example, if the physics looprate is 240 Hz and the control looprate is 120 Hz, each call to <code class="docutils literal notranslate"><span class="pre">step</span></code> steps the physics in the environment 2 times.</p>
+</section>
+<section id="multi-drone-physics-stepping">
+<h3>Multi Drone Physics Stepping<a class="headerlink" href="#multi-drone-physics-stepping" title="Permalink to this heading">#</a></h3>
+<p>In a multi drone setting, it is possible for various drones to have various looprates.
+The caveat here is that, when control looprates are arranged in accending order, the <code class="docutils literal notranslate"><span class="pre">i+1</span></code>th looprate must be a round multiple of the <code class="docutils literal notranslate"><span class="pre">i</span></code>th looprate.
+For instance, this is a valid set of looprates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="n">drone_options</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">drone_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">control_hz</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span>
+<span class="n">drone_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">control_hz</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+<span class="n">drone_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">control_hz</span><span class="o">=</span><span class="mi">120</span><span class="p">))</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>… but this is not:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="n">drone_options</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">drone_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">control_hz</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
+<span class="n">drone_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">control_hz</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+<span class="n">drone_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">control_hz</span><span class="o">=</span><span class="mi">120</span><span class="p">))</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>In the first sample, when arranged in accending order, we get a list of <code class="docutils literal notranslate"><span class="pre">looprates</span> <span class="pre">=</span> <span class="pre">[30,</span> <span class="pre">60,</span> <span class="pre">120]</span></code>.
+When we do <code class="docutils literal notranslate"><span class="pre">looprate[1:]</span> <span class="pre">/</span> <span class="pre">looprate[:-1]</span></code>, we get <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">2]</span></code>, which is all integers.
+This is valid.</p>
+<p>In the second sample, when arranged in accending order, this list is <code class="docutils literal notranslate"><span class="pre">looprates</span> <span class="pre">=</span> <span class="pre">[30,</span> <span class="pre">40,</span> <span class="pre">120]</span></code>.
+Similarly, when we do <code class="docutils literal notranslate"><span class="pre">looprate[1:]</span> <span class="pre">/</span> <span class="pre">looprate[:-1]</span></code>, we get <code class="docutils literal notranslate"><span class="pre">[1.25,</span> <span class="pre">3]</span></code>, which is <strong>not</strong> all integers.
+This is <strong>invalid</strong>.</p>
+</section>
+</section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.</span></span><span class="sig-name descname"><span class="pre">Aviary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_type_mappings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass" title="PyFlyt.core.abstractions.base_drone.DroneClass"><span class="pre">PyFlyt.core.abstractions.base_drone.DroneClass</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worldScale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.Aviary" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.</span></span><span class="sig-name descname"><span class="pre">Aviary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_type_mappings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass" title="PyFlyt.core.abstractions.base_drone.DroneClass"><span class="pre">PyFlyt.core.abstractions.base_drone.DroneClass</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worldScale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.Aviary" title="Permalink to this definition">#</a></dt>
 <dd><p>Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.all_aux_states">
@@ -529,7 +708,21 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-options">Setup Options</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#drone-type">Drone Type</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#drone-type-mappings">Drone Type Mappings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#drone-options">Drone Options</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-drone-setup">Multi Drone Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-individual-drones">Accessing Individual Drones</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#looprates">Looprates</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-drone-physics-stepping">Single Drone Physics Stepping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-drone-physics-stepping">Multi Drone Physics Stepping</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary"><code class="docutils literal notranslate"><span class="pre">Aviary</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.all_aux_states"><code class="docutils literal notranslate"><span class="pre">Aviary.all_aux_states</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.all_states"><code class="docutils literal notranslate"><span class="pre">Aviary.all_states</span></code></a></li>

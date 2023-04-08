@@ -274,7 +274,7 @@ class RocketBaseEnv(gymnasium.Env):
 
         # fatal collision or below ground
         if np.any(collision_array) or self.env.state(0)[-1, -1] < 0.0:
-            self.reward = -100.0
+            # self.reward = -100.0
             self.info["fatal_collision"] = True
             self.termination |= True
 
@@ -283,7 +283,7 @@ class RocketBaseEnv(gymnasium.Env):
             np.linalg.norm(self.env.state(0)[-1, :2]) > self.max_displacement
             or self.env.state(0)[-1, 2] > self.ceiling
         ):
-            self.reward = -100.0
+            # self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination |= True
 

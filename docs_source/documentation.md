@@ -15,14 +15,16 @@ pip3 install PyFlyt
 
 On _Windows_, additional installation may be required for various Microsoft C++ components.
 
-## Custom Drones
-
-If you're interested in constructing your own drone, the best place to get started would be by going through the [examples section](https://github.com/jjshoots/PyFlyt/tree/master/examples/core).
-First, read the [aviary documentation](documentation/core/aviary.md), then the [custom drone example](https://github.com/jjshoots/PyFlyt/blob/master/examples/core/07_custom_uav.py),
-which demonstrates how to construct a custom drone using various pre-implemented components, listed in the [abstractions](documentation/core/abstractions) section.
-
-Should you encounter any difficulty in doing so, don't hesitate to [get in touch](https://github.com/jjshoots/PyFlyt/issues)!
-
 ## Gymnasium Environments
 
 If all you want are the Gymnasium environments, you can skip everything and go straight to the [Gymnasium Environments](documentation/gym_envs) section.
+
+## I want to do more!
+
+A set of helpful examples are provided in [the source repository](https://github.com/jjshoots/PyFlyt/tree/master/examples/core).
+While this documentation provides a detailed overview of PyFlyt, the examples can bring you 80% of the way to a fully fledged user in a couple hours.
+New users are highly encouraged to go through them first.
+
+## Help Needed!
+
+Should you encounter any difficulty in doing so, don't hesitate to [get in touch](https://github.com/jjshoots/PyFlyt/issues)!

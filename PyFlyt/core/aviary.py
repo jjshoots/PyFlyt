@@ -25,10 +25,10 @@ class Aviary(bullet_client.BulletClient):
         start_orn: np.ndarray,
         drone_type: str | Sequence[str],
         drone_type_mappings: None | dict[str, DroneClass] = None,
+        drone_options: dict | Sequence[dict] = {},
         render: bool = False,
         physics_hz: int = 240,
         worldScale: float = 1.0,
-        drone_options: dict | Sequence[dict] = {},
         seed: None | int = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
@@ -41,10 +41,10 @@ class Aviary(bullet_client.BulletClient):
             start_orn (np.ndarray): start_orn
             drone_type (str | Sequence[str]): drone_types
             drone_type_mappings (None | dict[str, DroneClass]): string to mapping of custom drone classes
+            drone_options (dict | Sequence[dict]): drone_options
             render (bool): render
             physics_hz (int): physics_hz
             worldScale (float): worldScale
-            drone_options (dict | Sequence[dict]): drone_options
             seed (None | int): seed
         """
         super().__init__(p.GUI if render else p.DIRECT)

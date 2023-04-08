@@ -32,6 +32,7 @@ exclude_patterns = ["readme.md"]
 
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
+    "show_toc_level": 2,
     "show_nav_level": 5,
     "show_prev_next": False,
     "announcement": "This repo is still under development. We are also actively looking for users and developers. If this sounds like you, get in touch!",

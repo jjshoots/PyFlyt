@@ -357,6 +357,10 @@ document.write(`
                   
   <section id="core">
 <h1>Core<a class="headerlink" href="#core" title="Permalink to this heading">#</a></h1>
+<section id="general-architecture">
+<h2>General Architecture<a class="headerlink" href="#general-architecture" title="Permalink to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+</div>
 <p>Loosely put, PyFlyt has the following architecture:</p>
 <figure class="align-default">
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" style="width: 70%;" /></a>
@@ -364,8 +368,62 @@ document.write(`
 <p>At the core lies the <a class="reference internal" href="core/aviary.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">aviary</span></code></span></a>, serving as a domain for all <a class="reference internal" href="core/drones.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drones</span></code></span></a>.
 Each drone is defined by its own Python class, allowing for user-defined drones to be built.
 Drones can be built from the ground up, or can be an amalgamation of various component <a class="reference internal" href="core/abstractions.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">abstractions</span></code></span></a>.</p>
-<div class="toctree-wrapper compound">
+</section>
+<section id="core-api">
+<h2>Core API<a class="headerlink" href="#core-api" title="Permalink to this heading">#</a></h2>
+<p>The core API of PyFlyt looks something like the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Spawn a single drone on x=0, y=0, z=1, with 0 rpy.&quot;&quot;&quot;</span>
+<span class="c1"># Step 1: import things</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PyFlyt.core</span> <span class="kn">import</span> <span class="n">Aviary</span>
+
+<span class="c1"># Step 2: define starting positions and orientations</span>
+<span class="n">start_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="n">start_orn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+
+<span class="c1"># Step 3: instantiate aviary</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">start_orn</span><span class="o">=</span><span class="n">start_orn</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;quadx&quot;</span><span class="p">)</span>
+
+<span class="c1"># Step 4: (Optional) define control mode to use for drone</span>
+<span class="n">env</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="c1"># Step 5: (Optional) define a setpoint for the first drone (at index 0) in the aviary</span>
+<span class="n">setpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+<span class="n">env</span><span class="o">.</span><span class="n">set_setpoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">setpoint</span><span class="p">)</span>
+
+<span class="c1"># Step 6: step the physics</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="c1"># Gracefully close</span>
+<span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
 </div>
+<ol class="arabic simple">
+<li><p>At the start, we import <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and the <code class="docutils literal notranslate"><span class="pre">aviary</span></code>.</p></li>
+<li><p>Then, we define the starting positions and orientations as an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array each, for <code class="docutils literal notranslate"><span class="pre">n</span></code> number of drones.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">aviary</span></code> is instantiated by passing the starting positions and orientations, as well as a string representing the drone type to use.</p></li>
+<li><p>It is possible to define base flight modes for the drones, this is elaborated in the <a class="reference internal" href="core/abstractions/base_drone.html"><span class="std std-doc">drone</span></a> section.</p></li>
+<li><p>We set a setpoint for the drone to reach, in this case it is <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">yaw,</span> <span class="pre">z)</span> <span class="pre">=</span> <span class="pre">(1</span> <span class="pre">meter,</span> <span class="pre">0,</span> <span class="pre">1</span> <span class="pre">radian,</span> <span class="pre">0)</span></code>.</p></li>
+<li><p>Finally, we step through the physics.</p></li>
+</ol>
+<p>Drone setpoints are <strong>persistent</strong> attributes - you don’t have to repeatedly set them at every step if there is no desire to change setpoints.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">aviary</span></code> itself is a highly flexible multi-drone handling environment.
+The extent of its capabilities is elaborated in <a class="reference internal" href="core/aviary.html"><span class="std std-doc">its relevant section</span></a>.</p>
+</section>
+<section id="axis-conventions">
+<h2>Axis Conventions<a class="headerlink" href="#axis-conventions" title="Permalink to this heading">#</a></h2>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/duck_frame.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/duck_frame.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/duck_frame.png" style="width: 70%;" /></a>
+</figure>
+<p>Frame conventions are essential for describing the orientation and movement of objects in space.
+PyFlyt uses two reference frames, the ground frame (subscript <code class="docutils literal notranslate"><span class="pre">G</span></code>) and the body frame (subscript <code class="docutils literal notranslate"><span class="pre">B</span></code>), shown above.
+The ground frame defines three axes relative to the local horizontal plane and the direction of gravity.
+The body frame defines the axes relative to the body of the drone.</p>
+<p>We utilize the <a class="reference external" href="https://en.wikipedia.org/wiki/Geodetic_datum#Local_east.2C_north.2C_up_.28ENU.29_coordinates">ENU</a> frame convention, where for the ground frame,
+the X-axis points East, Y-axis points North, and Z-axis points Up (East and North are just cardinal references).
+On the body frame, this convention defines the X, Y, and Z axes to point out the front, left, and upward direction from the drone.</p>
+</section>
 </section>
 
 
@@ -378,6 +436,18 @@ Drones can be built from the ground up, or can be an amalgamation of various com
             
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-architecture">General Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core-api">Core API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#axis-conventions">Axis Conventions</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">

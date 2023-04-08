@@ -199,12 +199,12 @@ class RocketLandingEnv(RocketBaseEnv):
 
             # composite reward together
             self.reward += (
-                -10.0  # negative offset to discourage staying in the air
+                -5.0  # negative offset to discourage staying in the air
                 + (3.0 / offset_to_pad)  # encourage being near the pad
                 + (5.0 * progress_to_pad)  # encourage progress to landing pad
                 - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
                 - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-                + (500.0 * deceleration_bonus)  # reward deceleration when near pad
+                + (5.0 * deceleration_bonus)  # reward deceleration when near pad
             )
             # last working configuration
             # -5.0  # negative offset to discourage staying in the air
