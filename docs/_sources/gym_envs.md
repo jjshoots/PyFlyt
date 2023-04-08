@@ -1,4 +1,4 @@
-# Gymnasium Enviroments
+# Gymnasium Environments
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_waypoint.gif
     :width: 65%

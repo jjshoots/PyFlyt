@@ -22,7 +22,7 @@ It also includes convenience functions for setting setpoints, arming status, and
 ## Custom Drones
 
 If you're interested in constructing your own drone, the best place to get started would be by going through the [examples section](https://github.com/jjshoots/PyFlyt/tree/master/examples/core).
-First, read the [aviary documentation](./core/aviary.md) first, then the [custom drone example](https://github.com/jjshoots/PyFlyt/blob/master/examples/core/07_custom_uav.py), which demonstrates how to construct a custom drone using various pre-implemented components, listed in the [abstractions](core/abstractions) section.
+First, read the [aviary documentation](./core/aviary.md), then the [custom drone example](https://github.com/jjshoots/PyFlyt/blob/master/examples/core/07_custom_uav.py), which demonstrates how to construct a custom drone using various pre-implemented components, listed in the [abstractions](core/abstractions) section.
 
 Should you encounter any difficulty in doing so, don't hesitate to [get in touch](https://github.com/jjshoots/PyFlyt/issues)!
 
