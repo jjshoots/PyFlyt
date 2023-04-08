@@ -6,7 +6,7 @@
 
 # PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
 
-## [View the documentation here!](https://jjshoots.github.io/PyFlyt/)
+## [View the documentation here!](https://jjshoots.github.io/PyFlyt/documentation.html)
 
 <p align="center">
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/pyflyt_cover_photo.png?raw=true" width="650px"/>
