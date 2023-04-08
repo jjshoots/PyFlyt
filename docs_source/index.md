@@ -4,7 +4,7 @@ firstpage:
 lastpage:
 ---
 
-# PyFlyt - UAV Flight Simulator Gymnasium Environments for Reinforcement Learning Research
+# PyFlyt - UAV Simulation Environments for Reinforcement Learning Research
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png
     :width: 80%
