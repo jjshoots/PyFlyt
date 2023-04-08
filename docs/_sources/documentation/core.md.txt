@@ -3,7 +3,7 @@
 Loosely put, PyFlyt has the following architecture:
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png
-    :width: 50%
+    :width: 70%
 ```
 
 At the core lies the [`aviary`](core/aviary), serving as a domain for all [`drones`](core/drones).

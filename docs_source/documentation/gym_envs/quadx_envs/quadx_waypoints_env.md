@@ -6,7 +6,7 @@
 
 ## Task Description
 
-The goal of this environment is to fly a fixedwing aircraft towards a set of waypoints as fast as possible.
+The goal of this environment is to fly a quadrotor aircraft towards a set of waypoints as fast as possible.
 
 ## Usage
 
