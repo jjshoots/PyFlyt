@@ -356,25 +356,13 @@ document.write(`
 <h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<figure class="align-default">
-<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png" style="width: 80%;" /></a>
-</figure>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
+<p>Installation on <em>Linux</em> and <em>MacOS</em> is simple:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install PyFlyt
 </pre></div>
 </div>
-</section>
-<section id="basic-architecture">
-<h2>Basic Architecture<a class="headerlink" href="#basic-architecture" title="Permalink to this heading">#</a></h2>
-<p>Loosely put, PyFlyt has the following architecture:</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" style="width: 50%;" /></a>
-</figure>
-<p>At the core lies the <a class="reference internal" href="documentation/core/aviary.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">aviary</span></code></span></a>, serving as a domain for all <a class="reference internal" href="documentation/core/drones.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drones</span></code></span></a>.
-Each drone is defined by its own Python class, allowing for user-defined drones to be built.
-The aviary also handles collision/contact tracking between entities and performs step scheduling according to the various looprates.
-It also includes convenience functions for setting setpoints, arming status, and flight modes for all drones.</p>
+<p>On <em>Windows</em>, additional installation may be required for various Microsoft C++ components.</p>
 </section>
 <section id="custom-drones">
 <h2>Custom Drones<a class="headerlink" href="#custom-drones" title="Permalink to this heading">#</a></h2>
@@ -385,7 +373,7 @@ which demonstrates how to construct a custom drone using various pre-implemented
 </section>
 <section id="gymnasium-environments">
 <h2>Gymnasium Environments<a class="headerlink" href="#gymnasium-environments" title="Permalink to this heading">#</a></h2>
-<p>If all you want are the gymnasium environments, you can skip everything and go straight to the <a class="reference internal" href="documentation/gym_envs.html"><span class="doc std std-doc">Gymnasium Environments</span></a> section.</p>
+<p>If all you want are the Gymnasium environments, you can skip everything and go straight to the <a class="reference internal" href="documentation/gym_envs.html"><span class="doc std std-doc">Gymnasium Environments</span></a> section.</p>
 </section>
 </section>
 
@@ -407,7 +395,6 @@ which demonstrates how to construct a custom drone using various pre-implemented
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-architecture">Basic Architecture</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-drones">Custom Drones</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gymnasium-environments">Gymnasium Environments</a></li>
 </ul>

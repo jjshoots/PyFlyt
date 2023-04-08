@@ -6,29 +6,14 @@ documentation/core
 documentation/gym_envs
 ```
 
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png
-    :width: 80%
-```
-
 ## Installation
 
+Installation on _Linux_ and _MacOS_ is simple:
 ```sh
 pip3 install PyFlyt
 ```
 
-## Basic Architecture
-
-Loosely put, PyFlyt has the following architecture:
-
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png
-    :width: 50%
-```
-
-At the core lies the [`aviary`](documentation/core/aviary), serving as a domain for all [`drones`](documentation/core/drones).
-Each drone is defined by its own Python class, allowing for user-defined drones to be built.
-The aviary also handles collision/contact tracking between entities and performs step scheduling according to the various looprates.
-It also includes convenience functions for setting setpoints, arming status, and flight modes for all drones.
-
+On _Windows_, additional installation may be required for various Microsoft C++ components.
 
 ## Custom Drones
 
@@ -40,4 +25,4 @@ Should you encounter any difficulty in doing so, don't hesitate to [get in touch
 
 ## Gymnasium Environments
 
-If all you want are the gymnasium environments, you can skip everything and go straight to the [Gymnasium Environments](documentation/gym_envs) section.
+If all you want are the Gymnasium environments, you can skip everything and go straight to the [Gymnasium Environments](documentation/gym_envs) section.
