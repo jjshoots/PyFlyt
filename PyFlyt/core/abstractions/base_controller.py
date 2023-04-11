@@ -13,7 +13,7 @@ class ControlClass(ABC):
         pass
 
     @abstractmethod
-    def step(self, state: np.ndarray, setpoint: np.ndarray):
+    def step(self, state: np.ndarray, setpoint: np.ndarray) -> np.ndarray:
         """Step the controller.
 
         Args:

@@ -64,7 +64,7 @@ class DroneClass(ABC):
         self.setpoint: np.ndarray
 
         # DEFINE CONTROLLERS
-        self.registered_controllers: dict[int, ControlClass] = dict()
+        self.registered_controllers: dict[int, type[ControlClass]] = dict()
         self.instanced_controllers: dict[int, ControlClass] = dict()
         self.registered_base_modes: dict[int, int] = dict()
 
@@ -73,20 +73,24 @@ class DroneClass(ABC):
         self.depthImg: np.ndarray
         self.segImg: np.ndarray
 
+    @property
+    def _not_initialized_variable_error(self) -> np.ndarray:
+        raise NotImplementedError("This variable has not been initialized.")
+
     @abstractmethod
     def reset(self):
         """Resets the vehicle to the initial state."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def update_avionics(self):
         """Updates all onboard avionics computations."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def update_physics(self):
         """Updates all physics on the vehicle."""
-        pass
+        raise NotImplementedError
 
     def set_mode(self, mode):
         """Default set_mode.

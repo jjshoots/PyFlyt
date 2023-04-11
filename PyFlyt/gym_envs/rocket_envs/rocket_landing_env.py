@@ -189,7 +189,7 @@ class RocketLandingEnv(RocketBaseEnv):
             offset_to_pad = np.linalg.norm(self.distance[:2]) + 0.1
 
             # deceleration as long as we're still falling
-            deceleration_bonus = (
+            deceleration_bonus = (  # noqa
                 max(
                     (self.lin_vel[-1] < 0.0)
                     * (self.lin_vel[-1] - self.previous_lin_vel[-1]),
@@ -204,7 +204,9 @@ class RocketLandingEnv(RocketBaseEnv):
                 + (1.0 / offset_to_pad)  # encourage being near the pad
                 + (100.0 * progress_to_pad)  # encourage progress to landing pad
                 - (0.15 * abs(self.ang_vel[-1]))  # minimize spinning
-                - (0.25 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+                - (
+                    0.25 * np.linalg.norm(self.ang_pos[:2])
+                )  # penalize aggressive angles
                 # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
             )
 
