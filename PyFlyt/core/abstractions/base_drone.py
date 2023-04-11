@@ -25,7 +25,7 @@ class DroneClass(ABC):
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
     ):
-        """Defines the default configuration for UAVS, to be used in conjunction with the Aviary class."""
+        """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class."""
         if physics_hz != 240.0:
             raise UserWarning(
                 f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
@@ -48,7 +48,7 @@ class DroneClass(ABC):
         self.param_path = os.path.join(model_dir, f"{drone_model}/{drone_model}.yaml")
         self.camera: Camera
 
-        """ SPAWN """
+        # DEFINE SPAWN
         self.start_pos = start_pos
         self.start_orn = self.p.getQuaternionFromEuler(start_orn)
         self.Id = self.p.loadURDF(
@@ -58,18 +58,17 @@ class DroneClass(ABC):
             useFixedBase=False,
         )
 
-        """ DEFINE STATES AND SETPOINT """
+        # DEFINE STATE AND SETPOINT
         self.state: np.ndarray
         self.aux_state: np.ndarray
         self.setpoint: np.ndarray
 
-        """ CUSTOM CONTROLLERS """
-        # dictionary mapping of controller_id to controller objects
-        self.registered_controllers = dict()
-        self.instanced_controllers = dict()
-        self.registered_base_modes = dict()
+        # DEFINE CONTROLLERS
+        self.registered_controllers: dict[int, ControlClass] = dict()
+        self.instanced_controllers: dict[int, ControlClass] = dict()
+        self.registered_base_modes: dict[int, int] = dict()
 
-        """ OPTIONAL CAMERA IMAGES """
+        # DEFINE CAMERA IMAGES
         self.rgbaImg: np.ndarray
         self.depthImg: np.ndarray
         self.segImg: np.ndarray

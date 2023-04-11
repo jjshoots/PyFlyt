@@ -365,6 +365,34 @@ document.write(`
                   
   <section id="boosters">
 <h1>Boosters<a class="headerlink" href="#boosters" title="Permalink to this heading">#</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Boosters</span></code> component is used to represent an array of fueled boosters, each at arbitrary locations with different parameters.</p>
+<p>Fueled boosters are propulsion units that produce no meaningful torque around their thrust axis and have limited throttleability.
+More crucially, they depend on a fuel source that depletes with usage, changing the mass and inertia properties of the drone.
+Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Boosters</span></code> component is parameterized with the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> <code class="docutils literal notranslate"><span class="pre">(bullet_client.BulletClient)</span></code>: PyBullet physics client ID.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_period</span></code> <code class="docutils literal notranslate"><span class="pre">(float)</span></code>: physics period of the simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">np_random</span></code> <code class="docutils literal notranslate"><span class="pre">(np.random.RandomState)</span></code>: random state generator of the simulation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">uav_id</span></code> <code class="docutils literal notranslate"><span class="pre">(int)</span></code>: ID of the drone.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">booster_ids</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray</span> <span class="pre">|</span> <span class="pre">list[int])</span></code>: list of integers representing the link index that each booster should be attached to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fueltank_ids</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray</span> <span class="pre">|</span> <span class="pre">list[None</span> <span class="pre">|</span> <span class="pre">int])</span></code>: list of integers representing the link index for the fuel tank that each booster is attached to.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the ramp up time constant of each booster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">total_fuel_mass</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the fuel mass of each fuel tank at maximum fuel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_fuel_rate</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the maximum fuel burn rate for each booster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_inertia</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array representing the diagonal elements of the moment of inertia matrix for each fuel tank at full fuel load.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_thrust</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the thrust output for each booster at a minimum duty cycle that is NOT OFF.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_thrust</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the maximum thrust output for each booster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">thrust_unit</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array representing the unit vector pointing in the direction of force for each booster, relative to the booster link’s body frame.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reignitable</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray</span> <span class="pre">|</span> <span class="pre">list[bool])</span></code>: a list of booleans representing whether the booster can be extinguished and then reignited.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noise_ratio</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: a list of floats representing the percent amount of fluctuation present in each booster.</p></li>
+</ul>
+</section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
@@ -430,6 +458,8 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters"><code class="docutils literal notranslate"><span class="pre">Boosters</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.get_states"><code class="docutils literal notranslate"><span class="pre">Boosters.get_states()</span></code></a></li>

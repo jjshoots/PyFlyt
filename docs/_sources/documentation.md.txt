@@ -6,6 +6,10 @@ documentation/core
 documentation/gym_envs
 ```
 
+```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png
+    :width: 80%
+```
+
 ## Installation
 
 Installation on _Linux_ and _MacOS_ is simple:

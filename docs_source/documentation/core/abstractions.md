@@ -14,3 +14,4 @@ abstractions/motors
 ## Description
 
 The `abstractions` submodule is, as the name suggests, a set of abstractions that allow easier construction of drones.
+It implements various basic components, such as [motors](abstractions/motors) or [lifting surfaces](abstractions/lifting_surfaces) that allow construction of complicated configurations of drones without requiring reimplementation of all relevant mathematical models.

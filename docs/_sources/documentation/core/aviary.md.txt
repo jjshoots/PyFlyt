@@ -163,7 +163,7 @@ For example, if the physics looprate is 240 Hz and the control looprate is 120 H
 ### Multi Drone Physics Stepping
 
 In a multi drone setting, it is possible for various drones to have various looprates.
-The caveat here is that, when control looprates are arranged in accending order, the `i+1`th looprate must be a round multiple of the `i`th looprate.
+The caveat here is that, when control looprates are arranged in ascending order, the `i+1`th looprate must be a round multiple of the `i`th looprate.
 For instance, this is a valid set of looprates:
 
 ```python
@@ -186,11 +186,11 @@ drone_options.append(dict(control_hz=120))
 ...
 ```
 
-In the first sample, when arranged in accending order, we get a list of `looprates = [30, 60, 120]`.
+In the first sample, when arranged in ascending order, we get a list of `looprates = [30, 60, 120]`.
 When we do `looprate[1:] / looprate[:-1]`, we get `[2, 2]`, which is all integers.
 This is valid.
 
-In the second sample, when arranged in accending order, this list is `looprates = [30, 40, 120]`.
+In the second sample, when arranged in ascending order, this list is `looprates = [30, 40, 120]`.
 Similarly, when we do `looprate[1:] / looprate[:-1]`, we get `[1.25, 3]`, which is __not__ all integers.
 This is __invalid__.
 

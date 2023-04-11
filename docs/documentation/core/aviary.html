@@ -512,7 +512,7 @@ For example, if the physics looprate is 240 Hz and the control looprate is 120 H
 <section id="multi-drone-physics-stepping">
 <h3>Multi Drone Physics Stepping<a class="headerlink" href="#multi-drone-physics-stepping" title="Permalink to this heading">#</a></h3>
 <p>In a multi drone setting, it is possible for various drones to have various looprates.
-The caveat here is that, when control looprates are arranged in accending order, the <code class="docutils literal notranslate"><span class="pre">i+1</span></code>th looprate must be a round multiple of the <code class="docutils literal notranslate"><span class="pre">i</span></code>th looprate.
+The caveat here is that, when control looprates are arranged in ascending order, the <code class="docutils literal notranslate"><span class="pre">i+1</span></code>th looprate must be a round multiple of the <code class="docutils literal notranslate"><span class="pre">i</span></code>th looprate.
 For instance, this is a valid set of looprates:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
 <span class="n">drone_options</span> <span class="o">=</span> <span class="p">[]</span>
@@ -531,10 +531,10 @@ For instance, this is a valid set of looprates:</p>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>In the first sample, when arranged in accending order, we get a list of <code class="docutils literal notranslate"><span class="pre">looprates</span> <span class="pre">=</span> <span class="pre">[30,</span> <span class="pre">60,</span> <span class="pre">120]</span></code>.
+<p>In the first sample, when arranged in ascending order, we get a list of <code class="docutils literal notranslate"><span class="pre">looprates</span> <span class="pre">=</span> <span class="pre">[30,</span> <span class="pre">60,</span> <span class="pre">120]</span></code>.
 When we do <code class="docutils literal notranslate"><span class="pre">looprate[1:]</span> <span class="pre">/</span> <span class="pre">looprate[:-1]</span></code>, we get <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">2]</span></code>, which is all integers.
 This is valid.</p>
-<p>In the second sample, when arranged in accending order, this list is <code class="docutils literal notranslate"><span class="pre">looprates</span> <span class="pre">=</span> <span class="pre">[30,</span> <span class="pre">40,</span> <span class="pre">120]</span></code>.
+<p>In the second sample, when arranged in ascending order, this list is <code class="docutils literal notranslate"><span class="pre">looprates</span> <span class="pre">=</span> <span class="pre">[30,</span> <span class="pre">40,</span> <span class="pre">120]</span></code>.
 Similarly, when we do <code class="docutils literal notranslate"><span class="pre">looprate[1:]</span> <span class="pre">/</span> <span class="pre">looprate[:-1]</span></code>, we get <code class="docutils literal notranslate"><span class="pre">[1.25,</span> <span class="pre">3]</span></code>, which is <strong>not</strong> all integers.
 This is <strong>invalid</strong>.</p>
 </section>
