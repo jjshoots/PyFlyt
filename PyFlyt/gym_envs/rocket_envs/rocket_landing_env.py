@@ -141,8 +141,9 @@ class RocketLandingEnv(RocketBaseEnv):
         aux_state = super().compute_auxiliary()
 
         # drone to landing pad
-        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
-        self.distance = np.matmul((lin_pos - self.landing_pad_position), rotation)
+        # rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
+        # self.distance = np.matmul((lin_pos - self.landing_pad_position), rotation)
+        self.distance = lin_pos - self.landing_pad_position
 
         # combine everything
         if self.angle_representation == 0:
@@ -200,19 +201,12 @@ class RocketLandingEnv(RocketBaseEnv):
             # composite reward together
             self.reward += (
                 -5.0  # negative offset to discourage staying in the air
-                + (3.0 / offset_to_pad)  # encourage being near the pad
-                + (5.0 * progress_to_pad)  # encourage progress to landing pad
-                - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
-                - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-                + (5.0 * deceleration_bonus)  # reward deceleration when near pad
+                + (1.0 / offset_to_pad)  # encourage being near the pad
+                + (100.0 * progress_to_pad)  # encourage progress to landing pad
+                - (0.15 * abs(self.ang_vel[-1]))  # minimize spinning
+                - (0.25 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+                # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
             )
-            # last working configuration
-            # -5.0  # negative offset to discourage staying in the air
-            # + (3.0 / offset_to_pad)  # encourage being near the pad
-            # + (5.0 * progress_to_pad)  # encourage progress to landing pad
-            # - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
-            # - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-            # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
 
         # check if we touched the landing pad
         if self.env.contact_array[self.env.drones[0].Id, self.landing_pad_id]:
