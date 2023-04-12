@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -365,12 +379,44 @@ document.write(`
                   
   <section id="boring-bodies">
 <h1>Boring Bodies<a class="headerlink" href="#boring-bodies" title="Permalink to this heading">#</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="mathematical-model">
+<h2>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading">#</a></h2>
+</section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">BoringBodies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drag_coefs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_areas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies" title="Permalink to this definition">#</a></dt>
-<dd><p>BoringBodies.</p>
+<dd><p>Vectorized implementation of a series of plain bodies affected by aerodynamics.</p>
+<p>The <cite>BoringBodies</cite> component is used to represent a normal body moving through the air.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>body_ids</strong> (<em>np.ndarray</em>) – (n,) array of IDs for the links representing the bodies</p></li>
+<li><p><strong>drag_coefs</strong> (<em>np.ndarray</em>) – (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions</p></li>
+<li><p><strong>normal_areas</strong> (<em>np.ndarray</em>) – (n, 3) array of frontal areas in the link-referenced XYZ directions</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.get_states">
+<span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.get_states" title="Permalink to this definition">#</a></dt>
+<dd><p><cite>get_states</cite> does not exist for boring bodies, they’re boring.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.physics_update">
+<span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.physics_update" title="Permalink to this definition">#</a></dt>
+<dd><p>Applies a force to the boring bodies depending on their local surface velocities.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.reset" title="Permalink to this definition">#</a></dt>
@@ -378,14 +424,8 @@ document.write(`
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.update_forces">
-<span class="sig-name descname"><span class="pre">update_forces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.update_forces" title="Permalink to this definition">#</a></dt>
-<dd><p>Applies a force to the boring bodies depending on their local surface velocities.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.update_local_velocity">
-<span class="sig-name descname"><span class="pre">update_local_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_matrices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.update_local_velocity" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.state_update">
+<span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_matrices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.state_update" title="Permalink to this definition">#</a></dt>
 <dd><p>Updates the local surface velocity of the boring body.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -416,11 +456,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-model">Mathematical Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies"><code class="docutils literal notranslate"><span class="pre">BoringBodies</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies"><code class="docutils literal notranslate"><span class="pre">BoringBodies</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.get_states"><code class="docutils literal notranslate"><span class="pre">BoringBodies.get_states()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.physics_update"><code class="docutils literal notranslate"><span class="pre">BoringBodies.physics_update()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.reset"><code class="docutils literal notranslate"><span class="pre">BoringBodies.reset()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.update_forces"><code class="docutils literal notranslate"><span class="pre">BoringBodies.update_forces()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.update_local_velocity"><code class="docutils literal notranslate"><span class="pre">BoringBodies.update_local_velocity()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.state_update"><code class="docutils literal notranslate"><span class="pre">BoringBodies.state_update()</span></code></a></li>
 </ul>
 </li>
 </ul>

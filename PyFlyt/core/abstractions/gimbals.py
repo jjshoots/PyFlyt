@@ -113,6 +113,16 @@ class Gimbals:
             ]
         )
 
+    def state_update(self):
+        """This does not need to be called for gimbals."""
+        warnings.warn("`state_update` does not need to be called for gimbals.")
+
+    def physics_update(self):
+        """This does not need to be called for gimbals, call `compute_rotation` instead."""
+        raise NameError(
+            "`state_update` does not need to be called for gimbals, call `compute_rotation` instead."
+        )
+
     def compute_rotation(self, gimbal_command) -> np.ndarray:
         """Returns a rotation vector after the gimbal rotation.
 

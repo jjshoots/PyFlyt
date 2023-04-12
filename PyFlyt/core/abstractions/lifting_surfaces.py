@@ -39,7 +39,7 @@ class LiftingSurfaces:
         """
         return np.array([surface.actuation for surface in self.surfaces])
 
-    def cmd2forces(self, cmd: np.ndarray):
+    def physics_update(self, cmd: np.ndarray):
         """Converts actuation commands into forces on the lifting surfaces.
 
         Args:
@@ -56,9 +56,9 @@ class LiftingSurfaces:
                 else float(cmd[surface.command_id] * surface.command_sign)
             )
 
-            surface.cmd2forces(actuation)
+            surface.physics_update(actuation)
 
-    def update_local_surface_velocities(self, rotation_matrix: np.ndarray):
+    def state_update(self, rotation_matrix: np.ndarray):
         """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
@@ -77,7 +77,7 @@ class LiftingSurfaces:
 
         # update the velocities of all surfaces
         for surface, velocity in zip(self.surfaces, surface_velocities):
-            surface.update_local_surface_velocity(velocity)
+            surface.state_update(velocity)
 
 
 class LiftingSurface:
@@ -213,7 +213,15 @@ class LiftingSurface:
         """Reset the lifting surfaces."""
         self.actuation = 0.0
 
-    def update_local_surface_velocity(self, surface_velocity: np.ndarray):
+    def get_states(self) -> float:
+        """Gets the current state of the components.
+
+        Returns:
+            float: the level of deflection of the surface.
+        """
+        return self.actuation
+
+    def state_update(self, surface_velocity: np.ndarray):
         """Updates the local surface velocity of the lifting surface.
 
         Args:
@@ -221,7 +229,7 @@ class LiftingSurface:
         """
         self.local_surface_velocity = surface_velocity
 
-    def cmd2forces(self, cmd: float):
+    def physics_update(self, cmd: float):
         """Converts a commanded actuation state into forces on the lifting surface.
 
         Args:

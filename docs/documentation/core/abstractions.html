@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -366,6 +380,21 @@ document.write(`
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">abstractions</span></code> submodule is, as the name suggests, a set of abstractions that allow easier construction of drones.
 It implements various basic components, such as <a class="reference internal" href="abstractions/motors.html"><span class="doc std std-doc">motors</span></a> or <a class="reference internal" href="abstractions/lifting_surfaces.html"><span class="doc std std-doc">lifting surfaces</span></a> that allow construction of complicated configurations of drones without requiring reimplementation of all relevant mathematical models.</p>
+<blockquote>
+<div><p><strong>Custom Drone Example</strong></p>
+<p>While this section of the documentation serves as the Rosetta stone for all abstracted components, a very comprehensive tutorial on constructing your own drone can be found in the <a class="reference internal" href="../../tutorials.html"><span class="doc std std-doc">tutorials section</span></a>.</p>
+</div></blockquote>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<p>For all abstracted components, these methods are implemented and must be called within their designated methods for each drone class.
+Some components may have special functions that need to be called elsewhere, refer to their relevant documentation for more information.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reset</span></code>: called on <code class="docutils literal notranslate"><span class="pre">drone.reset()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">state_update</span></code>: called on <code class="docutils literal notranslate"><span class="pre">drone.update_state()</span></code>.</p></li>
+<li><p>(Optional) <code class="docutils literal notranslate"><span class="pre">get_states</span></code>: called on <code class="docutils literal notranslate"><span class="pre">drone.state_update()</span></code>, this returns the state of the component as a flattened <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">physics_update</span></code>: called on <code class="docutils literal notranslate"><span class="pre">drone.update_physics()</span></code>.</p></li>
+</ul>
 </section>
 </section>
 
@@ -387,6 +416,7 @@ It implements various basic components, such as <a class="reference internal" hr
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 </ul>
   </nav></div>
 

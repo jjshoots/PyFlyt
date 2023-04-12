@@ -245,10 +245,10 @@ class Rocket(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all bodies, which is just the booster here
-        self.bodies.update_local_velocity(np.expand_dims(rotation, axis=0))
+        self.bodies.state_update(np.expand_dims(rotation, axis=0))
 
         # update all lifting surface velocities
-        self.lifting_surfaces.update_local_surface_velocities(rotation)
+        self.lifting_surfaces.state_update(rotation)
 
         # update auxiliary information
         self.aux_state = np.concatenate(
@@ -282,13 +282,11 @@ class Rocket(DroneClass):
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
-        self.update_state()
-
         # update the forces on the main body
-        self.bodies.update_forces()
+        self.bodies.physics_update()
 
         # actuate lifting surfaces
-        self.lifting_surfaces.cmd2forces(self.cmd)
+        self.lifting_surfaces.physics_update(self.cmd)
 
         # move the booster gimbal
         rotation = self.booster_gimbal.compute_rotation(
@@ -296,7 +294,7 @@ class Rocket(DroneClass):
         )
 
         # update booster
-        self.boosters.settings2forces(
+        self.boosters.physics_update(
             ignition=self.cmd[[4]],
             pwm=self.cmd[[5]],
             rotation=rotation,

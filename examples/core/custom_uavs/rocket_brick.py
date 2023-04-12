@@ -166,7 +166,7 @@ class RocketBrick(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all lifting surface velocities
-        self.lifting_surfaces.update_local_surface_velocities(rotation)
+        self.lifting_surfaces.state_update(rotation)
 
         # update auxiliary information
         self.aux_state = np.concatenate(
@@ -192,8 +192,8 @@ class RocketBrick(DroneClass):
     def update_physics(self):
         """Updates the physics of the vehicle."""
         self.update_state()
-        self.lifting_surfaces.cmd2forces(self.cmd)
-        self.boosters.settings2forces(self.cmd[[0]], self.cmd[[1]])
+        self.lifting_surfaces.physics_update(self.cmd)
+        self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
 
     def update_avionics(self):
         """Updates state and control."""

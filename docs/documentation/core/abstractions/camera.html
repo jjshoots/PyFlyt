@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -365,12 +379,38 @@ document.write(`
                   
   <section id="camera">
 <h1>Camera<a class="headerlink" href="#camera" title="Permalink to this heading">#</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="mathematical-model">
+<h2>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading">#</a></h2>
+</section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Camera">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gimbal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_FOV_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_angle_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_position_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_tracking_camera</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cinematic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Camera" title="Permalink to this definition">#</a></dt>
-<dd><p>Camera.</p>
+<dd><p>A camera component.</p>
+<p>The <cite>Camera</cite> component simulates a camera attached to a link on the drone.
+The camera itself can be gimballed to achieve a horizon lock effect.
+In addition, the field-of-view (FOV), tilt angle, resolution, and offset distance from the main link can be adjusted.
+On image capture, the camera returns an RGBA image, a depth map, and a segmentation map with pixel values representing the IDs of objects in the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>camera_id</strong> (<em>int</em>) – integer representing the ID of the link that the camera is attached to</p></li>
+<li><p><strong>use_gimbal</strong> (<em>bool</em>) – whether to lock the horizon of the camera</p></li>
+<li><p><strong>camera_FOV_degrees</strong> (<em>float</em>) – the field-of-view of the camera in degrees</p></li>
+<li><p><strong>camera_angle_degrees</strong> (<em>float</em>) – when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon</p></li>
+<li><p><strong>camera_resolution</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – the resolution of the camera in terms of [width, height]</p></li>
+<li><p><strong>camera_position_offset</strong> (<em>np.ndarray = np.array</em><em>(</em><em>[</em><em>0.0</em><em>, </em><em>0.0</em><em>, </em><em>0.0</em><em>]</em><em>)</em>) – an (3,) array representing an offset of where the camera is from the center of the link in <cite>camera_id</cite></p></li>
+<li><p><strong>is_tracking_camera</strong> (<em>bool = False</em>) – if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity</p></li>
+<li><p><strong>cinematic</strong> (<em>bool = False</em>) – it’s not a bug, it’s a feature</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Camera.capture_image">
 <span class="sig-name descname"><span class="pre">capture_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.Camera.capture_image" title="Permalink to this definition">#</a></dt>
@@ -383,6 +423,24 @@ document.write(`
 <dd class="field-even"><p>tuple[np.ndarray, np.ndarray, np.ndarray]</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Camera.get_states">
+<span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Camera.get_states" title="Permalink to this definition">#</a></dt>
+<dd><p>This does not need to be called for camera. Call <cite>capture_image()</cite> instead within <cite>update_avionics()</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Camera.physics_update">
+<span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Camera.physics_update" title="Permalink to this definition">#</a></dt>
+<dd><p>This does not need to be called for camera, call <cite>capture_image</cite> instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Camera.state_update">
+<span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Camera.state_update" title="Permalink to this definition">#</a></dt>
+<dd><p>This does not need to be called for camera.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -421,9 +479,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-model">Mathematical Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera"><code class="docutils literal notranslate"><span class="pre">Camera</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera"><code class="docutils literal notranslate"><span class="pre">Camera</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera.capture_image"><code class="docutils literal notranslate"><span class="pre">Camera.capture_image()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera.get_states"><code class="docutils literal notranslate"><span class="pre">Camera.get_states()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera.physics_update"><code class="docutils literal notranslate"><span class="pre">Camera.physics_update()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera.state_update"><code class="docutils literal notranslate"><span class="pre">Camera.state_update()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Camera.view_mat"><code class="docutils literal notranslate"><span class="pre">Camera.view_mat</span></code></a></li>
 </ul>
 </li>

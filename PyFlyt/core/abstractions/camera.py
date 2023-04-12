@@ -9,7 +9,25 @@ from pybullet_utils import bullet_client
 
 
 class Camera:
-    """Camera."""
+    """A camera component.
+
+    The `Camera` component simulates a camera attached to a link on the drone.
+    The camera itself can be gimballed to achieve a horizon lock effect.
+    In addition, the field-of-view (FOV), tilt angle, resolution, and offset distance from the main link can be adjusted.
+    On image capture, the camera returns an RGBA image, a depth map, and a segmentation map with pixel values representing the IDs of objects in the environment.
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        uav_id (int): ID of the drone.
+        camera_id (int): integer representing the ID of the link that the camera is attached to
+        use_gimbal (bool): whether to lock the horizon of the camera
+        camera_FOV_degrees (float): the field-of-view of the camera in degrees
+        camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon
+        camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height]
+        camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`
+        is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity
+        cinematic (bool = False): it's not a bug, it's a feature
+    """
 
     def __init__(
         self,
@@ -27,16 +45,16 @@ class Camera:
         """Used for implementing camera modules.
 
         Args:
-            p (bullet_client.BulletClient): p
-            uav_id (int): uav_id
-            camera_id (int): camera_id
-            use_gimbal (bool): use_gimbal
-            camera_FOV_degrees (float): camera_FOV_degrees
-            camera_angle_degrees (float): camera_angle_degrees
-            camera_resolution (tuple[int, int]): camera_resolution
-            camera_position_offset (np.ndarray): camera_position_offset
-            is_tracking_camera (bool): is_tracking_camera
-            cinematic (bool): cinematic mode
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            uav_id (int): ID of the drone.
+            camera_id (int): integer representing the ID of the link that the camera is attached to
+            use_gimbal (bool): whether to lock the horizon of the camera
+            camera_FOV_degrees (float): the field-of-view of the camera in degrees
+            camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon
+            camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height]
+            camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`
+            is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity
+            cinematic (bool = False): it's not a bug, it's a feature
         """
         if is_tracking_camera and use_gimbal:
             warnings.warn(
@@ -110,6 +128,22 @@ class Camera:
             cameraEyePosition=position,
             cameraTargetPosition=target,
             cameraUpVector=up_vector,
+        )
+
+    def get_states(self):
+        """This does not need to be called for camera. Call `capture_image()` instead within `update_avionics()`."""
+        warnings.warn(
+            "This does not need to be called for camera. Call `capture_image()` instead within `update_avionics()`."
+        )
+
+    def state_update(self):
+        """This does not need to be called for camera."""
+        warnings.warn("`state_update` does not need to be called for camera.")
+
+    def physics_update(self):
+        """This does not need to be called for camera, call `capture_image` instead."""
+        raise NameError(
+            "`state_update` does not need to be called for camera, call `capture_image` instead."
         )
 
     def capture_image(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

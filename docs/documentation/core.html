@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -365,7 +379,7 @@ document.write(`
 <figure class="align-default">
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png" style="width: 70%;" /></a>
 </figure>
-<p>At the core lies the <a class="reference internal" href="core/aviary.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">aviary</span></code></span></a>, serving as a domain for all <a class="reference internal" href="core/drones.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drones</span></code></span></a>.
+<p>At the core lies the <a class="reference internal" href="core/aviary.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">Aviary</span></code></span></a>, serving as a domain for all <a class="reference internal" href="core/drones.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drones</span></code></span></a>.
 Each drone is defined by its own Python class, allowing for user-defined drones to be built.
 Drones can be built from the ground up, or can be an amalgamation of various component <a class="reference internal" href="core/abstractions.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">abstractions</span></code></span></a>.</p>
 </section>
@@ -400,16 +414,16 @@ Drones can be built from the ground up, or can be an amalgamation of various com
 </pre></div>
 </div>
 <ol class="arabic simple">
-<li><p>At the start, we import <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and the <code class="docutils literal notranslate"><span class="pre">aviary</span></code>.</p></li>
+<li><p>At the start, we import <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and the <code class="docutils literal notranslate"><span class="pre">Aviary</span></code>.</p></li>
 <li><p>Then, we define the starting positions and orientations as an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array each, for <code class="docutils literal notranslate"><span class="pre">n</span></code> number of drones.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">aviary</span></code> is instantiated by passing the starting positions and orientations, as well as a string representing the drone type to use.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Aviary</span></code> is instantiated by passing the starting positions and orientations, as well as a string representing the drone type to use.</p></li>
 <li><p>It is possible to define base flight modes for the drones, this is elaborated in the <a class="reference internal" href="core/abstractions/base_drone.html"><span class="std std-doc">drone</span></a> section.</p></li>
 <li><p>We set a setpoint for the drone to reach, in this case it is <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">yaw,</span> <span class="pre">z)</span> <span class="pre">=</span> <span class="pre">(1</span> <span class="pre">meter,</span> <span class="pre">0,</span> <span class="pre">1</span> <span class="pre">radian,</span> <span class="pre">0)</span></code>.</p></li>
 <li><p>Finally, we step through the physics.</p></li>
 </ol>
 <p>Drone setpoints are <strong>persistent</strong> attributes - you don’t have to repeatedly set them at every step if there is no desire to change setpoints.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">aviary</span></code> itself is a highly flexible multi-drone handling environment.
-The extent of its capabilities is elaborated in <a class="reference internal" href="core/aviary.html"><span class="std std-doc">its relevant section</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Aviary</span></code> itself is a highly flexible multi-drone handling environment.
+The extent of its capabilities are elaborated in <a class="reference internal" href="core/aviary.html"><span class="std std-doc">its relevant section</span></a>.</p>
 </section>
 <section id="axis-conventions">
 <h2>Axis Conventions<a class="headerlink" href="#axis-conventions" title="Permalink to this heading">#</a></h2>

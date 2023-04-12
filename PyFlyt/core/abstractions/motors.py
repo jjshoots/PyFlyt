@@ -1,6 +1,8 @@
 """A component to simulate an array of electric propeller motors on vehicle."""
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 from pybullet_utils import bullet_client
 
@@ -77,7 +79,11 @@ class Motors:
         """
         return self.throttle.flatten()
 
-    def pwm2forces(self, pwm: np.ndarray, rotation: None | np.ndarray = None):
+    def state_update(self):
+        """This does not need to be called for motors."""
+        warnings.warn("`state_update` does not need to be called for motors.")
+
+    def physics_update(self, pwm: np.ndarray, rotation: None | np.ndarray = None):
         """Converts motor PWM values to forces, this motor allows negative thrust.
 
         Args:

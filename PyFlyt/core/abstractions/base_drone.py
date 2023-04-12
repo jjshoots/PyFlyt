@@ -12,7 +12,20 @@ from .camera import Camera
 
 
 class DroneClass(ABC):
-    """Defines the default configuration for UAVS, to be used in conjunction with the Aviary class."""
+    """The `DroneClass` is an abstract class that all drones should inherit from.
+
+    It provides the basic functionalities for interfacing with the `Aviary`.
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        start_pos (np.ndarray): an `(3,)` array for the starting X, Y, Z position for the drone.
+        start_orn (np.ndarray): an `(3,)` array for the starting X, Y, Z orientation for the drone.
+        control_hz (int): an integer representing the control looprate of the drone.
+        physics_hz (int): an integer representing the physics looprate of the `Aviary`.
+        drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
+        model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
+        np_random (None | np.random.RandomState = None): random number generator of the simulation.
+    """
 
     def __init__(
         self,
@@ -25,7 +38,18 @@ class DroneClass(ABC):
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
     ):
-        """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class."""
+        """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class.
+
+        Args:
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            start_pos (np.ndarray): an `(3,)` array for the starting X, Y, Z position for the drone.
+            start_orn (np.ndarray): an `(3,)` array for the starting X, Y, Z orientation for the drone.
+            control_hz (int): an integer representing the control looprate of the drone.
+            physics_hz (int): an integer representing the physics looprate of the `Aviary`.
+            drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
+            model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
+            np_random (None | np.random.RandomState = None): random number generator of the simulation.
+        """
         if physics_hz != 240.0:
             raise UserWarning(
                 f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
@@ -44,31 +68,31 @@ class DroneClass(ABC):
             model_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "../../models/vehicles/"
             )
-        self.drone_dir = os.path.join(model_dir, f"{drone_model}/{drone_model}.urdf")
+        self.drone_path = os.path.join(model_dir, f"{drone_model}/{drone_model}.urdf")
         self.param_path = os.path.join(model_dir, f"{drone_model}/{drone_model}.yaml")
         self.camera: Camera
 
-        # DEFINE SPAWN
+        """DEFINE SPAWN"""
         self.start_pos = start_pos
         self.start_orn = self.p.getQuaternionFromEuler(start_orn)
         self.Id = self.p.loadURDF(
-            self.drone_dir,
+            self.drone_path,
             basePosition=self.start_pos,
             baseOrientation=self.start_orn,
             useFixedBase=False,
         )
 
-        # DEFINE STATE AND SETPOINT
+        """DEFINE STATE AND SETPOINT"""
         self.state: np.ndarray
         self.aux_state: np.ndarray
         self.setpoint: np.ndarray
 
-        # DEFINE CONTROLLERS
+        """DEFINE CONTROLLERS"""
         self.registered_controllers: dict[int, type[ControlClass]] = dict()
         self.instanced_controllers: dict[int, ControlClass] = dict()
         self.registered_base_modes: dict[int, int] = dict()
 
-        # DEFINE CAMERA IMAGES
+        """DEFINE CAMERA IMAGES"""
         self.rgbaImg: np.ndarray
         self.depthImg: np.ndarray
         self.segImg: np.ndarray
@@ -80,6 +104,11 @@ class DroneClass(ABC):
     @abstractmethod
     def reset(self):
         """Resets the vehicle to the initial state."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_state(self):
+        """Updates all states on the vehicle without touching physics or avionics."""
         raise NotImplementedError
 
     @abstractmethod
@@ -133,7 +162,7 @@ class DroneClass(ABC):
         self.registered_base_modes[controller_id] = base_mode
 
     def get_joint_info(self):
-        """Debugging function for displaying all joint ids and names as defined in urdf."""
+        """Debugging function for displaying all joint IDs and names as defined in URDF."""
         # read out all infos
         infos = dict()
         for idx in range(self.p.getNumJoints(self.Id)):
@@ -148,6 +177,6 @@ class DroneClass(ABC):
         pprint(infos)
 
     def disable_artificial_damping(self):
-        """Disable the artificial damping that pybullet has."""
+        """Disable the artificial damping that pybullet has to enable more accurate aerodynamics simulation."""
         for idx in range(-1, self.p.getNumJoints(self.Id)):
             self.p.changeDynamics(self.Id, idx, linearDamping=0.0, angularDamping=0.0)

@@ -135,6 +135,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="paper.html">
                         Paper Publication
                       </a>
@@ -221,6 +228,13 @@ document.write(`
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="paper.html">
                         Paper Publication
                       </a>
@@ -283,8 +297,10 @@ document.write(`
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
@@ -302,7 +318,9 @@ document.write(`
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.aux_state">aux_state() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.aux_state">aux_state (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.aux_state">aux_state() (in module PyFlyt.core.Aviary)</a>
 </li>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary">Aviary (class in PyFlyt.core)</a>
 </li>
@@ -330,13 +348,9 @@ document.write(`
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurface.cmd2forces">cmd2forces() (PyFlyt.core.abstractions.LiftingSurface method)</a>
-
-      <ul>
-        <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurfaces.cmd2forces">(PyFlyt.core.abstractions.LiftingSurfaces method)</a>
-</li>
-      </ul></li>
       <li><a href="documentation/core/abstractions/gimbals.html#PyFlyt.core.abstractions.Gimbals.compute_rotation">compute_rotation() (PyFlyt.core.abstractions.Gimbals method)</a>
+</li>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.control_period">control_period (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -344,11 +358,15 @@ document.write(`
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.disable_artificial_damping">disable_artificial_damping() (PyFlyt.core.abstractions.DroneClass method)</a>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.depthImg">depthImg (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.drone_path">drone_path (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass">DroneClass (class in PyFlyt.core.abstractions)</a>
+</li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.drones">drones (PyFlyt.core.Aviary property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -368,12 +386,16 @@ document.write(`
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.get_joint_info">get_joint_info() (PyFlyt.core.abstractions.DroneClass method)</a>
-</li>
       <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.get_states">get_states() (PyFlyt.core.abstractions.Boosters method)</a>
 
       <ul>
+        <li><a href="documentation/core/abstractions/boring_bodies.html#PyFlyt.core.abstractions.BoringBodies.get_states">(PyFlyt.core.abstractions.BoringBodies method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/camera.html#PyFlyt.core.abstractions.Camera.get_states">(PyFlyt.core.abstractions.Camera method)</a>
+</li>
         <li><a href="documentation/core/abstractions/gimbals.html#PyFlyt.core.abstractions.Gimbals.get_states">(PyFlyt.core.abstractions.Gimbals method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurface.get_states">(PyFlyt.core.abstractions.LiftingSurface method)</a>
 </li>
         <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurfaces.get_states">(PyFlyt.core.abstractions.LiftingSurfaces method)</a>
 </li>
@@ -383,6 +405,18 @@ document.write(`
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="documentation/core/abstractions/gimbals.html#PyFlyt.core.abstractions.Gimbals">Gimbals (class in PyFlyt.core.abstractions)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.Id">Id (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.instanced_controllers">instanced_controllers (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -407,14 +441,40 @@ document.write(`
   </ul></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.np_random">np_random (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.print_all_bodies">print_all_bodies() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.param_path">param_path (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.physics_period">physics_period (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+      <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.physics_update">physics_update() (PyFlyt.core.abstractions.Boosters method)</a>
+
+      <ul>
+        <li><a href="documentation/core/abstractions/boring_bodies.html#PyFlyt.core.abstractions.BoringBodies.physics_update">(PyFlyt.core.abstractions.BoringBodies method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/camera.html#PyFlyt.core.abstractions.Camera.physics_update">(PyFlyt.core.abstractions.Camera method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/gimbals.html#PyFlyt.core.abstractions.Gimbals.physics_update">(PyFlyt.core.abstractions.Gimbals method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurface.physics_update">(PyFlyt.core.abstractions.LiftingSurface method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurfaces.physics_update">(PyFlyt.core.abstractions.LiftingSurfaces method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/motors.html#PyFlyt.core.abstractions.motors.Motors.physics_update">(PyFlyt.core.abstractions.motors.Motors method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/abstractions/motors.html#PyFlyt.core.abstractions.motors.Motors.pwm2forces">pwm2forces() (PyFlyt.core.abstractions.motors.Motors method)</a>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.print_all_bodies">print_all_bodies() (in module PyFlyt.core.Aviary)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -436,20 +496,20 @@ document.write(`
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.register_all_new_bodies">register_all_new_bodies() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.register_all_new_bodies">register_all_new_bodies() (in module PyFlyt.core.Aviary)</a>
 </li>
-      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.register_controller">register_controller() (PyFlyt.core.abstractions.DroneClass method)</a>
+      <li><a href="documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.register_controller">register_controller() (PyFlyt.core.drones.QuadX method)</a>
+</li>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.registered_base_controllers">registered_base_controllers (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.registered_controllers">registered_controllers (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.reset">reset() (in module PyFlyt.core.Aviary)</a>
 
       <ul>
-        <li><a href="documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.register_controller">(PyFlyt.core.drones.QuadX method)</a>
+        <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.reset">(PyFlyt.core.abstractions.Boosters method)</a>
 </li>
-      </ul></li>
-      <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.reset">reset() (PyFlyt.core.abstractions.Boosters method)</a>
-
-      <ul>
         <li><a href="documentation/core/abstractions/boring_bodies.html#PyFlyt.core.abstractions.BoringBodies.reset">(PyFlyt.core.abstractions.BoringBodies method)</a>
-</li>
-        <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.reset">(PyFlyt.core.abstractions.DroneClass method)</a>
 </li>
         <li><a href="documentation/core/abstractions/gimbals.html#PyFlyt.core.abstractions.Gimbals.reset">(PyFlyt.core.abstractions.Gimbals method)</a>
 </li>
@@ -458,8 +518,6 @@ document.write(`
         <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurfaces.reset">(PyFlyt.core.abstractions.LiftingSurfaces method)</a>
 </li>
         <li><a href="documentation/core/abstractions/motors.html#PyFlyt.core.abstractions.motors.Motors.reset">(PyFlyt.core.abstractions.motors.Motors method)</a>
-</li>
-        <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.reset">(PyFlyt.core.Aviary method)</a>
 </li>
         <li><a href="documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.reset">(PyFlyt.core.drones.Fixedwing method)</a>
 </li>
@@ -470,6 +528,8 @@ document.write(`
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.rgbaImg">rgbaImg (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
       <li><a href="documentation/core/drones/rocket.html#PyFlyt.core.drones.Rocket">Rocket (class in PyFlyt.core.drones)</a>
 </li>
       <li><a href="documentation/gym_envs/rocket_envs/rocket_landing_env.html#PyFlyt.gym_envs.rocket_envs.rocket_landing_env.RocketLandingEnv">RocketLandingEnv (class in PyFlyt.gym_envs.rocket_envs.rocket_landing_env)</a>
@@ -480,31 +540,49 @@ document.write(`
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_all_setpoints">set_all_setpoints() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.segImg">segImg (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_armed">set_armed() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_all_setpoints">set_all_setpoints() (in module PyFlyt.core.Aviary)</a>
 </li>
-      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.set_mode">set_mode() (PyFlyt.core.abstractions.DroneClass method)</a>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_armed">set_armed() (in module PyFlyt.core.Aviary)</a>
+</li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode">set_mode() (in module PyFlyt.core.Aviary)</a>
 
       <ul>
-        <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode">(PyFlyt.core.Aviary method)</a>
-</li>
         <li><a href="documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode">(PyFlyt.core.drones.QuadX method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_setpoint">set_setpoint() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_setpoint">set_setpoint() (in module PyFlyt.core.Aviary)</a>
 </li>
-      <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.settings2forces">settings2forces() (PyFlyt.core.abstractions.Boosters method)</a>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.setpoint">setpoint (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
       <li><a href="documentation/core/drones/rocket.html#PyFlyt.core.drones.Rocket.starting_fuel_ratio">starting_fuel_ratio (PyFlyt.core.drones.Rocket attribute)</a>
 </li>
       <li><a href="documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.starting_velocity">starting_velocity (PyFlyt.core.drones.Fixedwing attribute)</a>
 </li>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.state">state() (PyFlyt.core.Aviary method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.state">state (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.step">step() (PyFlyt.core.Aviary method)</a>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.state">state() (in module PyFlyt.core.Aviary)</a>
+</li>
+      <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.state_update">state_update() (PyFlyt.core.abstractions.Boosters method)</a>
+
+      <ul>
+        <li><a href="documentation/core/abstractions/boring_bodies.html#PyFlyt.core.abstractions.BoringBodies.state_update">(PyFlyt.core.abstractions.BoringBodies method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/camera.html#PyFlyt.core.abstractions.Camera.state_update">(PyFlyt.core.abstractions.Camera method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/gimbals.html#PyFlyt.core.abstractions.Gimbals.state_update">(PyFlyt.core.abstractions.Gimbals method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurface.state_update">(PyFlyt.core.abstractions.LiftingSurface method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurfaces.state_update">(PyFlyt.core.abstractions.LiftingSurfaces method)</a>
+</li>
+        <li><a href="documentation/core/abstractions/motors.html#PyFlyt.core.abstractions.motors.Motors.state_update">(PyFlyt.core.abstractions.motors.Motors method)</a>
+</li>
+      </ul></li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.step">step() (in module PyFlyt.core.Aviary)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -512,11 +590,9 @@ document.write(`
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.update_avionics">update_avionics() (PyFlyt.core.abstractions.DroneClass method)</a>
+      <li><a href="documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_avionics">update_avionics() (PyFlyt.core.drones.Fixedwing method)</a>
 
       <ul>
-        <li><a href="documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_avionics">(PyFlyt.core.drones.Fixedwing method)</a>
-</li>
         <li><a href="documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.update_avionics">(PyFlyt.core.drones.QuadX method)</a>
 </li>
         <li><a href="documentation/core/drones/rocket.html#PyFlyt.core.drones.Rocket.update_avionics">(PyFlyt.core.drones.Rocket method)</a>
@@ -530,21 +606,11 @@ document.write(`
         <li><a href="documentation/core/drones/rocket.html#PyFlyt.core.drones.Rocket.update_control">(PyFlyt.core.drones.Rocket method)</a>
 </li>
       </ul></li>
-      <li><a href="documentation/core/abstractions/boring_bodies.html#PyFlyt.core.abstractions.BoringBodies.update_forces">update_forces() (PyFlyt.core.abstractions.BoringBodies method)</a>
-</li>
-      <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurfaces.update_local_surface_velocities">update_local_surface_velocities() (PyFlyt.core.abstractions.LiftingSurfaces method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="documentation/core/abstractions/lifting_surfaces.html#PyFlyt.core.abstractions.LiftingSurface.update_local_surface_velocity">update_local_surface_velocity() (PyFlyt.core.abstractions.LiftingSurface method)</a>
-</li>
-      <li><a href="documentation/core/abstractions/boring_bodies.html#PyFlyt.core.abstractions.BoringBodies.update_local_velocity">update_local_velocity() (PyFlyt.core.abstractions.BoringBodies method)</a>
-</li>
-      <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.update_physics">update_physics() (PyFlyt.core.abstractions.DroneClass method)</a>
+      <li><a href="documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_physics">update_physics() (PyFlyt.core.drones.Fixedwing method)</a>
 
       <ul>
-        <li><a href="documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_physics">(PyFlyt.core.drones.Fixedwing method)</a>
-</li>
         <li><a href="documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.update_physics">(PyFlyt.core.drones.QuadX method)</a>
 </li>
         <li><a href="documentation/core/drones/rocket.html#PyFlyt.core.drones.Rocket.update_physics">(PyFlyt.core.drones.Rocket method)</a>

@@ -7,6 +7,7 @@ lastpage:
 ```{toctree}
 :hidden:
 documentation
+tutorials
 paper
 ```
 

@@ -471,10 +471,8 @@ class QuadX(DroneClass):
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
-        self.update_state()
-
         # update the motors
-        self.motors.pwm2forces(self.pwm)
+        self.motors.physics_update(self.pwm)
 
         # simulate drag
         drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)

@@ -15,7 +15,7 @@ Loosely put, PyFlyt has the following architecture:
     :width: 70%
 ```
 
-At the core lies the [`aviary`](core/aviary), serving as a domain for all [`drones`](core/drones).
+At the core lies the [`Aviary`](core/aviary), serving as a domain for all [`drones`](core/drones).
 Each drone is defined by its own Python class, allowing for user-defined drones to be built.
 Drones can be built from the ground up, or can be an amalgamation of various component [`abstractions`](core/abstractions).
 
@@ -51,17 +51,17 @@ for i in range(1000):
 env.close()
 ```
 
-1. At the start, we import `numpy` and the `aviary`.
+1. At the start, we import `numpy` and the `Aviary`.
 2. Then, we define the starting positions and orientations as an `[n, 3]` array each, for `n` number of drones.
-3. The `aviary` is instantiated by passing the starting positions and orientations, as well as a string representing the drone type to use.
+3. The `Aviary` is instantiated by passing the starting positions and orientations, as well as a string representing the drone type to use.
 4. It is possible to define base flight modes for the drones, this is elaborated in the [drone](core/abstractions/base_drone.md) section.
 5. We set a setpoint for the drone to reach, in this case it is `(x, y, yaw, z) = (1 meter, 0, 1 radian, 0)`.
 6. Finally, we step through the physics.
 
 Drone setpoints are __persistent__ attributes - you don't have to repeatedly set them at every step if there is no desire to change setpoints.
 
-The `aviary` itself is a highly flexible multi-drone handling environment.
-The extent of its capabilities is elaborated in [its relevant section](core/aviary.md).
+The `Aviary` itself is a highly flexible multi-drone handling environment.
+The extent of its capabilities are elaborated in [its relevant section](core/aviary.md).
 
 ## Axis Conventions
 

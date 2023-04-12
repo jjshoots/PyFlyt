@@ -8,7 +8,19 @@ from pybullet_utils import bullet_client
 
 
 class BoringBodies:
-    """BoringBodies."""
+    """Vectorized implementation of a series of plain bodies affected by aerodynamics.
+
+    The `BoringBodies` component is used to represent a normal body moving through the air.
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        physics_period (float): physics period of the simulation.
+        np_random (np.random.RandomState): random number generator of the simulation.
+        uav_id (int): ID of the drone.
+        body_ids (np.ndarray): (n,) array of IDs for the links representing the bodies
+        drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions
+        normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions
+    """
 
     def __init__(
         self,
@@ -23,13 +35,13 @@ class BoringBodies:
         """Used for simulating a body moving through the air.
 
         Args:
-            p (bullet_client.BulletClient): p
-            physics_period (float): physics_period
-            np_random (np.random.RandomState): np_random
-            uav_id (int): uav_id
-            body_ids (np.ndarray): (n,) array of ids for the links representing the bodies
-            drag_coefs (np.ndarray): (n, 3) array of drag coefs in the x, y, z
-            normal_areas (np.ndarray): (n, 3) array of frontal areas in the x, y, z
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            physics_period (float): physics period of the simulation.
+            np_random (np.random.RandomState): random number generator of the simulation.
+            uav_id (int): ID of the drone.
+            body_ids (np.ndarray): (n,) array of IDs for the links representing the bodies
+            drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions
+            normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions
         """
         self.p = p
         self.physics_period = physics_period
@@ -54,7 +66,13 @@ class BoringBodies:
         """Reset the boring bodies."""
         self.local_body_velocities = np.zeros((len(self.body_ids), 3))
 
-    def update_local_velocity(self, rotation_matrices: np.ndarray):
+    def get_states(self):
+        """`get_states` does not exist for boring bodies, they're boring."""
+        raise NotImplementedError(
+            "`get_states` does not exist for boring bodies, they're boring."
+        )
+
+    def state_update(self, rotation_matrices: np.ndarray):
         """Updates the local surface velocity of the boring body.
 
         Args:
@@ -76,7 +94,7 @@ class BoringBodies:
         # update the variable
         self.local_body_velocities = body_velocities
 
-    def update_forces(self):
+    def physics_update(self):
         """Applies a force to the boring bodies depending on their local surface velocities."""
         forces = (
             -np.sign(self.local_body_velocities)

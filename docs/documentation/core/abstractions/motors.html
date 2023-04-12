@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -365,6 +379,12 @@ document.write(`
                   
   <section id="motors">
 <h1>Motors<a class="headerlink" href="#motors" title="Permalink to this heading">#</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="mathematical-model">
+<h2>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading">#</a></h2>
+</section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
@@ -383,8 +403,8 @@ document.write(`
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.pwm2forces">
-<span class="sig-name descname"><span class="pre">pwm2forces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pwm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.pwm2forces" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.physics_update">
+<span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pwm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.physics_update" title="Permalink to this definition">#</a></dt>
 <dd><p>Converts motor PWM values to forces, this motor allows negative thrust.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -400,6 +420,12 @@ document.write(`
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.reset" title="Permalink to this definition">#</a></dt>
 <dd><p>Reset the motors.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.state_update">
+<span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.state_update" title="Permalink to this definition">#</a></dt>
+<dd><p>This does not need to be called for motors.</p>
 </dd></dl>
 
 </dd></dl>
@@ -424,11 +450,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-model">Mathematical Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors"><code class="docutils literal notranslate"><span class="pre">Motors</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors"><code class="docutils literal notranslate"><span class="pre">Motors</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors.get_states"><code class="docutils literal notranslate"><span class="pre">Motors.get_states()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors.pwm2forces"><code class="docutils literal notranslate"><span class="pre">Motors.pwm2forces()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors.physics_update"><code class="docutils literal notranslate"><span class="pre">Motors.physics_update()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors.reset"><code class="docutils literal notranslate"><span class="pre">Motors.reset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.motors.Motors.state_update"><code class="docutils literal notranslate"><span class="pre">Motors.state_update()</span></code></a></li>
 </ul>
 </li>
 </ul>

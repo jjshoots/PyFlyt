@@ -221,7 +221,7 @@ class Fixedwing(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all lifting surface velocities
-        self.lifting_surfaces.update_local_surface_velocities(rotation)
+        self.lifting_surfaces.state_update(rotation)
 
         # update auxiliary information
         self.aux_state = np.concatenate(
@@ -248,9 +248,8 @@ class Fixedwing(DroneClass):
         """Updates the physics of the vehicle."""
         assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
 
-        self.update_state()
-        self.lifting_surfaces.cmd2forces(self.cmd)
-        self.motors.pwm2forces(self.cmd[[3]])
+        self.lifting_surfaces.physics_update(self.cmd)
+        self.motors.physics_update(self.cmd[[3]])
 
     def update_avionics(self):
         """Updates state and control."""

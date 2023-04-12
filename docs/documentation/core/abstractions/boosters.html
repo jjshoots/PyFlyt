@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -367,38 +381,41 @@ document.write(`
 <h1>Boosters<a class="headerlink" href="#boosters" title="Permalink to this heading">#</a></h1>
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">Boosters</span></code> component is used to represent an array of fueled boosters, each at arbitrary locations with different parameters.</p>
-<p>Fueled boosters are propulsion units that produce no meaningful torque around their thrust axis and have limited throttleability.
-More crucially, they depend on a fuel source that depletes with usage, changing the mass and inertia properties of the drone.
-Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.</p>
 </section>
-<section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">Boosters</span></code> component is parameterized with the following:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> <code class="docutils literal notranslate"><span class="pre">(bullet_client.BulletClient)</span></code>: PyBullet physics client ID.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">physics_period</span></code> <code class="docutils literal notranslate"><span class="pre">(float)</span></code>: physics period of the simulation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">np_random</span></code> <code class="docutils literal notranslate"><span class="pre">(np.random.RandomState)</span></code>: random state generator of the simulation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">uav_id</span></code> <code class="docutils literal notranslate"><span class="pre">(int)</span></code>: ID of the drone.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">booster_ids</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray</span> <span class="pre">|</span> <span class="pre">list[int])</span></code>: list of integers representing the link index that each booster should be attached to.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">fueltank_ids</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray</span> <span class="pre">|</span> <span class="pre">list[None</span> <span class="pre">|</span> <span class="pre">int])</span></code>: list of integers representing the link index for the fuel tank that each booster is attached to.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the ramp up time constant of each booster.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">total_fuel_mass</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the fuel mass of each fuel tank at maximum fuel.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">max_fuel_rate</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the maximum fuel burn rate for each booster.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">max_inertia</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array representing the diagonal elements of the moment of inertia matrix for each fuel tank at full fuel load.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">min_thrust</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the thrust output for each booster at a minimum duty cycle that is NOT OFF.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">max_thrust</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: list of floats representing the maximum thrust output for each booster.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">thrust_unit</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: an <code class="docutils literal notranslate"><span class="pre">[n,</span> <span class="pre">3]</span></code> array representing the unit vector pointing in the direction of force for each booster, relative to the booster link’s body frame.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">reignitable</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray</span> <span class="pre">|</span> <span class="pre">list[bool])</span></code>: a list of booleans representing whether the booster can be extinguished and then reignited.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">noise_ratio</span></code> <code class="docutils literal notranslate"><span class="pre">(np.ndarray)</span></code>: a list of floats representing the percent amount of fluctuation present in each booster.</p></li>
-</ul>
+<section id="mathematical-model">
+<h2>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="class-descriptions">
-<h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
+<section id="class-description">
+<h2>Class Description<a class="headerlink" href="#class-description" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">Boosters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">booster_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fueltank_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_fuel_mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fuel_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_inertia</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_thrust</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_thrust</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thrust_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reignitable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters" title="Permalink to this definition">#</a></dt>
-<dd><p>Boosters.</p>
+<dd><p>Vectorized implementation of a series of fueled boosters.</p>
+<p>The <cite>Boosters</cite> component is used to represent an array of fueled boosters, each at arbitrary locations with different parameters.
+Fueled boosters are propulsion units that produce no meaningful torque around their thrust axis and have limited throttleability.
+More crucially, they depend on a fuel source that depletes with usage, changing the mass and inertia properties of the drone.
+Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>booster_ids</strong> (<em>np.ndarray</em><em> | </em><em>list</em><em>[</em><em>int</em><em>]</em>) – list of integers representing the link index that each booster should be attached to.</p></li>
+<li><p><strong>fueltank_ids</strong> (<em>np.ndarray</em><em> | </em><em>list</em><em>[</em><em>None</em><em> | </em><em>int</em><em>]</em>) – list of integers representing the link index for the fuel tank that each booster is attached to.</p></li>
+<li><p><strong>tau</strong> (<em>np.ndarray</em>) – list of floats representing the ramp up time constant of each booster.</p></li>
+<li><p><strong>total_fuel_mass</strong> (<em>np.ndarray</em>) – list of floats representing the fuel mass of each fuel tank at maximum fuel.</p></li>
+<li><p><strong>max_fuel_rate</strong> (<em>np.ndarray</em>) – list of floats representing the maximum fuel burn rate for each booster.</p></li>
+<li><p><strong>max_inertia</strong> (<em>np.ndarray</em>) – an <cite>(n, 3)</cite> array representing the diagonal elements of the moment of inertia matrix for each fuel tank at full fuel load.</p></li>
+<li><p><strong>min_thrust</strong> (<em>np.ndarray</em>) – list of floats representing the thrust output for each booster at a minimum duty cycle that is NOT OFF.</p></li>
+<li><p><strong>max_thrust</strong> (<em>np.ndarray</em>) – list of floats representing the maximum thrust output for each booster.</p></li>
+<li><p><strong>thrust_unit</strong> (<em>np.ndarray</em>) – an <cite>(n, 3)</cite> array representing the unit vector pointing in the direction of force for each booster, relative to the booster link’s body frame.</p></li>
+<li><p><strong>reignitable</strong> (<em>np.ndarray</em><em> | </em><em>list</em><em>[</em><em>bool</em><em>]</em>) – a list of booleans representing whether the booster can be extinguished and then reignited.</p></li>
+<li><p><strong>noise_ratio</strong> (<em>np.ndarray</em>) – a list of floats representing the percent amount of fluctuation present in each booster.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.get_states" title="Permalink to this definition">#</a></dt>
@@ -411,19 +428,8 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.reset">
-<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">starting_fuel_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.reset" title="Permalink to this definition">#</a></dt>
-<dd><p>Reset the boosters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>starting_fuel_ratio</strong> (<em>float</em><em> | </em><em>np.ndarray</em>) – starting_fuel_ratio</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.settings2forces">
-<span class="sig-name descname"><span class="pre">settings2forces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pwm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.settings2forces" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.physics_update">
+<span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pwm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.physics_update" title="Permalink to this definition">#</a></dt>
 <dd><p>Converts booster settings into forces on the booster and inertia change on fuel tank.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -434,6 +440,23 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">starting_fuel_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.reset" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset the boosters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>starting_fuel_ratio</strong> (<em>float</em><em> | </em><em>np.ndarray</em>) – ratio amount of fuel that the booster is reset to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.state_update">
+<span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.state_update" title="Permalink to this definition">#</a></dt>
+<dd><p>This does not need to be called for boosters.</p>
 </dd></dl>
 
 </dd></dl>
@@ -459,12 +482,13 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters"><code class="docutils literal notranslate"><span class="pre">Boosters</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-model">Mathematical Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-description">Class Description</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters"><code class="docutils literal notranslate"><span class="pre">Boosters</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.get_states"><code class="docutils literal notranslate"><span class="pre">Boosters.get_states()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.physics_update"><code class="docutils literal notranslate"><span class="pre">Boosters.physics_update()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.reset"><code class="docutils literal notranslate"><span class="pre">Boosters.reset()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.settings2forces"><code class="docutils literal notranslate"><span class="pre">Boosters.settings2forces()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.state_update"><code class="docutils literal notranslate"><span class="pre">Boosters.state_update()</span></code></a></li>
 </ul>
 </li>
 </ul>

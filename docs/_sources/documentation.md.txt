@@ -28,7 +28,3 @@ If all you want are the Gymnasium environments, you can skip everything and go s
 A set of helpful examples are provided in [the source repository](https://github.com/jjshoots/PyFlyt/tree/master/examples/core).
 While this documentation provides a detailed overview of PyFlyt, the examples can bring you 80% of the way to a fully fledged user in a couple hours.
 New users are highly encouraged to go through them first.
-
-## Help Needed!
-
-Should you encounter any difficulty in doing so, don't hesitate to [get in touch](https://github.com/jjshoots/PyFlyt/issues)!

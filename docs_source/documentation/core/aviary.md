@@ -8,25 +8,41 @@ This page briefly goes through the key usage traits,
 although more experienced users may wish to consult the whole class description at the bottom of this page,
 or even (oh shit!) consult [the source code](https://github.com/jjshoots/PyFlyt/blob/master/PyFlyt/core/aviary.py).
 
-## Setup Options
+## Usage
 
-The `aviary` accepts these basic arguments:
+### Core API Example
 
-- `start_pos` `(np.ndarray)`: an `[n, 3]` array for the starting X, Y, Z positions for each drone.
-- `start_orn` `(np.ndarray)`: an `[n, 3]` array for the starting orientations for each drone, in terms of Euler angles.
-- `drone_type` `(str)`: a _lowercase_ string representing what type of drone to spawn.
-- `drone_type_mappings` `(dict(str: DroneClass))`: a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
-- `drone_options` `(dict(str: Any))`: dictionary mapping of custom parameters for each drone.
-- `render` `(bool)`: a boolean whether to render the simulation.
-- `physics_hz` `(int)`: physics looprate (not recommended to be changed).
-- `worldScale` `(float)`: how big to spawn the floor.
-- `seed` `(None | int)`: optional int for seeding the simulation RNG.
+```python
+"""Spawn a single drone on x=0, y=0, z=1, with 0 rpy."""
+# Step 1: import things
+import numpy as np
+from PyFlyt.core import Aviary
 
-Some of these are elaborated below.
+# Step 2: define starting positions and orientations
+start_pos = np.array([[0.0, 0.0, 1.0]])
+start_orn = np.array([[0.0, 0.0, 0.0]])
 
-### Drone Type
+# Step 3: instantiate aviary
+env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True, drone_type="quadx")
 
-The drone type is a _lowercase_ string that defines the type of drone(s) to spawn in the `aviary`.
+# Step 4: (Optional) define control mode to use for drone
+env.set_mode(7)
+
+# Step 5: (Optional) define a setpoint for the first drone (at index 0) in the aviary
+setpoint = np.array([1.0, 0.0, 0.0, 1.0])
+env.set_setpoint(0, setpoint)
+
+# Step 6: step the physics
+for i in range(1000):
+    env.step()
+
+# Gracefully close
+env.close()
+```
+
+### Controlling Drone Types
+
+The `drone_type` is a _lowercase_ string that defines the type of drone(s) to spawn in the `aviary`.
 By default, PyFlyt ships with three different drones, listed under the [drones](../core/drones) section.
 These are:
 
@@ -42,9 +58,9 @@ env = Aviary(..., drone_type="fixedwing")
 ...
 ```
 
-### Drone Type Mappings
+### Spawning Custom Drones
 
-For custom drones not shipped in PyFlyt (such as the [`RocketBrick`](https://github.com/jjshoots/PyFlyt/tree/master/examples/core/custom_uavs)), you can call them into the `aviary` via:
+For custom drones not shipped in PyFlyt (such as the [`RocketBrick`](https://github.com/jjshoots/PyFlyt/tree/master/examples/core/custom_uavs)), you can call them into the `aviary` by setting custom `drone_type_mappings`, and then calling them using `drone_type`:
 
 ```python
 ...
@@ -61,11 +77,11 @@ env = Aviary(..., drone_type="mycustomdrone", drone_type_mappings=drone_type_map
 ...
 ```
 
-### Drone Options
+### Setting Drone Options
 
-Various drones can have different instantiation parameters, such as the `Fixedwing` drone having a configurable starting velocity which the `QuadX` drone does not have.
+Various drones can have different instantiation parameters, for example, the `Fixedwing` drone has a configurable starting velocity which the `QuadX` drone does not have.
 
-To define these custom parameters, use the `drone_options` argument as so:
+To define these custom parameters, use the `drone_options` argument like so:
 
 ```python
 ...
@@ -78,9 +94,9 @@ env = Aviary(..., drone_type="fixedwing", drone_options=drone_options)
 ...
 ```
 
-## Multi Drone Setup
+### Multi Drone Setup
 
-To spawn multiple drones with different types and parameters for each, the lists of `drone_type` and `drone_options` can be used instead to give each drone a unique set of parameters.
+To spawn multiple drones with different types and parameters for each, lists of `drone_type` and `drone_options` can be used instead to give each drone a unique set of parameters.
 For example:
 
 ```python
@@ -116,11 +132,11 @@ for i in range(1000):
 ```
 
 Here, we spawn three drones, a `Rocket`, a `QuadX` and a `Fixedwing`, at three different positions.
-Each of the drones has different options.
+Each drone has different spawn options.
 
-## Accessing Individual Drones
+### Accessing Individual Drones
 
-All drones are stored within a `drones` attribute (very creatively named).
+All drones are stored within a (very creatively named) `drones` attribute.
 This allows raw access for any `drone` from outside the `aviary`.
 
 ```python
@@ -128,15 +144,14 @@ This allows raw access for any `drone` from outside the `aviary`.
 # instantiate the aviary
 env = Aviary(...)
 
-# assuming there are 3 drones and the last drone has a camera,
-# we can get the camera image like so
+# we can get the camera image of the last drone
 rgbImg = env.drones[-1].rgbImg
 ```
 
-## Looprates
+### Looprates
 
-By default, PyFlyt runs the simulation at 240 Hz - the default for a PyBullet environment.
-Although not recommended, this can be changed via the `physics_hz` argument.
+By default, PyFlyt steps physics at 240 Hz - the default for a PyBullet environment.
+This can be changed via the `physics_hz` argument, although this is not recommended as it can lead to unstable simulation.
 
 The various drones within the environment can also be configured to have a control looprate different to the physics looprate.
 This is configured through the `drone_options` argument, like so:
@@ -155,12 +170,12 @@ env = Aviary(..., drone_type="quadx", drone_options=drone_options)
 __All control looprates must be a common denominator of the physics looprate.__
 For instance, for a physics looprate of 240 Hz, a control looprate of 60 Hz is valid, but 50 is not since `240 % 50 != 0`.
 
-### Single Drone Physics Stepping
+#### Single Drone Physics Stepping
 
 Every call to `step` of the `aviary` steps the simulation enough times for one control loop to elapse.
 For example, if the physics looprate is 240 Hz and the control looprate is 120 Hz, each call to `step` steps the physics in the environment 2 times.
 
-### Multi Drone Physics Stepping
+#### Multi Drone Physics Stepping
 
 In a multi drone setting, it is possible for various drones to have various looprates.
 The caveat here is that, when control looprates are arranged in ascending order, the `i+1`th looprate must be a round multiple of the `i`th looprate.
@@ -194,8 +209,37 @@ In the second sample, when arranged in ascending order, this list is `looprates 
 Similarly, when we do `looprate[1:] / looprate[:-1]`, we get `[1.25, 3]`, which is __not__ all integers.
 This is __invalid__.
 
-## Class Descriptions
+## Class Description
+
 ```{eval-rst}
 .. autoclass:: PyFlyt.core.Aviary
-    :members:
+```
+
+### Attributes
+```{eval-rst}
+.. autoproperty:: PyFlyt.core.Aviary.all_states
+
+.. autoproperty:: PyFlyt.core.Aviary.all_aux_states
+
+.. property:: PyFlyt.core.Aviary.drones
+
+    A list of all drones that the Aviary is currently handling.
+```
+
+### Methods
+```{eval-rst}
+.. autofunction:: PyFlyt.core.Aviary.print_all_bodies
+
+.. autofunction:: PyFlyt.core.Aviary.reset
+.. autofunction:: PyFlyt.core.Aviary.register_all_new_bodies
+
+.. autofunction:: PyFlyt.core.Aviary.state
+.. autofunction:: PyFlyt.core.Aviary.aux_state
+
+.. autofunction:: PyFlyt.core.Aviary.set_armed
+.. autofunction:: PyFlyt.core.Aviary.set_mode
+.. autofunction:: PyFlyt.core.Aviary.set_setpoint
+.. autofunction:: PyFlyt.core.Aviary.set_all_setpoints
+
+.. autofunction:: PyFlyt.core.Aviary.step
 ```

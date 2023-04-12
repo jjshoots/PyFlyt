@@ -8,7 +8,30 @@ from pybullet_utils import bullet_client
 
 
 class Boosters:
-    """Boosters."""
+    """Vectorized implementation of a series of fueled boosters.
+
+    The `Boosters` component is used to represent an array of fueled boosters, each at arbitrary locations with different parameters.
+    Fueled boosters are propulsion units that produce no meaningful torque around their thrust axis and have limited throttleability.
+    More crucially, they depend on a fuel source that depletes with usage, changing the mass and inertia properties of the drone.
+    Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        physics_period (float): physics period of the simulation.
+        np_random (np.random.RandomState): random number generator of the simulation.
+        uav_id (int): ID of the drone.
+        booster_ids (np.ndarray | list[int]): list of integers representing the link index that each booster should be attached to.
+        fueltank_ids (np.ndarray | list[None | int]): list of integers representing the link index for the fuel tank that each booster is attached to.
+        tau (np.ndarray): list of floats representing the ramp up time constant of each booster.
+        total_fuel_mass (np.ndarray): list of floats representing the fuel mass of each fuel tank at maximum fuel.
+        max_fuel_rate (np.ndarray): list of floats representing the maximum fuel burn rate for each booster.
+        max_inertia (np.ndarray): an `(n, 3)` array representing the diagonal elements of the moment of inertia matrix for each fuel tank at full fuel load.
+        min_thrust (np.ndarray): list of floats representing the thrust output for each booster at a minimum duty cycle that is NOT OFF.
+        max_thrust (np.ndarray): list of floats representing the maximum thrust output for each booster.
+        thrust_unit (np.ndarray): an `(n, 3)` array representing the unit vector pointing in the direction of force for each booster, relative to the booster link's body frame.
+        reignitable (np.ndarray | list[bool]): a list of booleans representing whether the booster can be extinguished and then reignited.
+        noise_ratio (np.ndarray): a list of floats representing the percent amount of fluctuation present in each booster.
+    """
 
     def __init__(
         self,
@@ -31,21 +54,21 @@ class Boosters:
         """Used for simulating an array of boosters.
 
         Args:
-            p (bullet_client.BulletClient): p
-            physics_period (float): physics_period
-            np_random (np.random.RandomState): np_random
-            uav_id (int): uav_id
-            booster_ids (list[int]): booster_ids
-            fueltank_ids (list[None | int]): fueltank_ids
-            tau (np.ndarray): booster ramp time constant
-            total_fuel_mass (np.ndarray): total_fuel_mass
-            max_fuel_rate (np.ndarray): max_fuel_rate
-            max_inertia (np.ndarray): diagonal elements of the inertia tensor
-            min_thrust (np.ndarray): min_thrust
-            max_thrust (np.ndarray): max_thrust
-            thrust_unit (np.ndarray): unit vector of the direction thrust is pointing
-            reignitable (list[bool]): whether we can turn off and on the booster
-            noise_ratio (np.ndarray): noise_ratio
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            physics_period (float): physics period of the simulation.
+            np_random (np.random.RandomState): random number generator of the simulation.
+            uav_id (int): ID of the drone.
+            booster_ids (np.ndarray | list[int]): list of integers representing the link index that each booster should be attached to.
+            fueltank_ids (np.ndarray | list[None | int]): list of integers representing the link index for the fuel tank that each booster is attached to.
+            tau (np.ndarray): list of floats representing the ramp up time constant of each booster.
+            total_fuel_mass (np.ndarray): list of floats representing the fuel mass of each fuel tank at maximum fuel.
+            max_fuel_rate (np.ndarray): list of floats representing the maximum fuel burn rate for each booster.
+            max_inertia (np.ndarray): an `(n, 3)` array representing the diagonal elements of the moment of inertia matrix for each fuel tank at full fuel load.
+            min_thrust (np.ndarray): list of floats representing the thrust output for each booster at a minimum duty cycle that is NOT OFF.
+            max_thrust (np.ndarray): list of floats representing the maximum thrust output for each booster.
+            thrust_unit (np.ndarray): an `(n, 3)` array representing the unit vector pointing in the direction of force for each booster, relative to the booster link's body frame.
+            reignitable (np.ndarray | list[bool]): a list of booleans representing whether the booster can be extinguished and then reignited.
+            noise_ratio (np.ndarray): a list of floats representing the percent amount of fluctuation present in each booster.
         """
         self.p = p
         self.physics_period = physics_period
@@ -95,7 +118,7 @@ class Boosters:
         """Reset the boosters.
 
         Args:
-            starting_fuel_ratio (float | np.ndarray): starting_fuel_ratio
+            starting_fuel_ratio (float | np.ndarray): ratio amount of fuel that the booster is reset to
         """
         # deal with everything in percents
         self.ratio_fuel_remaining = (
@@ -118,7 +141,11 @@ class Boosters:
             ]
         )
 
-    def settings2forces(
+    def state_update(self):
+        """This does not need to be called for boosters."""
+        warnings.warn("`state_update` does not need to be called for boosters.")
+
+    def physics_update(
         self, ignition: np.ndarray, pwm: np.ndarray, rotation: None | np.ndarray = None
     ):
         """Converts booster settings into forces on the booster and inertia change on fuel tank.

@@ -138,6 +138,13 @@
                 
 
                     <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../../../paper.html">
                         Paper Publication
                       </a>
@@ -223,6 +230,13 @@ document.write(`
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../../documentation.html">
                         Documentation
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials.html">
+                        Tutorials
                       </a>
                     </li>
                 
@@ -365,85 +379,135 @@ document.write(`
                   
   <section id="base-drone-class">
 <h1>Base Drone Class<a class="headerlink" href="#base-drone-class" title="Permalink to this heading">#</a></h1>
-<section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">DroneClass</span></code> is an abstract class that all drones should inherit from.
-It provides the basic functionalities for interfacing with the <a class="reference internal" href="../aviary.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">aviary</span></code></span></a>.</p>
-</section>
-<section id="key-usage-information">
-<h2>Key Usage Information<a class="headerlink" href="#key-usage-information" title="Permalink to this heading">#</a></h2>
-<section id="disable-artificial-damping">
-<h3>Disable Artificial Damping<a class="headerlink" href="#disable-artificial-damping" title="Permalink to this heading">#</a></h3>
-<p>Call <code class="docutils literal notranslate"><span class="pre">.disable_artificial_damping()</span></code> within <code class="docutils literal notranslate"><span class="pre">reset()</span></code> to disable the artificial damping that PyBullet imposes.
-This allows for more accurate drag simulation.</p>
-</section>
-<section id="get-joint-info-for-debugging">
-<h3>Get Joint Info for Debugging<a class="headerlink" href="#get-joint-info-for-debugging" title="Permalink to this heading">#</a></h3>
-<p>Call <code class="docutils literal notranslate"><span class="pre">.get_joint_info()</span></code> to print out all joint infos and their relevant IDs.
-This is useful when constructing and debugging your custom drone.</p>
-</section>
-</section>
-<section id="class-descriptions">
-<h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
+<blockquote>
+<div><p><strong>Custom Drone Example</strong></p>
+<p>While this section of the documentation serves as the Rosetta stone for all abstracted components, a very comprehensive tutorial on constructing your own drone can be found in the <a class="reference internal" href="../../../tutorials.html"><span class="doc std std-doc">tutorials section</span></a>.</p>
+</div></blockquote>
+<section id="class-description">
+<h2>Class Description<a class="headerlink" href="#class-description" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">DroneClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines the default configuration for UAVS, to be used in conjunction with the Aviary class.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.disable_artificial_damping">
-<span class="sig-name descname"><span class="pre">disable_artificial_damping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.disable_artificial_damping" title="Permalink to this definition">#</a></dt>
-<dd><p>Disable the artificial damping that pybullet has.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.get_joint_info">
-<span class="sig-name descname"><span class="pre">get_joint_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.get_joint_info" title="Permalink to this definition">#</a></dt>
-<dd><p>Debugging function for displaying all joint ids and names as defined in urdf.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.register_controller">
-<span class="sig-name descname"><span class="pre">register_controller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller_constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">PyFlyt.core.abstractions.base_controller.ControlClass</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.register_controller" title="Permalink to this definition">#</a></dt>
-<dd><p>Default register_controller.</p>
+<dd><p>The <cite>DroneClass</cite> is an abstract class that all drones should inherit from.</p>
+<p>It provides the basic functionalities for interfacing with the <cite>Aviary</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>controller_id</strong> (<em>int</em>) – controller_id</p></li>
-<li><p><strong>controller_constructor</strong> (<em>type</em><em>[</em><em>CtrlClass</em><em>]</em>) – controller_constructor</p></li>
-<li><p><strong>base_mode</strong> (<em>int</em>) – base_mode</p></li>
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>start_pos</strong> (<em>np.ndarray</em>) – an <cite>(3,)</cite> array for the starting X, Y, Z position for the drone.</p></li>
+<li><p><strong>start_orn</strong> (<em>np.ndarray</em>) – an <cite>(3,)</cite> array for the starting X, Y, Z orientation for the drone.</p></li>
+<li><p><strong>control_hz</strong> (<em>int</em>) – an integer representing the control looprate of the drone.</p></li>
+<li><p><strong>physics_hz</strong> (<em>int</em>) – an integer representing the physics looprate of the <cite>Aviary</cite>.</p></li>
+<li><p><strong>drone_model</strong> (<em>str</em>) – name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.</p></li>
+<li><p><strong>model_dir</strong> (<em>None</em><em> | </em><em>str = None</em>) – directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.</p></li>
+<li><p><strong>np_random</strong> (<em>None</em><em> | </em><em>np.random.RandomState = None</em>) – random number generator of the simulation.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.reset">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.reset" title="Permalink to this definition">#</a></dt>
-<dd><p>Resets the vehicle to the initial state.</p>
+<section id="implemented-attributes">
+<h3>Implemented Attributes<a class="headerlink" href="#implemented-attributes" title="Permalink to this heading">#</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.np_random">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">np_random</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.np_random" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.random.RandomState</cite></p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.set_mode">
-<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.set_mode" title="Permalink to this definition">#</a></dt>
-<dd><p>Default set_mode.</p>
-<p>By default, mode 0 defines the following setpoint behaviour:
-Mode 0 - [Pitch, Roll, Yaw, Thrust]</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.physics_period">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">physics_period</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.physics_period" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>float</cite></p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.update_avionics">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_avionics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.update_avionics" title="Permalink to this definition">#</a></dt>
-<dd><p>Updates all onboard avionics computations.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.control_period">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">control_period</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.control_period" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>float</cite></p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.update_physics">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_physics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.update_physics" title="Permalink to this definition">#</a></dt>
-<dd><p>Updates all physics on the vehicle.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.drone_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">drone_path</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.drone_path" title="Permalink to this definition">#</a></dt>
+<dd><p>Path to the drone’s URDF file.</p>
+<p><strong>dtype</strong> - <cite>str</cite></p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.param_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">param_path</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.param_path" title="Permalink to this definition">#</a></dt>
+<dd><p>Path to the drone’s YAML parameters file.</p>
+<p><strong>dtype</strong> - <cite>str</cite></p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.Id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">Id</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.Id" title="Permalink to this definition">#</a></dt>
+<dd><p>PyBullet ID of the drone itself.</p>
+<p><strong>dtype</strong> - <cite>int</cite></p>
+</dd></dl>
+
+</section>
+<section id="unimplemented-required-attributes">
+<h3>Unimplemented Required Attributes<a class="headerlink" href="#unimplemented-required-attributes" title="Permalink to this heading">#</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.state" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.ndarray</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.aux_state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">aux_state</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.aux_state" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.ndarray</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.setpoint">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">setpoint</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.setpoint" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.ndarray</cite></p>
+</dd></dl>
+
+</section>
+<section id="unimplemented-optional-attributes">
+<h3>Unimplemented Optional Attributes<a class="headerlink" href="#unimplemented-optional-attributes" title="Permalink to this heading">#</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.rgbaImg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">rgbaImg</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.rgbaImg" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.ndarray</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.depthImg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">depthImg</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.depthImg" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.ndarray</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.segImg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">segImg</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.segImg" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.ndarray</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.registered_controllers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">registered_controllers</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.registered_controllers" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>dict[int, type[ControlClass]]</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.instanced_controllers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">instanced_controllers</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.instanced_controllers" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>dict[int, ControlClass]</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.registered_base_controllers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">registered_base_controllers</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.registered_base_controllers" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>dict[int, int]</cite></p>
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -464,21 +528,30 @@ Mode 0 - [Pitch, Roll, Yaw, Thrust]</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-usage-information">Key Usage Information</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#disable-artificial-damping">Disable Artificial Damping</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#get-joint-info-for-debugging">Get Joint Info for Debugging</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-description">Class Description</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass"><code class="docutils literal notranslate"><span class="pre">DroneClass</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implemented-attributes">Implemented Attributes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.np_random"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.np_random</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.physics_period"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.physics_period</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.control_period"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.control_period</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.drone_path"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.drone_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.param_path"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.param_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.Id"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.Id</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass"><code class="docutils literal notranslate"><span class="pre">DroneClass</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.disable_artificial_damping"><code class="docutils literal notranslate"><span class="pre">DroneClass.disable_artificial_damping()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.get_joint_info"><code class="docutils literal notranslate"><span class="pre">DroneClass.get_joint_info()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.register_controller"><code class="docutils literal notranslate"><span class="pre">DroneClass.register_controller()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.reset"><code class="docutils literal notranslate"><span class="pre">DroneClass.reset()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.set_mode"><code class="docutils literal notranslate"><span class="pre">DroneClass.set_mode()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.update_avionics"><code class="docutils literal notranslate"><span class="pre">DroneClass.update_avionics()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.update_physics"><code class="docutils literal notranslate"><span class="pre">DroneClass.update_physics()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unimplemented-required-attributes">Unimplemented Required Attributes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.state"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.aux_state"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.aux_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.setpoint"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.setpoint</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unimplemented-optional-attributes">Unimplemented Optional Attributes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.rgbaImg"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.rgbaImg</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.depthImg"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.depthImg</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.segImg"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.segImg</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.registered_controllers"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.registered_controllers</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.instanced_controllers"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.instanced_controllers</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.registered_base_controllers"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.registered_base_controllers</span></code></a></li>
 </ul>
 </li>
 </ul>
