@@ -1,15 +1,6 @@
 brick_params:
-  Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
-  chord: 0.215 # meters
-  span: 0.102
-  flap_to_chord: 0.0 # 30% of chord
-  eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
-  alpha_0_base: 0.0 # 2D dCl_dalpha X-intercept
-  alpha_stall_P_base: 9.0 # Positive stall AoA
-  alpha_stall_N_base: -9.0 # Positive stall AoA
-  Cd_0: 0.1 # Skin friction coefficient
-  deflection_limit: 0
-  tau: 0.01
+  drag_coefs: [2.0, 2.0, 2.0]
+  normal_areas: [1.0, 1.0, 1.0]
 
 booster_params:
   total_fuel: 1.0

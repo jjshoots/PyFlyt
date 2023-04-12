@@ -7,13 +7,7 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from PyFlyt.core.abstractions import (
-    Boosters,
-    Camera,
-    DroneClass,
-    LiftingSurface,
-    LiftingSurfaces,
-)
+from PyFlyt.core.abstractions import Boosters, BoringBodies, Camera, DroneClass
 
 
 class RocketBrick(DroneClass):
@@ -68,23 +62,16 @@ class RocketBrick(DroneClass):
             # load all params from yaml
             all_params = yaml.safe_load(f)
 
-            # all lifting surfaces
-            surfaces = list()
-            surfaces.append(
-                LiftingSurface(
-                    p=self.p,
-                    physics_period=self.physics_period,
-                    np_random=self.np_random,
-                    uav_id=self.Id,
-                    surface_id=0,
-                    command_id=None,
-                    command_sign=+1.0,
-                    lifting_unit=np.array([0.0, 0.0, 1.0]),
-                    forward_unit=np.array([0.0, 1.0, 0.0]),
-                    **all_params["brick_params"],
-                )
+            # the main body
+            self.brick = BoringBodies(
+                p=self.p,
+                physics_period=self.physics_period,
+                np_random=self.np_random,
+                uav_id=self.Id,
+                body_ids=[0],
+                drag_coefs=np.array([all_params["brick_params"]["drag_coefs"]]),
+                normal_areas=np.array([all_params["brick_params"]["normal_areas"]]),
             )
-            self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
 
             # motor
             booster_params = all_params["booster_params"]
@@ -129,8 +116,6 @@ class RocketBrick(DroneClass):
                 is_tracking_camera=True,
             )
 
-        self.reset()
-
     def reset(self):
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
@@ -139,12 +124,8 @@ class RocketBrick(DroneClass):
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
-        self.lifting_surfaces.reset()
+        self.brick.reset()
         self.boosters.reset()
-        self.update_state()
-
-        if self.use_camera:
-            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def update_control(self):
         """Runs through controllers."""
@@ -164,8 +145,7 @@ class RocketBrick(DroneClass):
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
-        self.update_state()
-        self.lifting_surfaces.physics_update(self.cmd)
+        self.brick.physics_update()
         self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
 
     def update_state(self):
@@ -188,12 +168,10 @@ class RocketBrick(DroneClass):
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update all lifting surface velocities
-        self.lifting_surfaces.state_update(rotation)
+        self.brick.state_update(rotation)
 
         # update auxiliary information
-        self.aux_state = np.concatenate(
-            (self.lifting_surfaces.get_states(), self.boosters.get_states())
-        )
+        self.aux_state = self.boosters.get_states()
 
     def update_last(self):
         """Updates things only at the end of `Aviary.step()`."""

@@ -1,7 +1,7 @@
 """A component to simulate bodies moving through the air."""
 from __future__ import annotations
 
-import warnings
+from typing import Sequence
 
 import numpy as np
 from pybullet_utils import bullet_client
@@ -17,7 +17,7 @@ class BoringBodies:
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
         uav_id (int): ID of the drone.
-        body_ids (np.ndarray): (n,) array of IDs for the links representing the bodies
+        body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies
         drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions
         normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions
     """
@@ -28,7 +28,7 @@ class BoringBodies:
         physics_period: float,
         np_random: np.random.RandomState,
         uav_id: int,
-        body_ids: np.ndarray,
+        body_ids: np.ndarray | Sequence[int],
         drag_coefs: np.ndarray,
         normal_areas: np.ndarray,
     ):
@@ -39,7 +39,7 @@ class BoringBodies:
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
             uav_id (int): ID of the drone.
-            body_ids (np.ndarray): (n,) array of IDs for the links representing the bodies
+            body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies
             drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions
             normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions
         """

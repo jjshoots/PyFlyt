@@ -131,9 +131,9 @@ class Camera:
         )
 
     def get_states(self):
-        """This does not need to be called for camera. Call `capture_image()` instead within `update_avionics()`."""
+        """This does not need to be called for camera. Call `capture_image()` instead within `update_last()`."""
         warnings.warn(
-            "This does not need to be called for camera. Call `capture_image()` instead within `update_avionics()`."
+            "This does not need to be called for camera. Call `capture_image()` instead within `update_last()`."
         )
 
     def state_update(self):

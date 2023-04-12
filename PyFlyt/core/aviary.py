@@ -208,6 +208,11 @@ class Aviary(bullet_client.BulletClient):
         self.register_all_new_bodies()
         self.set_armed(True)
 
+        # reset all drones and initialize required states
+        [drone.reset() for drone in self.drones]
+        [drone.update_state() for drone in self.drones]
+        [drone.update_last() for drone in self.drones]
+
     def register_all_new_bodies(self):
         """Registers all new bodies in the environment to be able to handle collisions later.
 

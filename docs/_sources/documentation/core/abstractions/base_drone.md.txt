@@ -9,7 +9,7 @@
 .. autoclass:: PyFlyt.core.abstractions.DroneClass
 ```
 
-### Implemented Attributes
+### Default Attributes
 ```{eval-rst}
 .. property:: PyFlyt.core.abstractions.DroneClass.np_random
 
@@ -42,7 +42,7 @@
   **dtype** - `int`
 ```
 
-### Unimplemented Required Attributes
+### Required Attributes
 ```{eval-rst}
 .. property:: PyFlyt.core.abstractions.DroneClass.state
 
@@ -57,7 +57,7 @@
   **dtype** - `np.ndarray`
 ```
 
-### Unimplemented Optional Attributes
+### Optional Attributes
 ```{eval-rst}
 .. property:: PyFlyt.core.abstractions.DroneClass.rgbaImg
 
@@ -82,4 +82,25 @@
 .. property:: PyFlyt.core.abstractions.DroneClass.registered_base_controllers
 
   **dtype** - `dict[int, int]`
+```
+
+### Default Methods
+```{eval-rst}
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.get_joint_info
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.disable_artificial_damping
+```
+
+### Required Methods
+```{eval-rst}
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.reset
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.update_control
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.update_physics
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.update_state
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.update_last
+```
+
+### Optional Methods
+```{eval-rst}
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.set_mode
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.register_controller
 ```

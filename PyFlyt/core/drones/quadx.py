@@ -186,8 +186,6 @@ class QuadX(DroneClass):
                 camera_resolution=camera_resolution,
             )
 
-        self.reset()
-
     def reset(self):
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
@@ -197,10 +195,6 @@ class QuadX(DroneClass):
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
         self.motors.reset()
-        self.update_state()
-
-        if self.use_camera:
-            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def set_mode(self, mode: int):
         """Sets the current flight mode of the vehicle.

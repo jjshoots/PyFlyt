@@ -183,8 +183,6 @@ class Fixedwing(DroneClass):
                 is_tracking_camera=True,
             )
 
-        self.reset()
-
     def reset(self):
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
@@ -196,10 +194,6 @@ class Fixedwing(DroneClass):
         self.disable_artificial_damping()
         self.lifting_surfaces.reset()
         self.motors.reset()
-        self.update_state()
-
-        if self.use_camera:
-            self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
     def update_control(self):
         """Runs through controllers."""
