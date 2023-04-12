@@ -20,6 +20,7 @@ extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
+    "sphinx.ext.mathjax",
 ]
 
 source_suffix = [".rst", ".md"]

@@ -32,19 +32,19 @@ class RocketBrick(DroneClass):
         """Creates a UAV a brick acting as a lifting surface with a rocket attached.
 
         Args:
-            p (bullet_client.BulletClient): p
-            start_pos (np.ndarray): start_pos
-            start_orn (np.ndarray): start_orn
-            control_hz (int): control_hz
-            physics_hz (int): physics_hz
-            drone_model (str): drone_model
-            model_dir (None | str): model_dir
-            np_random (None | np.random.RandomState): np_random
-            use_camera (bool): use_camera
-            use_gimbal (bool): use_gimbal
-            camera_angle_degrees (int): camera_angle_degrees
-            camera_FOV_degrees (int): camera_FOV_degrees
-            camera_resolution (tuple[int, int]): camera_resolution
+            p (bullet_client.BulletClient): p.
+            start_pos (np.ndarray): start_pos.
+            start_orn (np.ndarray): start_orn.
+            control_hz (int): control_hz.
+            physics_hz (int): physics_hz.
+            drone_model (str): drone_model.
+            model_dir (None | str): model_dir.
+            np_random (None | np.random.RandomState): np_random.
+            use_camera (bool): use_camera.
+            use_gimbal (bool): use_gimbal.
+            camera_angle_degrees (int): camera_angle_degrees.
+            camera_FOV_degrees (int): camera_FOV_degrees.
+            camera_resolution (tuple[int, int]): camera_resolution.
         """
         super().__init__(
             p=p,

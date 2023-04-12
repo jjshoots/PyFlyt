@@ -14,7 +14,8 @@ from .camera import Camera
 class DroneClass(ABC):
     """The `DroneClass` is an abstract class that all drones should inherit from.
 
-    It provides the basic functionalities for interfacing with the `Aviary`.
+    It serves as a template class for interfacing with the `Aviary`.
+    Each drone inheriting from this class must have several attributes and methods implemented before they can be considered usable.
 
     Args:
         p (bullet_client.BulletClient): PyBullet physics client ID.

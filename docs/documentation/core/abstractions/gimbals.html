@@ -390,17 +390,32 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Gimbals">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">Gimbals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gimbal_unit_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gimbal_unit_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gimbal_tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gimbal_range_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.Gimbals" title="Permalink to this definition">#</a></dt>
-<dd><p>Gimbals.</p>
+<dd><p>A set of actuated gimbals.</p>
+<p>The <cite>Gimbals</cite> component simulates a series of servo actuated gimbals.
+Each gimbal can rotate about two arbitrary axis that may not be orthogonal to each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>gimbal_unit_1</strong> (<em>np.ndarray</em>) – first unit vector that the gimbal rotates around.</p></li>
+<li><p><strong>gimbal_unit_2</strong> (<em>np.ndarray</em>) – second unit vector that the gimbal rotates around.</p></li>
+<li><p><strong>gimbal_tau</strong> (<em>np.ndarray</em>) – gimbal actuation time constant.</p></li>
+<li><p><strong>gimbal_range_degrees</strong> (<em>np.ndarray</em>) – gimbal actuation range in degrees.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Gimbals.compute_rotation">
 <span class="sig-name descname"><span class="pre">compute_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gimbal_command</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.Gimbals.compute_rotation" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a rotation vector after the gimbal rotation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>gimbal_command</strong> (<em>np.ndarray</em>) – (num_gimbals, 2) array of floats between [-1, 1]</p>
+<dd class="field-odd"><p><strong>gimbal_command</strong> (<em>np.ndarray</em>) – (num_gimbals, 2) array of floats between [-1, 1].</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(num_gimbals, 3, 3) rotation matrices for all gimbals</p>
+<dd class="field-even"><p>(num_gimbals, 3, 3) rotation matrices for all gimbals.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>rotation_vector (np.ndarray)</p>

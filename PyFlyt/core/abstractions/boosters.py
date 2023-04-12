@@ -118,7 +118,7 @@ class Boosters:
         """Reset the boosters.
 
         Args:
-            starting_fuel_ratio (float | np.ndarray): ratio amount of fuel that the booster is reset to
+            starting_fuel_ratio (float | np.ndarray): ratio amount of fuel that the booster is reset to.
         """
         # deal with everything in percents
         self.ratio_fuel_remaining = (
@@ -151,9 +151,9 @@ class Boosters:
         """Converts booster settings into forces on the booster and inertia change on fuel tank.
 
         Args:
-            ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off
-            pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust
-            rotation (np.ndarray): (num_boosters, 3, 3) rotation matrices to rotate each booster's thrust axis around
+            ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
+            pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
+            rotation (np.ndarray): (num_boosters, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
         """
         assert np.all(ignition >= 0.0) and np.all(
             ignition <= 1.0
@@ -204,8 +204,8 @@ class Boosters:
         """_compute_thrust_mass_inertia.
 
         Args:
-            ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off
-            pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust
+            ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
+            pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
         """
         # if not reignitable, logical or ignition_state with ignition
         # otherwise, just follow ignition

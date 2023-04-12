@@ -8,7 +8,25 @@ from pybullet_utils import bullet_client
 
 
 class Motors:
-    """Motors."""
+    """Simulates an array of brushless motor driven propellers.
+
+    The `Motors` component is used to simulate a series of brushless motor driven propellers at arbitrary locations of the drone.
+    Counter rotating motors (producing reversed torque) can be represented using negative `torque_coef` values.
+    The maximum RPM can be easily computed using `max_rpm = max_thrust / thrust_coef`.
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        physics_period (float): physics period of the simulation.
+        np_random (np.random.RandomState): random number generator of the simulation.
+        uav_id (int): ID of the drone.
+        motor_ids (list[int]): a (n,) list of integers representing the link IDs for n motors.
+        tau (np.ndarray): an (n,) of floats array representing the ramp time constant of each motor.
+        max_rpm (np.ndarray): an (n,) array of floats representing the maximum RPM of each motor.
+        thrust_coef (np.ndarray): an (n,) array of floats representing all motor thrust coefficients.
+        torque_coef (np.ndarray): an (n,) array of floats representing all motor torque coefficients, uses right hand rotation rule around the `thrust_unit` axis.
+        thrust_unit (np.ndarray): an (n, 3) array of floats representing n unit vectors along with the thrust of each motor acts.
+        noise_ratio (np.ndarray): an (n,) array of floats representing the ratio amount of noise fluctuation present in each motor.
+    """
 
     def __init__(
         self,
@@ -27,17 +45,17 @@ class Motors:
         """Used for simulating an array of motors.
 
         Args:
-            p (bullet_client.BulletClient): p
-            physics_period (float): physics_period
-            np_random (np.random.RandomState): np_random
-            uav_id (int): uav_id
-            motor_ids (list[int]): motor_ids
-            tau (np.ndarray): motor ramp time constant
-            max_rpm (np.ndarray): max_rpm
-            thrust_coef (np.ndarray): thrust_coef
-            torque_coef (np.ndarray): torque_coef
-            thrust_unit (np.ndarray): axis on which the thrust acts on
-            noise_ratio (np.ndarray): noise_ratio
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            physics_period (float): physics period of the simulation.
+            np_random (np.random.RandomState): random number generator of the simulation.
+            uav_id (int): ID of the drone.
+            motor_ids (list[int]): a (n,) list of integers representing the link IDs for n motors.
+            tau (np.ndarray): an (n,) of floats array representing the ramp time constant of each motor.
+            max_rpm (np.ndarray): an (n,) array of floats representing the maximum RPM of each motor.
+            thrust_coef (np.ndarray): an (n,) array of floats representing all motor thrust coefficients.
+            torque_coef (np.ndarray): an (n,) array of floats representing all motor torque coefficients, uses right hand rotation rule around the `thrust_unit` axis.
+            thrust_unit (np.ndarray): an (n, 3) array of floats representing n unit vectors along with the thrust of each motor acts.
+            noise_ratio (np.ndarray): an (n,) array of floats representing the ratio amount of noise fluctuation present in each motor.
         """
         self.p = p
         self.physics_period = physics_period
@@ -87,8 +105,8 @@ class Motors:
         """Converts motor PWM values to forces, this motor allows negative thrust.
 
         Args:
-            pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1
-            rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each booster's thrust axis around
+            pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1.
+            rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
         """
         assert np.all(pwm >= -1.0) and np.all(
             pwm <= 1.0

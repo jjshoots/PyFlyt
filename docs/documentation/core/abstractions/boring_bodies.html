@@ -38,6 +38,7 @@
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/doctools.js"></script>
     <script src="../../../_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/core/abstractions/boring_bodies';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -381,9 +382,24 @@ document.write(`
 <h1>Boring Bodies<a class="headerlink" href="#boring-bodies" title="Permalink to this heading">#</a></h1>
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
-</section>
-<section id="mathematical-model">
-<h2>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">BoringBodies</span></code> component represents a list of bodies falling through air, experiencing drag in all three axes as a primary result.</p>
+<p>As aerodynamics of arbitrary bodies is difficult to simulate accurately, <code class="docutils literal notranslate"><span class="pre">BoringBodies</span></code> simulates them by assuming that the velocities experienced any body can be resolved into the three principled axes (X, Y, Z), which then cause individual drag forces on the body in the same three axes (X, Y, Z).
+The following figure illustrates this idea in 2D.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/boring_bodies.png"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/boring_bodies.png" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/boring_bodies.png" style="width: 70%;" /></a>
+</figure>
+<p>More concisely, the figure shows two reference frames — a ground frame <span class="math notranslate nohighlight">\(XZ_G\)</span> and a body frame <span class="math notranslate nohighlight">\(XZ_B\)</span>.
+The velocity <span class="math notranslate nohighlight">\(\mathbf{v}\)</span> is resolved into body frame components <span class="math notranslate nohighlight">\(v_x\)</span>, <span class="math notranslate nohighlight">\(v_y\)</span> (not shown in figure) and <span class="math notranslate nohighlight">\(v_z\)</span>.
+The drag on the body itself is then computed using the familiar drag equation:</p>
+<div class="math notranslate nohighlight">
+\[F_i = - \text{sign}(v_i) \cdot \frac{1}{2} \cdot \rho \cdot A \cdot C_d \cdot v_i^2\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(i \in \{x, y, z\}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\rho\)</span> is the density of air, uniformly assumed to be 1.225 kg/m^3</p></li>
+<li><p><span class="math notranslate nohighlight">\(A\)</span> is the frontal area in the direction of <span class="math notranslate nohighlight">\(i\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(C_d\)</span> is the drag coefficient in the direction of <span class="math notranslate nohighlight">\(i\)</span></p></li>
+</ul>
 </section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
@@ -399,9 +415,9 @@ document.write(`
 <li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
 <li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
 <li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
-<li><p><strong>body_ids</strong> (<em>np.ndarray</em><em> | </em><em>Sequence</em><em>[</em><em>int</em><em>]</em>) – (n,) array of IDs for the links representing the bodies</p></li>
-<li><p><strong>drag_coefs</strong> (<em>np.ndarray</em>) – (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions</p></li>
-<li><p><strong>normal_areas</strong> (<em>np.ndarray</em>) – (n, 3) array of frontal areas in the link-referenced XYZ directions</p></li>
+<li><p><strong>body_ids</strong> (<em>np.ndarray</em><em> | </em><em>Sequence</em><em>[</em><em>int</em><em>]</em>) – (n,) array of IDs for the links representing the bodies.</p></li>
+<li><p><strong>drag_coefs</strong> (<em>np.ndarray</em>) – (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.</p></li>
+<li><p><strong>normal_areas</strong> (<em>np.ndarray</em>) – (n, 3) array of frontal areas in the link-referenced XYZ directions.</p></li>
 </ul>
 </dd>
 </dl>
@@ -457,7 +473,6 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-model">Mathematical Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies"><code class="docutils literal notranslate"><span class="pre">BoringBodies</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.BoringBodies.get_states"><code class="docutils literal notranslate"><span class="pre">BoringBodies.get_states()</span></code></a></li>

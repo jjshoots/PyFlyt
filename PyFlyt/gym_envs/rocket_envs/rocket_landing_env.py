@@ -13,13 +13,18 @@ from .rocket_base_env import RocketBaseEnv
 class RocketLandingEnv(RocketBaseEnv):
     """Rocket Landing Environment.
 
-    Actions are finlet_x, finlet_z, roll, booster ignition, throttle, booster gimbal x, booster gimbal z
+    Actions are finlet_x, finlet_y, finlet_roll, booster ignition, throttle, booster gimbal x, booster gimbal y
+    The goal is to land the rocket on the landing pad.
 
-    The goal is to land the rocket on the landing pad
-
-    Reward:
-        -100 for collisions or out of bounds,
-        -0.1 otherwise
+    Args:
+        sparse_reward (bool): whether to use sparse rewards or not.
+        ceiling (float): the absolute ceiling of the flying area.
+        max_displacement (float): the maximum horizontal distance the rocket can go.
+        max_duration_seconds (float): maximum simulation time of the enviornment.
+        angle_representation (str): can be "euler" or "quaternion".
+        agent_hz (int): looprate of the agent to environment interaction..
+        render_mode (None | str): can be "human" or None.
+        render_resolution (tuple[int, int]): render_resolution.
     """
 
     def __init__(
@@ -36,14 +41,14 @@ class RocketLandingEnv(RocketBaseEnv):
         """__init__.
 
         Args:
-            sparse_reward (bool): sparse_reward
-            ceiling (float): the absolute ceiling of the flying area
-            max_displacement (float): the maximum horizontal distance the rocket can go
-            max_duration_seconds (float): maximum simulatiaon time of the environment
-            angle_representation (str): can be "euler" or "quaternion"
-            agent_hz (int): looprate of the agent to environment interaction
-            render_mode (None | str): can be "human" or None
-            render_resolution (tuple[int, int]): render_resolution
+            sparse_reward (bool): whether to use sparse rewards or not.
+            ceiling (float): the absolute ceiling of the flying area.
+            max_displacement (float): the maximum horizontal distance the rocket can go.
+            max_duration_seconds (float): maximum simulation time of the enviornment.
+            angle_representation (str): can be "euler" or "quaternion".
+            agent_hz (int): looprate of the agent to environment interaction..
+            render_mode (None | str): can be "human" or None.
+            render_resolution (tuple[int, int]): render_resolution.
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, ceiling * 0.9]]),

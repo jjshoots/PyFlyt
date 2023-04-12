@@ -8,7 +8,20 @@ from pybullet_utils import bullet_client
 
 
 class Gimbals:
-    """Gimbals."""
+    """A set of actuated gimbals.
+
+    The `Gimbals` component simulates a series of servo actuated gimbals.
+    Each gimbal can rotate about two arbitrary axis that may not be orthogonal to each other.
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        physics_period (float): physics period of the simulation.
+        np_random (np.random.RandomState): random number generator of the simulation.
+        gimbal_unit_1 (np.ndarray): first unit vector that the gimbal rotates around.
+        gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around.
+        gimbal_tau (np.ndarray): gimbal actuation time constant.
+        gimbal_range_degrees (np.ndarray): gimbal actuation range in degrees.
+    """
 
     def __init__(
         self,
@@ -23,13 +36,13 @@ class Gimbals:
         """Used for simulating an array of gimbals.
 
         Args:
-            p (bullet_client.BulletClient): p
-            physics_period (float): physics_period
-            np_random (np.random.RandomState): np_random
-            gimbal_unit_1 (np.ndarray): first unit vector that the gimbal rotates around
-            gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around
-            gimbal_tau (np.ndarray): gimbal ramp time constant
-            gimbal_range_degrees (np.ndarray): gimbal_range_degrees
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            physics_period (float): physics period of the simulation.
+            np_random (np.random.RandomState): random number generator of the simulation.
+            gimbal_unit_1 (np.ndarray): first unit vector that the gimbal rotates around.
+            gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around.
+            gimbal_tau (np.ndarray): gimbal actuation time constant.
+            gimbal_range_degrees (np.ndarray): gimbal actuation range in degrees.
         """
         self.p = p
         self.physics_period = physics_period
@@ -127,10 +140,10 @@ class Gimbals:
         """Returns a rotation vector after the gimbal rotation.
 
         Args:
-            gimbal_command (np.ndarray): (num_gimbals, 2) array of floats between [-1, 1]
+            gimbal_command (np.ndarray): (num_gimbals, 2) array of floats between [-1, 1].
 
         Returns:
-            rotation_vector (np.ndarray): (num_gimbals, 3, 3) rotation matrices for all gimbals
+            rotation_vector (np.ndarray): (num_gimbals, 3, 3) rotation matrices for all gimbals.
         """
         assert np.all(gimbal_command >= -1.0) and np.all(
             gimbal_command <= 1.0

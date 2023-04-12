@@ -390,7 +390,34 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">LiftingSurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_sign</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lifting_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cl_alpha_2D</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flap_to_chord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_0_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_stall_P_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_stall_N_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cd_0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deflection_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface" title="Permalink to this definition">#</a></dt>
-<dd><p>LiftingSurface.</p>
+<dd><p>Used to represent a single lifting surface.</p>
+<p>The <cite>Lifting Surface</cite> component is used to simulate a single lifting surface based on “Real-time modeling of agile fixed-wing uav aerodynamics, Khan et. al.”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>surface_id</strong> (<em>int</em>) – an integer for the link ID for this lifting surface.</p></li>
+<li><p><strong>command_id</strong> (<em>None</em><em> | </em><em>int</em>) – the index of the command array that corresponds to an actuation of this lifting surface.</p></li>
+<li><p><strong>command_sign</strong> (<em>float</em>) – the sign of the command to actuate this lifting surface.</p></li>
+<li><p><strong>lifting_unit</strong> (<em>np.ndarray</em>) – (3,) unit vector representing the direction of lift.</p></li>
+<li><p><strong>forward_unit</strong> (<em>np.ndarray</em>) – (3,) unit vector representing the direction of travel.</p></li>
+<li><p><strong>Cl_alpha_2D</strong> (<em>float</em>) – lift coefficient slope under a no-stall condition.</p></li>
+<li><p><strong>chord</strong> (<em>float</em>) – chord of the lifting surface.</p></li>
+<li><p><strong>span</strong> (<em>float</em>) – span of the lifting surface.</p></li>
+<li><p><strong>flap_to_chord</strong> (<em>float</em>) – ratio of the wing that is an actuated flap, can be in [0, 1].</p></li>
+<li><p><strong>eta</strong> (<em>float</em>) – correction factor for viscosity effects, usually 0.65.</p></li>
+<li><p><strong>alpha_0_base</strong> (<em>float</em>) – zero lift angle-of-attack.</p></li>
+<li><p><strong>alpha_stall_P_base</strong> (<em>float</em>) – positive stall angle in degrees.</p></li>
+<li><p><strong>alpha_stall_N_base</strong> (<em>float</em>) – negative stall angle in degrees.</p></li>
+<li><p><strong>Cd_0</strong> (<em>float</em>) – drag coefficient at zero angle-of-attack.</p></li>
+<li><p><strong>deflection_limit</strong> (<em>float</em>) – maximum deflection limit of the actuated flap in degrees.</p></li>
+<li><p><strong>tau</strong> (<em>float</em>) – actuation ramp time constant.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface.get_states" title="Permalink to this definition">#</a></dt>
@@ -411,7 +438,7 @@ document.write(`
 <dd><p>Converts a commanded actuation state into forces on the lifting surface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cmd</strong> (<em>float</em>) – normalized actuation in [-1, 1]</p>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>float</em>) – normalized actuation in [-1, 1].</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>vec3 force, vec3 torque</p>
@@ -434,7 +461,7 @@ document.write(`
 <dd><p>Updates the local surface velocity of the lifting surface.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>surface_velocity</strong> (<em>np.ndarray</em>) – surface_velocity</p>
+<dd class="field-odd"><p><strong>surface_velocity</strong> (<em>np.ndarray</em>) – surface_velocity.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -445,6 +472,13 @@ document.write(`
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurfaces">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">LiftingSurfaces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lifting_surfaces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#PyFlyt.core.abstractions.LiftingSurface" title="PyFlyt.core.abstractions.lifting_surfaces.LiftingSurface"><span class="pre">PyFlyt.core.abstractions.lifting_surfaces.LiftingSurface</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurfaces" title="Permalink to this definition">#</a></dt>
 <dd><p>Handler for multiple lifting surfaces.</p>
+<p>This is a convenience class for handling multiple lifting surfaces as a single object.
+Simply pass it a list of <cite>LiftingSurface</cite> objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lifting_surfaces</strong> (<em>list</em><em>[</em><a class="reference internal" href="#PyFlyt.core.abstractions.LiftingSurface" title="PyFlyt.core.abstractions.LiftingSurface"><em>LiftingSurface</em></a><em>]</em>) – a list of <cite>LiftingSurface</cite> objects.</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurfaces.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurfaces.get_states" title="Permalink to this definition">#</a></dt>
@@ -462,7 +496,7 @@ document.write(`
 <dd><p>Converts actuation commands into forces on the lifting surfaces.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cmd</strong> (<em>np.ndarray</em>) – the full command array, command mapping is handled through <cite>command_id</cite> and <cite>command_sign</cite> on each surface.</p>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>np.ndarray</em>) – the full command array, command mapping is handled through <cite>command_id</cite> and <cite>command_sign</cite> on each surface, normalized in [-1, 1].</p>
 </dd>
 </dl>
 </dd></dl>

@@ -19,14 +19,14 @@ class Camera:
     Args:
         p (bullet_client.BulletClient): PyBullet physics client ID.
         uav_id (int): ID of the drone.
-        camera_id (int): integer representing the ID of the link that the camera is attached to
-        use_gimbal (bool): whether to lock the horizon of the camera
-        camera_FOV_degrees (float): the field-of-view of the camera in degrees
-        camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon
-        camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height]
-        camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`
-        is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity
-        cinematic (bool = False): it's not a bug, it's a feature
+        camera_id (int): integer representing the ID of the link that the camera is attached to.
+        use_gimbal (bool): whether to lock the horizon of the camera.
+        camera_FOV_degrees (float): the field-of-view of the camera in degrees.
+        camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon.
+        camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height].
+        camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`.
+        is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity.
+        cinematic (bool = False): it's not a bug, it's a feature.
     """
 
     def __init__(
@@ -47,14 +47,14 @@ class Camera:
         Args:
             p (bullet_client.BulletClient): PyBullet physics client ID.
             uav_id (int): ID of the drone.
-            camera_id (int): integer representing the ID of the link that the camera is attached to
-            use_gimbal (bool): whether to lock the horizon of the camera
-            camera_FOV_degrees (float): the field-of-view of the camera in degrees
-            camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon
-            camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height]
-            camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`
-            is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity
-            cinematic (bool = False): it's not a bug, it's a feature
+            camera_id (int): integer representing the ID of the link that the camera is attached to.
+            use_gimbal (bool): whether to lock the horizon of the camera.
+            camera_FOV_degrees (float): the field-of-view of the camera in degrees.
+            camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon.
+            camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height].
+            camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`.
+            is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity.
+            cinematic (bool = False): it's not a bug, it's a feature.
         """
         if is_tracking_camera and use_gimbal:
             warnings.warn(
@@ -91,7 +91,7 @@ class Camera:
         """Generates the view matrix for the camera depending on the current orientation and implicit parameters.
 
         Returns:
-            np.ndarray: view matrix
+            np.ndarray: view matrix.
         """
         # get the state of the camera on the robot
         camera_state = self.p.getLinkState(self.uav_id, self.camera_id)

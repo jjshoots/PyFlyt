@@ -434,9 +434,9 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ignition</strong> (<em>np.ndarray</em>) – (num_boosters,) array of booleans for engine on or off</p></li>
-<li><p><strong>pwm</strong> (<em>np.ndarray</em>) – (num_boosters,) array of floats between [0, 1] for min or max thrust</p></li>
-<li><p><strong>rotation</strong> (<em>np.ndarray</em>) – (num_boosters, 3, 3) rotation matrices to rotate each booster’s thrust axis around</p></li>
+<li><p><strong>ignition</strong> (<em>np.ndarray</em>) – (num_boosters,) array of booleans for engine on or off.</p></li>
+<li><p><strong>pwm</strong> (<em>np.ndarray</em>) – (num_boosters,) array of floats between [0, 1] for min or max thrust.</p></li>
+<li><p><strong>rotation</strong> (<em>np.ndarray</em>) – (num_boosters, 3, 3) rotation matrices to rotate each booster’s thrust axis around, this is readily obtained from the <cite>gimbals</cite> component.</p></li>
 </ul>
 </dd>
 </dl>
@@ -448,7 +448,7 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
 <dd><p>Reset the boosters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>starting_fuel_ratio</strong> (<em>float</em><em> | </em><em>np.ndarray</em>) – ratio amount of fuel that the booster is reset to</p>
+<dd class="field-odd"><p><strong>starting_fuel_ratio</strong> (<em>float</em><em> | </em><em>np.ndarray</em>) – ratio amount of fuel that the booster is reset to.</p>
 </dd>
 </dl>
 </dd></dl>

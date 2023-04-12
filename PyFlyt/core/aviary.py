@@ -29,7 +29,6 @@ class Aviary(bullet_client.BulletClient):
         drone_type_mappings (None | dict(str, DroneClass)): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
         drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
         render (bool): a boolean whether to render the simulation.
-        render_FPS (int): the FPS for rendering, this helps the scheduler.
         physics_hz (int): physics looprate (not recommended to be changed).
         worldScale (float): how big to spawn the floor.
         seed (None | int): optional int for seeding the simulation RNG.
@@ -43,7 +42,6 @@ class Aviary(bullet_client.BulletClient):
         drone_type_mappings: None | dict[str, DroneClass] = None,
         drone_options: dict[str, Any] | Sequence[dict[str, Any]] = {},
         render: bool = False,
-        render_FPS: int = 60,
         physics_hz: int = 240,
         worldScale: float = 1.0,
         seed: None | int = None,
@@ -60,7 +58,6 @@ class Aviary(bullet_client.BulletClient):
             drone_type_mappings (None | dict(str, DroneClass)): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
             drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
             render (bool): a boolean whether to render the simulation.
-            render_FPS (int): the FPS for rendering, this helps the scheduler.
             physics_hz (int): physics looprate (not recommended to be changed).
             worldScale (float): how big to spawn the floor.
             seed (None | int): optional int for seeding the simulation RNG.

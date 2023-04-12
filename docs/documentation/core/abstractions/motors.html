@@ -390,7 +390,27 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.motors.</span></span><span class="sig-name descname"><span class="pre">Motors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motor_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_rpm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thrust_coef</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torque_coef</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thrust_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors" title="Permalink to this definition">#</a></dt>
-<dd><p>Motors.</p>
+<dd><p>Simulates an array of brushless motor driven propellers.</p>
+<p>The <cite>Motors</cite> component is used to simulate a series of brushless motor driven propellers at arbitrary locations of the drone.
+Counter rotating motors (producing reversed torque) can be represented using negative <cite>torque_coef</cite> values.
+The maximum RPM can be easily computed using <cite>max_rpm = max_thrust / thrust_coef</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>motor_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – a (n,) list of integers representing the link IDs for n motors.</p></li>
+<li><p><strong>tau</strong> (<em>np.ndarray</em>) – an (n,) of floats array representing the ramp time constant of each motor.</p></li>
+<li><p><strong>max_rpm</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing the maximum RPM of each motor.</p></li>
+<li><p><strong>thrust_coef</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing all motor thrust coefficients.</p></li>
+<li><p><strong>torque_coef</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing all motor torque coefficients, uses right hand rotation rule around the <cite>thrust_unit</cite> axis.</p></li>
+<li><p><strong>thrust_unit</strong> (<em>np.ndarray</em>) – an (n, 3) array of floats representing n unit vectors along with the thrust of each motor acts.</p></li>
+<li><p><strong>noise_ratio</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing the ratio amount of noise fluctuation present in each motor.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.get_states" title="Permalink to this definition">#</a></dt>
@@ -409,8 +429,8 @@ document.write(`
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pwm</strong> (<em>np.ndarray</em>) – [num_motors, ] array defining the pwm values of each motor from -1 to 1</p></li>
-<li><p><strong>rotation</strong> (<em>np.ndarray</em>) – (num_motors, 3, 3) rotation matrices to rotate each booster’s thrust axis around</p></li>
+<li><p><strong>pwm</strong> (<em>np.ndarray</em>) – [num_motors, ] array defining the pwm values of each motor from -1 to 1.</p></li>
+<li><p><strong>rotation</strong> (<em>np.ndarray</em>) – (num_motors, 3, 3) rotation matrices to rotate each booster’s thrust axis around, this is readily obtained from the <cite>gimbals</cite> component.</p></li>
 </ul>
 </dd>
 </dl>

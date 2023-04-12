@@ -17,9 +17,9 @@ class BoringBodies:
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
         uav_id (int): ID of the drone.
-        body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies
-        drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions
-        normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions
+        body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
+        drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.
+        normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions.
     """
 
     def __init__(
@@ -39,9 +39,9 @@ class BoringBodies:
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
             uav_id (int): ID of the drone.
-            body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies
-            drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions
-            normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions
+            body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
+            drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.
+            normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions.
         """
         self.p = p
         self.physics_period = physics_period

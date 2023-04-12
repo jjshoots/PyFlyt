@@ -9,13 +9,17 @@ from .quadx_base_env import QuadXBaseEnv
 class QuadXHoverEnv(QuadXBaseEnv):
     """Simple Hover Environment.
 
-    Actions are vp, vq, vr, T, ie: angular rates and thrust
+    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    The target is to not crash for the longest time possible.
 
-    The target is to not crash for the longest time possible
-
-    Reward:
-        -100 for collisions or out of bounds,
-        -0.1 otherwise
+    Args:
+        sparse_reward (bool): whether to use sparse rewards or not.
+        flight_dome_size (float): size of the allowable flying area.
+        max_duration_seconds (float): maximum simulation time of the environment.
+        angle_representation (str): can be "euler" or "quaternion".
+        agent_hz (int): looprate of the agent to environment interaction.
+        render_mode (None | str): can be "human" or None.
+        render_resolution (tuple[int, int]): render_resolution.
     """
 
     def __init__(
@@ -31,13 +35,13 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-            sparse_reward (bool): sparse_reward
-            flight_dome_size (float): size of the allowable flying area
-            max_duration_seconds (float): maximum simulatiaon time of the environment
-            angle_representation (str): can be "euler" or "quaternion"
-            agent_hz (int): looprate of the agent to environment interaction
-            render_mode (None | str): can be "human" or None
-            render_resolution (tuple[int, int]): render_resolution
+            sparse_reward (bool): whether to use sparse rewards or not.
+            flight_dome_size (float): size of the allowable flying area.
+            max_duration_seconds (float): maximum simulation time of the environment.
+            angle_representation (str): can be "euler" or "quaternion".
+            agent_hz (int): looprate of the agent to environment interaction.
+            render_mode (None | str): can be "human" or None.
+            render_resolution (tuple[int, int]): render_resolution.
         """
         super().__init__(
             flight_dome_size=flight_dome_size,

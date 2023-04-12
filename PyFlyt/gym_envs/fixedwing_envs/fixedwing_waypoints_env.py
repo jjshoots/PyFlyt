@@ -11,14 +11,19 @@ from .fixedwing_base_env import FixedwingBaseEnv
 class FixedwingWaypointsEnv(FixedwingBaseEnv):
     """Fixedwing Waypoints Environment.
 
-    Actions are vp, vq, vr, T, ie: angular rates and thrust
+    Actions are roll, pitch, yaw, thrust commands.
+    The target is a set of `[x, y, z]` targets in space
 
-    The target is a set of `[x, y, z, yaw]` targets in space
-
-    Reward:
-        200.0 for reaching target,
-        -100 for collisions or out of bounds,
-        -0.1 otherwise
+    Args:
+        sparse_reward (bool): whether to use sparse rewards or not.
+        num_targets (int): number of waypoints in the environment.
+        goal_reach_distance (float): distance to the waypoints for it to be considered reached.
+        flight_dome_size (float): size of the allowable flying area.
+        max_duration_seconds (float): maximum simulation time of the enviornment.
+        angle_representation (str): can be "euler" or "quaternion".
+        agent_hz (int): looprate of the agent to environment interaction.
+        render_mode (None | str): can be "human" or None
+        render_resolution (tuple[int, int]): render_resolution
     """
 
     def __init__(
@@ -36,14 +41,14 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """__init__.
 
         Args:
-            sparse_reward (bool): sparse_reward
-            num_targets (int): num_targets
-            goal_reach_distance (float): goal_reach_distance
-            flight_dome_size (float): flight_dome_size
-            max_duration_seconds (float): max_duration_seconds
-            angle_representation (str): angle_representation
-            agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            sparse_reward (bool): whether to use sparse rewards or not.
+            num_targets (int): number of waypoints in the environment.
+            goal_reach_distance (float): distance to the waypoints for it to be considered reached.
+            flight_dome_size (float): size of the allowable flying area.
+            max_duration_seconds (float): maximum simulation time of the enviornment.
+            angle_representation (str): can be "euler" or "quaternion".
+            agent_hz (int): looprate of the agent to environment interaction.
+            render_mode (None | str): can be "human" or None
             render_resolution (tuple[int, int]): render_resolution
         """
         super().__init__(

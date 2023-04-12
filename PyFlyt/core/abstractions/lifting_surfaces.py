@@ -8,13 +8,20 @@ from pybullet_utils import bullet_client
 
 
 class LiftingSurfaces:
-    """Handler for multiple lifting surfaces."""
+    """Handler for multiple lifting surfaces.
+
+    This is a convenience class for handling multiple lifting surfaces as a single object.
+    Simply pass it a list of `LiftingSurface` objects.
+
+    Args:
+        lifting_surfaces (list[LiftingSurface]): a list of `LiftingSurface` objects.
+    """
 
     def __init__(self, lifting_surfaces: list[LiftingSurface]):
         """__init__.
 
         Args:
-            lifting_surfaces (list[LiftingSurface]): lifting_surfaces
+            lifting_surfaces (list[LiftingSurface]): a list of `LiftingSurface` objects.
         """
         # assert all is lifting surfaces
         assert all(
@@ -43,7 +50,7 @@ class LiftingSurfaces:
         """Converts actuation commands into forces on the lifting surfaces.
 
         Args:
-            cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface.
+            cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface, normalized in [-1, 1].
         """
         assert np.all(cmd >= -1.0) and np.all(
             cmd <= 1.0
@@ -81,7 +88,32 @@ class LiftingSurfaces:
 
 
 class LiftingSurface:
-    """LiftingSurface."""
+    """Used to represent a single lifting surface.
+
+    The `Lifting Surface` component is used to simulate a single lifting surface based on "Real-time modeling of agile fixed-wing uav aerodynamics, Khan et. al.".
+
+    Args:
+        p (bullet_client.BulletClient): PyBullet physics client ID.
+        physics_period (float): physics period of the simulation.
+        np_random (np.random.RandomState): random number generator of the simulation.
+        uav_id (int): ID of the drone.
+        surface_id (int): an integer for the link ID for this lifting surface.
+        command_id (None | int): the index of the command array that corresponds to an actuation of this lifting surface.
+        command_sign (float): the sign of the command to actuate this lifting surface.
+        lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
+        forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
+        Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
+        chord (float): chord of the lifting surface.
+        span (float): span of the lifting surface.
+        flap_to_chord (float): ratio of the wing that is an actuated flap, can be in [0, 1].
+        eta (float): correction factor for viscosity effects, usually 0.65.
+        alpha_0_base (float): zero lift angle-of-attack.
+        alpha_stall_P_base (float): positive stall angle in degrees.
+        alpha_stall_N_base (float): negative stall angle in degrees.
+        Cd_0 (float): drag coefficient at zero angle-of-attack.
+        deflection_limit (float): maximum deflection limit of the actuated flap in degrees.
+        tau (float): actuation ramp time constant.
+    """
 
     def __init__(
         self,
@@ -109,26 +141,26 @@ class LiftingSurface:
         """Used for simulating a single lifting surface.
 
         Args:
-            p (bullet_client.BulletClient): p
-            physics_period (float): physics_period
-            np_random (np.random.RandomState): np_random
-            uav_id (int): uav_id
-            surface_id (int): surface_id
-            command_id (None | int): command_id, for convenience
-            command_sign (float): command_sign, for convenience
-            lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift
-            forward_unit (np.ndarray): (3,) unit vector representing the direction of travel
-            Cl_alpha_2D (float): float
-            chord (float): float
-            span (float): float
-            flap_to_chord (float): float
-            eta (float): float
-            alpha_0_base (float): float
-            alpha_stall_P_base (float): float
-            alpha_stall_N_base (float): float
-            Cd_0 (float): float
-            deflection_limit (float): float
-            tau (float): float
+            p (bullet_client.BulletClient): PyBullet physics client ID.
+            physics_period (float): physics period of the simulation.
+            np_random (np.random.RandomState): random number generator of the simulation.
+            uav_id (int): ID of the drone.
+            surface_id (int): an integer for the link ID for this lifting surface.
+            command_id (None | int): the index of the command array that corresponds to an actuation of this lifting surface.
+            command_sign (float): the sign of the command to actuate this lifting surface.
+            lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
+            forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
+            Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
+            chord (float): chord of the lifting surface.
+            span (float): span of the lifting surface.
+            flap_to_chord (float): ratio of the wing that is an actuated flap, can be in [0, 1].
+            eta (float): correction factor for viscosity effects, usually 0.65.
+            alpha_0_base (float): zero lift angle-of-attack.
+            alpha_stall_P_base (float): positive stall angle in degrees.
+            alpha_stall_N_base (float): negative stall angle in degrees.
+            Cd_0 (float): drag coefficient at zero angle-of-attack.
+            deflection_limit (float): maximum deflection limit of the actuated flap in degrees.
+            tau (float): actuation ramp time constant.
         """
         self.p = p
         self.physics_period = physics_period
@@ -210,7 +242,7 @@ class LiftingSurface:
         """Updates the local surface velocity of the lifting surface.
 
         Args:
-            surface_velocity (np.ndarray): surface_velocity
+            surface_velocity (np.ndarray): surface_velocity.
         """
         self.local_surface_velocity = surface_velocity
 
@@ -218,7 +250,7 @@ class LiftingSurface:
         """Converts a commanded actuation state into forces on the lifting surface.
 
         Args:
-            cmd (float): normalized actuation in [-1, 1]
+            cmd (float): normalized actuation in [-1, 1].
 
         Returns:
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
@@ -260,8 +292,8 @@ class LiftingSurface:
         """Computes the relevant aerodynamic data depending on the current state of the lifting surface.
 
         Args:
-            deflection (float): deflection of the lifting surface in degrees
-            alpha (float): angle of attack in degrees
+            deflection (float): deflection of the lifting surface in degrees.
+            alpha (float): angle of attack in degrees.
 
         Returns:
             tuple[float, float, float]: Cl, Cd, CM

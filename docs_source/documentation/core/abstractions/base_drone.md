@@ -86,6 +86,7 @@
 
 ### Default Methods
 ```{eval-rst}
+.. autofunction:: PyFlyt.core.abstractions.DroneClass.set_mode
 .. autofunction:: PyFlyt.core.abstractions.DroneClass.get_joint_info
 .. autofunction:: PyFlyt.core.abstractions.DroneClass.disable_artificial_damping
 ```
@@ -101,6 +102,5 @@
 
 ### Optional Methods
 ```{eval-rst}
-.. autofunction:: PyFlyt.core.abstractions.DroneClass.set_mode
 .. autofunction:: PyFlyt.core.abstractions.DroneClass.register_controller
 ```
