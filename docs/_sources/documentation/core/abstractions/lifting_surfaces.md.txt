@@ -4,7 +4,7 @@
 
 ## Mathematical Model
 
-## Class Descriptions
+## Class Description
 ```{eval-rst}
 .. autoclass:: PyFlyt.core.abstractions.LiftingSurface
     :members:

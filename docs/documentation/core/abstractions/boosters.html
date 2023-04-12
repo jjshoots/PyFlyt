@@ -381,9 +381,25 @@ document.write(`
 <h1>Boosters<a class="headerlink" href="#boosters" title="Permalink to this heading">#</a></h1>
 <section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this heading">#</a></h2>
-</section>
-<section id="mathematical-model">
-<h2>Mathematical Model<a class="headerlink" href="#mathematical-model" title="Permalink to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Boosters</span></code> component is used to simulate a list of fueled boosters.
+Fueled boosters are propulsion units that rely on the presence of available fuel from a fuel tank in order to generate thrust.
+They generate no torque around the thrust axis.</p>
+<p>The booster is parameterized with <code class="docutils literal notranslate"><span class="pre">booster_ids</span></code> and <code class="docutils literal notranslate"><span class="pre">fueltank_ids</span></code>, where the thrust acts on the links indicated by <code class="docutils literal notranslate"><span class="pre">booster_ids</span></code> and the mass properties of the fuel tanks are modified according to the indices specified in <code class="docutils literal notranslate"><span class="pre">fueltank_ids</span></code>.
+Additionally, the boosters have a <code class="docutils literal notranslate"><span class="pre">reignitable</span></code> option, specifying whether the booster can be extinguished and then reignited or not — a trait unique to liquid fuel boosters.</p>
+<p>It takes several steps for the <code class="docutils literal notranslate"><span class="pre">ignition</span></code> and <code class="docutils literal notranslate"><span class="pre">pwm</span></code> command to be transformed into a thrust value:</p>
+<ol class="arabic simple">
+<li><p>If there is no fuel remaining, the <code class="docutils literal notranslate"><span class="pre">target_duty_cycle</span></code> is always 0.
+Likewise, if the booster is not ignited, <code class="docutils literal notranslate"><span class="pre">target_duty_cycle</span></code> is also 0.
+If the booster is lit and there is available fuel, <code class="docutils literal notranslate"><span class="pre">target_duty_cycle</span> <span class="pre">=</span> <span class="pre">min_thrust</span> <span class="pre">+</span> <span class="pre">(min_thrust</span> <span class="pre">/</span> <span class="pre">max_thrust)</span> <span class="pre">*</span> <span class="pre">pwm</span></code>.</p></li>
+<li><p>The actual duty cycle of the rocket depends on the ramp up time constant, <code class="docutils literal notranslate"><span class="pre">actual_duty_cycle</span> <span class="pre">+=</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">physics_hz</span> <span class="pre">/</span> <span class="pre">tau</span> <span class="pre">*</span> <span class="pre">(target_duty_cycle</span> <span class="pre">-</span> <span class="pre">actual_duty_cycle)</span></code>.</p></li>
+<li><p>The thrust of the rocket then depends on the actual duty cycle plus some noise, <code class="docutils literal notranslate"><span class="pre">thrust</span> <span class="pre">=</span> <span class="pre">(actual_duty_cycle</span> <span class="pre">*</span> <span class="pre">max_thrust)</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">+</span> <span class="pre">noise</span> <span class="pre">*</span> <span class="pre">noise_ratio)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">noise</span></code> is sampled from a standard Normal.</p></li>
+</ol>
+<p>Fuel burn is calculated proportional to the amount of thrust relative to maximum thrust, <code class="docutils literal notranslate"><span class="pre">fuel_burn</span> <span class="pre">=</span> <span class="pre">thrust</span> <span class="pre">/</span> <span class="pre">max_thrust</span> <span class="pre">*</span> <span class="pre">max_fuel_burn</span></code>.
+The mass and inertia properties of the fuel tank are then proportional to the amount of fuel remaining.</p>
+<p>The booster additionally accepts a <code class="docutils literal notranslate"><span class="pre">rotation</span></code> matrix argument in <code class="docutils literal notranslate"><span class="pre">physics_update</span></code>.
+This allows the thrust of the booster to be redirected.
+Conveniently, the <code class="docutils literal notranslate"><span class="pre">Gimbals</span></code> component outputs this exact rotation matrix.</p>
 </section>
 <section id="class-description">
 <h2>Class Description<a class="headerlink" href="#class-description" title="Permalink to this heading">#</a></h2>
@@ -482,7 +498,6 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematical-model">Mathematical Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-description">Class Description</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters"><code class="docutils literal notranslate"><span class="pre">Boosters</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.Boosters.get_states"><code class="docutils literal notranslate"><span class="pre">Boosters.get_states()</span></code></a></li>

@@ -23,7 +23,7 @@ where:
 - {math}`A` is the frontal area in the direction of {math}`i`
 - {math}`C_d` is the drag coefficient in the direction of {math}`i`
 
-## Class Descriptions
+## Class Description
 ```{eval-rst}
 .. autoclass:: PyFlyt.core.abstractions.BoringBodies
     :members:

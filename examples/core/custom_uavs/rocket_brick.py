@@ -122,8 +122,11 @@ class RocketBrick(DroneClass):
         self.setpoint = np.zeros(2)
         self.cmd = np.zeros(2)
 
+        # reset the spawn location and disable pybullet's fake damping
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
+
+        # reset the components
         self.brick.reset()
         self.boosters.reset()
 
