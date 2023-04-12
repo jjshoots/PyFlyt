@@ -20,7 +20,7 @@ class RocketLandingEnv(RocketBaseEnv):
         sparse_reward (bool): whether to use sparse rewards or not.
         ceiling (float): the absolute ceiling of the flying area.
         max_displacement (float): the maximum horizontal distance the rocket can go.
-        max_duration_seconds (float): maximum simulation time of the enviornment.
+        max_duration_seconds (float): maximum simulation time of the environment.
         angle_representation (str): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction..
         render_mode (None | str): can be "human" or None.
@@ -44,7 +44,7 @@ class RocketLandingEnv(RocketBaseEnv):
             sparse_reward (bool): whether to use sparse rewards or not.
             ceiling (float): the absolute ceiling of the flying area.
             max_displacement (float): the maximum horizontal distance the rocket can go.
-            max_duration_seconds (float): maximum simulation time of the enviornment.
+            max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (str): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction..
             render_mode (None | str): can be "human" or None.

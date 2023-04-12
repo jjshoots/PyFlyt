@@ -21,7 +21,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
         goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
         flight_dome_size (float): size of the allowable flying area.
-        max_duration_seconds (float): maximum simulation time of the enviornment.
+        max_duration_seconds (float): maximum simulation time of the environment.
         angle_representation (str): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None
@@ -51,7 +51,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
             goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
             flight_dome_size (float): size of the allowable flying area.
-            max_duration_seconds (float): maximum simulation time of the enviornment.
+            max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (str): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None
