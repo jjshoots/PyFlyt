@@ -201,6 +201,29 @@ class Fixedwing(DroneClass):
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
+    def update_control(self):
+        """Runs through controllers."""
+        # the default mode
+        if self.mode == 0:
+            self.cmd = self.setpoint
+            return
+
+        # otherwise, check that we have a custom controller
+        if self.mode not in self.registered_controllers.keys():
+            raise ValueError(
+                f"Don't have other modes aside from 0, received {self.mode}."
+            )
+
+        # custom controllers run if any
+        self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
+
+    def update_physics(self):
+        """Updates the physics of the vehicle."""
+        assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
+
+        self.lifting_surfaces.physics_update(self.cmd)
+        self.motors.physics_update(self.cmd[[3]])
+
     def update_state(self):
         """Updates the current state of the UAV.
 
@@ -228,32 +251,7 @@ class Fixedwing(DroneClass):
             (self.lifting_surfaces.get_states(), self.motors.get_states())
         )
 
-    def update_control(self):
-        """Runs through controllers."""
-        # the default mode
-        if self.mode == 0:
-            self.cmd = self.setpoint
-            return
-
-        # otherwise, check that we have a custom controller
-        if self.mode not in self.registered_controllers.keys():
-            raise ValueError(
-                f"Don't have other modes aside from 0, received {self.mode}."
-            )
-
-        # custom controllers run if any
-        self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
-
-    def update_physics(self):
-        """Updates the physics of the vehicle."""
-        assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
-
-        self.lifting_surfaces.physics_update(self.cmd)
-        self.motors.physics_update(self.cmd[[3]])
-
-    def update_avionics(self):
-        """Updates state and control."""
-        self.update_control()
-
+    def update_last(self):
+        """Updates things only at the end of `Aviary.step()`."""
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

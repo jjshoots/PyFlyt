@@ -182,11 +182,11 @@ class RocketLandingEnv(RocketBaseEnv):
         # compute reward
         if not self.sparse_reward:
             # progress and distance to pad
-            progress_to_pad = float(
+            progress_to_pad = float(  # noqa
                 np.linalg.norm(self.previous_distance[:2])
                 - np.linalg.norm(self.distance[:2])
             )
-            offset_to_pad = np.linalg.norm(self.distance[:2]) + 0.1
+            offset_to_pad = np.linalg.norm(self.distance[:2]) + 0.1  # noqa
 
             # deceleration as long as we're still falling
             deceleration_bonus = (  # noqa
@@ -200,13 +200,11 @@ class RocketLandingEnv(RocketBaseEnv):
 
             # composite reward together
             self.reward += (
-                -5.0  # negative offset to discourage staying in the air
-                + (1.0 / offset_to_pad)  # encourage being near the pad
-                + (100.0 * progress_to_pad)  # encourage progress to landing pad
-                - (0.15 * abs(self.ang_vel[-1]))  # minimize spinning
-                - (
-                    0.25 * np.linalg.norm(self.ang_pos[:2])
-                )  # penalize aggressive angles
+                # -5.0  # negative offset to discourage staying in the air
+                # + (1.0 / offset_to_pad)  # encourage being near the pad
+                # + (500.0 * progress_to_pad)  # encourage progress to landing pad
+                -(1.0 * abs(self.ang_vel[-1]))  # minimize spinning
+                - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
                 # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
             )
 

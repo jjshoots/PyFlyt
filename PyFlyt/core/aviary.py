@@ -29,6 +29,7 @@ class Aviary(bullet_client.BulletClient):
         drone_type_mappings (None | dict(str, DroneClass)): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
         drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
         render (bool): a boolean whether to render the simulation.
+        render_FPS (int): the FPS for rendering, this helps the scheduler.
         physics_hz (int): physics looprate (not recommended to be changed).
         worldScale (float): how big to spawn the floor.
         seed (None | int): optional int for seeding the simulation RNG.
@@ -42,6 +43,7 @@ class Aviary(bullet_client.BulletClient):
         drone_type_mappings: None | dict[str, DroneClass] = None,
         drone_options: dict[str, Any] | Sequence[dict[str, Any]] = {},
         render: bool = False,
+        render_FPS: int = 60,
         physics_hz: int = 240,
         worldScale: float = 1.0,
         seed: None | int = None,
@@ -58,6 +60,7 @@ class Aviary(bullet_client.BulletClient):
             drone_type_mappings (None | dict(str, DroneClass)): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
             drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
             render (bool): a boolean whether to render the simulation.
+            render_FPS (int): the FPS for rendering, this helps the scheduler.
             physics_hz (int): physics looprate (not recommended to be changed).
             worldScale (float): how big to spawn the floor.
             seed (None | int): optional int for seeding the simulation RNG.
@@ -187,7 +190,6 @@ class Aviary(bullet_client.BulletClient):
         all_control_hz = [int(1.0 / drone.control_period) for drone in self.drones]
         self.updates_per_step = int(self.physics_hz / np.min(all_control_hz))
         self.update_period = 1.0 / np.min(all_control_hz)
-        self.now = time.time()
 
         # sanity check the control looprates
         if len(all_control_hz) > 0:
@@ -196,6 +198,11 @@ class Aviary(bullet_client.BulletClient):
             assert all(
                 r % 1.0 == 0.0 for r in all_ratios
             ), "Looprates must form common multiples of each other."
+
+        # rtf tracking parameters
+        self.now = time.time()
+        self.frame_time_elapsed = 0.0
+        self.sim_time_elapsed = 0.0
 
         # arm everything
         self.register_all_new_bodies()
@@ -330,16 +337,18 @@ class Aviary(bullet_client.BulletClient):
             elapsed = time.time() - self.now
             self.now = time.time()
 
-            # sleep to maintain real time factor
-            time.sleep(max(0, self.update_period - elapsed))
+            self.sim_time_elapsed += self.update_period * self.updates_per_step
+            self.frame_time_elapsed += elapsed
 
-            # calculate real time factor
-            RTF = self.update_period / (elapsed + 1e-6)
+            # print RTF every 0.5 seconds, this actually adds considerable overhead
+            if self.frame_time_elapsed >= 0.5:
+                # calculate real time factor based on realtime/simtime
+                RTF = self.sim_time_elapsed / (self.frame_time_elapsed + 1e-6)
+                self.sim_time_elapsed = 0.0
+                self.frame_time_elapsed = 0.0
 
-            # handle case where sometimes elapsed becomes 0
-            if elapsed != 0.0:
                 self.rtf_debug_line = self.addUserDebugText(
-                    text=f"RTF: {str(RTF)[:7]}",
+                    text=f"RTF: {RTF:.3f}",
                     textPosition=[0, 0, 0],
                     textColorRGB=[1, 0, 0],
                     replaceItemUniqueId=self.rtf_debug_line,
@@ -349,18 +358,17 @@ class Aviary(bullet_client.BulletClient):
         self.contact_array &= False
 
         # step the environment enough times for one control loop of the slowest controller
-        physics_steps = 1
-        while physics_steps <= self.updates_per_step:
+        for physics_steps in range(self.updates_per_step):
             # update onboard avionics conditionally
             [
-                drone.update_avionics()
+                drone.update_control()
                 for drone in self.armed_drones
                 if physics_steps % drone.physics_control_ratio == 0
             ]
 
-            # compute state and physics
-            [drone.update_state() for drone in self.armed_drones]
+            # update physics and state
             [drone.update_physics() for drone in self.armed_drones]
+            [drone.update_state() for drone in self.armed_drones]
 
             # advance pybullet
             self.stepSimulation()
@@ -370,6 +378,7 @@ class Aviary(bullet_client.BulletClient):
                 self.contact_array[collision[1], collision[2]] = True
                 self.contact_array[collision[2], collision[1]] = True
 
-            physics_steps += 1
+        # update the last components of the drones, this is usually limited to cameras only
+        [drone.update_last() for drone in self.armed_drones]
 
         self.steps += 1

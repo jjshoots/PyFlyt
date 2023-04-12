@@ -366,28 +366,6 @@ class QuadX(DroneClass):
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
 
-    def update_state(self):
-        """Updates the current state of the UAV.
-
-        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
-        """
-        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
-
-        # express vels in local frame
-        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        lin_vel = np.matmul(rotation, lin_vel)
-        ang_vel = np.matmul(rotation, ang_vel)
-
-        # ang_pos in euler form
-        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
-
-        # create the state
-        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
-
-        # update auxiliary information
-        self.aux_state = self.motors.get_states()
-
     def update_control(self):
         """Runs through controllers."""
         # this is the thing we cascade down controllers
@@ -485,9 +463,29 @@ class QuadX(DroneClass):
             )
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
-    def update_avionics(self):
-        """Updates state and control."""
-        self.update_control()
+    def update_state(self):
+        """Updates the current state of the UAV.
 
+        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
+        """
+        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
+        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
+
+        # express vels in local frame
+        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        lin_vel = np.matmul(rotation, lin_vel)
+        ang_vel = np.matmul(rotation, ang_vel)
+
+        # ang_pos in euler form
+        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
+
+        # create the state
+        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
+
+        # update auxiliary information
+        self.aux_state = self.motors.get_states()
+
+    def update_last(self):
+        """Updates things only at the end of `Aviary.step()`."""
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

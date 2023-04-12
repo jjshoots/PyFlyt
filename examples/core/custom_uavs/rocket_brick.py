@@ -146,6 +146,28 @@ class RocketBrick(DroneClass):
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
+    def update_control(self):
+        """Runs through controllers."""
+        # the default mode
+        if self.mode == 0:
+            self.cmd = self.setpoint
+            return
+
+        # otherwise, check that we have a custom controller
+        if self.mode not in self.registered_controllers.keys():
+            raise ValueError(
+                f"Don't have other modes aside from 0, received {self.mode}."
+            )
+
+        # custom controllers run if any
+        self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
+
+    def update_physics(self):
+        """Updates the physics of the vehicle."""
+        self.update_state()
+        self.lifting_surfaces.physics_update(self.cmd)
+        self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
+
     def update_state(self):
         """Updates the current state of the UAV.
 
@@ -173,31 +195,7 @@ class RocketBrick(DroneClass):
             (self.lifting_surfaces.get_states(), self.boosters.get_states())
         )
 
-    def update_control(self):
-        """Runs through controllers."""
-        # the default mode
-        if self.mode == 0:
-            self.cmd = self.setpoint
-            return
-
-        # otherwise, check that we have a custom controller
-        if self.mode not in self.registered_controllers.keys():
-            raise ValueError(
-                f"Don't have other modes aside from 0, received {self.mode}."
-            )
-
-        # custom controllers run if any
-        self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
-
-    def update_physics(self):
-        """Updates the physics of the vehicle."""
-        self.update_state()
-        self.lifting_surfaces.physics_update(self.cmd)
-        self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
-
-    def update_avionics(self):
-        """Updates state and control."""
-        self.update_control()
-
+    def update_last(self):
+        """Updates things only at the end of `Aviary.step()`."""
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

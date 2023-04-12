@@ -225,40 +225,6 @@ class Rocket(DroneClass):
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
 
-    def update_state(self):
-        """Updates the current state of the UAV.
-
-        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
-        """
-        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
-
-        # express vels in local frame
-        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        lin_vel = np.matmul(rotation, lin_vel)
-        ang_vel = np.matmul(rotation, ang_vel)
-
-        # ang_pos in euler form
-        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
-
-        # create the state
-        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
-
-        # update all bodies, which is just the booster here
-        self.bodies.state_update(np.expand_dims(rotation, axis=0))
-
-        # update all lifting surface velocities
-        self.lifting_surfaces.state_update(rotation)
-
-        # update auxiliary information
-        self.aux_state = np.concatenate(
-            (
-                self.lifting_surfaces.get_states(),
-                self.boosters.get_states(),
-                self.booster_gimbal.get_states(),
-            )
-        )
-
     def update_control(self):
         """Runs through controllers."""
         # the default mode
@@ -300,9 +266,41 @@ class Rocket(DroneClass):
             rotation=rotation,
         )
 
-    def update_avionics(self):
-        """Updates state and control."""
-        self.update_control()
+    def update_state(self):
+        """Updates the current state of the UAV.
 
+        This includes: ang_vel, ang_pos, lin_vel, lin_pos.
+        """
+        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
+        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
+
+        # express vels in local frame
+        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
+        lin_vel = np.matmul(rotation, lin_vel)
+        ang_vel = np.matmul(rotation, ang_vel)
+
+        # ang_pos in euler form
+        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
+
+        # create the state
+        self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
+
+        # update all bodies, which is just the booster here
+        self.bodies.state_update(np.expand_dims(rotation, axis=0))
+
+        # update all lifting surface velocities
+        self.lifting_surfaces.state_update(rotation)
+
+        # update auxiliary information
+        self.aux_state = np.concatenate(
+            (
+                self.lifting_surfaces.get_states(),
+                self.boosters.get_states(),
+                self.booster_gimbal.get_states(),
+            )
+        )
+
+    def update_last(self):
+        """Updates things only at the end of `Aviary.step()`."""
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

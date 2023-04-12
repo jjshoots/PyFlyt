@@ -107,18 +107,23 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_state(self):
-        """Updates all states on the vehicle without touching physics or avionics."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def update_avionics(self):
-        """Updates all onboard avionics computations."""
+    def update_control(self):
+        """Updates onboard flight control laws at a rate specified by `control_hz`."""
         raise NotImplementedError
 
     @abstractmethod
     def update_physics(self):
-        """Updates all physics on the vehicle."""
+        """Updates all physics on the vehicle at a rate specified by `physics_hz`."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_state(self):
+        """Updates the vehicle's state values at a rate specified by `phyiscs_hz`."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_last(self):
+        """Updates all onboard avionics computations, this is only called at the end of `Aviary.step()`."""
         raise NotImplementedError
 
     def set_mode(self, mode):
