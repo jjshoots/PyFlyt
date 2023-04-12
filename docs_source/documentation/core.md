@@ -1,23 +1,11 @@
 # Core
 
-## General Architecture
-
 ```{toctree}
 :hidden:
 core/aviary
 core/abstractions
 core/drones
 ```
-
-Loosely put, PyFlyt has the following architecture:
-
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png
-    :width: 70%
-```
-
-At the core lies the [`Aviary`](core/aviary), serving as a domain for all [`drones`](core/drones).
-Each drone is defined by its own Python class, allowing for user-defined drones to be built.
-Drones can be built from the ground up, or can be an amalgamation of various component [`abstractions`](core/abstractions).
 
 ## Core API
 
@@ -62,6 +50,18 @@ Drone setpoints are __persistent__ attributes - you don't have to repeatedly set
 
 The `Aviary` itself is a highly flexible multi-drone handling environment.
 The extent of its capabilities are elaborated in [its relevant section](core/aviary.md).
+
+## General Architecture
+
+Loosely put, PyFlyt has the following architecture:
+
+```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_architecture.png
+    :width: 70%
+```
+
+At the core lies the [`Aviary`](core/aviary), serving as a domain for all [`drones`](core/drones).
+Each drone is defined by its own Python class, allowing for user-defined drones to be built.
+Drones can be built from the ground up, or can be an amalgamation of various component [`abstractions`](core/abstractions).
 
 ## Axis Conventions
 
