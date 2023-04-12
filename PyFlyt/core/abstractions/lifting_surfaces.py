@@ -94,7 +94,17 @@ class LiftingSurface:
         command_sign: float,
         lifting_unit: np.ndarray,
         forward_unit: np.ndarray,
-        aerofoil_params: dict,
+        Cl_alpha_2D: float,
+        chord: float,
+        span: float,
+        flap_to_chord: float,
+        eta: float,
+        alpha_0_base: float,
+        alpha_stall_P_base: float,
+        alpha_stall_N_base: float,
+        Cd_0: float,
+        deflection_limit: float,
+        tau: float,
     ):
         """Used for simulating a single lifting surface.
 
@@ -108,20 +118,17 @@ class LiftingSurface:
             command_sign (float): command_sign, for convenience
             lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift
             forward_unit (np.ndarray): (3,) unit vector representing the direction of travel
-            aerofoil_params (dict): aerofoil_params, see below
-
-        Aerofoil params must have these components (everything is in degrees and is a float):
-            - Cl_alpha_2D
-            - chord
-            - span
-            - flap_to_chord
-            - eta
-            - alpha_0_base
-            - alpha_stall_P_base
-            - alpha_stall_N_base
-            - Cd_0
-            - deflection_limit
-            - tau
+            Cl_alpha_2D (float): float
+            chord (float): float
+            span (float): float
+            flap_to_chord (float): float
+            eta (float): float
+            alpha_0_base (float): float
+            alpha_stall_P_base (float): float
+            alpha_stall_N_base (float): float
+            Cd_0 (float): float
+            deflection_limit (float): float
+            tau (float): float
         """
         self.p = p
         self.physics_period = physics_period
@@ -135,34 +142,12 @@ class LiftingSurface:
         self.command_id = command_id
         self.command_sign = command_sign
 
-        # check that we have all the required params
-        params_list = [
-            "Cl_alpha_2D",
-            "chord",
-            "span",
-            "flap_to_chord",
-            "eta",
-            "alpha_0_base",
-            "alpha_stall_P_base",
-            "alpha_stall_N_base",
-            "Cd_0",
-            "deflection_limit",
-            "tau",
-        ]
-        for key in aerofoil_params:
-            if key in params_list:
-                params_list.remove(key)
-
-        assert (
-            len(params_list) == 0
-        ), f"Missing parameters: {params_list} in aerofoil_params for component {surface_id}."
-
         # some checks for the lifting and norm vectors
         assert lifting_unit.shape == (3,)
         assert forward_unit.shape == (3,)
         assert (
-            aerofoil_params["tau"] >= 0.0 / physics_period
-        ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {aerofoil_params['tau']}."
+            tau >= 0.0 / physics_period
+        ), f"Setting `tau = 1 / physics_period` is equivalent to 0, 0 is not a valid option, got {tau}."
         if np.linalg.norm(lifting_unit) != 1.0:
             warnings.warn(f"Norm of `{lifting_unit=}` is not 1.0, normalizing...")
             lifting_unit /= np.linalg.norm(lifting_unit)
@@ -180,17 +165,17 @@ class LiftingSurface:
         self.torque_unit = np.cross(lifting_unit, forward_unit)
 
         # wing parameters
-        self.Cl_alpha_2D = float(aerofoil_params["Cl_alpha_2D"])
-        self.chord = float(aerofoil_params["chord"])
-        self.span = float(aerofoil_params["span"])
-        self.flap_to_chord = float(aerofoil_params["flap_to_chord"])
-        self.eta = float(aerofoil_params["eta"])
-        self.alpha_0_base = float(aerofoil_params["alpha_0_base"])
-        self.alpha_stall_P_base = float(aerofoil_params["alpha_stall_P_base"])
-        self.alpha_stall_N_base = float(aerofoil_params["alpha_stall_N_base"])
-        self.Cd_0 = float(aerofoil_params["Cd_0"])
-        self.deflection_limit = float(aerofoil_params["deflection_limit"])
-        self.cmd_tau = float(aerofoil_params["tau"])
+        self.Cl_alpha_2D = Cl_alpha_2D
+        self.chord = chord
+        self.span = span
+        self.flap_to_chord = flap_to_chord
+        self.eta = eta
+        self.alpha_0_base = alpha_0_base
+        self.alpha_stall_P_base = alpha_stall_P_base
+        self.alpha_stall_N_base = alpha_stall_N_base
+        self.Cd_0 = Cd_0
+        self.deflection_limit = deflection_limit
+        self.cmd_tau = tau
 
         # precompute some constants
         self.half_rho = 0.5 * 1.225

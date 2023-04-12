@@ -81,7 +81,7 @@ class RocketBrick(DroneClass):
                     command_sign=+1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([0.0, 1.0, 0.0]),
-                    aerofoil_params=all_params["brick_params"],
+                    **all_params["brick_params"],
                 )
             )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)

@@ -83,7 +83,7 @@ class Fixedwing(DroneClass):
                     command_sign=+1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    aerofoil_params=all_params["left_wing_flapped_params"],
+                    **all_params["left_wing_flapped_params"],
                 )
             )
             surfaces.append(
@@ -97,7 +97,7 @@ class Fixedwing(DroneClass):
                     command_sign=-1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    aerofoil_params=all_params["right_wing_flapped_params"],
+                    **all_params["right_wing_flapped_params"],
                 )
             )
             surfaces.append(
@@ -111,7 +111,7 @@ class Fixedwing(DroneClass):
                     command_sign=1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    aerofoil_params=all_params["horizontal_tail_params"],
+                    **all_params["horizontal_tail_params"],
                 )
             )
             surfaces.append(
@@ -125,7 +125,7 @@ class Fixedwing(DroneClass):
                     command_sign=+1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    aerofoil_params=all_params["main_wing_params"],
+                    **all_params["main_wing_params"],
                 )
             )
             surfaces.append(
@@ -139,7 +139,7 @@ class Fixedwing(DroneClass):
                     command_sign=-1.0,
                     lifting_unit=np.array([0.0, 1.0, 0.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    aerofoil_params=all_params["vertical_tail_params"],
+                    **all_params["vertical_tail_params"],
                 )
             )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)

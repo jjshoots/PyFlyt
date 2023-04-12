@@ -119,7 +119,7 @@ class Rocket(DroneClass):
                         command_sign=+1.0,
                         lifting_unit=np.array([0.0, 1.0, 0.0]),
                         forward_unit=np.array([0.0, 0.0, -1.0]),
-                        aerofoil_params=all_params["finlet_params"],
+                        **all_params["finlet_params"],
                     )
                 )
             for finlet_id, command_id in zip([4, 5], [2, 3]):
@@ -135,7 +135,7 @@ class Rocket(DroneClass):
                         command_sign=+1.0,
                         lifting_unit=np.array([1.0, 0.0, 0.0]),
                         forward_unit=np.array([0.0, 0.0, -1.0]),
-                        aerofoil_params=all_params["finlet_params"],
+                        **all_params["finlet_params"],
                     )
                 )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
