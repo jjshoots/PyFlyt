@@ -173,7 +173,7 @@ env = gymnasium.make(
 > `render_mode` can be either `"human"` or `rgb_array` or `None`.
 
 <p align="center">
-    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" width="500px"/>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/rocket_landing.gif?raw=true" width="500px"/>
 </p>
 
 ## Citation
