@@ -89,7 +89,7 @@ class RocketLandingEnv(RocketBaseEnv):
             seed: int
             options: None
         """
-        options = dict(randomize_drop=False, accelerate_drop=True)
+        options = dict(randomize_drop=True, accelerate_drop=True)
         drone_options = dict(starting_fuel_ratio=0.01)
 
         super().begin_reset(seed, options, drone_options)
@@ -146,9 +146,9 @@ class RocketLandingEnv(RocketBaseEnv):
         aux_state = super().compute_auxiliary()
 
         # drone to landing pad
-        # rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
-        # self.distance = np.matmul((lin_pos - self.landing_pad_position), rotation)
+        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
         self.distance = lin_pos - self.landing_pad_position
+        rotated_distance = np.matmul(self.distance, rotation)
 
         # combine everything
         if self.angle_representation == 0:
@@ -161,7 +161,7 @@ class RocketLandingEnv(RocketBaseEnv):
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
-                    *self.distance,
+                    *rotated_distance,
                 ]
             )
         elif self.angle_representation == 1:
@@ -174,7 +174,7 @@ class RocketLandingEnv(RocketBaseEnv):
                     *self.action,
                     *aux_state,
                     self.landing_pad_contact,
-                    *self.distance,
+                    *rotated_distance,
                 ]
             )
 
@@ -205,9 +205,9 @@ class RocketLandingEnv(RocketBaseEnv):
 
             # composite reward together
             self.reward += (
-                # -5.0  # negative offset to discourage staying in the air
-                # + (1.0 / offset_to_pad)  # encourage being near the pad
-                # + (500.0 * progress_to_pad)  # encourage progress to landing pad
+                -5.0  # negative offset to discourage staying in the air
+                + (2.0 / offset_to_pad)  # encourage being near the pad
+                + (100.0 * progress_to_pad)  # encourage progress to landing pad
                 -(1.0 * abs(self.ang_vel[-1]))  # minimize spinning
                 - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
                 # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
