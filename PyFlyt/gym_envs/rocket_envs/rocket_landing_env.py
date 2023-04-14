@@ -209,9 +209,16 @@ class RocketLandingEnv(RocketBaseEnv):
                 + (2.0 / offset_to_pad)  # encourage being near the pad
                 + (100.0 * progress_to_pad)  # encourage progress to landing pad
                 -(1.0 * abs(self.ang_vel[-1]))  # minimize spinning
-                - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+                - (3.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
                 # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
             )
+
+                # -5.0  # negative offset to discourage staying in the air
+                # + (2.0 / offset_to_pad)  # encourage being near the pad
+                # + (100.0 * progress_to_pad)  # encourage progress to landing pad
+                # -(1.0 * abs(self.ang_vel[-1]))  # minimize spinning
+                # - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+                # # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
 
         # check if we touched the landing pad
         if self.env.contact_array[self.env.drones[0].Id, self.landing_pad_id]:
