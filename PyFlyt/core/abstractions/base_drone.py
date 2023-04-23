@@ -89,10 +89,6 @@ class DroneClass(ABC):
             model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
             np_random (None | np.random.RandomState = None): random number generator of the simulation.
         """
-        if physics_hz != 240.0:
-            raise UserWarning(
-                f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
-            )
         if physics_hz % control_hz != 0:
             raise ValueError(
                 f"`physics_hz` ({physics_hz}) must be multiple of `control_hz` ({control_hz})."

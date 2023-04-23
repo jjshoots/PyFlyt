@@ -4,6 +4,7 @@ from __future__ import annotations
 import time
 from itertools import repeat
 from typing import Any, Sequence
+from warnings import warn
 
 import numpy as np
 import pybullet as p
@@ -75,6 +76,12 @@ class Aviary(bullet_client.BulletClient):
         assert (
             start_orn.shape == start_pos.shape
         ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
+
+        # check the physics hz
+        if physics_hz != 240.0:
+            warn(
+                f"Physics_hz is currently {physics_hz}, not the 240.0 that is recommended by pybullet. There may be physics errors."
+            )
 
         # check to ensure drone type has same number as drones if is list/tuple
         if isinstance(drone_type, (tuple, list)):
@@ -341,6 +348,8 @@ class Aviary(bullet_client.BulletClient):
 
             self.sim_time_elapsed += self.update_period * self.updates_per_step
             self.frame_time_elapsed += elapsed
+
+            time.sleep(max(self.sim_time_elapsed - self.frame_time_elapsed, 0.0))
 
             # print RTF every 0.5 seconds, this actually adds considerable overhead
             if self.frame_time_elapsed >= 0.5:
