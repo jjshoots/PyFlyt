@@ -153,19 +153,20 @@ class Gimbals:
         self.gimbal_state += (self.physics_period / self.gimbal_tau) * (
             gimbal_command - self.gimbal_state
         )
-        gimbal_angles = self.gimbal_state * self.gimbal_range_radians
-
         # start calculating rotation matrices
         # https://math.stackexchange.com/questions/142821/matrix-for-rotation-around-a-vector
+        sin_angles = np.expand_dims(
+            np.sin(self.gimbal_state * self.gimbal_range_radians), axis=(-1, -2)
+        )
         rotation1 = (
             np.eye(3)
-            + np.sin(gimbal_angles[:, 0]) * self.w1
-            + 2 * (np.sin(gimbal_angles[:, 0]) ** 2) * self.w1_squared
+            + sin_angles[:, 0, ...] * self.w1
+            + 2 * (sin_angles[:, 0, ...] ** 2) * self.w1_squared
         )
         rotation2 = (
             np.eye(3)
-            + np.sin(gimbal_angles[:, 1]) * self.w2
-            + 2 * (np.sin(gimbal_angles[:, 1]) ** 2) * self.w2_squared
+            + sin_angles[:, 1, ...] * self.w2
+            + 2 * (sin_angles[:, 1, ...] ** 2) * self.w2_squared
         )
 
         # get the final thrust vector
