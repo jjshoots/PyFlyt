@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyFlyt"
-version = "0.6.1"
+version = "0.6.2"
 authors = [
   { name="Jet", email="taijunjet@hotmail.com" },
 ]
@@ -16,7 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["wheel", "matplotlib", "gymnasium", "numpy", "pybullet", "cflib", "cfclient"]
+dependencies = ["matplotlib", "gymnasium", "numpy", "pybullet"]
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "Gym", "PettingZoo"]
 license = { file="./LICENSE.txt" }
 
