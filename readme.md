@@ -40,6 +40,8 @@ while not termination or truncation:
     observation, reward, termination, truncation, info = env.step(env.action_space.sample())
 ```
 
+View the official documentation for gymnasium environments [here](https://jjshoots.github.io/PyFlyt/documentation/gym_envs.html).
+
 ## Citation
 
 If you use our work in your research and would like to cite it, please use the following bibtex entry:
