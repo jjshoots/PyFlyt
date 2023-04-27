@@ -199,23 +199,24 @@ class QuadX(DroneClass):
     def set_mode(self, mode: int):
         """Sets the current flight mode of the vehicle.
 
-        sets the flight mode:
-           -1 - m1, m2, m3, m4
-            0 - vp, vq, vr, T
-            1 - p, q, r, vz
-            2 - vp, vq, vr, z
-            3 - p, q, r, z
-            4 - u, v, vr, z
-            5 - u, v, vr, vz
-            6 - vx, vy, vr, vz
-            7 - x, y, r, z
+        flight modes:
+            - -1: m1, m2, m3, m4
+            - 0: vp, vq, vr, T
+            - 1: p, q, r, vz
+            - 2: vp, vq, vr, z
+            - 3: p, q, r, z
+            - 4: u, v, vr, z
+            - 5: u, v, vr, vz
+            - 6: vx, vy, vr, vz
+            - 7: x, y, r, z
 
-        vp, vq, vr = angular velocities
-        p, q, r = angular positions
-        u, v, w = local linear velocities
-        x, y, z = linear positions
-        vx, vy, vz = ground linear velocities
-        T = thrust
+        breakdown:
+            - vp, vq, vr = angular velocities
+            - p, q, r = angular positions
+            - u, v, w = local linear velocities
+            - x, y, z = linear positions
+            - vx, vy, vz = ground linear velocities
+            - T = thrust
 
         Args:
             mode (int): flight mode

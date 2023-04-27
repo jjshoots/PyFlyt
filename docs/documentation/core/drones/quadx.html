@@ -379,6 +379,16 @@ document.write(`
                   
   <section id="quadx">
 <h1>QuadX<a class="headerlink" href="#quadx" title="Permalink to this heading">#</a></h1>
+<section id="uav-description">
+<h2>UAV Description<a class="headerlink" href="#uav-description" title="Permalink to this heading">#</a></h2>
+<p>The QuadX UAV describes a multirotor UAV in the Quad-X configuration as described by <a class="reference external" href="https://ardupilot.org/copter/docs/connect-escs-and-motors.html">ArduPilot</a> and <a class="reference external" href="https://docs.px4.io/main/en/airframes/airframe_reference.html#quadrotor-x">PX4</a>.
+It consists of four motors with implementations for cascaded PID controllers.</p>
+</section>
+<section id="control-modes">
+<h2>Control Modes<a class="headerlink" href="#control-modes" title="Permalink to this heading">#</a></h2>
+<p>The control mode of the QuadX can be changed using the <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode"><code class="docutils literal notranslate"><span class="pre">set_mode</span></code></a> method.
+The various modes available are documented <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode">here</a>.</p>
+</section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
@@ -411,25 +421,28 @@ document.write(`
 <span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.QuadX.set_mode" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets the current flight mode of the vehicle.</p>
 <dl class="simple">
-<dt>sets the flight mode:</dt><dd><dl class="simple">
-<dt>-1 - m1, m2, m3, m4</dt><dd><p>0 - vp, vq, vr, T
-1 - p, q, r, vz
-2 - vp, vq, vr, z
-3 - p, q, r, z
-4 - u, v, vr, z
-5 - u, v, vr, vz
-6 - vx, vy, vr, vz
-7 - x, y, r, z</p>
+<dt>flight modes:</dt><dd><ul class="simple">
+<li><p>-1: m1, m2, m3, m4</p></li>
+<li><p>0: vp, vq, vr, T</p></li>
+<li><p>1: p, q, r, vz</p></li>
+<li><p>2: vp, vq, vr, z</p></li>
+<li><p>3: p, q, r, z</p></li>
+<li><p>4: u, v, vr, z</p></li>
+<li><p>5: u, v, vr, vz</p></li>
+<li><p>6: vx, vy, vr, vz</p></li>
+<li><p>7: x, y, r, z</p></li>
+</ul>
+</dd>
+<dt>breakdown:</dt><dd><ul class="simple">
+<li><p>vp, vq, vr = angular velocities</p></li>
+<li><p>p, q, r = angular positions</p></li>
+<li><p>u, v, w = local linear velocities</p></li>
+<li><p>x, y, z = linear positions</p></li>
+<li><p>vx, vy, vz = ground linear velocities</p></li>
+<li><p>T = thrust</p></li>
+</ul>
 </dd>
 </dl>
-</dd>
-</dl>
-<p>vp, vq, vr = angular velocities
-p, q, r = angular positions
-u, v, w = local linear velocities
-x, y, z = linear positions
-vx, vy, vz = ground linear velocities
-T = thrust</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mode</strong> (<em>int</em>) – flight mode</p>
@@ -484,6 +497,8 @@ T = thrust</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uav-description">UAV Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#control-modes">Control Modes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.drones.QuadX"><code class="docutils literal notranslate"><span class="pre">QuadX</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.drones.QuadX.register_controller"><code class="docutils literal notranslate"><span class="pre">QuadX.register_controller()</span></code></a></li>
