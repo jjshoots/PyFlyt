@@ -376,6 +376,32 @@ document.write(`
 <h1>Drones<a class="headerlink" href="#drones" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<p>Several default UAV platforms are offered in PyFlyt.
+These are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">quadx</span></code></p>
+<ul>
+<li><p>Quadrotor UAV in the X configuration.</p></li>
+<li><p>Inspired by <a class="reference external" href="https://github.com/utiasDSL/gym-pybullet-drones">the original pybullet drones by University of Toronto’s Dynamic Systems Lab</a>.</p></li>
+<li><p>8 implemented flight modes that use tuned cascaded PID flight controllers.</p></li>
+<li><p>Two variants provided, use <code class="docutils literal notranslate"><span class="pre">drone_options=dict(drone_model=&quot;cf2x&quot;)</span></code> or <code class="docutils literal notranslate"><span class="pre">drone_options=dict(drone_model=&quot;primitive_drone&quot;)</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Fixedwing</p>
+<ul>
+<li><p>Small tube-and-wing fixed wing UAV with a single motor (&lt; 3 Kg).</p></li>
+</ul>
+</li>
+<li><p>Rocket</p>
+<ul>
+<li><p>1:10th scale SpaceX Falcon 9 v1.2 first stage and interstage.</p></li>
+<li><p>Mass and geometry properties extracted from <a class="reference external" href="https://web.archive.org/web/20170825204357/spacelaunchreport.com/falcon9ft.html#f9stglog">Space Launch Report datasheet</a>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 </section>
 
 
@@ -388,6 +414,16 @@ document.write(`
             
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
