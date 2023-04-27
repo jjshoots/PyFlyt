@@ -379,15 +379,15 @@ document.write(`
                   
   <section id="quadx">
 <h1>QuadX<a class="headerlink" href="#quadx" title="Permalink to this heading">#</a></h1>
-<section id="uav-description">
-<h2>UAV Description<a class="headerlink" href="#uav-description" title="Permalink to this heading">#</a></h2>
+<section id="model-description">
+<h2>Model Description<a class="headerlink" href="#model-description" title="Permalink to this heading">#</a></h2>
 <p>The QuadX UAV describes a multirotor UAV in the Quad-X configuration as described by <a class="reference external" href="https://ardupilot.org/copter/docs/connect-escs-and-motors.html">ArduPilot</a> and <a class="reference external" href="https://docs.px4.io/main/en/airframes/airframe_reference.html#quadrotor-x">PX4</a>.
 It consists of four motors with implementations for cascaded PID controllers.</p>
 </section>
 <section id="control-modes">
 <h2>Control Modes<a class="headerlink" href="#control-modes" title="Permalink to this heading">#</a></h2>
-<p>The control mode of the QuadX can be changed using the <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode"><code class="docutils literal notranslate"><span class="pre">set_mode</span></code></a> method.
-The various modes available are documented <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode">here</a>.</p>
+<p>The control mode of the QuadX can be changed using the <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode"><code class="docutils literal notranslate"><span class="pre">Aviary.set_mode</span></code></a> or specifically calling <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode"><code class="docutils literal notranslate"><span class="pre">set_mode</span></code></a> on the drone instance itself.
+The various modes available are documented <a class="reference external" href="https://jjshoots.github.io/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode">below</a>.</p>
 </section>
 <section id="class-descriptions">
 <h2>Class Descriptions<a class="headerlink" href="#class-descriptions" title="Permalink to this heading">#</a></h2>
@@ -497,7 +497,7 @@ The various modes available are documented <a class="reference external" href="h
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uav-description">UAV Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-description">Model Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#control-modes">Control Modes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-descriptions">Class Descriptions</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.drones.QuadX"><code class="docutils literal notranslate"><span class="pre">QuadX</span></code></a><ul class="visible nav section-nav flex-column">
