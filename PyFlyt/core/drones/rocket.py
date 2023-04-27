@@ -14,7 +14,17 @@ from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 
 
 class Rocket(DroneClass):
-    """Rocket instance that handles everything about a thrust vectored rocket with throttleable boosters and controllable finlets."""
+    """Rocket instance that handles everything about a thrust vectored rocket with throttleable boosters and controllable finlets.
+
+    The setpoint for this model has 7 values:
+        - finlet x deflection
+        - finlet y deflection
+        - finlet yaw
+        - ignition
+        - throttle
+        - booster gimbal axis 1
+        - booster gimbal axis 2
+    """
 
     def __init__(
         self,
@@ -35,9 +45,6 @@ class Rocket(DroneClass):
         starting_fuel_ratio: float = 0.05,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
-
-        The setpoint for this model has 7 values:
-            - force_x, force_y, yaw, ignition, throttle, booster gimbal 1, booster gimbal 2
 
         Args:
             p (bullet_client.BulletClient): p
