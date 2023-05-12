@@ -663,11 +663,9 @@ It provides a common endpoint from where users may control drones or define task
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.set_wind_field">
 <span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">set_wind_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wind_field_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.Aviary.set_wind_field" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets the function for the wind field.</p>
-<p>The function must take in a np.ndarray of size (n, 3) representing world frame coordinates.
-It then returns a np.ndarray of size (n, 3) representing world frame wind velocities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>wind_field_function</strong> (<em>Callable</em>) – wind_field_function</p>
+<dd class="field-odd"><p><strong>wind_field_function</strong> (<em>Callable</em>) – A function that takes in a np.ndarray of size (n, 3) representing world frame coordinates, and returns a np.ndarray of size (n, 3) representing world frame wind velocities.</p>
 </dd>
 </dl>
 <dl>
