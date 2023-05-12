@@ -89,7 +89,7 @@ class BoringBodies:
         # query for wind if available and add to surface velocities
         if self.p.wind_field is not None:
             body_positions = np.array([item[0] for item in link_states])
-            body_velocities += self.p.wind_field(self.p.elapsed_time, body_positions)
+            body_velocities -= self.p.wind_field(self.p.elapsed_time, body_positions)
 
         # rotate all velocities to be in local frame
         body_velocities = np.matmul(rotation_matrix, body_velocities.T).T

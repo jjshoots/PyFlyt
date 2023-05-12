@@ -203,7 +203,7 @@ class Aviary(bullet_client.BulletClient):
             )
 
         # initialize the wind field
-        self.wind_field: None | WindFieldClass
+        self.wind_field: None | WindFieldClass | Callable
         if self.wind_type is None:
             # no wind field
             self.wind_field = None
@@ -269,6 +269,7 @@ class Aviary(bullet_client.BulletClient):
         """
         assert callable(wind_field), "`wind_field` function must be callable."
         WindFieldClass._check_wind_field_validity(wind_field)
+        self.wind_field = wind_field
 
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.

@@ -82,7 +82,7 @@ class LiftingSurfaces:
         # query for wind if available and add to surface velocities
         if self.p.wind_field is not None:
             surface_positions = np.array([item[0] for item in link_states])
-            surface_velocities += self.p.wind_field(
+            surface_velocities -= self.p.wind_field(
                 self.p.elapsed_time, surface_positions
             )
 

@@ -139,7 +139,7 @@ class QuadX(DroneClass):
                 physics_period=self.physics_period,
                 np_random=self.np_random,
                 uav_id=self.Id,
-                body_ids=np.array([0]),
+                body_ids=np.array([4]),
                 drag_coefs=np.array([[drag_params["drag_coef_xyz"]] * 3]),
                 normal_areas=np.array([[drag_params["drag_area_xyz"]] * 3]),
             )

@@ -42,7 +42,7 @@ start_orn = np.array([[0.0, 0.0, 0.0]])
 env = Aviary(
     start_pos=start_pos,
     start_orn=start_orn,
-    render=False,
+    render=True,
     drone_type="quadx",
     wind_type=MyWindField,
     wind_options=dict(my_parameter=1.2),

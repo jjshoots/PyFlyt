@@ -6,7 +6,8 @@ motor_params:
   tau: 0.01
 
 drag_params:
-  drag_coef_xyz: 1.0e-3
+  drag_coef_xyz: 2.0
+  drag_area_xyz: 0.08
   drag_coef_pqr: 1.0e-4
 
 control_params:
