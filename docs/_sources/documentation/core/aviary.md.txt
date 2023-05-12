@@ -225,6 +225,18 @@ This is __invalid__.
 
     A list of all drones that the Aviary is currently handling.
 
+.. property:: PyFlyt.core.Aviary.elapsed_ime
+
+    A float representing the amount of time that has passed.
+
+.. property:: PyFlyt.core.Aviary.physics_steps
+
+    An integer representing the number of times the physics engine has been stepped.
+
+.. property:: PyFlyt.core.Aviary.aviary_steps
+
+    An integer representing the number of times `step` has been called.
+
 .. autoproperty:: PyFlyt.core.Aviary.sim_time
 ```
 
@@ -234,7 +246,6 @@ This is __invalid__.
 
 .. autofunction:: PyFlyt.core.Aviary.reset
 .. autofunction:: PyFlyt.core.Aviary.register_all_new_bodies
-.. autofunction:: PyFlyt.core.Aviary.set_wind_field
 
 .. autofunction:: PyFlyt.core.Aviary.state
 .. autofunction:: PyFlyt.core.Aviary.aux_state

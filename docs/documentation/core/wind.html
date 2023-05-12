@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Drones &#8212; PyFlyt</title>
+    <title>Wind &#8212; PyFlyt</title>
   
   
   
@@ -38,11 +38,11 @@
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/sphinx_highlight.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/core/drones';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/core/wind';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Fixedwing" href="drones/fixedwing.html" />
-    <link rel="prev" title="Wind" href="wind.html" />
+    <link rel="next" title="Drones" href="drones.html" />
+    <link rel="prev" title="Aviary" href="aviary.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -278,8 +278,8 @@ document.write(`
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../core.html">Core</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="aviary.html">Aviary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wind.html">Wind</a></li>
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Drones</a><input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Wind</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="drones.html">Drones</a><input checked class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="drones/fixedwing.html">Fixedwing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="drones/rocket.html">Rocket</a></li>
 <li class="toctree-l3"><a class="reference internal" href="drones/quadx.html">QuadX</a></li>
@@ -356,7 +356,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../core.html" class="nav-link">Core</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Drones</li>
+    <li class="breadcrumb-item active" aria-current="page">Wind</li>
   </ul>
 </nav>
 </div>
@@ -373,69 +373,87 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="drones">
-<h1>Drones<a class="headerlink" href="#drones" title="Permalink to this heading">#</a></h1>
+  <section id="wind">
+<h1>Wind<a class="headerlink" href="#wind" title="Permalink to this heading">#</a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
-<p>Several default UAV platforms are offered in PyFlyt.
-These are:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="drones/fixedwing.html">Fixedwing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="drones/fixedwing.html#model-description">Model Description</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/fixedwing.html#control-mode">Control Mode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/fixedwing.html#class-description">Class Description</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing"><code class="docutils literal notranslate"><span class="pre">Fixedwing</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.reset"><code class="docutils literal notranslate"><span class="pre">Fixedwing.reset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.starting_velocity"><code class="docutils literal notranslate"><span class="pre">Fixedwing.starting_velocity</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_control"><code class="docutils literal notranslate"><span class="pre">Fixedwing.update_control()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_last"><code class="docutils literal notranslate"><span class="pre">Fixedwing.update_last()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_physics"><code class="docutils literal notranslate"><span class="pre">Fixedwing.update_physics()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.update_state"><code class="docutils literal notranslate"><span class="pre">Fixedwing.update_state()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="drones/rocket.html">Rocket</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="drones/rocket.html#model-description">Model Description</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/rocket.html#control-mode">Control Mode</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/rocket.html#class-description">Class Description</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket"><code class="docutils literal notranslate"><span class="pre">Rocket</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket.reset"><code class="docutils literal notranslate"><span class="pre">Rocket.reset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket.starting_fuel_ratio"><code class="docutils literal notranslate"><span class="pre">Rocket.starting_fuel_ratio</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket.update_control"><code class="docutils literal notranslate"><span class="pre">Rocket.update_control()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket.update_last"><code class="docutils literal notranslate"><span class="pre">Rocket.update_last()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket.update_physics"><code class="docutils literal notranslate"><span class="pre">Rocket.update_physics()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/rocket.html#PyFlyt.core.drones.Rocket.update_state"><code class="docutils literal notranslate"><span class="pre">Rocket.update_state()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="drones/quadx.html">QuadX</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="drones/quadx.html#model-description">Model Description</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/quadx.html#variants">Variants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/quadx.html#control-modes">Control Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drones/quadx.html#class-description">Class Description</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX"><code class="docutils literal notranslate"><span class="pre">QuadX</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.register_controller"><code class="docutils literal notranslate"><span class="pre">QuadX.register_controller()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.reset"><code class="docutils literal notranslate"><span class="pre">QuadX.reset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode"><code class="docutils literal notranslate"><span class="pre">QuadX.set_mode()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.update_control"><code class="docutils literal notranslate"><span class="pre">QuadX.update_control()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.update_last"><code class="docutils literal notranslate"><span class="pre">QuadX.update_last()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.update_physics"><code class="docutils literal notranslate"><span class="pre">QuadX.update_physics()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="drones/quadx.html#PyFlyt.core.drones.QuadX.update_state"><code class="docutils literal notranslate"><span class="pre">QuadX.update_state()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<p>PyFlyt supports various wind field models, as well as provides the capability for users to define their own wind field models.</p>
+</section>
+<section id="preimplemented-wind-models">
+<h2>Preimplemented Wind Models<a class="headerlink" href="#preimplemented-wind-models" title="Permalink to this heading">#</a></h2>
+<p>Several popular wind models are provided:</p>
+<ol class="arabic simple">
+<li><p>Lorem Ipsum</p></li>
+</ol>
+<p>They can be initialized in the <code class="docutils literal notranslate"><span class="pre">aviary</span></code> like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">wind_type</span><span class="o">=</span><span class="s2">&quot;Lorem Ipsum&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
+</section>
+<section id="custom-wind-modelling">
+<h2>Custom Wind Modelling<a class="headerlink" href="#custom-wind-modelling" title="Permalink to this heading">#</a></h2>
+<p>To define custom wind models, refer the the example provided by the <code class="docutils literal notranslate"><span class="pre">WindFieldClass</span></code> below:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.WindFieldClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">WindFieldClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.WindFieldClass" title="Permalink to this definition">#</a></dt>
+<dd><p>Basic WindField class to implement custom wind field models.</p>
+<dl>
+<dt>Example Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyFlyt.core</span> <span class="kn">import</span> <span class="n">Aviary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyFlyt.abstractions</span> <span class="kn">import</span> <span class="n">WindFieldClass</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># define the wind field</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyWindField</span><span class="p">(</span><span class="n">WindFieldClass</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">my_parameter</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">np_random</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">np_random</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">strength</span> <span class="o">=</span> <span class="n">my_parameter</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># simulate a thermal windfield, where the xy velocities are 0,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">wind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># but the z velocity varies to the log of height,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">wind</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">position</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">strength</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># plus some noise,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">wind</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">wind</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">wind</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># environment setup, attach the windfield, override the parameter `my_parameter` from the default</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">wind_type</span><span class="o">=</span><span class="n">MyWindField</span><span class="p">,</span> <span class="n">wind_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">my_parameter</span><span class="o">=</span><span class="mf">1.2</span><span class="p">))</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># step as usual</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="default-attributes">
+<h3>Default Attributes<a class="headerlink" href="#default-attributes" title="Permalink to this heading">#</a></h3>
+<dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.WindFieldClass.np_random">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.WindFieldClass.</span></span><span class="sig-name descname"><span class="pre">np_random</span></span><a class="headerlink" href="#PyFlyt.core.abstractions.WindFieldClass.np_random" title="Permalink to this definition">#</a></dt>
+<dd><p><strong>dtype</strong> - <cite>np.random.RandomState</cite></p>
+</dd></dl>
+
+</section>
+<section id="required-methods">
+<h3>Required Methods<a class="headerlink" href="#required-methods" title="Permalink to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.WindFieldClass.__init__">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.WindFieldClass.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.WindFieldClass.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Initializes the wind_field.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.__call__">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.__call__" title="Permalink to this definition">#</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -457,12 +475,26 @@ These are:</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preimplemented-wind-models">Preimplemented Wind Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-wind-modelling">Custom Wind Modelling</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass"><code class="docutils literal notranslate"><span class="pre">WindFieldClass</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-attributes">Default Attributes</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass.np_random"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.WindFieldClass.np_random</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-methods">Required Methods</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.__call__"><code class="docutils literal notranslate"><span class="pre">__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../../_sources/documentation/core/drones.md.txt">
+    <a href="../../_sources/documentation/core/wind.md.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

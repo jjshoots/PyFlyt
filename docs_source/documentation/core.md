@@ -3,8 +3,9 @@
 ```{toctree}
 :hidden:
 core/aviary
-core/abstractions
+core/wind
 core/drones
+core/abstractions
 ```
 
 ## Core API

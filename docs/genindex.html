@@ -291,10 +291,12 @@ document.write(`
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#A"><strong>A</strong></a>
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -307,8 +309,21 @@ document.write(`
  | <a href="#S"><strong>S</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/wind.html#PyFlyt.core.abstractions.DroneClass.__call__">__call__() (in module PyFlyt.core.abstractions.DroneClass)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/wind.html#PyFlyt.core.abstractions.WindFieldClass.__init__">__init__() (in module PyFlyt.core.abstractions.WindFieldClass)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -316,13 +331,15 @@ document.write(`
 </li>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.all_states">all_states (PyFlyt.core.Aviary property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.aux_state">aux_state (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.aux_state">aux_state() (in module PyFlyt.core.Aviary)</a>
 </li>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary">Aviary (class in PyFlyt.core)</a>
+</li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.aviary_steps">aviary_steps (PyFlyt.core.Aviary property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -369,6 +386,14 @@ document.write(`
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass">DroneClass (class in PyFlyt.core.abstractions)</a>
 </li>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.drones">drones (PyFlyt.core.Aviary property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.elapsed_ime">elapsed_ime (PyFlyt.core.Aviary property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -449,7 +474,11 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.np_random">np_random (PyFlyt.core.abstractions.DroneClass property)</a>
+
+      <ul>
+        <li><a href="documentation/core/wind.html#PyFlyt.core.abstractions.WindFieldClass.np_random">(PyFlyt.core.abstractions.WindFieldClass property)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -459,6 +488,8 @@ document.write(`
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.param_path">param_path (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.physics_period">physics_period (PyFlyt.core.abstractions.DroneClass property)</a>
+</li>
+      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.physics_steps">physics_steps (PyFlyt.core.Aviary property)</a>
 </li>
       <li><a href="documentation/core/abstractions/boosters.html#PyFlyt.core.abstractions.Boosters.physics_update">physics_update() (PyFlyt.core.abstractions.Boosters method)</a>
 
@@ -566,8 +597,6 @@ document.write(`
       </ul></li>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_setpoint">set_setpoint() (in module PyFlyt.core.Aviary)</a>
 </li>
-      <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.set_wind_field">set_wind_field() (in module PyFlyt.core.Aviary)</a>
-</li>
       <li><a href="documentation/core/abstractions/base_drone.html#PyFlyt.core.abstractions.DroneClass.setpoint">setpoint (PyFlyt.core.abstractions.DroneClass property)</a>
 </li>
       <li><a href="documentation/core/aviary.html#PyFlyt.core.Aviary.sim_time">sim_time (PyFlyt.core.Aviary property)</a>
@@ -655,6 +684,14 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="documentation/core/abstractions/camera.html#PyFlyt.core.abstractions.Camera.view_mat">view_mat (PyFlyt.core.abstractions.Camera property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="documentation/core/wind.html#PyFlyt.core.abstractions.WindFieldClass">WindFieldClass (class in PyFlyt.core.abstractions)</a>
 </li>
   </ul></td>
 </tr></table>

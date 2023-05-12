@@ -1,242 +1,246 @@
 """Tests the the core API functionality."""
 import numpy as np
-import pytest
 from custom_uavs.rocket_brick import RocketBrick
 
+import pytest
 from PyFlyt.core import Aviary
-from PyFlyt.core.abstractions import ControlClass
-
-# def test_simple_spawn():
-#     """Tests spawning a single drone."""
-#     # the starting position and orientations
-#     start_pos = np.array([[0.0, 0.0, 1.0]])
-#     start_orn = np.array([[0.0, 0.0, 0.0]])
-
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
-#     )
-
-#     # set to position control
-#     env.set_mode(7)
-
-#     # simulate for 1000 steps (1000/120 ~= 8 seconds)
-#     for i in range(1000):
-#         env.step()
-
-#     env.disconnect()
+from PyFlyt.core.abstractions import ControlClass, WindFieldClass
 
 
-# def test_multi_spawn():
-#     """Tests spawning multiple drones, and sets them all to have different control looprates."""
-#     # the starting position and orientations
-#     start_pos = np.array([[-1.0, 0.0, 1.0], [0.0, 0.0, 1.0], [1.0, 0.0, 1.0]])
-#     start_orn = np.zeros_like(start_pos)
+def test_simple_spawn():
+    """Tests spawning a single drone."""
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 0.0, 1.0]])
+    start_orn = np.array([[0.0, 0.0, 0.0]])
 
-#     # modify the control hz of the individual drones
-#     drone_options = []
-#     drone_options.append(dict(control_hz=60))
-#     drone_options.append(dict(control_hz=120))
-#     drone_options.append(dict(control_hz=240))
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
 
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos,
-#         start_orn=start_orn,
-#         render=False,
-#         drone_type="quadx",
-#         drone_options=drone_options,
-#     )
+    # set to position control
+    env.set_mode(7)
 
-#     # set to position control
-#     env.set_mode(7)
+    # simulate for 1000 steps (1000/120 ~= 8 seconds)
+    for i in range(1000):
+        env.step()
 
-#     # simulate for 1000 steps (1000/120 ~= 8 seconds)
-#     for i in range(1000):
-#         env.step()
-
-#     env.disconnect()
+    env.disconnect()
 
 
-# def test_default_control():
-#     """Tests spawning a single drone and sending control commands."""
-#     # the starting position and orientations
-#     start_pos = np.array([[0.0, 0.0, 1.0]])
-#     start_orn = np.array([[0.0, 0.0, 0.0]])
+def test_multi_spawn():
+    """Tests spawning multiple drones, and sets them all to have different control looprates."""
+    # the starting position and orientations
+    start_pos = np.array([[-1.0, 0.0, 1.0], [0.0, 0.0, 1.0], [1.0, 0.0, 1.0]])
+    start_orn = np.zeros_like(start_pos)
 
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
-#     )
+    # modify the control hz of the individual drones
+    drone_options = []
+    drone_options.append(dict(control_hz=60))
+    drone_options.append(dict(control_hz=120))
+    drone_options.append(dict(control_hz=240))
 
-#     # set to position control
-#     env.set_mode(7)
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type="quadx",
+        drone_options=drone_options,
+    )
 
-#     # for the first 500 steps, go to x=1, y=0, z=1
-#     setpoint = np.array([1.0, 0.0, 0.0, 1.0])
-#     env.set_setpoint(0, setpoint)
+    # set to position control
+    env.set_mode(7)
 
-#     for i in range(500):
-#         env.step()
+    # simulate for 1000 steps (1000/120 ~= 8 seconds)
+    for i in range(1000):
+        env.step()
 
-#     # for the next 500 steps, go to x=0, y=0, z=2, rotate 45 degrees
-#     setpoint = np.array([0.0, 0.0, np.pi / 4, 2.0])
-#     env.set_setpoint(0, setpoint)
-
-#     for i in range(500, 1000):
-#         env.step()
-
-#     env.disconnect()
-
-
-# def test_camera():
-#     """Tests the camera module."""
-#     # the starting position and orientations
-#     start_pos = np.array([[0.0, 0.0, 1.0]])
-#     start_orn = np.array([[0.0, 0.0, 0.0]])
-
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos,
-#         start_orn=start_orn,
-#         render=False,
-#         drone_type="quadx",
-#         drone_options=dict(use_camera=True),
-#     )
-
-#     # set to velocity control
-#     env.set_mode(6)
-
-#     # simulate for 1000 steps (1000/120 ~= 8 seconds)
-#     for i in range(100):
-#         env.step()
-
-#     env.disconnect()
+    env.disconnect()
 
 
-# def test_custom_controller():
-#     """Tests implementing a custom controller"""
+def test_default_control():
+    """Tests spawning a single drone and sending control commands."""
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 0.0, 1.0]])
+    start_orn = np.array([[0.0, 0.0, 0.0]])
 
-#     class CustomController(ControlClass):
-#         """A custom controller that inherits from the CtrlClass."""
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
 
-#         def __init__(self):
-#             """Initialize the controller here."""
-#             pass
+    # set to position control
+    env.set_mode(7)
 
-#         def reset(self):
-#             """Reset the internal state of the controller here."""
-#             pass
+    # for the first 500 steps, go to x=1, y=0, z=1
+    setpoint = np.array([1.0, 0.0, 0.0, 1.0])
+    env.set_setpoint(0, setpoint)
 
-#         def step(self, state: np.ndarray, setpoint: np.ndarray):
-#             """Step the controller here.
+    for i in range(500):
+        env.step()
 
-#             Args:
-#                 state (np.ndarray): Current state of the UAV
-#                 setpoint (np.ndarray): Desired setpoint
-#             """
-#             # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.1
-#             target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]
-#             target_yaw_rate = 0.5
-#             output = np.array(
-#                 [*target_velocity[:2], target_yaw_rate, target_velocity[-1]]
-#             )
-#             return output
+    # for the next 500 steps, go to x=0, y=0, z=2, rotate 45 degrees
+    setpoint = np.array([0.0, 0.0, np.pi / 4, 2.0])
+    env.set_setpoint(0, setpoint)
 
-#     # the starting position and orientations
-#     start_pos = np.array([[0.0, 0.0, 1.0]])
-#     start_orn = np.array([[0.0, 0.0, 0.0]])
+    for i in range(500, 1000):
+        env.step()
 
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
-#     )
-
-#     # register our custom controller for the first drone, this controller is id 8, and is based off 6
-#     env.drones[0].register_controller(
-#         controller_constructor=CustomController, controller_id=8, base_mode=6
-#     )
-
-#     # set to our new custom controller
-#     env.set_mode(8)
-
-#     # run the sim
-#     for i in range(1000):
-#         env.step()
-
-#     env.disconnect()
+    env.disconnect()
 
 
-# def test_custom_uav():
-#     """Tests spawning in a custom UAV."""
-#     # the starting position and orientations
-#     start_pos = np.array([[0.0, 0.0, 1.0]])
-#     start_orn = np.array([[0.0, 0.0, 0.0]])
+def test_camera():
+    """Tests the camera module."""
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 0.0, 1.0]])
+    start_orn = np.array([[0.0, 0.0, 0.0]])
 
-#     # define a new drone type
-#     drone_type_mappings = dict()
-#     drone_type_mappings["rocket_brick"] = RocketBrick
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type="quadx",
+        drone_options=dict(use_camera=True),
+    )
 
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos,
-#         start_orn=start_orn,
-#         render=False,
-#         drone_type_mappings=drone_type_mappings,
-#         drone_type="rocket_brick",
-#     )
+    # set to velocity control
+    env.set_mode(6)
 
-#     # print out the links and their names in the urdf for debugging
-#     env.drones[0].get_joint_info()
+    # simulate for 1000 steps (1000/120 ~= 8 seconds)
+    for i in range(100):
+        env.step()
 
-#     # simulate for 1000 steps (1000/120 ~= 8 seconds)
-#     for i in range(1000):
-#         env.step()
-
-#         # ignite the rocket after ~1 seconds
-#         if i > 100:
-#             env.set_all_setpoints(np.array([[1.0, 1.0]]))
-
-#     env.disconnect()
+    env.disconnect()
 
 
-# def test_mixed_drones():
-#     """Tests spawning multiple different UAVs, with one having a camera."""
-#     # the starting position and orientations
-#     start_pos = np.array([[0.0, 5.0, 5.0], [0.0, 0.0, 1.0], [5.0, 0.0, 1.0]])
-#     start_orn = np.zeros_like(start_pos)
+def test_custom_controller():
+    """Tests implementing a custom controller"""
 
-#     # rotate the rocket upright
-#     start_orn[0, 0] = np.pi / 2
+    class CustomController(ControlClass):
+        """A custom controller that inherits from the CtrlClass."""
 
-#     # individual spawn options for each drone
-#     rocket_options = dict()
-#     quadx_options = dict(use_camera=True)
-#     fixedwing_options = dict(starting_velocity=np.array([0.0, 0.0, 0.0]))
+        def __init__(self):
+            """Initialize the controller here."""
+            pass
 
-#     # environment setup
-#     env = Aviary(
-#         start_pos=start_pos,
-#         start_orn=start_orn,
-#         render=False,
-#         drone_type=["rocket", "quadx", "fixedwing"],
-#         drone_options=[rocket_options, quadx_options, fixedwing_options],
-#     )
+        def reset(self):
+            """Reset the internal state of the controller here."""
+            pass
 
-#     # set quadx to position control and fixedwing as nothing
-#     env.set_mode([0, 7, 0])
+        def step(self, state: np.ndarray, setpoint: np.ndarray):
+            """Step the controller here.
 
-#     # simulate for 1000 steps (1000/120 ~= 8 seconds)
-#     for i in range(1000):
-#         _ = env.all_states
-#         env.step()
+            Args:
+                state (np.ndarray): Current state of the UAV
+                setpoint (np.ndarray): Desired setpoint
+            """
+            # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.1
+            target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]
+            target_yaw_rate = 0.5
+            output = np.array(
+                [*target_velocity[:2], target_yaw_rate, target_velocity[-1]]
+            )
+            return output
 
-#     env.disconnect()
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 0.0, 1.0]])
+    start_orn = np.array([[0.0, 0.0, 0.0]])
+
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
+    )
+
+    # register our custom controller for the first drone, this controller is id 8, and is based off 6
+    env.drones[0].register_controller(
+        controller_constructor=CustomController, controller_id=8, base_mode=6
+    )
+
+    # set to our new custom controller
+    env.set_mode(8)
+
+    # run the sim
+    for i in range(1000):
+        env.step()
+
+    env.disconnect()
+
+
+def test_custom_uav():
+    """Tests spawning in a custom UAV."""
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 0.0, 1.0]])
+    start_orn = np.array([[0.0, 0.0, 0.0]])
+
+    # define a new drone type
+    drone_type_mappings = dict()
+    drone_type_mappings["rocket_brick"] = RocketBrick
+
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type_mappings=drone_type_mappings,
+        drone_type="rocket_brick",
+    )
+
+    # print out the links and their names in the urdf for debugging
+    env.drones[0].get_joint_info()
+
+    # simulate for 1000 steps (1000/120 ~= 8 seconds)
+    for i in range(1000):
+        env.step()
+
+        # ignite the rocket after ~1 seconds
+        if i > 100:
+            env.set_all_setpoints(np.array([[1.0, 1.0]]))
+
+    env.disconnect()
+
+
+def test_mixed_drones():
+    """Tests spawning multiple different UAVs, with one having a camera."""
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 5.0, 5.0], [0.0, 0.0, 1.0], [5.0, 0.0, 1.0]])
+    start_orn = np.zeros_like(start_pos)
+
+    # rotate the rocket upright
+    start_orn[0, 0] = np.pi / 2
+
+    # individual spawn options for each drone
+    rocket_options = dict()
+    quadx_options = dict(use_camera=True)
+    fixedwing_options = dict(starting_velocity=np.array([0.0, 0.0, 0.0]))
+
+    # environment setup
+    env = Aviary(
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type=["rocket", "quadx", "fixedwing"],
+        drone_options=[rocket_options, quadx_options, fixedwing_options],
+    )
+
+    # set quadx to position control and fixedwing as nothing
+    env.set_mode([0, 7, 0])
+
+    # simulate for 1000 steps (1000/120 ~= 8 seconds)
+    for i in range(1000):
+        _ = env.all_states
+        env.step()
+
+    env.disconnect()
 
 
 @pytest.mark.parametrize(
     "model",
-    ["fixedwing", "rocket"],
+    [
+        "fixedwing",
+        "rocket"
+    ],
 )
 def test_wind_field(model: str):
     """Tests the wind field functionality
@@ -244,21 +248,26 @@ def test_wind_field(model: str):
     Args:
         model (str): model name
     """
+    # define the wind field
+    class MyWindField(WindFieldClass):
+        def __init__(self, my_parameter=1.0, np_random: None | np.random.RandomState = None):
+            super().__init__(np_random)
+            self.strength = my_parameter
+
+        def __call__(self, time: float, position: np.ndarray):
+            wind = np.zeros_like(position)
+            wind[:, -1] = np.log(position[:, -1]) * self.strength
+            wind += self.np_random.randn(*wind.shape)
+            return wind
+
     # the starting position and orientations
     start_pos = np.array([[0.0, 0.0, 1.0]])
     start_orn = np.array([[0.0, 0.0, 0.0]])
 
-    # environment setup
+    # environment setup, attach the windfield
     env = Aviary(
-        start_pos=start_pos, start_orn=start_orn, render=False, drone_type=model
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type=model, wind_type=MyWindField
     )
-
-    def wind_function(position: np.ndarray):
-        wind = np.zeros_like(position)
-        wind[:, -1] = np.log(position[:, -1])
-        return wind
-
-    env.set_wind_field(wind_function)
 
     # simulate for 1000 steps (1000/120 ~= 8 seconds)
     for i in range(1000):

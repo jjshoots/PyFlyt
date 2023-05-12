@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import time
 from itertools import repeat
-from typing import Any, Callable, Sequence
+from typing import Any, Sequence, Type
 from warnings import warn
 
 import numpy as np
@@ -11,7 +11,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from .abstractions import DroneClass
+from .abstractions import DroneClass, WindFieldClass
 from .drones import Fixedwing, QuadX, Rocket
 
 DroneIndex = int
@@ -27,11 +27,13 @@ class Aviary(bullet_client.BulletClient):
         start_pos (np.ndarray): an `(n, 3)` array for the starting X, Y, Z positions for each drone.
         start_orn (np.ndarray): an `(n, 3)` array for the starting orientations for each drone, in terms of Euler angles.
         drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
-        drone_type_mappings (None | dict(str, DroneClass)): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
+        drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
         drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
+        wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
+        wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
         render (bool): a boolean whether to render the simulation.
         physics_hz (int): physics looprate (not recommended to be changed).
-        worldScale (float): how big to spawn the floor.
+        world_scale (float): how big to spawn the floor.
         seed (None | int): optional int for seeding the simulation RNG.
     """
 
@@ -40,11 +42,13 @@ class Aviary(bullet_client.BulletClient):
         start_pos: np.ndarray,
         start_orn: np.ndarray,
         drone_type: str | Sequence[str],
-        drone_type_mappings: None | dict[str, DroneClass] = None,
+        drone_type_mappings: None | dict[str, type[DroneClass]] = None,
         drone_options: dict[str, Any] | Sequence[dict[str, Any]] = {},
+        wind_type: None | str | type[WindFieldClass] = None,
+        wind_options: dict[str, Any] = {},
         render: bool = False,
         physics_hz: int = 240,
-        worldScale: float = 1.0,
+        world_scale: float = 1.0,
         seed: None | int = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
@@ -56,11 +60,13 @@ class Aviary(bullet_client.BulletClient):
             start_pos (np.ndarray): an `(n, 3)` array for the starting X, Y, Z positions for each drone.
             start_orn (np.ndarray): an `(n, 3)` array for the starting orientations for each drone, in terms of Euler angles.
             drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
-            drone_type_mappings (None | dict(str, DroneClass)): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
+            drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
             drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
+            wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
+            wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
             render (bool): a boolean whether to render the simulation.
             physics_hz (int): physics looprate (not recommended to be changed).
-            worldScale (float): how big to spawn the floor.
+            world_scale (float): how big to spawn the floor.
             seed (None | int): optional int for seeding the simulation RNG.
         """
         super().__init__(p.GUI if render else p.DIRECT)
@@ -133,8 +139,12 @@ class Aviary(bullet_client.BulletClient):
         else:
             self.drone_options = repeat(drone_options)
 
+        # store the wind type and options
+        self.wind_type = wind_type
+        self.wind_options = wind_options
+
         # set the world scale and directories
-        self.worldScale = worldScale
+        self.world_scale = world_scale
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
         # render
@@ -153,8 +163,9 @@ class Aviary(bullet_client.BulletClient):
         """
         self.resetSimulation()
         self.setGravity(0, 0, -9.81)
-        self.wind_field = None
-        self.steps = 0
+        self.physics_steps: int = 0
+        self.aviary_steps: int = 0
+        self.elapsed_time: float = 0
 
         # reset the camera position to a sane place
         self.resetDebugVisualizerCamera(
@@ -169,7 +180,7 @@ class Aviary(bullet_client.BulletClient):
 
         # construct the world
         self.planeId = self.loadURDF(
-            "plane.urdf", useFixedBase=True, globalScaling=self.worldScale
+            "plane.urdf", useFixedBase=True, globalScaling=self.world_scale
         )
 
         # spawn drones
@@ -191,6 +202,28 @@ class Aviary(bullet_client.BulletClient):
                 )
             )
 
+        # initialize the wind field
+        self.wind_field: None | WindFieldClass
+        if self.wind_type is None:
+            # no wind field
+            self.wind_field = None
+        elif isinstance(self.wind_type, str):
+            # default wind fields
+            assert self.wind_type in [], f"Unknown wind field model {self.wind_type}."
+            self.wind_field = None
+        elif callable(self.wind_type):
+            # custom wind field, initialize and check
+            self.wind_field = self.wind_type(
+                np_random=self.np_random, **self.wind_options
+            )
+            self.wind_field._check_wind_field_validity()
+            self.wind_field = self.wind_type(
+                np_random=self.np_random, **self.wind_options
+            )
+        else:
+            # none of the above
+            raise LookupError("Invalid setting for wind field.")
+
         # constants for tracking how many times to step depending on control hz
         all_control_hz = [int(1.0 / drone.control_period) for drone in self.drones]
         self.updates_per_step = int(self.physics_hz / np.min(all_control_hz))
@@ -206,8 +239,8 @@ class Aviary(bullet_client.BulletClient):
 
         # rtf tracking parameters
         self.now = time.time()
-        self._frame_time_elapsed = 0.0
-        self._sim_time_elapsed = 0.0
+        self._frame_elapsed = 0.0
+        self._sim_elapsed = 0.0
 
         # arm everything
         self.register_all_new_bodies()
@@ -228,49 +261,6 @@ class Aviary(bullet_client.BulletClient):
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
 
-    def set_wind_field(self, wind_field_function: Callable):
-        """Sets the function for the wind field.
-
-        Args:
-            wind_field_function (Callable): A function that takes in a np.ndarray of size (n, 3) representing world frame coordinates, and returns a np.ndarray of size (n, 3) representing world frame wind velocities.
-
-        Example Usage:
-            >>> # define the aviary
-            >>> env = Aviary(...)
-            >>> ...
-            >>>
-            >>> # define the wind function
-            >>> def my_wind_function(position: np.ndarray):
-            >>>     # simulate a thermal windfield, where the xy velocities are 0,
-            >>>     # but the z velocity varies to the log of height
-            >>>     wind = np.zeros_like(position)
-            >>>     wind[:, -1] = np.log(position[:, -1])
-            >>>     return wind
-            >>>
-            >>> # hook the wind function
-            >>> env.set_wind_field(my_wind_function)
-        """
-        # check the validity of the wind field function
-        test_velocity = wind_field_function(np.array([[0.0, 0.0, 1.0]] * 42))
-        assert isinstance(
-            test_velocity, np.ndarray
-        ), f"Returned wind velocity must be a np.ndarray, got {type(test_velocity)}."
-        assert np.issubdtype(
-            test_velocity.dtype, np.floating
-        ), f"Returned wind velocity must be type float, got {test_velocity.dtype}."
-        assert (
-            len(test_velocity.shape) == 2
-        ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 42}), {test_velocity.shape[1:]})."
-        assert (
-            test_velocity.shape[0] == 42
-        ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 42}), {test_velocity.shape[1:]})."
-        assert (
-            test_velocity.shape[1] == 3
-        ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 42}), {test_velocity.shape[1:]})."
-
-        # all checks pass
-        self.wind_field = wind_field_function
-
     @property
     def sim_time(self) -> float:
         """Returns the total amount of time that has elapsed in the simulation.
@@ -278,7 +268,7 @@ class Aviary(bullet_client.BulletClient):
         Returns:
             float: simulation time elapsed.
         """
-        return self.steps * self.update_period
+        return self.aviary_steps * self.update_period
 
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.
@@ -399,17 +389,17 @@ class Aviary(bullet_client.BulletClient):
             elapsed = time.time() - self.now
             self.now = time.time()
 
-            self._sim_time_elapsed += self.update_period * self.updates_per_step
-            self._frame_time_elapsed += elapsed
+            self._sim_elapsed += self.update_period * self.updates_per_step
+            self._frame_elapsed += elapsed
 
-            time.sleep(max(self._sim_time_elapsed - self._frame_time_elapsed, 0.0))
+            time.sleep(max(self._sim_elapsed - self._frame_elapsed, 0.0))
 
             # print RTF every 0.5 seconds, this actually adds considerable overhead
-            if self._frame_time_elapsed >= 0.5:
+            if self._frame_elapsed >= 0.5:
                 # calculate real time factor based on realtime/simtime
-                RTF = self._sim_time_elapsed / (self._frame_time_elapsed + 1e-6)
-                self._sim_time_elapsed = 0.0
-                self._frame_time_elapsed = 0.0
+                RTF = self._sim_elapsed / (self._frame_elapsed + 1e-6)
+                self._sim_elapsed = 0.0
+                self._frame_elapsed = 0.0
 
                 self.rtf_debug_line = self.addUserDebugText(
                     text=f"RTF: {RTF:.3f}",
@@ -422,12 +412,12 @@ class Aviary(bullet_client.BulletClient):
         self.contact_array &= False
 
         # step the environment enough times for one control loop of the slowest controller
-        for physics_steps in range(self.updates_per_step):
+        for step in range(self.updates_per_step):
             # update onboard avionics conditionally
             [
                 drone.update_control()
                 for drone in self.armed_drones
-                if physics_steps % drone.physics_control_ratio == 0
+                if step % drone.physics_control_ratio == 0
             ]
 
             # update physics and state
@@ -442,7 +432,11 @@ class Aviary(bullet_client.BulletClient):
                 self.contact_array[collision[1], collision[2]] = True
                 self.contact_array[collision[2], collision[1]] = True
 
+            # increment the number of physics steps
+            self.physics_steps += 1
+            self.elapsed_time = self.physics_steps / self.physics_hz
+
         # update the last components of the drones, this is usually limited to cameras only
         [drone.update_last() for drone in self.armed_drones]
 
-        self.steps += 1
+        self.aviary_steps += 1
