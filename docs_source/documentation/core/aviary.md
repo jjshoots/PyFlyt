@@ -232,6 +232,7 @@ This is __invalid__.
 
 .. autofunction:: PyFlyt.core.Aviary.reset
 .. autofunction:: PyFlyt.core.Aviary.register_all_new_bodies
+.. autofunction:: PyFlyt.core.Aviary.set_wind_field
 
 .. autofunction:: PyFlyt.core.Aviary.state
 .. autofunction:: PyFlyt.core.Aviary.aux_state

@@ -660,6 +660,38 @@ It provides a common endpoint from where users may control drones or define task
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.Aviary.set_wind_field">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">set_wind_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wind_field_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.Aviary.set_wind_field" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the function for the wind field.</p>
+<p>The function must take in a np.ndarray of size (n, 3) representing world frame coordinates.
+It then returns a np.ndarray of size (n, 3) representing world frame wind velocities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>wind_field_function</strong> (<em>Callable</em>) – wind_field_function</p>
+</dd>
+</dl>
+<dl>
+<dt>Example Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># define the aviary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># define the wind function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_wind_function</span><span class="p">(</span><span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># simulate a thermal windfield, where the xy velocities are 0,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># but the z velocity varies to the log of height</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">wind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">wind</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">position</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">wind</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># hook the wind function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span><span class="o">.</span><span class="n">set_wind_field</span><span class="p">(</span><span class="n">my_wind_function</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.state">
 <span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.Aviary.state" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns the state for the indexed drone.</p>
@@ -794,6 +826,7 @@ It provides a common endpoint from where users may control drones or define task
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.print_all_bodies"><code class="docutils literal notranslate"><span class="pre">print_all_bodies()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.reset"><code class="docutils literal notranslate"><span class="pre">reset()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.register_all_new_bodies"><code class="docutils literal notranslate"><span class="pre">register_all_new_bodies()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.set_wind_field"><code class="docutils literal notranslate"><span class="pre">set_wind_field()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.state"><code class="docutils literal notranslate"><span class="pre">state()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.aux_state"><code class="docutils literal notranslate"><span class="pre">aux_state()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.set_armed"><code class="docutils literal notranslate"><span class="pre">set_armed()</span></code></a></li>
