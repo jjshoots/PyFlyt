@@ -1,4 +1,6 @@
 """Tests the the core API functionality."""
+from __future__ import annotations
+
 import numpy as np
 import pytest
 from custom_uavs.rocket_brick import RocketBrick
