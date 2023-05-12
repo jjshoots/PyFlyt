@@ -72,24 +72,27 @@ class BoringBodies:
             "`get_states` does not exist for boring bodies, they're boring."
         )
 
-    def state_update(self, rotation_matrices: np.ndarray):
+    def state_update(self, rotation_matrix: np.ndarray):
         """Updates the local surface velocity of the boring body.
 
         Args:
-            rotation_matrices (np.ndarray): (n, 3, 3) array of rotation matrices of the bodies
+            rotation_matrix (np.ndarray): (3, 3) rotation_matrix of the main body
         """
         # get all the states for all the bodies
-        body_velocities = self.p.getLinkStates(
+        link_states = self.p.getLinkStates(
             self.uav_id, self.body_ids, computeLinkVelocity=True
         )
 
         # get all the velocities
-        body_velocities = np.array([item[-2] for item in body_velocities])
-        body_velocities = np.expand_dims(body_velocities, axis=-1)
+        body_velocities = np.array([item[-2] for item in link_states])
+
+        # query for wind if available and add to surface velocities
+        if self.p.wind_field is not None:
+            body_positions = np.array([item[0] for item in link_states])
+            body_velocities += self.p.wind_field(body_positions)
 
         # rotate all velocities to be in local frame
-        body_velocities = np.matmul(rotation_matrices, body_velocities)
-        body_velocities = np.squeeze(body_velocities, axis=-1)
+        body_velocities = np.matmul(rotation_matrix, body_velocities.T).T
 
         # update the variable
         self.local_body_velocities = body_velocities

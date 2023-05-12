@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import time
 from itertools import repeat
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 from warnings import warn
 
 import numpy as np
@@ -153,6 +153,7 @@ class Aviary(bullet_client.BulletClient):
         """
         self.resetSimulation()
         self.setGravity(0, 0, -9.81)
+        self.wind_field = None
         self.steps = 0
 
         # reset the camera position to a sane place
@@ -226,6 +227,52 @@ class Aviary(bullet_client.BulletClient):
         self.contact_array = np.zeros(
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
+
+    def set_wind_field(self, wind_field_function: Callable):
+        """Sets the function for the wind field.
+
+        The function must take in a np.ndarray of size (n, 3) representing world frame coordinates.
+        It then returns a np.ndarray of size (n, 3) representing world frame wind velocities.
+
+        Args:
+            wind_field_function (Callable): wind_field_function
+
+        Example Usage:
+            >>> # define the aviary
+            >>> env = Aviary(...)
+            >>> ...
+            >>>
+            >>> # define the wind function
+            >>> def my_wind_function(position: np.ndarray):
+            >>>     # simulate a thermal windfield, where the xy velocities are 0,
+            >>>     # but the z velocity varies to the log of height
+            >>>     wind = np.zeros_like(position)
+            >>>     wind[:, -1] = np.log(position[:, -1])
+            >>>     return wind
+            >>>
+            >>> # hook the wind function
+            >>> env.set_wind_field(my_wind_function)
+        """
+        # check the validity of the wind field function
+        test_velocity = wind_field_function(np.array([[0.0, 0.0, 1.0]] * 42))
+        assert isinstance(
+            test_velocity, np.ndarray
+        ), f"Returned wind velocity must be a np.ndarray, got {type(test_velocity)}."
+        assert np.issubdtype(
+            test_velocity.dtype, np.floating
+        ), f"Returned wind velocity must be type float, got {test_velocity.dtype}."
+        assert (
+            len(test_velocity.shape) == 2
+        ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 42}), {test_velocity.shape[1:]})."
+        assert (
+            test_velocity.shape[0] == 42
+        ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 42}), {test_velocity.shape[1:]})."
+        assert (
+            test_velocity.shape[1] == 3
+        ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 42}), {test_velocity.shape[1:]})."
+
+        # all checks pass
+        self.wind_field = wind_field_function
 
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.

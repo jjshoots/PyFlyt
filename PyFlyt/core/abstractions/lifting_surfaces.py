@@ -69,15 +69,20 @@ class LiftingSurfaces:
         """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
-            rotation_matrix (np.ndarray): rotation_matrix of the main body
+            rotation_matrix (np.ndarray): (3, 3) rotation_matrix of the main body
         """
         # get all the states for all the surfaces
-        surface_velocities = self.p.getLinkStates(
+        link_states = self.p.getLinkStates(
             self.uav_id, self.surface_ids, computeLinkVelocity=True
         )
 
         # get all the velocities
-        surface_velocities = np.array([item[-2] for item in surface_velocities])
+        surface_velocities = np.array([item[-2] for item in link_states])
+
+        # query for wind if available and add to surface velocities
+        if self.p.wind_field is not None:
+            surface_positions = np.array([item[0] for item in link_states])
+            surface_velocities += self.p.wind_field(surface_positions)
 
         # convert all to local velocities
         surface_velocities = np.matmul(rotation_matrix, surface_velocities.T).T
