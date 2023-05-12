@@ -231,11 +231,8 @@ class Aviary(bullet_client.BulletClient):
     def set_wind_field(self, wind_field_function: Callable):
         """Sets the function for the wind field.
 
-        The function must take in a np.ndarray of size (n, 3) representing world frame coordinates.
-        It then returns a np.ndarray of size (n, 3) representing world frame wind velocities.
-
         Args:
-            wind_field_function (Callable): wind_field_function
+            wind_field_function (Callable): A function that takes in a np.ndarray of size (n, 3) representing world frame coordinates, and returns a np.ndarray of size (n, 3) representing world frame wind velocities.
 
         Example Usage:
             >>> # define the aviary
