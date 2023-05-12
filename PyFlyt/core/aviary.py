@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import time
 from itertools import repeat
-from typing import Any, Callable, Sequence, Type
+from typing import Any, Callable, Sequence
 from warnings import warn
 
 import numpy as np
