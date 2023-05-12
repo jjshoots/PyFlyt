@@ -206,8 +206,8 @@ class Aviary(bullet_client.BulletClient):
 
         # rtf tracking parameters
         self.now = time.time()
-        self.frame_time_elapsed = 0.0
-        self.sim_time_elapsed = 0.0
+        self._frame_time_elapsed = 0.0
+        self._sim_time_elapsed = 0.0
 
         # arm everything
         self.register_all_new_bodies()
@@ -270,6 +270,15 @@ class Aviary(bullet_client.BulletClient):
 
         # all checks pass
         self.wind_field = wind_field_function
+
+    @property
+    def sim_time(self) -> float:
+        """Returns the total amount of time that has elapsed in the simulation.
+
+        Returns:
+            float: simulation time elapsed.
+        """
+        return self.steps * self.update_period
 
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.
@@ -390,17 +399,17 @@ class Aviary(bullet_client.BulletClient):
             elapsed = time.time() - self.now
             self.now = time.time()
 
-            self.sim_time_elapsed += self.update_period * self.updates_per_step
-            self.frame_time_elapsed += elapsed
+            self._sim_time_elapsed += self.update_period * self.updates_per_step
+            self._frame_time_elapsed += elapsed
 
-            time.sleep(max(self.sim_time_elapsed - self.frame_time_elapsed, 0.0))
+            time.sleep(max(self._sim_time_elapsed - self._frame_time_elapsed, 0.0))
 
             # print RTF every 0.5 seconds, this actually adds considerable overhead
-            if self.frame_time_elapsed >= 0.5:
+            if self._frame_time_elapsed >= 0.5:
                 # calculate real time factor based on realtime/simtime
-                RTF = self.sim_time_elapsed / (self.frame_time_elapsed + 1e-6)
-                self.sim_time_elapsed = 0.0
-                self.frame_time_elapsed = 0.0
+                RTF = self._sim_time_elapsed / (self._frame_time_elapsed + 1e-6)
+                self._sim_time_elapsed = 0.0
+                self._frame_time_elapsed = 0.0
 
                 self.rtf_debug_line = self.addUserDebugText(
                     text=f"RTF: {RTF:.3f}",

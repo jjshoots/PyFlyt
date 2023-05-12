@@ -224,6 +224,8 @@ This is __invalid__.
 .. property:: PyFlyt.core.Aviary.drones
 
     A list of all drones that the Aviary is currently handling.
+
+.. autoproperty:: PyFlyt.core.Aviary.sim_time
 ```
 
 ### Methods
