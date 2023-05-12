@@ -26,7 +26,7 @@ start_pos = np.array([[0.0, 0.0, 1.0]])
 start_orn = np.array([[0.0, 0.0, 0.0]])
 
 # environment setup, attach the windfield
-env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx")
+env = Aviary(start_pos=start_pos, start_orn=start_orn, render=True, drone_type="quadx")
 env.register_wind_field_function(simple_wind)
 
 # set the flight mode

@@ -1,7 +1,7 @@
 """Implements a custom stateful wind model."""
 import numpy as np
 
-from PyFlyt.abstractions import WindFieldClass
+from PyFlyt.core.abstractions import WindFieldClass
 from PyFlyt.core import Aviary
 
 

@@ -9,7 +9,7 @@ class WindFieldClass(ABC):
 
     Example Usage:
         >>> from PyFlyt.core import Aviary
-        >>> from PyFlyt.abstractions import WindFieldClass
+        >>> from PyFlyt.core.abstractions import WindFieldClass
         >>>
         >>> # define the wind field
         >>> class MyWindField(WindFieldClass):
