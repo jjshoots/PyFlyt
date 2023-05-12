@@ -393,16 +393,23 @@ document.write(`
 <section id="simple-custom-wind-modelling">
 <h2>Simple Custom Wind Modelling<a class="headerlink" href="#simple-custom-wind-modelling" title="Permalink to this heading">#</a></h2>
 <p>For simple, stateless wind models (models that do not have state variables), it is possible to simply define the wind model as a Python method.
+Then, the wind model can be hooked to the <code class="docutils literal notranslate"><span class="pre">aviary</span></code> using the <code class="docutils literal notranslate"><span class="pre">register_wind_field_function</span></code> method.
 The following is an example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Implements a simple time invariant, stateless wind model.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">PyFlyt.core</span> <span class="kn">import</span> <span class="n">Aviary</span>
 
+
 <span class="c1"># define the wind field</span>
-<span class="k">def</span> <span class="nf">simple_wind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-    <span class="c1"># the wind model is a simple updraft model</span>
-    <span class="c1"># where the xy velocities are 0...</span>
+<span class="k">def</span> <span class="nf">simple_wind</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a simple wind updraft model.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        time (float): time</span>
+<span class="sd">        position (np.ndarray): position as an (n, 3) array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># the xy velocities are 0...</span>
     <span class="n">wind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
 
     <span class="c1"># and the vertical velocity is dependent on the logarithmic of height</span>
@@ -410,14 +417,13 @@ The following is an example:</p>
 
     <span class="k">return</span> <span class="n">wind</span>
 
+
 <span class="c1"># the starting position and orientations</span>
 <span class="n">start_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
 <span class="n">start_orn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
 
 <span class="c1"># environment setup, attach the windfield</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span>
-    <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">start_orn</span><span class="o">=</span><span class="n">start_orn</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;quadx&quot;</span>
-<span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">start_orn</span><span class="o">=</span><span class="n">start_orn</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;quadx&quot;</span><span class="p">)</span>
 <span class="n">env</span><span class="o">.</span><span class="n">register_wind_field_function</span><span class="p">(</span><span class="n">simple_wind</span><span class="p">)</span>
 
 <span class="c1"># set the flight mode</span>
