@@ -1,4 +1,6 @@
 """Defines a basic wind field class to inherit from when implementing custom wind field models."""
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 import numpy as np
