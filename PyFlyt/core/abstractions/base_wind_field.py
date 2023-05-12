@@ -49,8 +49,9 @@ class WindFieldClass(ABC):
         """
         pass
 
-    def _check_wind_field_validity(self):
-        test_velocity = self(0.0, np.array([[0.0, 0.0, 1.0]] * 5))
+    @staticmethod
+    def _check_wind_field_validity(wind_field):
+        test_velocity = wind_field(0.0, np.array([[0.0, 0.0, 1.0]] * 5))
         assert isinstance(
             test_velocity, np.ndarray
         ), f"Returned wind velocity must be a np.ndarray, got {type(test_velocity)}."

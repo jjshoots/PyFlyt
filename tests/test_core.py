@@ -242,7 +242,43 @@ def test_mixed_drones():
         "rocket"
     ],
 )
-def test_wind_field(model: str):
+def test_simple_wind(model: str):
+    """Tests the wind field functionality
+
+    Args:
+        model (str): model name
+    """
+    # define the wind field
+    def simple_wind(time: float, position: np.ndarray):
+        wind = np.zeros_like(position)
+        wind[:, -1] = np.log(position[:, -1])
+        return wind
+
+    # the starting position and orientations
+    start_pos = np.array([[0.0, 0.0, 1.0]])
+    start_orn = np.array([[0.0, 0.0, 0.0]])
+
+    # environment setup, attach the windfield
+    env = Aviary(
+        start_pos=start_pos, start_orn=start_orn, render=False, drone_type=model
+    )
+    env.register_wind_field_function(simple_wind)
+
+    # simulate for 1000 steps (1000/120 ~= 8 seconds)
+    for i in range(1000):
+        env.step()
+
+    env.disconnect()
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        "fixedwing",
+        "rocket"
+    ],
+)
+def test_custom_wind(model: str):
     """Tests the wind field functionality
 
     Args:

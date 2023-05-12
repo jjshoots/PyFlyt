@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import time
 from itertools import repeat
-from typing import Any, Sequence, Type
+from typing import Any, Callable, Sequence, Type
 from warnings import warn
 
 import numpy as np
@@ -216,7 +216,7 @@ class Aviary(bullet_client.BulletClient):
             self.wind_field = self.wind_type(
                 np_random=self.np_random, **self.wind_options
             )
-            self.wind_field._check_wind_field_validity()
+            WindFieldClass._check_wind_field_validity(self.wind_field)
             self.wind_field = self.wind_type(
                 np_random=self.np_random, **self.wind_options
             )
@@ -261,14 +261,14 @@ class Aviary(bullet_client.BulletClient):
             (self.getNumBodies(), self.getNumBodies()), dtype=bool
         )
 
-    @property
-    def sim_time(self) -> float:
-        """Returns the total amount of time that has elapsed in the simulation.
+    def register_wind_field_function(self, wind_field: Callable):
+        """For less complicated wind field models (time invariant models), this allows the registration of a normal function as a wind field model.
 
-        Returns:
-            float: simulation time elapsed.
+        Args:
+            wind_field (Callable): given the time float and a position as an (n, 3) array, must return a (n, 3) array representing the local wind velocity.
         """
-        return self.aviary_steps * self.update_period
+        assert callable(wind_field), "`wind_field` function must be callable."
+        WindFieldClass._check_wind_field_validity(wind_field)
 
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.
