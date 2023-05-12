@@ -7,6 +7,7 @@ motor_params:
 
 drag_params:
   drag_coef_xyz: 1.0e-3
+  drag_area_xyz: 8.0e-6
   drag_coef_pqr: 1.0e-4
 
 control_params:

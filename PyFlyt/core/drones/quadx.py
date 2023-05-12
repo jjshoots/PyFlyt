@@ -9,6 +9,7 @@ from pybullet_utils import bullet_client
 
 from ..abstractions.base_controller import ControlClass
 from ..abstractions.base_drone import DroneClass
+from ..abstractions.boring_bodies import BoringBodies
 from ..abstractions.camera import Camera
 from ..abstractions.motors import Motors
 from ..abstractions.pid import PID
@@ -130,8 +131,18 @@ class QuadX(DroneClass):
             )
 
             # pseudo drag coef
-            self.drag_coef_xyz = drag_params["drag_coef_xyz"]
             self.drag_coef_pqr = drag_params["drag_coef_pqr"]
+
+            # simulate the drag on the main body
+            self.body = BoringBodies(
+                p=self.p,
+                physics_period=self.physics_period,
+                np_random=self.np_random,
+                uav_id=self.Id,
+                body_ids=np.array([0]),
+                drag_coefs=np.array([[drag_params["drag_coef_xyz"]] * 3]),
+                normal_areas=np.array([[drag_params["drag_area_xyz"]] * 3]),
+            )
 
             self.Kp_ang_vel = np.array(ctrl_params["ang_vel"]["kp"])
             self.Ki_ang_vel = np.array(ctrl_params["ang_vel"]["ki"])
@@ -194,6 +205,7 @@ class QuadX(DroneClass):
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.disable_artificial_damping()
+        self.body.reset()
         self.motors.reset()
 
     def set_mode(self, mode: int):
@@ -444,18 +456,15 @@ class QuadX(DroneClass):
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
-        # update the motors
+        # update the body and motors
+        self.body.physics_update()
         self.motors.physics_update(self.pwm)
 
-        # simulate drag
+        # simulate rotational damping
         drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)
-        drag_xyz = -self.drag_coef_xyz * (np.array(self.state[2]) ** 2)
 
         # warning, the physics is funky for bounces
         if len(self.p.getContactPoints()) == 0:
-            self.p.applyExternalForce(
-                self.Id, -1, drag_xyz, [0.0, 0.0, 0.0], self.p.LINK_FRAME
-            )
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def update_state(self):
@@ -473,6 +482,9 @@ class QuadX(DroneClass):
 
         # ang_pos in euler form
         ang_pos = self.p.getEulerFromQuaternion(ang_pos)
+
+        # update the main body
+        self.body.state_update(rotation)
 
         # create the state
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)

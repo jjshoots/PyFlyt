@@ -53,8 +53,8 @@ class BoringBodies:
 
         # some checks
         assert -1 not in body_ids
-        assert drag_coefs.shape == (len(body_ids), 3)
-        assert normal_areas.shape == (len(body_ids), 3)
+        assert drag_coefs.shape == (len(body_ids), 3), f"got {drag_coefs.shape}."
+        assert normal_areas.shape == (len(body_ids), 3), f"got {normal_areas.shape}."
 
         # constants
         self.drag_consts = 0.5 * 1.225 * drag_coefs * normal_areas
