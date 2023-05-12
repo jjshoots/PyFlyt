@@ -236,8 +236,6 @@ This is __invalid__.
 .. property:: PyFlyt.core.Aviary.aviary_steps
 
     An integer representing the number of times `step` has been called.
-
-.. autoproperty:: PyFlyt.core.Aviary.sim_time
 ```
 
 ### Methods

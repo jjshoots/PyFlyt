@@ -1,8 +1,8 @@
 """Tests the the core API functionality."""
 import numpy as np
+import pytest
 from custom_uavs.rocket_brick import RocketBrick
 
-import pytest
 from PyFlyt.core import Aviary
 from PyFlyt.core.abstractions import ControlClass, WindFieldClass
 
@@ -237,10 +237,7 @@ def test_mixed_drones():
 
 @pytest.mark.parametrize(
     "model",
-    [
-        "fixedwing",
-        "rocket"
-    ],
+    ["fixedwing", "rocket"],
 )
 def test_simple_wind(model: str):
     """Tests the wind field functionality
@@ -248,6 +245,7 @@ def test_simple_wind(model: str):
     Args:
         model (str): model name
     """
+
     # define the wind field
     def simple_wind(time: float, position: np.ndarray):
         wind = np.zeros_like(position)
@@ -273,10 +271,7 @@ def test_simple_wind(model: str):
 
 @pytest.mark.parametrize(
     "model",
-    [
-        "fixedwing",
-        "rocket"
-    ],
+    ["fixedwing", "rocket"],
 )
 def test_custom_wind(model: str):
     """Tests the wind field functionality
@@ -284,9 +279,12 @@ def test_custom_wind(model: str):
     Args:
         model (str): model name
     """
+
     # define the wind field
     class MyWindField(WindFieldClass):
-        def __init__(self, my_parameter=1.0, np_random: None | np.random.RandomState = None):
+        def __init__(
+            self, my_parameter=1.0, np_random: None | np.random.RandomState = None
+        ):
             super().__init__(np_random)
             self.strength = my_parameter
 
@@ -302,7 +300,11 @@ def test_custom_wind(model: str):
 
     # environment setup, attach the windfield
     env = Aviary(
-        start_pos=start_pos, start_orn=start_orn, render=False, drone_type=model, wind_type=MyWindField
+        start_pos=start_pos,
+        start_orn=start_orn,
+        render=False,
+        drone_type=model,
+        wind_type=MyWindField,
     )
 
     # simulate for 1000 steps (1000/120 ~= 8 seconds)

@@ -35,6 +35,7 @@ class WindFieldClass(ABC):
         >>> # step as usual
         >>> ...
     """
+
     def __init__(self, np_random: None | np.random.RandomState = None):
         """Initializes the wind_field."""
         self.np_random = np.random.RandomState() if np_random is None else np_random
@@ -58,6 +59,7 @@ class WindFieldClass(ABC):
         assert np.issubdtype(
             test_velocity.dtype, np.floating
         ), f"Returned wind velocity must be type float, got {test_velocity.dtype}."
-        assert (
-            test_velocity.shape == (5, 3)
+        assert test_velocity.shape == (
+            5,
+            3,
         ), f"Returned wind velocity must be array of shape (n, 3), got (n+({test_velocity.shape[0] - 5}), {test_velocity.shape[1:]})."

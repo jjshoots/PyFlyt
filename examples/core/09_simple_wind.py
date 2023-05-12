@@ -3,10 +3,16 @@ import numpy as np
 
 from PyFlyt.core import Aviary
 
+
 # define the wind field
-def simple_wind(self, time: float, position: np.ndarray):
-    # the wind model is a simple updraft model
-    # where the xy velocities are 0...
+def simple_wind(time: float, position: np.ndarray):
+    """Defines a simple wind updraft model.
+
+    Args:
+        time (float): time
+        position (np.ndarray): position as an (n, 3) array
+    """
+    # the xy velocities are 0...
     wind = np.zeros_like(position)
 
     # and the vertical velocity is dependent on the logarithmic of height
@@ -14,14 +20,13 @@ def simple_wind(self, time: float, position: np.ndarray):
 
     return wind
 
+
 # the starting position and orientations
 start_pos = np.array([[0.0, 0.0, 1.0]])
 start_orn = np.array([[0.0, 0.0, 0.0]])
 
 # environment setup, attach the windfield
-env = Aviary(
-    start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx"
-)
+env = Aviary(start_pos=start_pos, start_orn=start_orn, render=False, drone_type="quadx")
 env.register_wind_field_function(simple_wind)
 
 # set the flight mode

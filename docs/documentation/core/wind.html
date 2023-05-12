@@ -390,8 +390,49 @@ document.write(`
 </pre></div>
 </div>
 </section>
-<section id="custom-wind-modelling">
-<h2>Custom Wind Modelling<a class="headerlink" href="#custom-wind-modelling" title="Permalink to this heading">#</a></h2>
+<section id="simple-custom-wind-modelling">
+<h2>Simple Custom Wind Modelling<a class="headerlink" href="#simple-custom-wind-modelling" title="Permalink to this heading">#</a></h2>
+<p>For simple, stateless wind models (models that do not have state variables), it is possible to simply define the wind model as a Python method.
+The following is an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Implements a simple time invariant, stateless wind model.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">PyFlyt.core</span> <span class="kn">import</span> <span class="n">Aviary</span>
+
+<span class="c1"># define the wind field</span>
+<span class="k">def</span> <span class="nf">simple_wind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="c1"># the wind model is a simple updraft model</span>
+    <span class="c1"># where the xy velocities are 0...</span>
+    <span class="n">wind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+    <span class="c1"># and the vertical velocity is dependent on the logarithmic of height</span>
+    <span class="n">wind</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">position</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">wind</span>
+
+<span class="c1"># the starting position and orientations</span>
+<span class="n">start_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="n">start_orn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+
+<span class="c1"># environment setup, attach the windfield</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">start_orn</span><span class="o">=</span><span class="n">start_orn</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drone_type</span><span class="o">=</span><span class="s2">&quot;quadx&quot;</span>
+<span class="p">)</span>
+<span class="n">env</span><span class="o">.</span><span class="n">register_wind_field_function</span><span class="p">(</span><span class="n">simple_wind</span><span class="p">)</span>
+
+<span class="c1"># set the flight mode</span>
+<span class="n">env</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="c1"># simulate for 1000 steps (1000/120 ~= 8 seconds)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="more-complex-custom-wind-modelling">
+<h2>More Complex Custom Wind Modelling<a class="headerlink" href="#more-complex-custom-wind-modelling" title="Permalink to this heading">#</a></h2>
 <p>To define custom wind models, refer the the example provided by the <code class="docutils literal notranslate"><span class="pre">WindFieldClass</span></code> below:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.WindFieldClass">
@@ -476,7 +517,8 @@ document.write(`
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preimplemented-wind-models">Preimplemented Wind Models</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-wind-modelling">Custom Wind Modelling</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-custom-wind-modelling">Simple Custom Wind Modelling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-complex-custom-wind-modelling">More Complex Custom Wind Modelling</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass"><code class="docutils literal notranslate"><span class="pre">WindFieldClass</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-attributes">Default Attributes</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass.np_random"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.WindFieldClass.np_random</span></code></a></li>

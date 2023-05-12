@@ -16,7 +16,18 @@ They can be initialized in the `aviary` like so:
 env = Aviary(..., wind_type="Lorem Ipsum")
 ```
 
-## Custom Wind Modelling
+## Simple Custom Wind Modelling
+
+For simple, stateless wind models (models that do not have state variables), it is possible to simply define the wind model as a Python method.
+Then, the wind model can be hooked to the `aviary` using the `register_wind_field_function` method.
+The following is an example:
+
+```{eval-rst}
+.. literalinclude:: ../../../examples/core/09_simple_wind.py
+   :language: python
+```
+
+## More Complex Custom Wind Modelling
 
 To define custom wind models, refer the the example provided by the `WindFieldClass` below:
 
