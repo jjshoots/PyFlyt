@@ -45,6 +45,7 @@ env = Aviary(
     render=False,
     drone_type="quadx",
     wind_type=MyWindField,
+    wind_options=dict(my_parameter=1.2),
 )
 
 # set the flight mode
