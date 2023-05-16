@@ -94,6 +94,17 @@ class BoringBodies:
         # rotate all velocities to be in local frame
         body_velocities = np.matmul(rotation_matrix, body_velocities.T).T
 
+        if rotation_matrix.shape == (len(self.body_ids), 3, 3):
+            body_velocities = np.matmul(
+                rotation_matrix, np.expand_dims(body_velocities, -1)
+            ).squeeze(-1)
+        elif rotation_matrix.shape == (3, 3):
+            body_velocities = np.matmul(rotation_matrix, body_velocities.T).T
+        else:
+            raise ValueError(
+                f"Only accept (num_bodies, 3, 3) or (3, 3) array for `rotation_matrix`, got {rotation_matrix.shape}."
+            )
+
         # update the variable
         self.local_body_velocities = body_velocities
 

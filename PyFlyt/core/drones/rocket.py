@@ -226,6 +226,17 @@ class Rocket(DroneClass):
         self.booster_gimbal.reset()
         self.boosters.reset(starting_fuel_ratio=self.starting_fuel_ratio)
 
+    def set_mode(self, mode):
+        """Sets the current flight mode of the vehicle.
+
+        flight modes:
+            - 0: finlet x deflection, finlet y deflection, finlet yaw, ignition, throttle, booster gimbal axis 1, booster gimbal axis 2
+
+        Args:
+            mode (int): flight mode
+        """
+        super().set_mode(mode)
+
     def update_control(self):
         """Runs through controllers."""
         # the default mode

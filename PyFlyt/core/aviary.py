@@ -274,6 +274,12 @@ class Aviary(bullet_client.BulletClient):
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.
 
+        This is a (4, 3) array, where:
+            - `state[0, :]` represents body frame angular velocity
+            - `state[1, :]` represents ground frame angular position
+            - `state[2, :]` represents body frame linear velocity
+            - `state[3, :]` represents ground frame linear position
+
         Args:
             index (DRONE_INDEX): index
 
@@ -284,6 +290,12 @@ class Aviary(bullet_client.BulletClient):
 
     def aux_state(self, index: DroneIndex) -> np.ndarray:
         """Returns the auxiliary state for the indexed drone.
+
+        This is typically an (n, ) vector, representing various attributes such as:
+            - booster thrust settings
+            - fuel remaining
+            - control surfaces deflection magnitude
+            - etc...
 
         Args:
             index (DRONE_INDEX): index
@@ -296,6 +308,14 @@ class Aviary(bullet_client.BulletClient):
     @property
     def all_states(self) -> list[np.ndarray]:
         """Returns a list of states for all drones in the environment.
+
+        This is a `num_drones` list of (4, 3) arrays, where each element in the list corresponds to the i-th drone state.
+
+        Similar to the `state` property, the states contain information corresponding to:
+            - `state[0, :]` represents body frame angular velocity
+            - `state[1, :]` represents ground frame angular position
+            - `state[2, :]` represents body frame linear velocity
+            - `state[3, :]` represents ground frame linear position
 
         This function is not very optimized, if you want the state of a single drone, do `state(i)`.
 
@@ -311,6 +331,8 @@ class Aviary(bullet_client.BulletClient):
     @property
     def all_aux_states(self) -> list[np.ndarray]:
         """Returns a list of auxiliary states for all drones in the environment.
+
+        This is a `num_drones` list of auxiliary states.
 
         This function is not very optimized, if you want the aux state of a single drone, do `aux_state(i)`.
 

@@ -603,6 +603,16 @@ It provides a common endpoint from where users may control drones or define task
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.all_states">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Aviary.</span></span><span class="sig-name descname"><span class="pre">all_states</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#PyFlyt.core.Aviary.all_states" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a list of states for all drones in the environment.</p>
+<p>This is a <cite>num_drones</cite> list of (4, 3) arrays, where each element in the list corresponds to the i-th drone state.</p>
+<dl class="simple">
+<dt>Similar to the <cite>state</cite> property, the states contain information corresponding to:</dt><dd><ul class="simple">
+<li><p><cite>state[0, :]</cite> represents body frame angular velocity</p></li>
+<li><p><cite>state[1, :]</cite> represents ground frame angular position</p></li>
+<li><p><cite>state[2, :]</cite> represents body frame linear velocity</p></li>
+<li><p><cite>state[3, :]</cite> represents ground frame linear position</p></li>
+</ul>
+</dd>
+</dl>
 <p>This function is not very optimized, if you want the state of a single drone, do <cite>state(i)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -618,6 +628,7 @@ It provides a common endpoint from where users may control drones or define task
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.all_aux_states">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Aviary.</span></span><span class="sig-name descname"><span class="pre">all_aux_states</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#PyFlyt.core.Aviary.all_aux_states" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns a list of auxiliary states for all drones in the environment.</p>
+<p>This is a <cite>num_drones</cite> list of auxiliary states.</p>
 <p>This function is not very optimized, if you want the aux state of a single drone, do <cite>aux_state(i)</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -684,6 +695,15 @@ It provides a common endpoint from where users may control drones or define task
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.state">
 <span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.Aviary.state" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns the state for the indexed drone.</p>
+<dl class="simple">
+<dt>This is a (4, 3) array, where:</dt><dd><ul class="simple">
+<li><p><cite>state[0, :]</cite> represents body frame angular velocity</p></li>
+<li><p><cite>state[1, :]</cite> represents ground frame angular position</p></li>
+<li><p><cite>state[2, :]</cite> represents body frame linear velocity</p></li>
+<li><p><cite>state[3, :]</cite> represents ground frame linear position</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>index</strong> (<em>DRONE_INDEX</em>) – index</p>
@@ -701,6 +721,15 @@ It provides a common endpoint from where users may control drones or define task
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.aux_state">
 <span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">aux_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.Aviary.aux_state" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns the auxiliary state for the indexed drone.</p>
+<dl class="simple">
+<dt>This is typically an (n, ) vector, representing various attributes such as:</dt><dd><ul class="simple">
+<li><p>booster thrust settings</p></li>
+<li><p>fuel remaining</p></li>
+<li><p>control surfaces deflection magnitude</p></li>
+<li><p>etc…</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>index</strong> (<em>DRONE_INDEX</em>) – index</p>

@@ -232,7 +232,6 @@ class QuadX(DroneClass):
 
         Args:
             mode (int): flight mode
-
         """
         if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
             raise ValueError(

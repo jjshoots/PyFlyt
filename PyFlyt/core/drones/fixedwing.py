@@ -195,6 +195,17 @@ class Fixedwing(DroneClass):
         self.lifting_surfaces.reset()
         self.motors.reset()
 
+    def set_mode(self, mode):
+        """Sets the current flight mode of the vehicle.
+
+        flight modes:
+            - 0: Pitch, Roll, Yaw, Thrust
+
+        Args:
+            mode (int): flight mode
+        """
+        super().set_mode(mode)
+
     def update_control(self):
         """Runs through controllers."""
         # the default mode

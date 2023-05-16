@@ -69,7 +69,7 @@ class LiftingSurfaces:
         """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
-            rotation_matrix (np.ndarray): (3, 3) rotation_matrix of the main body
+            rotation_matrix (np.ndarray): (3, 3) OR (num_surfaces, 3, 3) array rotation_matrix
         """
         # get all the states for all the surfaces
         link_states = self.p.getLinkStates(
@@ -86,8 +86,17 @@ class LiftingSurfaces:
                 self.p.elapsed_time, surface_positions
             )
 
-        # convert all to local velocities
-        surface_velocities = np.matmul(rotation_matrix, surface_velocities.T).T
+        # convert all to local velocities, depending on rotation matrix style
+        if rotation_matrix.shape == (len(self.surfaces), 3, 3):
+            surface_velocities = np.matmul(
+                rotation_matrix, np.expand_dims(surface_velocities, -1)
+            ).squeeze(-1)
+        elif rotation_matrix.shape == (3, 3):
+            surface_velocities = np.matmul(rotation_matrix, surface_velocities.T).T
+        else:
+            raise ValueError(
+                f"Only accept (num_surfaces, 3, 3) or (3, 3) array for `rotation_matrix`, got {rotation_matrix.shape}."
+            )
 
         # update the velocities of all surfaces
         for surface, velocity in zip(self.surfaces, surface_velocities):
