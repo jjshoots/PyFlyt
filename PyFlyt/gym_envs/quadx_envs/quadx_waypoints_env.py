@@ -88,7 +88,8 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
                         high=2 * flight_dome_size,
                         shape=(4,) if use_yaw_targets else (3,),
                         dtype=np.float64,
-                    )
+                    ),
+                    stack=True,
                 ),
             }
         )

@@ -82,7 +82,8 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
                         high=2 * flight_dome_size,
                         shape=(3,),
                         dtype=np.float64,
-                    )
+                    ),
+                    stack=True,
                 ),
             }
         )
