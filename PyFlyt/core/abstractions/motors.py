@@ -93,7 +93,7 @@ class Motors:
         """Gets the current state of the components.
 
         Returns:
-            np.ndarray:
+            np.ndarray: an (num_motors, ) array for the current throttle level of each motor
         """
         return self.throttle.flatten()
 

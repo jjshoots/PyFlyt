@@ -437,9 +437,16 @@ Additionally, some boosters, typically of the solid fuel variety, cannot be exti
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.Boosters.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.Boosters.get_states" title="Permalink to this definition">#</a></dt>
 <dd><p>Gets the current state of the components.</p>
+<p>Returns a (a0, a1, …, an, b0, b1, … bn, c0, c1, … cn) array where:
+- (a0, a1, …, an) represent the ignition state
+- (b0, b1, …, bn) represent the remaining fuel ratio
+- (c0, c1, …, cn) represent the current throttle state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A (3 * num_boosters, ) array</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>

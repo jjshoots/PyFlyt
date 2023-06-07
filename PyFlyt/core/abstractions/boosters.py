@@ -130,8 +130,13 @@ class Boosters:
     def get_states(self) -> np.ndarray:
         """Gets the current state of the components.
 
+        Returns a (a0, a1, ..., an, b0, b1, ... bn, c0, c1, ... cn) array where:
+        - (a0, a1, ..., an) represent the ignition state
+        - (b0, b1, ..., bn) represent the remaining fuel ratio
+        - (c0, c1, ..., cn) represent the current throttle state
+
         Returns:
-            np.ndarray:
+            np.ndarray: A (3 * num_boosters, ) array
         """
         return np.concatenate(
             [

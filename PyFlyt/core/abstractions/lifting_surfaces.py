@@ -42,7 +42,7 @@ class LiftingSurfaces:
         """Gets the current state of the components.
 
         Returns:
-            np.ndarray:
+            np.ndarray: an (num_surfaces, ) representing the actuation state for each surface
         """
         return np.array([surface.actuation for surface in self.surfaces])
 
