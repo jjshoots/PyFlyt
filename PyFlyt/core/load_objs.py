@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 import numpy as np
-
-from .aviary import Aviary
+from pybullet_utils import bullet_client
 
 
 def loadOBJ(
-    env: Aviary,
+    env: bullet_client.BulletClient,
     fileName: str = "null",
     visualId: int = -1,
     collisionId: int = -1,
@@ -48,7 +47,9 @@ def loadOBJ(
 
 
 def obj_visual(
-    env: Aviary, fileName: str, meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0]
+    env: bullet_client.BulletClient,
+    fileName: str,
+    meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
 ):
     """Loads an object visual model.
 
@@ -67,7 +68,9 @@ def obj_visual(
 
 
 def obj_collision(
-    env: Aviary, fileName: str, meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0]
+    env: bullet_client.BulletClient,
+    fileName: str,
+    meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
 ):
     """Loads an object collision model.
 
