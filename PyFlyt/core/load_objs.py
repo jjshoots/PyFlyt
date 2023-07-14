@@ -71,6 +71,7 @@ def obj_collision(
     env: bullet_client.BulletClient,
     fileName: str,
     meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
+    concave: bool = False,
 ):
     """Loads an object collision model.
 
@@ -78,7 +79,11 @@ def obj_collision(
         env (Aviary): env
         fileName (str): fileName
         meshScale (list[float] | np.ndarray): meshScale
+        concave (bool): Whether the object should use concave trimesh, do not use this for dynamic/moving objects
     """
     return env.createCollisionShape(
-        shapeType=env.GEOM_MESH, fileName=fileName, meshScale=meshScale
+        shapeType=env.GEOM_MESH,
+        fileName=fileName,
+        meshScale=meshScale,
+        flags=env.GEOM_FORCE_CONCAVE_TRIMESH if concave else None,
     )
