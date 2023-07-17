@@ -69,7 +69,7 @@ class Camera:
         # camera parameters
         self.proj_mat = self.p.computeProjectionMatrixFOV(
             fov=camera_FOV_degrees,
-            aspect=float(camera_resolution[0] / camera_resolution[1]),
+            aspect=float(camera_resolution[1] / camera_resolution[0]),
             nearVal=0.1,
             farVal=255.0,
         )
