@@ -68,7 +68,10 @@ class Camera:
 
         # camera parameters
         self.proj_mat = self.p.computeProjectionMatrixFOV(
-            fov=camera_FOV_degrees, aspect=1.0, nearVal=0.1, farVal=255.0
+            fov=camera_FOV_degrees,
+            aspect=float(camera_resolution[0] / camera_resolution[1]),
+            nearVal=0.1,
+            farVal=255.0,
         )
         self.use_gimbal = use_gimbal
         self.camera_angle_degrees = camera_angle_degrees
