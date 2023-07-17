@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools", "numpy"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyFlyt"
-version = "0.7.6"
+version = "0.7.7"
 authors = [
   { name="Jet", email="taijunjet@hotmail.com" },
 ]
@@ -16,7 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["wheel", "matplotlib", "gymnasium", "numpy", "pybullet", "pyyaml"]
+dependencies = ["wheel", "matplotlib", "gymnasium", "pybullet", "pyyaml"]
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "RL", "Gymnasium"]
 license = { file="./LICENSE.txt" }
 

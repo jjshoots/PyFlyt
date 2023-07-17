@@ -23,7 +23,7 @@ class Camera:
         use_gimbal (bool): whether to lock the horizon of the camera.
         camera_FOV_degrees (float): the field-of-view of the camera in degrees.
         camera_angle_degrees (float): when gimballed, this is the angle of downtilt from horizon; when not gimballed, this is theh angle of uptile from horizon.
-        camera_resolution (tuple[int, int]): the resolution of the camera in terms of [width, height].
+        camera_resolution (tuple[int, int]): the resolution of the camera in terms of [height, width].
         camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`.
         is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity.
         cinematic (bool = False): it's not a bug, it's a feature.
@@ -156,13 +156,10 @@ class Camera:
             tuple[np.ndarray, np.ndarray, np.ndarray]: rgbaImg, depthImg, segImg
         """
         _, _, rgbaImg, depthImg, segImg = self.p.getCameraImage(
-            width=self.camera_resolution[1],
             height=self.camera_resolution[0],
+            width=self.camera_resolution[1],
             viewMatrix=self.view_mat,
             projectionMatrix=self.proj_mat,
         )
-        rgbaImg = np.array(rgbaImg).reshape(*self.camera_resolution, -1)
-        depthImg = np.array(depthImg).reshape(*self.camera_resolution, -1)
-        segImg = np.array(segImg).reshape(*self.camera_resolution, -1)
 
         return rgbaImg, depthImg, segImg
