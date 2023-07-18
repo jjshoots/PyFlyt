@@ -1,7 +1,5 @@
 """PyFlyt - Multi UAV simulation environment for reinforcement learning research."""
 
-# test whether numpy is enabled for simulation
-
 
 def test_numpy():
     """Tests whether pybullet was installed with Numpy."""
@@ -62,3 +60,6 @@ def test_numpy():
         )
 
     p.disconnect()
+
+
+test_numpy()
