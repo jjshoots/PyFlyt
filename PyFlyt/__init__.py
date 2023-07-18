@@ -6,11 +6,8 @@
 def test_numpy():
     """Tests whether pybullet was installed with Numpy."""
     import pybullet as p
-    import pybullet_data
 
-    p.connect(p.DIRECT)  # or p.DIRECT for non-graphical version
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())  # optionally
-    p.setGravity(0, 0, -10)
+    p.connect(p.DIRECT)
 
     _, _, rgbaImg, _, _ = p.getCameraImage(
         height=10,
