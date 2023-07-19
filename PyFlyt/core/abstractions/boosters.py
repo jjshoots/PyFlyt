@@ -182,7 +182,7 @@ class Boosters:
         )
 
         # final thrust vector is unit vector * scalar
-        thrust_vector = thrust_unit * thrust
+        thrust_vector = (thrust_unit * thrust).reshape((-1, 3))
 
         # apply the forces and fueltanks
         for i in range(self.num_boosters):

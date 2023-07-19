@@ -16,15 +16,6 @@ _ALL_ENV_CONFIGS.append(
 )
 _ALL_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Hover-v0",
-        dict(angle_representation="quaternion", sparse_reward=True),
-    )
-)
-_ALL_ENV_CONFIGS.append(
-    ("PyFlyt/QuadX-Hover-v0", dict(angle_representation="quaternion"))
-)
-_ALL_ENV_CONFIGS.append(
-    (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="euler", sparse_reward=True),
     )
@@ -105,11 +96,9 @@ _ALL_ENV_CONFIGS.append(
 )
 _ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v0", dict(sparse_reward=True)))
 
-# todo - gymnasium v27 should remove the need for some of these warnings
 CHECK_ENV_IGNORE_WARNINGS = [
     f"\x1b[33mWARN: {message}\x1b[0m"
     for message in [
-        "For Box action spaces, we recommend using a symmetric and normalized space (range=[-1, 1] or [0, 1]). See https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html for more information.",
         "A Box observation space minimum value is -infinity. This is probably too low.",
         "A Box observation space maximum value is -infinity. This is probably too high.",
         "Human rendering should return `None`, got <class 'numpy.ndarray'>",
