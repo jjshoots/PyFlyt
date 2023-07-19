@@ -14,8 +14,10 @@ documentation/gym_envs
 
 Installation on _Linux_ and _MacOS_ is simple:
 ```sh
-pip3 install PyFlyt
+pip3 install wheel numpy
+pip3 install pyflyt
 ```
+> `numpy` and `wheel` must be installed prior to `pyflyt` such that `pybullet` is built with `numpy` support.
 
 On _Windows_, additional installation may be required for various Microsoft C++ components.
 

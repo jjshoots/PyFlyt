@@ -18,9 +18,12 @@ We are also actively looking for users and developers, if this sounds like you, 
 
 ## Installation
 
-```
+```sh
+pip3 install wheel numpy
 pip3 install pyflyt
 ```
+
+> `numpy` and `wheel` must be installed prior to `pyflyt` such that `pybullet` is built with `numpy` support.
 
 ## Usage
 

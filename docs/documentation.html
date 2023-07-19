@@ -377,9 +377,13 @@ document.write(`
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
 <p>Installation on <em>Linux</em> and <em>MacOS</em> is simple:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install PyFlyt
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install wheel numpy
+pip3 install pyflyt
 </pre></div>
 </div>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">wheel</span></code> must be installed prior to <code class="docutils literal notranslate"><span class="pre">pyflyt</span></code> such that <code class="docutils literal notranslate"><span class="pre">pybullet</span></code> is built with <code class="docutils literal notranslate"><span class="pre">numpy</span></code> support.</p>
+</div></blockquote>
 <p>On <em>Windows</em>, additional installation may be required for various Microsoft C++ components.</p>
 </section>
 <section id="gymnasium-environments">
