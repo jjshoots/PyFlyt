@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt-get install python3-opengl xvfb
           pip install pytest
-          pip install -e .
+          pip install .
       - name: Release Test
         run: |
           xvfb-run -s "-screen 0 1024x768x24" ./tests/runner.sh
