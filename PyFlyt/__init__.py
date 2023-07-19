@@ -52,7 +52,7 @@ def test_numpy():
         rgbaImg.reshape(-1)
     except Exception:
         raise RuntimeError(
-            "PyBullet as not installed properly with Numpy functionality,\n"
+            "PyBullet is not installed properly with Numpy functionality,\n"
             "Please fix this by installing Numpy again, then rebuilding PyBullet:\n"
             "\tpip3 uninstall pybullet -y"
             "\tpip3 install numpy"
