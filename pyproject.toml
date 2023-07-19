@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "numpy", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -16,7 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["matplotlib", "gymnasium", "pybullet", "pyyaml"]
+dependencies = ["numpy", "matplotlib", "gymnasium", "pybullet", "pyyaml"]
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "RL", "Gymnasium"]
 license = { file="./LICENSE.txt" }
 
