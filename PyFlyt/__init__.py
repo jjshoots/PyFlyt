@@ -54,9 +54,9 @@ def test_numpy():
         raise RuntimeError(
             "PyBullet is not installed properly with Numpy functionality,\n"
             "Please fix this by installing Numpy again, then rebuilding PyBullet:\n"
-            "\tpip3 uninstall pybullet -y"
-            "\tpip3 install numpy"
-            "\tpip3 install pybullet --no-cache-dir"
+            "\tpip3 uninstall pybullet -y\n"
+            "\tpip3 install numpy\n"
+            "\tpip3 install pybullet --no-cache-dir\n"
         )
 
     p.disconnect()
