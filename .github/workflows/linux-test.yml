@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install python3-opengl xvfb
-          pip install pytest
+          pip install pytest numpy wheel
           pip install .
       - name: Release Test
         run: |
