@@ -98,7 +98,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
-        if self.sparse_reward:
+        if not self.sparse_reward:
             # distance from 0, 0, 1 hover point
             linear_distance = np.linalg.norm(
                 self.env.state(0)[-1] - np.array([0.0, 0.0, 1.0])
