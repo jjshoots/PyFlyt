@@ -19,7 +19,7 @@ env = gymnasium.make("PyFlyt/Rocket-Landing-v0", render_mode="human")
 term, trunc = False, False
 obs, _ = env.reset()
 while not (term or trunc):
-    env.step(env.action_space.sample())
+    obs, rew, term, trunc, _ = env.step(env.action_space.sample())
 ```
 
 ## Environment Options
