@@ -14,7 +14,7 @@ The goal of this environment is to land a rocket falling at terminal velocity on
 import gymnasium
 import PyFlyt.gym_envs
 
-env = gymnasium.make("PyFlyt/Rocket-Landing-v0")
+env = gymnasium.make("PyFlyt/Rocket-Landing-v0", render_mode="human")
 
 term, trunc = False, False
 obs, _ = env.reset()
