@@ -11,8 +11,15 @@ The goal of this environment is to fly a quadrotor aircraft towards a set of way
 ## Usage
 
 ```python
+import gymnasium
 import PyFlyt.gym_envs
+
 env = gymnasium.make("PyFlyt/QuadX-Waypoints-v0")
+
+term, trunc = False, False
+obs, _ = env.reset()
+while not (term or trunc):
+    env.step(env.action_space.sample())
 ```
 
 ## Environment Options

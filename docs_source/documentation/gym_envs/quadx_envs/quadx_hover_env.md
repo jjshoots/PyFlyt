@@ -11,8 +11,15 @@ The goal of this environment is to hover a quadrotor drone for as long as possib
 ## Usage
 
 ```python
+import gymnasium
 import PyFlyt.gym_envs
-env = gymnasium.make("PyFlyt/QuadX-Hover-v0")
+
+env = gymnasium.make("PyFlyt/QuadX-Hover-v0", render_mode="human")
+
+term, trunc = False, False
+obs, _ = env.reset()
+while not (term or trunc):
+    env.step(env.action_space.sample())
 ```
 
 ## Environment Options
