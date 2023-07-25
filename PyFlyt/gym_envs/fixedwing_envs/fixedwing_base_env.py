@@ -271,12 +271,10 @@ class FixedwingBaseEnv(gymnasium.Env):
         ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=self.render_resolution[0],
-            height=self.render_resolution[1],
+            width=self.render_resolution[1],
+            height=self.render_resolution[0],
             viewMatrix=self.env.drones[0].camera.view_mat,
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
 
-        return np.array(rgbaImg, dtype=np.uint8).reshape(
-            self.render_resolution[1], self.render_resolution[0], -1
-        )
+        return rgbaImg

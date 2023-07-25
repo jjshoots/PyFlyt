@@ -5,6 +5,7 @@ import gymnasium as gym
 import pytest
 from gymnasium.error import Error
 from gymnasium.utils.env_checker import check_env, data_equivalence
+import numpy as np
 
 import PyFlyt.gym_envs
 
@@ -160,5 +161,9 @@ def test_render(env_config):
     for _ in range(10):
         frames.append(env.render())
         env.step(env.action_space.sample())
+
+    for frame in frames:
+        assert isinstance(frame, np.ndarray), f"Expected render frames to be of type `np.ndarray`, got {type(frame)}."
+        assert frame.shape[-1] == 4, f"Expected 4 channels in the rendered image, got {frame.shape[-1]}."
 
     env.close()

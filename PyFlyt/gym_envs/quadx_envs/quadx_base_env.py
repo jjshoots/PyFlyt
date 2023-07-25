@@ -265,12 +265,10 @@ class QuadXBaseEnv(gymnasium.Env):
         ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=self.render_resolution[0],
-            height=self.render_resolution[1],
+            width=self.render_resolution[1],
+            height=self.render_resolution[0],
             viewMatrix=self.camera_parameters[2],
             projectionMatrix=self.camera_parameters[3],
         )
 
-        return np.array(rgbaImg, dtype=np.uint8).reshape(
-            self.render_resolution[1], self.render_resolution[0], -1
-        )
+        return rgbaImg

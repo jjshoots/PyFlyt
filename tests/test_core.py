@@ -114,6 +114,14 @@ def test_camera():
     for i in range(100):
         env.step()
 
+        # check the camera image
+        assert isinstance(env.drones[0].rgbaImg, np.ndarray), f"Expected camera image to be of type `np.ndarray`, got {type(env.drones[0].rgbaImg)}."
+        assert isinstance(env.drones[0].depthImg, np.ndarray), f"Expected depth image to be of type `np.ndarray`, got {type(env.drones[0].depthImg)}."
+        assert isinstance(env.drones[0].segImg, np.ndarray), f"Expected segmented image to be of type `np.ndarray`, got {type(env.drones[0].segImg)}."
+        assert env.drones[0].rgbaImg.shape[-1] == 4, f"Expected 4 channels in the rendered image, got {env.drones[0].rgbaImg.shape[-1]}."
+        assert len(env.drones[0].depthImg.shape) == 2, f"Expected depth image to only have 2 dimensions, got {len(env.drones[0].depthImg.shape)}."
+        assert len(env.drones[0].segImg.shape) == 2, f"Expected segmented image to have only 2 dimensions, got {len(env.drones[0].segImg.shape)}"
+
     env.disconnect()
 
 
