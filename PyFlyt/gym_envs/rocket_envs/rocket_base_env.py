@@ -332,4 +332,9 @@ class RocketBaseEnv(gymnasium.Env):
             viewMatrix=self.env.drones[0].camera.view_mat,
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
+
+        rgbaImg = np.asarray(rgbaImg).reshape(
+            self.render_resolution[0], self.render_resolution[1], -1
+        )
+
         return rgbaImg

@@ -162,4 +162,14 @@ class Camera:
             projectionMatrix=self.proj_mat,
         )
 
+        rgbaImg = np.asarray(rgbaImg).reshape(
+            self.camera_resolution[0], self.camera_resolution[1], -1
+        )
+        depthImg = np.asarray(depthImg).reshape(
+            self.camera_resolution[0], self.camera_resolution[1], -1
+        )
+        segImg = np.asarray(segImg).reshape(
+            self.camera_resolution[0], self.camera_resolution[1], -1
+        )
+
         return rgbaImg, depthImg, segImg

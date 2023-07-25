@@ -271,4 +271,8 @@ class QuadXBaseEnv(gymnasium.Env):
             projectionMatrix=self.camera_parameters[3],
         )
 
+        rgbaImg = np.asarray(rgbaImg).reshape(
+            self.render_resolution[0], self.render_resolution[1], -1
+        )
+
         return rgbaImg
