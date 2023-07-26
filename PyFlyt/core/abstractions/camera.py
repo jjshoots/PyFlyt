@@ -7,6 +7,8 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
+from PyFlyt.utils import check_numpy
+
 
 class Camera:
     """A camera component.
@@ -56,6 +58,7 @@ class Camera:
             is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity.
             cinematic (bool = False): it's not a bug, it's a feature.
         """
+        check_numpy()
         if is_tracking_camera and use_gimbal:
             warnings.warn(
                 "Use_gimbal and is_tracking_camera are both enabled. This will lead to funky behaviour."

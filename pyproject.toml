@@ -20,6 +20,9 @@ dependencies = ["numpy", "matplotlib", "gymnasium", "pybullet", "pyyaml"]
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "RL", "Gymnasium"]
 license = { file="./LICENSE.txt" }
 
+[project.optional-dependencies]
+dev = ["pytest", "pre-commit"]
+
 [tool.setuptools]
 include-package-data = true
 

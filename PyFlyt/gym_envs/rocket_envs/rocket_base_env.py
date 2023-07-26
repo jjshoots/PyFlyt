@@ -7,6 +7,7 @@ import pybullet as p
 from gymnasium import spaces
 
 from PyFlyt.core.aviary import Aviary
+from PyFlyt.utils import check_numpy
 
 
 class RocketBaseEnv(gymnasium.Env):
@@ -322,6 +323,7 @@ class RocketBaseEnv(gymnasium.Env):
 
     def render(self):
         """render."""
+        check_numpy()
         assert (
             self.render_mode is not None
         ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
