@@ -1,6 +1,8 @@
 """Common checks."""
 import warnings
+
 from gymnasium.utils import colorize
+
 
 def check_numpy():
     """Checks that numpy is installed."""
