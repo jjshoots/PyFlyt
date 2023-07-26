@@ -2,8 +2,7 @@
 import warnings
 
 import pybullet
-
-from PyFlyt.core.helpers import colorize
+from gymnasium.utils import colorize
 
 # Throw error if pybullet is not installed with numpy support.
 if not pybullet.isNumpyEnabled():
@@ -11,8 +10,8 @@ if not pybullet.isNumpyEnabled():
         colorize(
             (
                 "PyBullet is not installed properly with Numpy functionality! This will "
-                "result in a significant performance hit when using vision.\n\n"
-                "Please fix this by installing Numpy again, then rebuilding PyBullet:\n"
+                "result in a significant performance hit when vision is used.\n\n"
+                "You can fix this by installing Numpy again and rebuilding PyBullet:\n"
                 "\tpip3 uninstall pybullet -y\n"
                 "\tpip3 install numpy\n"
                 "\tpip3 install pybullet --no-cache-dir"
