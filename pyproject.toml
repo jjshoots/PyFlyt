@@ -29,6 +29,11 @@ include-package-data = true
 [tool.setuptools.packages.find]
 include = ["PyFlyt", "PyFlyt.*"]
 
+[tool.setuptools.package-data]
+pyflyt = [
+    "PyFlyt/models/*",
+]
+
 [project.urls]
 Repository = "https://github.com/jjshoots/PyFlyt"
 Documentation = "https://jjshoots.github.io/PyFlyt/documentation.html"
