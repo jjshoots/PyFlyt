@@ -226,7 +226,9 @@ class Fixedwing(DroneClass):
 
         # the default mode
         elif self.mode == 0:
+            # remap and no main wing flaps in mode 0
             self.cmd = self.setpoint[np.array([0, 0, 1, 1, 2, 3])]
+            self.cmd[4] = 0.0
             return
 
         # otherwise, check that we have a custom controller
