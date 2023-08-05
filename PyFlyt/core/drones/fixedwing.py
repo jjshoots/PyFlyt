@@ -93,7 +93,7 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=4,
-                    command_id=0,
+                    command_id=1,
                     command_sign=-1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
@@ -107,7 +107,7 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=1,
-                    command_id=1,
+                    command_id=2,
                     command_sign=1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
@@ -120,12 +120,12 @@ class Fixedwing(DroneClass):
                     physics_period=self.physics_period,
                     np_random=self.np_random,
                     uav_id=self.Id,
-                    surface_id=5,
-                    command_id=None,
-                    command_sign=+1.0,
-                    lifting_unit=np.array([0.0, 0.0, 1.0]),
+                    surface_id=2,
+                    command_id=3,
+                    command_sign=-1.0,
+                    lifting_unit=np.array([0.0, 1.0, 0.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    **all_params["main_wing_params"],
+                    **all_params["vertical_tail_params"],
                 )
             )
             surfaces.append(
@@ -134,12 +134,12 @@ class Fixedwing(DroneClass):
                     physics_period=self.physics_period,
                     np_random=self.np_random,
                     uav_id=self.Id,
-                    surface_id=2,
-                    command_id=2,
+                    surface_id=5,
+                    command_id=4,
                     command_sign=-1.0,
-                    lifting_unit=np.array([0.0, 1.0, 0.0]),
+                    lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
-                    **all_params["vertical_tail_params"],
+                    **all_params["main_wing_params"],
                 )
             )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
@@ -186,8 +186,8 @@ class Fixedwing(DroneClass):
     def reset(self):
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
-        self.setpoint = np.zeros(4)
-        self.cmd = np.zeros(4)
+        self.setpoint: np.ndarray
+        self.cmd = np.zeros(6)
 
         self.p.resetBasePositionAndOrientation(self.Id, self.start_pos, self.start_orn)
         self.p.resetBaseVelocity(self.Id, self.starting_velocity, [0, 0, 0])
@@ -199,24 +199,40 @@ class Fixedwing(DroneClass):
         """Sets the current flight mode of the vehicle.
 
         flight modes:
+            - -1: Left Aileron, Right Aileron, Horizontal Tail, Vertical Tail, Main Wing, Thrust
             - 0: Pitch, Roll, Yaw, Thrust
 
         Args:
             mode (int): flight mode
         """
-        super().set_mode(mode)
+        if (mode < -1 or mode > 0) and mode not in self.registered_controllers.keys():
+            raise ValueError(
+                f"`mode` must be between -1 and 0 or be registered in {self.registered_controllers.keys()=}, got {mode}."
+            )
+
+        self.mode = mode
+
+        if mode == -1:
+            self.setpoint = np.zeros(6)
+        elif mode == 0:
+            self.setpoint = np.zeros(4)
 
     def update_control(self):
         """Runs through controllers."""
-        # the default mode
-        if self.mode == 0:
+        # full control over all surfaces
+        if self.mode == -1:
             self.cmd = self.setpoint
+            return
+
+        # the default mode
+        elif self.mode == 0:
+            self.cmd = self.setpoint[np.array([0, 0, 1, 1, 2, 3])]
             return
 
         # otherwise, check that we have a custom controller
         if self.mode not in self.registered_controllers.keys():
             raise ValueError(
-                f"Don't have other modes aside from 0, received {self.mode}."
+                f"Don't have other modes aside from 0 and -1, received {self.mode}."
             )
 
         # custom controllers run if any
@@ -224,10 +240,10 @@ class Fixedwing(DroneClass):
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
-        assert self.cmd[3] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
+        assert self.cmd[5] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
 
         self.lifting_surfaces.physics_update(self.cmd)
-        self.motors.physics_update(self.cmd[[3]])
+        self.motors.physics_update(self.cmd[[5]])
 
     def update_state(self):
         """Updates the current state of the UAV.
