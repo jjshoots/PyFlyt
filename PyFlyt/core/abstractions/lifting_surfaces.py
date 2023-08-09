@@ -327,7 +327,7 @@ class LiftingSurface:
         Returns:
             tuple[float, float]:
         """
-        freestream_speed = float(np.linalg.norm(local_surface_velocity))
+        freestream_speed = np.linalg.norm(local_surface_velocity).item()
         lifting_airspeed = np.dot(local_surface_velocity, lift_unit)
         forward_airspeed = np.dot(local_surface_velocity, drag_unit)
         alpha = np.arctan2(-lifting_airspeed, forward_airspeed)

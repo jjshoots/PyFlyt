@@ -12,7 +12,7 @@ def maybe_jit(func: Callable, **kwargs):
     """Maybe jits a function depending on Python version."""
     # jit if python is more than 3.10
     if sys.version_info[1] >= 10:
-        return nb.jit(func, nopython=True, **kwargs)
+        return nb.njit(func, **kwargs)
     else:
         return func
 

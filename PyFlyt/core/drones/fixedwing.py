@@ -224,7 +224,6 @@ class Fixedwing(DroneClass):
             self.cmd = (
                 self.setpoint[self.surface_assist_ids] * self.surface_assist_signs
             )
-            print(self.cmd.shape)
             return
 
         # otherwise, check that we have a custom controller
