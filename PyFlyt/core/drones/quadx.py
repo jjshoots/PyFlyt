@@ -168,17 +168,17 @@ class QuadX(DroneClass):
 
             # height controllers
             z_pos_PID = PID(
-                ctrl_params["z_pos"]["kp"],
-                ctrl_params["z_pos"]["ki"],
-                ctrl_params["z_pos"]["kd"],
-                ctrl_params["z_pos"]["lim"],
+                np.array([ctrl_params["z_pos"]["kp"]]),
+                np.array([ctrl_params["z_pos"]["ki"]]),
+                np.array([ctrl_params["z_pos"]["kd"]]),
+                np.array([ctrl_params["z_pos"]["lim"]]),
                 self.control_period,
             )
             z_vel_PID = PID(
-                ctrl_params["z_vel"]["kp"],
-                ctrl_params["z_vel"]["ki"],
-                ctrl_params["z_vel"]["kd"],
-                ctrl_params["z_vel"]["lim"],
+                np.array([ctrl_params["z_vel"]["kp"]]),
+                np.array([ctrl_params["z_vel"]["ki"]]),
+                np.array([ctrl_params["z_vel"]["kd"]]),
+                np.array([ctrl_params["z_vel"]["lim"]]),
                 self.control_period,
             )
             self.z_PIDs = [z_vel_PID, z_pos_PID]
@@ -390,7 +390,7 @@ class QuadX(DroneClass):
 
             # splice things out to be passed along
             a_output = custom_output[:3].copy()
-            z_output = custom_output[-1].copy()
+            z_output = custom_output[-1].copy().flatten()
             mode = self.registered_base_modes[self.mode]
 
         # controller -1 means just direct to motor pwm commands
@@ -434,17 +434,17 @@ class QuadX(DroneClass):
 
         # height controllers
         if mode == 0:
-            z_output = np.clip(z_output, 0.0, 1.0)
+            z_output = np.clip(z_output, 0.0, 1.0).flatten()
         elif mode == 1 or mode == 5 or mode == 6:
-            z_output = self.z_PIDs[0].step(self.state[2][-1], z_output)
+            z_output = self.z_PIDs[0].step(self.state[2][-1].flatten(), z_output)
             z_output = np.clip(z_output, 0, 1)
         elif mode == 2 or mode == 3 or mode == 4 or mode == 7:
-            z_output = self.z_PIDs[1].step(self.state[3][-1], z_output)
-            z_output = self.z_PIDs[0].step(self.state[2][-1], z_output)
+            z_output = self.z_PIDs[1].step(self.state[3][-1].flatten(), z_output)
+            z_output = self.z_PIDs[0].step(self.state[2][-1].flatten(), z_output)
             z_output = np.clip(z_output, 0, 1)
 
         # mix the commands according to motor mix
-        cmd = np.array([*a_output, z_output])
+        cmd = np.array([*a_output, *z_output])
         self.pwm = np.matmul(self.motor_map, cmd)
 
         # deal with motor saturations

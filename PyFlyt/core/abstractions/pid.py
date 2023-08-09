@@ -1,38 +1,64 @@
 """A simple class implementing the PID algorithm that works on numpy arrays."""
+import numba as nb
 import numpy as np
 
+_pid_spec = [
+    ("kp", nb.float64[:]),
+    ("ki", nb.float64[:]),
+    ("kd", nb.float64[:]),
+    ("limits", nb.float64[:]),
+    ("period", nb.float64),
+    ("_integral", nb.float64[:]),
+    ("_prev_error", nb.float64[:]),
+]
 
+
+@nb.experimental.jitclass(_pid_spec)
 class PID:
     """PID."""
 
     def __init__(
         self,
-        Kp: np.ndarray,
-        Ki: np.ndarray,
-        Kd: np.ndarray,
+        kp: np.ndarray,
+        ki: np.ndarray,
+        kd: np.ndarray,
         limits: np.ndarray,
         period: float,
     ):
         """Defines a simple PID controller that works on numpy arrays.
 
-        Kp, Ki, and Kd must be equal shaped numpy arrays.
+        This function is jitted to achieve ~10x speedup.
+        Because of this, all arguments passed into this function, except `period`, must be a 1D np array and have the same shape.
+
+        Example:
+            Invalid implementation:
+            >>> controller = PID(0.5, 0.4, 0.3, 1.0, 0.01)
+            >>> controller.step(5.0, 2.0)
+
+            Valid implementation:
+            >>> kp = np.array([0.5])
+            >>> ki = np.array([0.4])
+            >>> kd = np.array([0.3])
+            >>> limits = np.array([1.0])
+            >>> controller = PID(kp, ki, kd, 0.01)
+            >>> controller.step(np.array([5.0]), np.array([2.0]))
 
         Args:
-            Kp (np.ndarray): Kp
-            Ki (np.ndarray): Ki
-            Kd (np.ndarray): Kd
+            kp (np.ndarray): kp
+            ki (np.ndarray): ki
+            kd (np.ndarray): kd
             limits (np.ndarray): limits
             period (float): period
         """
-        self.Kp = Kp
-        self.Ki = Ki
-        self.Kd = Kd
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
         self.limits = limits
         self.period = period
 
         # runtime variables
-        self._integral = np.zeros_like(self.Kp)
-        self._prev_error = np.zeros_like(self.Kp)
+        self._integral = np.zeros_like(self.ki)
+        self._prev_error = np.zeros_like(self.ki)
 
     def reset(self):
         """Resets the internal state of the PID controller."""
@@ -52,13 +78,13 @@ class PID:
         error = setpoint - state
 
         self._integral = np.clip(
-            self._integral + self.Ki * error * self.period, -self.limits, self.limits
+            self._integral + self.kp * error * self.period, -self.limits, self.limits
         )
 
-        derivative = self.Kd * (error - self._prev_error) / self.period
+        derivative = self.kd * (error - self._prev_error) / self.period
         self._prev_error = error
 
-        proportional = self.Kp * error
+        proportional = self.ki * error
 
         return np.clip(
             proportional + self._integral + derivative, -self.limits, self.limits

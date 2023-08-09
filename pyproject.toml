@@ -16,12 +16,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["numpy", "matplotlib", "gymnasium", "pybullet", "pyyaml"]
+dependencies = ["numba", "numpy", "gymnasium", "pybullet", "pyyaml"]
 keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "RL", "Gymnasium"]
 license = { file="./LICENSE.txt" }
 
 [project.optional-dependencies]
-dev = ["pytest", "pre-commit"]
+dev = ["pytest", "pre-commit", "matplotlib"]
 
 [tool.setuptools]
 include-package-data = true
