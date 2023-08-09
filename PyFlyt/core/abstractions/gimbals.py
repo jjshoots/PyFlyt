@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import warnings
 
-import numba as nb
 import numpy as np
 from pybullet_utils import bullet_client
+
+from PyFlyt.utils import maybe_jit
 
 
 class Gimbals:
@@ -170,7 +171,7 @@ class Gimbals:
         return rotation1 @ rotation2
 
     @staticmethod
-    @nb.jit(nopython=True)
+    @maybe_jit
     def _jitted_compute_rotation(
         gimbal_angles: np.ndarray,
         w1: np.ndarray,

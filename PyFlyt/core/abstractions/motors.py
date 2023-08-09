@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import warnings
 
-import numba as nb
 import numpy as np
 from pybullet_utils import bullet_client
+
+from PyFlyt.utils import maybe_jit
 
 
 class Motors:
@@ -147,7 +148,7 @@ class Motors:
             self.p.applyExternalTorque(self.uav_id, idx, tor, self.p.LINK_FRAME)
 
     @staticmethod
-    @nb.jit(nopython=True)
+    @maybe_jit
     def _jitted_compute_thrust_torque(
         rotation: None | np.ndarray,
         throttle: np.ndarray,
