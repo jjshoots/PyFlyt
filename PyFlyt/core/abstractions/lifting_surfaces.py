@@ -1,6 +1,7 @@
 """A component to simulate lifting surfaces vehicle."""
 from __future__ import annotations
 
+from PyFlyt.utils import maybe_jit
 import warnings
 
 import numba as nb
