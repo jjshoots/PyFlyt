@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
-from PyFlyt.utils import maybe_jit
+from PyFlyt.utils import jitter
 
 
 class Motors:
@@ -148,7 +148,7 @@ class Motors:
             self.p.applyExternalTorque(self.uav_id, idx, tor, self.p.LINK_FRAME)
 
     @staticmethod
-    @maybe_jit
+    @jitter
     def _jitted_compute_thrust_torque(
         rotation: None | np.ndarray,
         throttle: np.ndarray,

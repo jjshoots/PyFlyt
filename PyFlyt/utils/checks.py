@@ -8,13 +8,9 @@ import pybullet as p
 from gymnasium.utils import colorize
 
 
-def maybe_jit(func: Callable, **kwargs):
-    """Maybe jits a function depending on Python version."""
-    # jit if python is more than 3.10
-    if sys.version_info[1] >= 10:
-        return nb.njit(func, **kwargs)
-    else:
-        return func
+def jitter(func: Callable, **kwargs):
+    """Jits a function."""
+    return nb.njit(func, **kwargs)
 
 
 def check_numpy():

@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
-from PyFlyt.utils import maybe_jit
+from PyFlyt.utils import jitter
 
 
 class Gimbals:
@@ -171,7 +171,7 @@ class Gimbals:
         return rotation1 @ rotation2
 
     @staticmethod
-    @maybe_jit
+    @jitter
     def _jitted_compute_rotation(
         gimbal_angles: np.ndarray,
         w1: np.ndarray,

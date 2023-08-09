@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
-from PyFlyt.utils import maybe_jit
+from PyFlyt.utils import jitter
 
 
 class LiftingSurfaces:
@@ -313,7 +313,7 @@ class LiftingSurface:
         )
 
     @staticmethod
-    @maybe_jit
+    @jitter
     def _compute_aoa_freestream(
         local_surface_velocity: np.ndarray, lift_unit: np.ndarray, drag_unit: np.ndarray
     ) -> tuple[float, float]:
@@ -335,7 +335,7 @@ class LiftingSurface:
         return alpha, freestream_speed
 
     @staticmethod
-    @maybe_jit
+    @jitter
     def _jitted_compute_aero_data(
         alpha: float,
         aspect: float,
@@ -435,7 +435,7 @@ class LiftingSurface:
         return Cl, Cd, CM
 
     @staticmethod
-    @maybe_jit
+    @jitter
     def _jitted_compute_force_torque(
         alpha: float,
         freestream_speed: float,
