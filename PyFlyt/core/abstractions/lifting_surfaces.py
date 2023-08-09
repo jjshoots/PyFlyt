@@ -276,6 +276,7 @@ class LiftingSurface:
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
         self.actuation += (self.physics_period / self.cmd_tau) * (cmd - self.actuation)
 
+        # compute angle of attack and freestream velocity
         (alpha, freestream_speed) = self._compute_aoa_freestream(
             self.local_surface_velocity, self.lift_unit, self.drag_unit
         )
