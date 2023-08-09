@@ -164,9 +164,9 @@ class Motors:
         rpm = np.expand_dims(rpm, axis=-1)
 
         # handle rotation, `[..., 0]` is basically squeeze but numba friendly
-        thrust_unit = (
-            thrust_unit if rotation is None else rotation @ thrust_unit
-        )[..., 0]
+        thrust_unit = (thrust_unit if rotation is None else rotation @ thrust_unit)[
+            ..., 0
+        ]
 
         # rpm to thrust and torque
         thrust = (rpm**2) * thrust_coef * thrust_unit
