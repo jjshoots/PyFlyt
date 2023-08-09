@@ -109,6 +109,16 @@ class Motors:
             pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1.
             rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
         """
+        assert np.all(pwm >= -1.0) and np.all(
+            pwm <= 1.0
+        ), f"`{pwm=} has values out of bounds of -1.0 and 1.0.`"
+        if rotation is not None:
+            assert rotation.shape == (
+                self.num_motors,
+                3,
+                3,
+            ), f"`rotation` should be of shape (num_motors, 3, 3), got {rotation.shape}"
+
         # model the motor using first order ODE, y' = T/tau * (setpoint - y)
         self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
 
@@ -164,9 +174,10 @@ class Motors:
         rpm = np.expand_dims(rpm, axis=-1)
 
         # handle rotation, `[..., 0]` is basically squeeze but numba friendly
-        thrust_unit = (thrust_unit if rotation is None else rotation @ thrust_unit)[
-            ..., 0
-        ]
+        if rotation is not None:
+            thrust_unit = (rotation @ thrust_unit)[..., 0]
+        else:
+            thrust_unit = thrust_unit[..., 0]
 
         # rpm to thrust and torque
         thrust = (rpm**2) * thrust_coef * thrust_unit
