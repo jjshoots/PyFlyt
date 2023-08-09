@@ -1,8 +1,16 @@
 """Common checks."""
+import sys
 import warnings
+from typing import Callable
 
+import numba as nb
 import pybullet as p
 from gymnasium.utils import colorize
+
+
+def jitter(func: Callable, **kwargs):
+    """Jits a function."""
+    return nb.njit(func, **kwargs)
 
 
 def check_numpy():

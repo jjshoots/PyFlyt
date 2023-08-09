@@ -6,6 +6,8 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
+from PyFlyt.utils import jitter
+
 
 class Motors:
     """Simulates an array of brushless motor driven propellers.
@@ -128,18 +130,15 @@ class Motors:
             * self.noise_ratio
         )
 
-        # throttle to rpm
-        rpm = self.throttle * self.max_rpm
-        rpm = np.expand_dims(rpm, axis=-1)
-
-        # handle rotation
-        thrust_unit = (
-            self.thrust_unit if rotation is None else rotation @ self.thrust_unit
-        ).squeeze(axis=-1)
-
-        # rpm to thrust and torque
-        thrust = (rpm**2) * self.thrust_coef * thrust_unit
-        torque = (rpm**2) * self.torque_coef * thrust_unit
+        # compute thrust and torque in jitted manner
+        (thrust, torque) = self._jitted_compute_thrust_torque(
+            rotation,
+            self.throttle,
+            self.max_rpm,
+            self.thrust_unit,
+            self.thrust_coef,
+            self.torque_coef,
+        )
 
         # apply the forces
         for idx, thr, tor in zip(self.motor_ids, thrust, torque):
@@ -147,3 +146,42 @@ class Motors:
                 self.uav_id, idx, thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
             )
             self.p.applyExternalTorque(self.uav_id, idx, tor, self.p.LINK_FRAME)
+
+    @staticmethod
+    @jitter
+    def _jitted_compute_thrust_torque(
+        rotation: None | np.ndarray,
+        throttle: np.ndarray,
+        max_rpm: np.ndarray,
+        thrust_unit: np.ndarray,
+        thrust_coef: np.ndarray,
+        torque_coef: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Computes the thrusts and torques for the array of motors.
+
+        Args:
+            rotation (None | np.ndarray): rotation
+            throttle (np.ndarray): throttle from self
+            max_rpm (np.ndarray): max_rpm from self
+            thrust_unit (np.ndarray): thrust_unit from self
+            thrust_coef (np.ndarray): thrust_coef from self
+            torque_coef (np.ndarray): torque_coef from self
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]:
+        """
+        # throttle to rpm
+        rpm = throttle * max_rpm
+        rpm = np.expand_dims(rpm, axis=-1)
+
+        # handle rotation, `[..., 0]` is basically squeeze but numba friendly
+        if rotation is not None:
+            thrust_unit = (rotation @ thrust_unit)[..., 0]
+        else:
+            thrust_unit = thrust_unit[..., 0]
+
+        # rpm to thrust and torque
+        thrust = (rpm**2) * thrust_coef * thrust_unit
+        torque = (rpm**2) * torque_coef * thrust_unit
+
+        return thrust, torque

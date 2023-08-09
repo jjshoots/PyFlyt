@@ -6,6 +6,8 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
+from PyFlyt.utils import jitter
+
 
 class LiftingSurfaces:
     """Handler for multiple lifting surfaces.
@@ -52,17 +54,15 @@ class LiftingSurfaces:
         Args:
             cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface, normalized in [-1, 1].
         """
+        assert len(cmd.shape) == 1, f"`{cmd=}` must be 1D array."
+        assert cmd.shape[0] == len(
+            self.surfaces
+        ), f"`{cmd=}` must have same number of elements as surfaces ({len(self.surfaces)})."
         assert np.all(cmd >= -1.0) and np.all(
             cmd <= 1.0
         ), f"`{cmd=} has values out of bounds of -1.0 and 1.0.`"
 
-        for surface in self.surfaces:
-            actuation = (
-                0.0
-                if surface.command_id is None
-                else float(cmd[surface.command_id] * surface.command_sign)
-            )
-
+        for surface, actuation in zip(self.surfaces, cmd):
             surface.physics_update(actuation)
 
     def state_update(self, rotation_matrix: np.ndarray):
@@ -99,6 +99,7 @@ class LiftingSurfaces:
             )
 
         # update the velocities of all surfaces
+        surface_velocities = np.ascontiguousarray(surface_velocities)
         for surface, velocity in zip(self.surfaces, surface_velocities):
             surface.state_update(velocity)
 
@@ -114,8 +115,6 @@ class LiftingSurface:
         np_random (np.random.RandomState): random number generator of the simulation.
         uav_id (int): ID of the drone.
         surface_id (int): an integer for the link ID for this lifting surface.
-        command_id (None | int): the index of the command array that corresponds to an actuation of this lifting surface.
-        command_sign (float): the sign of the command to actuate this lifting surface.
         lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
         forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
         Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
@@ -138,8 +137,6 @@ class LiftingSurface:
         np_random: np.random.RandomState,
         uav_id: int,
         surface_id: int,
-        command_id: None | int,
-        command_sign: float,
         lifting_unit: np.ndarray,
         forward_unit: np.ndarray,
         Cl_alpha_2D: float,
@@ -162,8 +159,6 @@ class LiftingSurface:
             np_random (np.random.RandomState): random number generator of the simulation.
             uav_id (int): ID of the drone.
             surface_id (int): an integer for the link ID for this lifting surface.
-            command_id (None | int): the index of the command array that corresponds to an actuation of this lifting surface.
-            command_sign (float): the sign of the command to actuate this lifting surface.
             lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
             forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
             Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
@@ -185,10 +180,6 @@ class LiftingSurface:
         # store IDs
         self.uav_id = uav_id
         self.surface_id = surface_id
-
-        # command inputs for referencing
-        self.command_id = command_id
-        self.command_sign = command_sign
 
         # some checks for the lifting and norm vectors
         assert lifting_unit.shape == (3,)
@@ -271,27 +262,44 @@ class LiftingSurface:
         Returns:
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
         """
-        freestream_speed = np.linalg.norm(self.local_surface_velocity)
-        lifting_airspeed = np.dot(self.local_surface_velocity, self.lift_unit)
-        forward_airspeed = np.dot(self.local_surface_velocity, self.drag_unit)
-        alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
-
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
         self.actuation += (self.physics_period / self.cmd_tau) * (cmd - self.actuation)
 
+        # compute angle of attack and freestream velocity
+        (alpha, freestream_speed) = self._compute_aoa_freestream(
+            self.local_surface_velocity, self.lift_unit, self.drag_unit
+        )
+
         # compute aerofoil parameters
-        [Cl, Cd, CM] = self._compute_aero_data(alpha)
+        (Cl, Cd, CM) = self._jitted_compute_aero_data(
+            alpha,
+            self.aspect,
+            self.flap_to_chord,
+            self.aero_tau,
+            self.actuation,
+            self.deflection_limit,
+            self.eta,
+            self.Cl_alpha_3D,
+            self.alpha_stall_P_base,
+            self.alpha_0_base,
+            self.alpha_stall_N_base,
+            self.Cd_0,
+        )
 
-        Q = self.half_rho * np.square(freestream_speed)  # Dynamic pressure
-        Q_area = Q * self.area
-
-        lift = Cl * Q_area
-        drag = Cd * Q_area
-        force_normal = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
-        force_parallel = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
-
-        force = self.lift_unit * force_normal + self.drag_unit * force_parallel
-        torque = Q_area * CM * self.chord * self.torque_unit
+        # compute the forces and torques
+        (force, torque) = self._jitted_compute_force_torque(
+            alpha,
+            freestream_speed,
+            Cl,
+            Cd,
+            CM,
+            self.half_rho,
+            self.area,
+            self.chord,
+            self.lift_unit,
+            self.drag_unit,
+            self.torque_unit,
+        )
 
         self.p.applyExternalForce(
             self.uav_id,
@@ -304,39 +312,80 @@ class LiftingSurface:
             self.uav_id, self.surface_id, torque, self.p.LINK_FRAME
         )
 
-    def _compute_aero_data(self, alpha: float) -> tuple[float, float, float]:
+    @staticmethod
+    @jitter
+    def _compute_aoa_freestream(
+        local_surface_velocity: np.ndarray, lift_unit: np.ndarray, drag_unit: np.ndarray
+    ) -> tuple[float, float]:
+        """Computes the angle of attack (alpha) as well as the freestream speed.
+
+        Args:
+            local_surface_velocity (np.ndarray): local_surface_velocity from self
+            lift_unit (np.ndarray): lift_unit from self
+            drag_unit (np.ndarray): drag_unit from self
+
+        Returns:
+            tuple[float, float]:
+        """
+        freestream_speed = np.linalg.norm(local_surface_velocity).item()
+        lifting_airspeed = np.dot(local_surface_velocity, lift_unit)
+        forward_airspeed = np.dot(local_surface_velocity, drag_unit)
+        alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
+
+        return alpha, freestream_speed
+
+    @staticmethod
+    @jitter
+    def _jitted_compute_aero_data(
+        alpha: float,
+        aspect: float,
+        flap_to_chord: float,
+        aero_tau: float,
+        actuation: float,
+        deflection_limit: float,
+        eta: float,
+        Cl_alpha_3D: float,
+        alpha_stall_P_base: float,
+        alpha_0_base: float,
+        alpha_stall_N_base: float,
+        Cd_0: float,
+    ) -> tuple[float, float, float]:
         """Computes the relevant aerodynamic data depending on the current state of the lifting surface.
 
         Args:
-            deflection (float): deflection of the lifting surface in degrees.
-            alpha (float): angle of attack in degrees.
+            alpha (float): alpha
+            aspect (float): aspect from self
+            flap_to_chord (float): flap_to_chord from self
+            aero_tau (float): aero_tau from self
+            actuation (float): actuation from self
+            deflection_limit (float): deflection_limit from self
+            eta (float): eta from self
+            Cl_alpha_3D (float): Cl_alpha_3D from self
+            alpha_stall_P_base (float): alpha_stall_P_base from self
+            alpha_0_base (float): alpha_0_base from self
+            alpha_stall_N_base (float): alpha_stall_N_base from self
+            Cd_0 (float): Cd_0 from self
 
         Returns:
-            tuple[float, float, float]: Cl, Cd, CM
+            tuple[float, float, float]:
         """
         # deflection must be in degrees because engineering uses degrees
-        deflection_radians = np.deg2rad(self.actuation * self.deflection_limit)
+        deflection_radians = np.deg2rad(actuation * deflection_limit)
 
-        delta_Cl = self.Cl_alpha_3D * self.aero_tau * self.eta * deflection_radians
-        delta_Cl_max = self.flap_to_chord * delta_Cl
-        Cl_max_P = (
-            self.Cl_alpha_3D * (self.alpha_stall_P_base - self.alpha_0_base)
-            + delta_Cl_max
-        )
-        Cl_max_N = (
-            self.Cl_alpha_3D * (self.alpha_stall_N_base - self.alpha_0_base)
-            + delta_Cl_max
-        )
-        alpha_0 = self.alpha_0_base - (delta_Cl / self.Cl_alpha_3D)
-        alpha_stall_P = alpha_0 + (Cl_max_P / self.Cl_alpha_3D)
-        alpha_stall_N = alpha_0 + (Cl_max_N / self.Cl_alpha_3D)
+        delta_Cl = Cl_alpha_3D * aero_tau * eta * deflection_radians
+        delta_Cl_max = flap_to_chord * delta_Cl
+        Cl_max_P = Cl_alpha_3D * (alpha_stall_P_base - alpha_0_base) + delta_Cl_max
+        Cl_max_N = Cl_alpha_3D * (alpha_stall_N_base - alpha_0_base) + delta_Cl_max
+        alpha_0 = alpha_0_base - (delta_Cl / Cl_alpha_3D)
+        alpha_stall_P = alpha_0 + (Cl_max_P / Cl_alpha_3D)
+        alpha_stall_N = alpha_0 + (Cl_max_N / Cl_alpha_3D)
 
         # no stall condition
         if alpha_stall_N < alpha and alpha < alpha_stall_P:
-            Cl = self.Cl_alpha_3D * (alpha - alpha_0)
-            alpha_i = Cl / (np.pi * self.aspect)
+            Cl = Cl_alpha_3D * (alpha - alpha_0)
+            alpha_i = Cl / (np.pi * aspect)
             alpha_eff = alpha - alpha_0 - alpha_i
-            CT = self.Cd_0 * np.cos(alpha_eff)
+            CT = Cd_0 * np.cos(alpha_eff)
             CN = (Cl + (CT * np.sin(alpha_eff))) / np.cos(alpha_eff)
             Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
             CM = -CN * (0.25 - (0.175 * (1.0 - ((2.0 * alpha_eff) / np.pi))))
@@ -346,8 +395,8 @@ class LiftingSurface:
         # positive stall
         if alpha > 0.0:
             # Stall calculations to find alpha_i at stall
-            Cl_stall = self.Cl_alpha_3D * (alpha_stall_P - alpha_0)
-            alpha_i_at_stall = Cl_stall / (np.pi * self.aspect)
+            Cl_stall = Cl_alpha_3D * (alpha_stall_P - alpha_0)
+            alpha_i_at_stall = Cl_stall / (np.pi * aspect)
             # alpha_i post-stall Pos
             alpha_i = np.interp(
                 alpha, [alpha_stall_P, np.pi / 2.0], [alpha_i_at_stall, 0.0]
@@ -355,8 +404,8 @@ class LiftingSurface:
         # negative stall
         else:
             # Stall calculations to find alpha_i at stall
-            Cl_stall = self.Cl_alpha_3D * (alpha_stall_N - alpha_0)
-            alpha_i_at_stall = Cl_stall / (np.pi * self.aspect)
+            Cl_stall = Cl_alpha_3D * (alpha_stall_N - alpha_0)
+            alpha_i_at_stall = Cl_stall / (np.pi * aspect)
             # alpha_i post-stall Neg
             alpha_i = np.interp(
                 alpha, [-np.pi / 2.0, alpha_stall_N], [0.0, alpha_i_at_stall]
@@ -375,12 +424,61 @@ class LiftingSurface:
             * np.sin(alpha_eff)
             * (
                 1.0 / (0.56 + 0.44 * abs(np.sin(alpha_eff)))
-                - 0.41 * (1.0 - np.exp(-17.0 / self.aspect))
+                - 0.41 * (1.0 - np.exp(-17.0 / aspect))
             )
         )
-        CT = 0.5 * self.Cd_0 * np.cos(alpha_eff)
+        CT = 0.5 * Cd_0 * np.cos(alpha_eff)
         Cl = (CN * np.cos(alpha_eff)) - (CT * np.sin(alpha_eff))
         Cd = (CN * np.sin(alpha_eff)) + (CT * np.cos(alpha_eff))
         CM = -CN * (0.25 - (0.175 * (1.0 - ((2.0 * abs(alpha_eff)) / np.pi))))
 
         return Cl, Cd, CM
+
+    @staticmethod
+    @jitter
+    def _jitted_compute_force_torque(
+        alpha: float,
+        freestream_speed: float,
+        Cl: float,
+        Cd: float,
+        CM: float,
+        half_rho: float,
+        area: float,
+        chord: float,
+        lift_unit: np.ndarray,
+        drag_unit: np.ndarray,
+        torque_unit: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Compute the force and torque vectors on the surface.
+
+        Args:
+            alpha (float): alpha
+            freestream_speed (float): freestream_speed
+            Cl (float): Cl
+            Cd (float): Cd
+            CM (float): CM
+            half_rho (float): half_rho from self
+            area (float): area from self
+            chord (float): chord from self
+            lift_unit (np.ndarray): lift_unit from self
+            drag_unit (np.ndarray): drag_unit from self
+            torque_unit (np.ndarray): torque_unit from self
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]:
+        """
+        # compute dynamic pressure
+        Q = half_rho * np.square(freestream_speed)
+        Q_area = Q * area
+
+        # compute lift and drag
+        lift = Cl * Q_area
+        drag = Cd * Q_area
+        force_normal = (lift * np.cos(alpha)) + (drag * np.sin(alpha))
+        force_parallel = (lift * np.sin(alpha)) - (drag * np.cos(alpha))
+
+        # compute forces and torques
+        force = lift_unit * force_normal + drag_unit * force_parallel
+        torque = Q_area * CM * chord * torque_unit
+
+        return force, torque
