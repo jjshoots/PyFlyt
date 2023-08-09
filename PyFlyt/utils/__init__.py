@@ -1,2 +1,2 @@
 """PyFlyt utilities."""
-from .checks import check_numpy, jitter
+from .utils import check_numpy, jitter
