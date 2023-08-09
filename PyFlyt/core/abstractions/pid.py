@@ -27,7 +27,7 @@ class PID:
     ):
         """Defines a simple PID controller that works on numpy arrays.
 
-        This function is jitted to achieve ~10x speedup.
+        This function is jitted to achieve 1.3x speedup.
         Because of this, all arguments passed into this function, except `period`, must be a 1D np array and have the same shape.
 
         Example:
