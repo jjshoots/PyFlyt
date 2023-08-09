@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import warnings
 
+import numba as nb
 import numpy as np
 from pybullet_utils import bullet_client
 
@@ -136,7 +137,7 @@ class Gimbals:
             "`state_update` does not need to be called for gimbals, call `compute_rotation` instead."
         )
 
-    def compute_rotation(self, gimbal_command) -> np.ndarray:
+    def compute_rotation(self, gimbal_command: np.ndarray) -> np.ndarray:
         """Returns a rotation vector after the gimbal rotation.
 
         Args:
@@ -154,10 +155,42 @@ class Gimbals:
             gimbal_command - self.gimbal_state
         )
 
-        # precompute some things
-        gimbal_angles = np.expand_dims(
-            self.gimbal_state * self.gimbal_range_radians, axis=(-1, -2)
+        # compute gimbal euler angles
+        gimbal_angles = self.gimbal_state * self.gimbal_range_radians
+        gimbal_angles = gimbal_angles.reshape(*gimbal_angles.shape, 1, 1)
+
+        # compute gimbal rotation matrix
+        (rotation1, rotation2) = self._jitted_compute_rotation(
+            gimbal_angles,
+            self.w1,
+            self.w2,
+            self.w1_squared,
+            self.w2_squared,
         )
+        return rotation1 @ rotation2
+
+    @staticmethod
+    @nb.jit(nopython=True)
+    def _jitted_compute_rotation(
+        gimbal_angles: np.ndarray,
+        w1: np.ndarray,
+        w2: np.ndarray,
+        w1_squared: np.ndarray,
+        w2_squared: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Compute the rotation matrix given the gimbal action values.
+
+        Args:
+            gimbal_angles (np.ndarray): gimbal_angles
+            w1 (np.ndarray): w1 from self
+            w2 (np.ndarray): w2 from self
+            w1_squared (np.ndarray): w1_squared from self
+            w2_squared (np.ndarray): w2_squared from self
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]:
+        """
+        # precompute some things
         sin_angles = np.sin(gimbal_angles)
         sin_half_angles = np.sin(gimbal_angles / 2.0)
 
@@ -165,14 +198,13 @@ class Gimbals:
         # https://math.stackexchange.com/questions/142821/matrix-for-rotation-around-a-vector
         rotation1 = (
             np.eye(3)
-            + sin_angles[:, 0, ...] * self.w1
-            + 2 * (sin_half_angles[:, 0, ...] ** 2) * self.w1_squared
+            + sin_angles[:, 0, ...] * w1
+            + 2 * (sin_half_angles[:, 0, ...] ** 2) * w1_squared
         )
         rotation2 = (
             np.eye(3)
-            + sin_angles[:, 1, ...] * self.w2
-            + 2 * (sin_half_angles[:, 1, ...] ** 2) * self.w2_squared
+            + sin_angles[:, 1, ...] * w2
+            + 2 * (sin_half_angles[:, 1, ...] ** 2) * w2_squared
         )
 
-        # get the final thrust vector
-        return rotation1 @ rotation2
+        return rotation1, rotation2
