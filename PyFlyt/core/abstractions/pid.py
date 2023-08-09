@@ -57,8 +57,8 @@ class PID:
         self.period = period
 
         # runtime variables
-        self._integral = np.zeros_like(self.ki)
-        self._prev_error = np.zeros_like(self.ki)
+        self._integral = np.zeros_like(self.kp)
+        self._prev_error = np.zeros_like(self.kp)
 
     def reset(self):
         """Resets the internal state of the PID controller."""
@@ -77,14 +77,14 @@ class PID:
         """
         error = setpoint - state
 
+        proportional = self.kp * error
+
         self._integral = np.clip(
-            self._integral + self.kp * error * self.period, -self.limits, self.limits
+            self._integral + self.ki * error * self.period, -self.limits, self.limits
         )
 
         derivative = self.kd * (error - self._prev_error) / self.period
         self._prev_error = error
-
-        proportional = self.ki * error
 
         return np.clip(
             proportional + self._integral + derivative, -self.limits, self.limits
