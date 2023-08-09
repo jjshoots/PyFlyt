@@ -10,13 +10,11 @@ from gymnasium.utils import colorize
 
 def maybe_jit(func: Callable, **kwargs):
     """Maybe jits a function depending on Python version."""
-    return func
-    # return nb.jit(func, nopython=True, **kwargs)
     # jit if python is more than 3.10
     if sys.version_info[1] >= 10:
-        return nb.jit(nopython=True, **kwargs)
+        return nb.jit(func, nopython=True, **kwargs)
     else:
-        return None
+        return func
 
 
 def check_numpy():
