@@ -324,6 +324,28 @@ class LiftingSurface:
 
     @staticmethod
     @nb.jit(nopython=True)
+    def _compute_aoa_freestream(
+        local_surface_velocity: np.ndarray, lift_unit: np.ndarray, drag_unit: np.ndarray
+    ) -> tuple[float, float]:
+        """Computes the angle of attack (alpha) as well as the freestream speed.
+
+        Args:
+            local_surface_velocity (np.ndarray): local_surface_velocity from self
+            lift_unit (np.ndarray): lift_unit from self
+            drag_unit (np.ndarray): drag_unit from self
+
+        Returns:
+            tuple[float, float]:
+        """
+        freestream_speed = float(np.linalg.norm(local_surface_velocity))
+        lifting_airspeed = np.dot(local_surface_velocity, lift_unit)
+        forward_airspeed = np.dot(local_surface_velocity, drag_unit)
+        alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
+
+        return alpha, freestream_speed
+
+    @staticmethod
+    @nb.jit(nopython=True)
     def _jitted_compute_aero_data(
         alpha: float,
         aspect: float,
@@ -470,25 +492,3 @@ class LiftingSurface:
         torque = Q_area * CM * chord * torque_unit
 
         return force, torque
-
-    @staticmethod
-    @nb.jit(nopython=True)
-    def _compute_aoa_freestream(
-        local_surface_velocity: np.ndarray, lift_unit: np.ndarray, drag_unit: np.ndarray
-    ) -> tuple[float, float]:
-        """Computes the angle of attack (alpha) as well as the freestream speed.
-
-        Args:
-            local_surface_velocity (np.ndarray): local_surface_velocity from self
-            lift_unit (np.ndarray): lift_unit from self
-            drag_unit (np.ndarray): drag_unit from self
-
-        Returns:
-            tuple[float, float]:
-        """
-        freestream_speed = float(np.linalg.norm(local_surface_velocity))
-        lifting_airspeed = np.dot(local_surface_velocity, lift_unit)
-        forward_airspeed = np.dot(local_surface_velocity, drag_unit)
-        alpha = np.arctan2(-lifting_airspeed, forward_airspeed)
-
-        return alpha, freestream_speed
