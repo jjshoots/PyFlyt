@@ -355,7 +355,7 @@ class Aviary(bullet_client.BulletClient):
 
         pprint(bodies)
 
-    def set_armed(self, settings: int | bool | list[int | bool]):
+    def set_armed(self, settings: int | bool | list[int] | list[bool]):
         """Sets the arming state of each drone in the environment. Unarmed drones won't receive updates and will ragdoll.
 
         Args:
