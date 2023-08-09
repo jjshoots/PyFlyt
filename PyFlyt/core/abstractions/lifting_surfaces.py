@@ -54,17 +54,15 @@ class LiftingSurfaces:
         Args:
             cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface, normalized in [-1, 1].
         """
+        assert len(cmd.shape) == 1, f"`{cmd=}` must be 1D array."
+        assert cmd.shape[0] == len(
+            self.surfaces
+        ), f"`{cmd=}` must have same number of elements as surfaces ({len(self.surfaces)})."
         assert np.all(cmd >= -1.0) and np.all(
             cmd <= 1.0
         ), f"`{cmd=} has values out of bounds of -1.0 and 1.0.`"
 
-        for surface in self.surfaces:
-            actuation = (
-                0.0
-                if surface.command_id is None
-                else float(cmd[surface.command_id] * surface.command_sign)
-            )
-
+        for surface, actuation in zip(self.surfaces, cmd):
             surface.physics_update(actuation)
 
     def state_update(self, rotation_matrix: np.ndarray):
@@ -117,8 +115,6 @@ class LiftingSurface:
         np_random (np.random.RandomState): random number generator of the simulation.
         uav_id (int): ID of the drone.
         surface_id (int): an integer for the link ID for this lifting surface.
-        command_id (None | int): the index of the command array that corresponds to an actuation of this lifting surface.
-        command_sign (float): the sign of the command to actuate this lifting surface.
         lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
         forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
         Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
@@ -141,8 +137,6 @@ class LiftingSurface:
         np_random: np.random.RandomState,
         uav_id: int,
         surface_id: int,
-        command_id: None | int,
-        command_sign: float,
         lifting_unit: np.ndarray,
         forward_unit: np.ndarray,
         Cl_alpha_2D: float,
@@ -165,8 +159,6 @@ class LiftingSurface:
             np_random (np.random.RandomState): random number generator of the simulation.
             uav_id (int): ID of the drone.
             surface_id (int): an integer for the link ID for this lifting surface.
-            command_id (None | int): the index of the command array that corresponds to an actuation of this lifting surface.
-            command_sign (float): the sign of the command to actuate this lifting surface.
             lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
             forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
             Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
@@ -188,10 +180,6 @@ class LiftingSurface:
         # store IDs
         self.uav_id = uav_id
         self.surface_id = surface_id
-
-        # command inputs for referencing
-        self.command_id = command_id
-        self.command_sign = command_sign
 
         # some checks for the lifting and norm vectors
         assert lifting_unit.shape == (3,)

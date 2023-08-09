@@ -79,8 +79,6 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=3,
-                    command_id=0,
-                    command_sign=+1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
                     **all_params["left_wing_flapped_params"],
@@ -93,8 +91,6 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=4,
-                    command_id=1,
-                    command_sign=-1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
                     **all_params["right_wing_flapped_params"],
@@ -107,8 +103,6 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=1,
-                    command_id=2,
-                    command_sign=1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
                     **all_params["horizontal_tail_params"],
@@ -121,8 +115,6 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=2,
-                    command_id=3,
-                    command_sign=-1.0,
                     lifting_unit=np.array([0.0, 1.0, 0.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
                     **all_params["vertical_tail_params"],
@@ -135,14 +127,17 @@ class Fixedwing(DroneClass):
                     np_random=self.np_random,
                     uav_id=self.Id,
                     surface_id=5,
-                    command_id=4,
-                    command_sign=-1.0,
                     lifting_unit=np.array([0.0, 0.0, 1.0]),
                     forward_unit=np.array([1.0, 0.0, 0.0]),
                     **all_params["main_wing_params"],
                 )
             )
             self.lifting_surfaces = LiftingSurfaces(lifting_surfaces=surfaces)
+
+            # mapping for RPYT -> LeftAil, RightAil, HorStab, VertStab, MainWing, Motor
+            # signs for each control surface when under assist
+            self.surface_assist_ids = np.array([0, 0, 1, 1, 2, 3])
+            self.surface_assist_signs = np.array([1.0, -1.0, 1.0, -1.0, 0.0, 1.0])
 
             # motor
             motor_params = all_params["motor_params"]
@@ -226,9 +221,10 @@ class Fixedwing(DroneClass):
 
         # the default mode
         elif self.mode == 0:
-            # remap and no main wing flaps in mode 0
-            self.cmd = self.setpoint[np.array([0, 0, 1, 1, 2, 3])]
-            self.cmd[4] = 0.0
+            self.cmd = (
+                self.setpoint[self.surface_assist_ids] * self.surface_assist_signs
+            )
+            print(self.cmd.shape)
             return
 
         # otherwise, check that we have a custom controller
@@ -242,9 +238,7 @@ class Fixedwing(DroneClass):
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
-        assert self.cmd[5] >= 0.0, f"thrust `{self.cmd[3]}` must be more than 0.0."
-
-        self.lifting_surfaces.physics_update(self.cmd)
+        self.lifting_surfaces.physics_update(self.cmd[:-1])
         self.motors.physics_update(self.cmd[[5]])
 
     def update_state(self):

@@ -113,7 +113,7 @@ class Rocket(DroneClass):
 
             # add all finlets
             surfaces = list()
-            for finlet_id, command_id in zip([2, 3], [0, 1]):
+            for finlet_id in [0, 1]:
                 # x axis fins
                 surfaces.append(
                     LiftingSurface(
@@ -122,14 +122,12 @@ class Rocket(DroneClass):
                         np_random=self.np_random,
                         uav_id=self.Id,
                         surface_id=finlet_id,
-                        command_id=command_id,
-                        command_sign=+1.0,
                         lifting_unit=np.array([0.0, 1.0, 0.0]),
                         forward_unit=np.array([0.0, 0.0, -1.0]),
                         **all_params["finlet_params"],
                     )
                 )
-            for finlet_id, command_id in zip([4, 5], [2, 3]):
+            for finlet_id in [2, 3]:
                 # y axis fins
                 surfaces.append(
                     LiftingSurface(
@@ -138,8 +136,6 @@ class Rocket(DroneClass):
                         np_random=self.np_random,
                         uav_id=self.Id,
                         surface_id=finlet_id,
-                        command_id=command_id,
-                        command_sign=+1.0,
                         lifting_unit=np.array([1.0, 0.0, 0.0]),
                         forward_unit=np.array([0.0, 0.0, -1.0]),
                         **all_params["finlet_params"],
@@ -264,7 +260,7 @@ class Rocket(DroneClass):
         self.bodies.physics_update()
 
         # actuate lifting surfaces
-        self.lifting_surfaces.physics_update(self.cmd)
+        self.lifting_surfaces.physics_update(self.cmd[:4])
 
         # move the booster gimbal
         rotation = self.booster_gimbal.compute_rotation(
