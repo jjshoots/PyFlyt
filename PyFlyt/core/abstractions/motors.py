@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import warnings
 
+import numba as nb
 import numpy as np
 from pybullet_utils import bullet_client
 
@@ -108,16 +109,6 @@ class Motors:
             pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1.
             rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
         """
-        assert np.all(pwm >= -1.0) and np.all(
-            pwm <= 1.0
-        ), f"`{pwm=} has values out of bounds of -1.0 and 1.0.`"
-        if rotation is not None:
-            assert rotation.shape == (
-                self.num_motors,
-                3,
-                3,
-            ), f"`rotation` should be of shape (num_motors, 3, 3), got {rotation.shape}"
-
         # model the motor using first order ODE, y' = T/tau * (setpoint - y)
         self.throttle += (self.physics_period / self.tau) * (pwm - self.throttle)
 
@@ -128,18 +119,15 @@ class Motors:
             * self.noise_ratio
         )
 
-        # throttle to rpm
-        rpm = self.throttle * self.max_rpm
-        rpm = np.expand_dims(rpm, axis=-1)
-
-        # handle rotation
-        thrust_unit = (
-            self.thrust_unit if rotation is None else rotation @ self.thrust_unit
-        ).squeeze(axis=-1)
-
-        # rpm to thrust and torque
-        thrust = (rpm**2) * self.thrust_coef * thrust_unit
-        torque = (rpm**2) * self.torque_coef * thrust_unit
+        # compute thrust and torque in jitted manner
+        (thrust, torque) = self._jitted_compute_thrust_torque(
+            rotation,
+            self.throttle,
+            self.max_rpm,
+            self.thrust_unit,
+            self.thrust_coef,
+            self.torque_coef,
+        )
 
         # apply the forces
         for idx, thr, tor in zip(self.motor_ids, thrust, torque):
@@ -147,3 +135,41 @@ class Motors:
                 self.uav_id, idx, thr, [0.0, 0.0, 0.0], self.p.LINK_FRAME
             )
             self.p.applyExternalTorque(self.uav_id, idx, tor, self.p.LINK_FRAME)
+
+    @staticmethod
+    @nb.jit(nopython=True)
+    def _jitted_compute_thrust_torque(
+        rotation: None | np.ndarray,
+        throttle: np.ndarray,
+        max_rpm: np.ndarray,
+        thrust_unit: np.ndarray,
+        thrust_coef: np.ndarray,
+        torque_coef: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Computes the thrusts and torques for the array of motors.
+
+        Args:
+            rotation (None | np.ndarray): rotation
+            throttle (np.ndarray): throttle from self
+            max_rpm (np.ndarray): max_rpm from self
+            thrust_unit (np.ndarray): thrust_unit from self
+            thrust_coef (np.ndarray): thrust_coef from self
+            torque_coef (np.ndarray): torque_coef from self
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]:
+        """
+        # throttle to rpm
+        rpm = throttle * max_rpm
+        rpm = np.expand_dims(rpm, axis=-1)
+
+        # handle rotation, `[..., 0]` is basically squeeze but numba friendly
+        thrust_unit = (
+            thrust_unit if rotation is None else rotation @ thrust_unit
+        )[..., 0]
+
+        # rpm to thrust and torque
+        thrust = (rpm**2) * thrust_coef * thrust_unit
+        torque = (rpm**2) * torque_coef * thrust_unit
+
+        return thrust, torque
