@@ -24,8 +24,8 @@ jobs:
         run: |
           sudo apt-get install python3-opengl xvfb
           pip install numpy wheel
-          pip install -e .
-          pip install -e .[dev]
+          pip install .
+          pip install .[dev]
       - name: Release Test
         run: |
           xvfb-run -s "-screen 0 1024x768x24" ./tests/runner.sh
