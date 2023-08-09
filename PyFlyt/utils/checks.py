@@ -8,6 +8,7 @@ import pybullet as p
 from gymnasium.utils import colorize
 
 def maybe_jit(func: Callable, **kwargs):
+    # return func
     return nb.jit(func, nopython=True, **kwargs)
     # jit if python is more than 3.10
     if sys.version_info[1]:

@@ -325,7 +325,7 @@ class LiftingSurface:
         )
 
     @staticmethod
-    @nb.jit(nopython=True)
+    @maybe_jit
     def _compute_aoa_freestream(
         local_surface_velocity: np.ndarray, lift_unit: np.ndarray, drag_unit: np.ndarray
     ) -> tuple[float, float]:
@@ -347,7 +347,7 @@ class LiftingSurface:
         return alpha, freestream_speed
 
     @staticmethod
-    @nb.jit(nopython=True)
+    @maybe_jit
     def _jitted_compute_aero_data(
         alpha: float,
         aspect: float,
@@ -447,7 +447,7 @@ class LiftingSurface:
         return Cl, Cd, CM
 
     @staticmethod
-    @nb.jit(nopython=True)
+    @maybe_jit
     def _jitted_compute_force_torque(
         alpha: float,
         freestream_speed: float,
