@@ -376,15 +376,37 @@ document.write(`
 </figure>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
+<p>We recommend installations using Python <a class="reference external" href="https://docs.python.org/3/library/venv.html">virtual environments</a>.
+It is possible to install PyFlyt using <a class="reference external" href="https://docs.conda.io/en/latest/"><code class="docutils literal notranslate"><span class="pre">conda</span></code></a>, but YMMV.</p>
+<section id="linux-and-macos">
+<h3>Linux and MacOS<a class="headerlink" href="#linux-and-macos" title="Permalink to this heading">#</a></h3>
 <p>Installation on <em>Linux</em> and <em>MacOS</em> is simple:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>wheel<span class="w"> </span>numpy
-pip3<span class="w"> </span>install<span class="w"> </span>pyflyt
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install wheel numpy
+pip3 install pyflyt
 </pre></div>
 </div>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">wheel</span></code> must be installed prior to <code class="docutils literal notranslate"><span class="pre">pyflyt</span></code> such that <code class="docutils literal notranslate"><span class="pre">pybullet</span></code> is built with <code class="docutils literal notranslate"><span class="pre">numpy</span></code> support.</p>
 </div></blockquote>
-<p>On <em>Windows</em>, additional installation may be required for various Microsoft C++ components.</p>
+</section>
+<section id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h3>
+<ol class="arabic">
+<li><p>First, install Microsoft Visual Studio Build Tools.</p>
+<ul class="simple">
+<li><p>Go <a class="reference external" href="https://visualstudio.microsoft.com/downloads/">here</a>, scroll down to <strong>All Downloads</strong>, expand <strong>Tools for Visual Studio</strong>, download <strong>Build Tools for Visual Studio 20XX</strong>, where XX is just the latest year available.</p></li>
+<li><p>Run the installer.</p></li>
+<li><p>Select <strong>Desktop development with C++</strong>, then click <strong>Install while downloading</strong> or the alternate option if you wish.</p></li>
+</ul>
+</li>
+<li><p>Now, you can install <code class="docutils literal notranslate"><span class="pre">PyFlyt</span></code> as usual:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip3 install wheel numpy
+pip3 install pyflyt
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
 </section>
 <section id="gymnasium-environments">
 <h2>Gymnasium Environments<a class="headerlink" href="#gymnasium-environments" title="Permalink to this heading">#</a></h2>
@@ -415,7 +437,11 @@ New users are highly encouraged to go through them first.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#linux-and-macos">Linux and MacOS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#windows">Windows</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gymnasium-environments">Gymnasium Environments</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#i-want-to-do-more">I want to do more!</a></li>
 </ul>
