@@ -256,10 +256,11 @@ class Aviary(bullet_client.BulletClient):
 
         Call this when there is an update in the number of bodies in the environment.
         """
-        # collision array
-        self.contact_array = np.zeros(
-            (self.getNumBodies(), self.getNumBodies()), dtype=bool
+        # the collision array is a scipy sparse, upper triangle array
+        num_bodies = (
+            np.max([self.getBodyUniqueId(i) for i in range(self.getNumBodies())]) + 1
         )
+        self.contact_array = np.zeros((num_bodies, num_bodies), dtype=bool)
 
     def register_wind_field_function(self, wind_field: Callable):
         """For less complicated wind field models (time invariant models), this allows the registration of a normal function as a wind field model.

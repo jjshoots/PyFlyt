@@ -225,6 +225,12 @@ This is __invalid__.
 
     A list of all drones that the Aviary is currently handling.
 
+.. property:: PyFlyt.core.Aviary.contact_array
+
+    A numpy array of collisions between entities.
+    Query whether an object with id `n` has contacted an object with id `m` via `contact_array[n, m]` or `contact_array[m, n]`.
+    It is also possible to do `np.any(contact_array)` to check for all collisions.
+
 .. property:: PyFlyt.core.Aviary.elapsed_ime
 
     A float representing the amount of time that has passed.
