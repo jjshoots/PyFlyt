@@ -647,6 +647,14 @@ It provides a common endpoint from where users may control drones or define task
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="PyFlyt.core.Aviary.contact_array">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">contact_array</span></span><a class="headerlink" href="#PyFlyt.core.Aviary.contact_array" title="Permalink to this definition">#</a></dt>
+<dd><p>A numpy array of collisions between entities.
+Query whether an object with id <cite>n</cite> has contacted an object with id <cite>m</cite> via <cite>contact_array[n, m]</cite> or <cite>contact_array[m, n]</cite>.
+It is also possible to do <cite>np.any(contact_array)</cite> to check for all collisions.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.elapsed_ime">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">elapsed_ime</span></span><a class="headerlink" href="#PyFlyt.core.Aviary.elapsed_ime" title="Permalink to this definition">#</a></dt>
 <dd><p>A float representing the amount of time that has passed.</p>
@@ -745,7 +753,7 @@ It provides a common endpoint from where users may control drones or define task
 
 <dl class="py function">
 <dt class="sig sig-object py" id="PyFlyt.core.Aviary.set_armed">
-<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">set_armed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.Aviary.set_armed" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.Aviary.</span></span><span class="sig-name descname"><span class="pre">set_armed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.Aviary.set_armed" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets the arming state of each drone in the environment. Unarmed drones won’t receive updates and will ragdoll.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -838,6 +846,7 @@ It provides a common endpoint from where users may control drones or define task
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.all_states"><code class="docutils literal notranslate"><span class="pre">Aviary.all_states</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.all_aux_states"><code class="docutils literal notranslate"><span class="pre">Aviary.all_aux_states</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.drones"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.Aviary.drones</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.contact_array"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.Aviary.contact_array</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.elapsed_ime"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.Aviary.elapsed_ime</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.physics_steps"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.Aviary.physics_steps</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.Aviary.aviary_steps"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.Aviary.aviary_steps</span></code></a></li>
