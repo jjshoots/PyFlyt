@@ -27,7 +27,7 @@ while not (term or trunc):
 This environment uses the [`Dict`](https://gymnasium.farama.org/api/spaces/composite/#dict) and [`Sequence`](https://gymnasium.farama.org/api/spaces/composite/#sequence) spaces from `Gymnasium`, which are spaces with non-constant sizes.
 This allows them to have complete observability without observation padding while making (human-)readability easier.
 However, this results in them not being compatible with most popular reinforcement learning libraries like [Stable Baselines 3](https://stable-baselines3.readthedocs.io/en/master/) without custom wrappers.
-If you would like to use this environment with those libraries, you can flatten the environment using the `FlattenWaypointEnv` wrapper, where the argument `context_length` specifies how many immediate targets is included in the observation.
+If you would like to use this environment with those libraries, you can flatten the environment using the `FlattenWaypointEnv` wrapper, where the argument `context_length` specifies how many immediate targets are included in the observation.
 
 ```python
 import gymnasium
