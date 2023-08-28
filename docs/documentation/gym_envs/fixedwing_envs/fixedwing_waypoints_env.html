@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>PyFlyt/Fixedwing-Waypoints-v0 &#8212; PyFlyt</title>
+    <title>PyFlyt/Fixedwing-Waypoints-v1 &#8212; PyFlyt</title>
   
   
   
@@ -298,16 +298,16 @@ document.write(`
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../gym_envs.html">Gymnasium Environments</a><input checked class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../fixedwing_envs.html">Fixedwing Environments</a><input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v0</span></code></a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v1</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../rocket_envs.html">Rocket Environments</a><input checked class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../rocket_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../rocket_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v1</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../quadx_envs.html">QuadX Environments</a><input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../quadx_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v0</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../quadx_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v0</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quadx_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v1</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quadx_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v1</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -360,7 +360,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../fixedwing_envs.html" class="nav-link">Fixedwing Environments</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v0</span></code></li>
+    <li class="breadcrumb-item active" aria-current="page"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v1</span></code></li>
   </ul>
 </nav>
 </div>
@@ -377,8 +377,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="pyflyt-fixedwing-waypoints-v0">
-<h1><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v0</span></code><a class="headerlink" href="#pyflyt-fixedwing-waypoints-v0" title="Link to this heading">#</a></h1>
+  <section id="pyflyt-fixedwing-waypoints-v1">
+<h1><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v1</span></code><a class="headerlink" href="#pyflyt-fixedwing-waypoints-v1" title="Link to this heading">#</a></h1>
 <figure class="align-default">
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/fixedwing_waypoint.gif"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/fixedwing_waypoint.gif" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/fixedwing_waypoint.gif" style="width: 50%;" /></a>
 </figure>
@@ -391,7 +391,7 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span>
 <span class="kn">import</span> <span class="nn">PyFlyt.gym_envs</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/Fixedwing-Waypoints-v0&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/Fixedwing-Waypoints-v1&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
 
 <span class="n">term</span><span class="p">,</span> <span class="n">trunc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 <span class="n">obs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -410,7 +410,7 @@ If you would like to use this environment with those libraries, you can flatten 
 <span class="kn">import</span> <span class="nn">PyFlyt.gym_envs</span>
 <span class="kn">from</span> <span class="nn">PyFlyt.gym_envs</span> <span class="kn">import</span> <span class="n">FlattenWaypointEnv</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/Fixedwing-Waypoints-v0&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/Fixedwing-Waypoints-v1&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">FlattenWaypointEnv</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">context_length</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">term</span><span class="p">,</span> <span class="n">trunc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>

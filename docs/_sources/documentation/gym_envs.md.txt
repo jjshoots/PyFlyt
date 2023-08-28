@@ -11,7 +11,7 @@ Usage is no different to how Gymnasium environments are initialized:
 import gymnasium
 import PyFlyt.gym_envs # noqa
 
-env = gymnasium.make("PyFlyt/QuadX-Hover-v0", render_mode="human")
+env = gymnasium.make("PyFlyt/QuadX-Hover-v1", render_mode="human")
 obs = env.reset()
 
 termination = False
