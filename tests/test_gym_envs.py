@@ -8,85 +8,89 @@ from gymnasium.error import Error
 from gymnasium.utils.env_checker import check_env, data_equivalence
 
 import PyFlyt.gym_envs
+from PyFlyt.gym_envs import FlattenWaypointEnv
 
-_ALL_ENV_CONFIGS = []
-# quadx envs
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v0", dict(angle_representation="euler")))
-_ALL_ENV_CONFIGS.append(
-    ("PyFlyt/QuadX-Hover-v0", dict(angle_representation="quaternion"))
-)
-_ALL_ENV_CONFIGS.append(
+# waypoint envs
+_WAYPOINT_ENV_CONFIGS = []
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="euler", sparse_reward=True),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="quaternion", sparse_reward=True),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="euler", sparse_reward=False),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="quaternion", sparse_reward=False),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="euler", use_yaw_targets=True),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="quaternion", use_yaw_targets=True),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="euler", use_yaw_targets=False),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/QuadX-Waypoints-v0",
         dict(angle_representation="quaternion", use_yaw_targets=False),
     )
 )
-# fixedwing envs
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/Fixedwing-Waypoints-v0",
         dict(angle_representation="euler", sparse_reward=True),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/Fixedwing-Waypoints-v0",
         dict(angle_representation="quaternion", sparse_reward=True),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/Fixedwing-Waypoints-v0",
         dict(angle_representation="euler", sparse_reward=False),
     )
 )
-_ALL_ENV_CONFIGS.append(
+_WAYPOINT_ENV_CONFIGS.append(
     (
         "PyFlyt/Fixedwing-Waypoints-v0",
         dict(angle_representation="quaternion", sparse_reward=False),
     )
+)
+
+# all other environments
+_ALL_ENV_CONFIGS = [] + _WAYPOINT_ENV_CONFIGS
+# quadx envs
+_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v0", dict(angle_representation="euler")))
+_ALL_ENV_CONFIGS.append(
+    ("PyFlyt/QuadX-Hover-v0", dict(angle_representation="quaternion"))
 )
 # rocket envs
 _ALL_ENV_CONFIGS.append(
@@ -97,6 +101,7 @@ _ALL_ENV_CONFIGS.append(
 )
 _ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v0", dict(sparse_reward=True)))
 
+# can be edited depending on gymnasium version
 CHECK_ENV_IGNORE_WARNINGS = [
     f"\x1b[33mWARN: {message}\x1b[0m"
     for message in [
@@ -146,6 +151,24 @@ def test_seeding(env_config):
 
     env_1.close()
     env_2.close()
+
+
+@pytest.mark.parametrize("env_config", _WAYPOINT_ENV_CONFIGS)
+@pytest.mark.parametrize("context_length", [2, 8])
+def test_flatten_env(env_config, context_length):
+    """Test that waypoint environments flatten properly."""
+    env = gym.make(env_config[0], **env_config[1])
+    env = FlattenWaypointEnv(env=env, context_length=context_length)
+
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        check_env(env.unwrapped)
+
+    for warning_message in caught_warnings:
+        assert isinstance(warning_message.message, Warning)
+        if warning_message.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
+            raise Error(f"Unexpected warning: {warning_message.message}")
+
+    env.close()
 
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
