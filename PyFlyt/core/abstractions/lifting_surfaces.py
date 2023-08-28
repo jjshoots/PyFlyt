@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
-from PyFlyt.utils import jitter
+from PyFlyt.core.utils.compile_helpers import jitter
 
 
 class LiftingSurfaces:

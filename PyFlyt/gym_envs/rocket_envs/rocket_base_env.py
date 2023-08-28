@@ -7,7 +7,7 @@ import pybullet as p
 from gymnasium import spaces
 
 from PyFlyt.core.aviary import Aviary
-from PyFlyt.utils import check_numpy
+from PyFlyt.core.utils.compile_helpers import check_numpy
 
 
 class RocketBaseEnv(gymnasium.Env):

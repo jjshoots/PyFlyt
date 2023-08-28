@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import numpy as np
 from gymnasium import spaces
+from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 
-from ..waypoint_handler import WaypointHandler
-from .quadx_base_env import QuadXBaseEnv
+from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 
 
 class QuadXWaypointsEnv(QuadXBaseEnv):

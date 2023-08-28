@@ -9,7 +9,7 @@ import numpy as np
 import pybullet as p
 from gymnasium import spaces
 
-from .quadx_base_env import QuadXBaseEnv
+from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 
 
 class QuadXGatesEnv(QuadXBaseEnv):

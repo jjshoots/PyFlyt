@@ -7,7 +7,7 @@ import numpy as np
 import pybullet as p
 from gymnasium.spaces import Box
 
-from .rocket_base_env import RocketBaseEnv
+from PyFlyt.gym_envs.rocket_envs.rocket_base_env import RocketBaseEnv
 
 
 class RocketLandingEnv(RocketBaseEnv):

@@ -4,8 +4,8 @@ from __future__ import annotations
 import numpy as np
 from gymnasium import spaces
 
-from ..waypoint_handler import WaypointHandler
-from .fixedwing_base_env import FixedwingBaseEnv
+from PyFlyt.gym_envs.fixedwing_envs.fixedwing_base_env import FixedwingBaseEnv
+from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 
 
 class FixedwingWaypointsEnv(FixedwingBaseEnv):

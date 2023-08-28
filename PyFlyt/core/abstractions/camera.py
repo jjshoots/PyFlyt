@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 from pybullet_utils import bullet_client
 
-from PyFlyt.utils import check_numpy
+from PyFlyt.core.utils.compile_helpers import check_numpy
 
 
 class Camera:
