@@ -115,6 +115,7 @@ class DroneClass(ABC):
             basePosition=self.start_pos,
             baseOrientation=self.start_orn,
             useFixedBase=False,
+            flags=self.p.URDF_USE_INERTIA_FROM_FILE
         )
 
         """DEFINE STATE AND SETPOINT"""
