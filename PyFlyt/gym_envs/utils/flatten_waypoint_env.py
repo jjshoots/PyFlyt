@@ -1,4 +1,6 @@
 """Wrapper class for flattening the waypoint envs to use homogeneous observation spaces."""
+from __future__ import annotations
+
 import numpy as np
 from gymnasium.core import Env, ObservationWrapper
 from gymnasium.spaces import Box
