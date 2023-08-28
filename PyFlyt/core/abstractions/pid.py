@@ -13,7 +13,7 @@ _pid_spec = [
 ]
 
 
-@nb.experimental.jitclass(_pid_spec)
+@nb.experimental.jitclass(_pid_spec)  # type: ignore [reportGeneralTypeIssues]
 class PID:
     """PID."""
 

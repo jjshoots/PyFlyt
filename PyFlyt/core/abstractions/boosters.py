@@ -205,7 +205,9 @@ class Boosters:
                 localInertiaDiagonal=inertia[i],
             )
 
-    def _compute_thrust_mass_inertia(self, ignition: np.ndarray, pwm: np.ndarray):
+    def _compute_thrust_mass_inertia(
+        self, ignition: np.ndarray, pwm: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """_compute_thrust_mass_inertia.
 
         Args:
