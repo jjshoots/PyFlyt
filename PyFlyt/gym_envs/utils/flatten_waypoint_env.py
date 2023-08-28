@@ -1,6 +1,6 @@
 """Wrapper class for flattening the waypoint envs to use homogeneous observation spaces."""
 import numpy as np
-from gymnasium import Env, ObservationWrapper
+from gymnasium.core import Env, ObservationWrapper
 from gymnasium.spaces import Box
 
 from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler

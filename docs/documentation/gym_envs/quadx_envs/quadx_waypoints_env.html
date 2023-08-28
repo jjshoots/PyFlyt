@@ -422,6 +422,31 @@ If you would like to use this environment with those libraries, you can flatten 
 </section>
 <section id="environment-options">
 <h2>Environment Options<a class="headerlink" href="#environment-options" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env.QuadXWaypointsEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env.</span></span><span class="sig-name descname"><span class="pre">QuadXWaypointsEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_yaw_targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_reach_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_reach_angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_dome_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_representation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quaternion'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(480,</span> <span class="pre">480)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env.QuadXWaypointsEnv" title="Link to this definition">#</a></dt>
+<dd><p>QuadX Waypoints Environment.</p>
+<p>Actions are vp, vq, vr, T, ie: angular rates and thrust.
+The target is a set of <cite>[x, y, z, (optional) yaw]</cite> waypoints in space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sparse_reward</strong> (<em>bool</em>) – whether to use sparse rewards or not.</p></li>
+<li><p><strong>num_targets</strong> (<em>int</em>) – number of waypoints in the environment.</p></li>
+<li><p><strong>use_yaw_targets</strong> (<em>bool</em>) – whether to match yaw targets before a waypoint is considered reached.</p></li>
+<li><p><strong>goal_reach_distance</strong> (<em>float</em>) – distance to the waypoints for it to be considered reached.</p></li>
+<li><p><strong>goal_reach_angle</strong> (<em>float</em>) – angle in radians to the waypoints for it to be considered reached, only in effect if <cite>use_yaw_targets</cite> is used.</p></li>
+<li><p><strong>flight_dome_size</strong> (<em>float</em>) – size of the allowable flying area.</p></li>
+<li><p><strong>max_duration_seconds</strong> (<em>float</em>) – maximum simulation time of the environment.</p></li>
+<li><p><strong>angle_representation</strong> (<em>str</em>) – can be “euler” or “quaternion”.</p></li>
+<li><p><strong>agent_hz</strong> (<em>int</em>) – looprate of the agent to environment interaction.</p></li>
+<li><p><strong>render_mode</strong> (<em>None</em><em> | </em><em>str</em>) – can be “human” or None</p></li>
+<li><p><strong>render_resolution</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – render_resolution</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -445,7 +470,10 @@ If you would like to use this environment with those libraries, you can flatten 
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-description">Task Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flattening-the-environment">Flattening the Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-options">Environment Options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-options">Environment Options</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env.QuadXWaypointsEnv"><code class="docutils literal notranslate"><span class="pre">QuadXWaypointsEnv</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
