@@ -15,8 +15,8 @@ class FlattenWaypointEnv(ObservationWrapper):
         """__init__.
 
         Args:
-            env (Env): A PyFlyt Waypoints environment.
-            context_length: How many waypoints should be included in the flattened observation space.
+            env (Env): a PyFlyt Waypoints environment.
+            context_length: how many waypoints should be included in the flattened observation space.
         """
         super().__init__(env=env)
         assert hasattr(env, "waypoints") and isinstance(env.waypoints, WaypointHandler), "Only a waypoints environment can be used with the `FlattenWaypointEnv` wrapper."  # type: ignore [reportGeneralTypeIssues]
