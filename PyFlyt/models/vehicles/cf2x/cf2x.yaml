@@ -37,7 +37,7 @@ control_params:
     kp: [1.0, 1.0]
     ki: [0.0, 0.0]
     kd: [0.0, 0.0]
-    lim: [0.5, 0.5]
+    lim: [2.0, 2.0]
 
   z_pos:
     description: "input: height position target | output: z velocity command"
@@ -48,7 +48,7 @@ control_params:
 
   z_vel:
     description: "input: z velocity command | output: normalized thrust command"
-    kp: 1.0
-    ki: 0.15
-    kd: 0.15
-    lim: 1.0
+    kp: 2.0
+    ki: 0.5
+    kd: 0.05
+    lim: 2.0
