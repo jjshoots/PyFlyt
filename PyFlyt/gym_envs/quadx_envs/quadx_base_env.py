@@ -11,7 +11,7 @@ from PyFlyt.core.utils.compile_helpers import check_numpy
 
 
 class QuadXBaseEnv(gymnasium.Env):
-    """Base PyFlyt Environment for the QuadX model using the Gymnasim API."""
+    """Base PyFlyt Environment for the QuadX model using the Gymnasium API."""
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 30}
 
@@ -186,10 +186,10 @@ class QuadXBaseEnv(gymnasium.Env):
 
         This returns the base attitude for the drone.
         - ang_vel (vector of 3 values)
-        - ang_pos (vector of 3/4 values)
+        - ang_pos (vector of 3 values)
         - lin_vel (vector of 3 values)
         - lin_pos (vector of 3 values)
-        - previous_action (vector of 4 values)
+        - quarternion (vector of 4 values)
         """
         raw_state = self.env.state(0)
 
