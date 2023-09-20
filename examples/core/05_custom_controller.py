@@ -6,7 +6,7 @@ from PyFlyt.core.abstractions import ControlClass
 
 
 class CustomController(ControlClass):
-    """A custom controller that inherits from the CtrlClass."""
+    """A custom controller that inherits from the ControlClass."""
 
     def __init__(self):
         """Initialize the controller here."""
@@ -23,7 +23,7 @@ class CustomController(ControlClass):
             state (np.ndarray): Current state of the UAV
             setpoint (np.ndarray): Desired setpoint
         """
-        # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.1
+        # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.5
         target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]
         target_yaw_rate = 0.5
         output = np.array([*target_velocity[:2], target_yaw_rate, target_velocity[-1]])
