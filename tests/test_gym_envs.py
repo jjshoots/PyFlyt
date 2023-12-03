@@ -1,4 +1,4 @@
-"""Tests the API compatibility of all PyFlyt Envs."""
+"""Tests the API compatibility of all PyFlyt Gymnasium Envs."""
 import warnings
 
 import gymnasium as gym
