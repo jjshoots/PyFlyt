@@ -16,6 +16,8 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     The target is to not crash for the longest time possible.
 
     Args:
+        start_pos (np.ndarray): start_pos
+        start_orn (np.ndarray): start_orn
         sparse_reward (bool): sparse_reward
         flight_dome_size (float): flight_dome_size
         max_duration_seconds (float): max_duration_seconds
@@ -28,6 +30,12 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
 
     def __init__(
         self,
+        start_pos: np.ndarray = np.array(
+            [[-1.0, -1.0, 1.0], [1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
+        ),
+        start_orn: np.ndarray = np.array(
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+        ),
         sparse_reward: bool = False,
         flight_dome_size: float = 10.0,
         max_duration_seconds: float = 30.0,
@@ -38,6 +46,8 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """__init__.
 
         Args:
+            start_pos (np.ndarray): start_pos
+            start_orn (np.ndarray): start_orn
             sparse_reward (bool): sparse_reward
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
