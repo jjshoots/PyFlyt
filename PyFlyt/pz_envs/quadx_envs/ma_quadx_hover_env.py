@@ -29,8 +29,8 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     def __init__(
         self,
         sparse_reward: bool = False,
-        flight_dome_size: float = 3.0,
-        max_duration_seconds: float = 10.0,
+        flight_dome_size: float = 10.0,
+        max_duration_seconds: float = 30.0,
         angle_representation: str = "quaternion",
         agent_hz: int = 40,
         render_mode: None | str = None,
@@ -98,7 +98,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         ang_pos = raw_state[1]
         lin_vel = raw_state[2]
         lin_pos = raw_state[3]
-        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = raw_state
+        ang_vel, ang_pos, lin_vel, lin_pos, quaternion = raw_state
 
         # depending on angle representation, return the relevant thing
         if self.angle_representation == 0:
@@ -117,7 +117,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             return np.array(
                 [
                     *ang_vel,
-                    *quarternion,
+                    *quaternion,
                     *lin_vel,
                     *lin_pos,
                     *aux_state,

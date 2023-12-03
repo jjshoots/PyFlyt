@@ -260,7 +260,7 @@ class MAQuadXBaseEnv(AECEnv):
         - ang_pos (vector of 3 values)
         - lin_vel (vector of 3 values)
         - lin_pos (vector of 3 values)
-        - quarternion (vector of 4 values)
+        - quaternion (vector of 4 values)
         """
         raw_state = self.aviary.state(agent_id)
 
@@ -270,10 +270,10 @@ class MAQuadXBaseEnv(AECEnv):
         lin_vel = raw_state[2]
         lin_pos = raw_state[3]
 
-        # quarternion angles
-        quarternion = p.getQuaternionFromEuler(ang_pos)
+        # quaternion angles
+        quaternion = p.getQuaternionFromEuler(ang_pos)
 
-        return ang_vel, ang_pos, lin_vel, lin_pos, quarternion
+        return ang_vel, ang_pos, lin_vel, lin_pos, quaternion
 
     def compute_base_term_trunc_reward_info_by_id(
         self, agent_id: int

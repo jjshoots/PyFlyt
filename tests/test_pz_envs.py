@@ -13,8 +13,24 @@ _ALL_ENV_CONFIGS = []
 _ALL_ENV_CONFIGS.append(
     (
         MAQuadXHoverEnv,
-        dict(),
-    )
+        dict(
+            sparse_reward=False,
+            flight_dome_size=50.0,
+            agent_hz=30,
+            angle_representation="quaternion",
+        ),
+    ),
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        MAQuadXHoverEnv,
+        dict(
+            sparse_reward=True,
+            flight_dome_size=50.0,
+            agent_hz=30,
+            angle_representation="euler",
+        ),
+    ),
 )
 
 # can be edited depending on gymnasium version
