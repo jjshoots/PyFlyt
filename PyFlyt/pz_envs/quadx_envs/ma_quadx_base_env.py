@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Tuple
+from typing import Any
 
 import numpy as np
+import pybullet as p
 from gymnasium import Space, spaces
 from pettingzoo import AECEnv
-import pybullet as p
 from pettingzoo.utils import agent_selector
 
 from PyFlyt.core import Aviary
@@ -60,7 +60,7 @@ class MAQuadXBaseEnv(AECEnv):
             assert (
                 render_mode in self.metadata["render_modes"]
             ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
-        self.render_mode = True if render_mode is not None
+        self.render_mode = render_mode is not None
 
         """SPACES"""
         # attitude size increases by 1 for quaternion
@@ -92,7 +92,7 @@ class MAQuadXBaseEnv(AECEnv):
                 0.0,
             ]
         )
-        self.action_space = lambda _: spaces.Box(low=low, high=high, dtype=np.float64) # pyright: ignore
+        self._action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         # observation space
         self.auxiliary_space = spaces.Box(
@@ -103,17 +103,23 @@ class MAQuadXBaseEnv(AECEnv):
             high=np.inf,
             shape=(
                 attitude_shape
-                + self.auxiliary_space.shape[0],  # pyright: ignore
-                + self.action_space.shape[0]  # pyright: ignore
+                + self.auxiliary_space.shape[0]
+                + self.action_space(None).shape[0],  # pyright: ignore
             ),
             dtype=np.float64,
         )
 
         """ENVIRONMENT CONSTANTS"""
         # check the start_pos shapes
-        assert len(start_pos.shape) == 2, f"Expected `start_pos` to be of shape [num_agents, 3], got {start_pos.shape}."
-        assert start_pos.shape[-1] == 3, f"Expected `start_pos` to be of shape [num_agents, 3], got {start_pos.shape}."
-        assert start_pos.shape == start_orn.shape, f"Expected `start_pos` to be of shape [num_agents, 3], got {start_pos.shape}."
+        assert (
+            len(start_pos.shape) == 2
+        ), f"Expected `start_pos` to be of shape [num_agents, 3], got {start_pos.shape}."
+        assert (
+            start_pos.shape[-1] == 3
+        ), f"Expected `start_pos` to be of shape [num_agents, 3], got {start_pos.shape}."
+        assert (
+            start_pos.shape == start_orn.shape
+        ), f"Expected `start_pos` to be of shape [num_agents, 3], got {start_pos.shape}."
         self.start_pos = start_pos
         self.start_orn = start_orn
 
@@ -127,18 +133,26 @@ class MAQuadXBaseEnv(AECEnv):
 
         # select agents
         self.num_possible_agents = len(start_pos)
-        self.possible_agents = ["uav_" + str(r) for r in range(self.num_possible_agents)]
+        self.possible_agents = [
+            "uav_" + str(r) for r in range(self.num_possible_agents)
+        ]
         self.agent_name_mapping = dict(
             zip(self.possible_agents, list(range(len(self.possible_agents))))
         )
 
         """RUNTIME PARAMETERS"""
         self.current_actions = np.zeros(
-            (self.num_possible_agents, *self.action_space(None).shape)
-        )  # pyright: ignore
+            (
+                self.num_possible_agents,
+                *self.action_space(None).shape,
+            )
+        )
         self.past_actions = np.zeros(
-            (self.num_possible_agents, *self.action_space(None).shape)
-        )  # pyright: ignore
+            (
+                self.num_possible_agents,
+                *self.action_space(None).shape,
+            )
+        )
 
     def observation_space(self, _):
         """observation_space.
@@ -148,16 +162,32 @@ class MAQuadXBaseEnv(AECEnv):
         """
         raise NotImplementedError
 
-    def observe(self, agent: str):
+    def action_space(self, _) -> spaces.Box:
+        """action_space.
+
+        Args:
+            _:
+
+        Returns:
+            Space:
+        """
+        return self._action_space
+
+    def observe(self, agent: str) -> np.ndarray:
         """observe.
 
         Args:
-            agent:
+            agent (str): agent
         """
         agent_id = self.agent_name_mapping[agent]
-        self.observe_by_id(agent_id)
+        return self.observe_by_id(agent_id)
 
     def observe_by_id(self, agent_id: int):
+        """observe_by_id.
+
+        Args:
+            agent_id (int): agent_id
+        """
         raise NotImplementedError
 
     def close(self):
@@ -165,9 +195,17 @@ class MAQuadXBaseEnv(AECEnv):
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
 
+    def reset(self, seed=None, options=dict()):
+        """reset.
+
+        Args:
+            seed: seed
+            options: options
+        """
+        raise NotImplementedError
+
     def begin_reset(self, seed=None, options=dict()):
         """The first half of the reset function."""
-
         # if we already have an env, disconnect from it
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
@@ -177,8 +215,8 @@ class MAQuadXBaseEnv(AECEnv):
         self._cumulative_rewards = {agent: 0.0 for agent in self.agents}
         self.terminations = {agent: False for agent in self.agents}
         self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: dict() for agent in self.agents}
         for agent in self.agents:
-            self.infos[agent] = dict()
             self.infos[agent]["out_of_bounds"] = False
             self.infos[agent]["collision"] = False
             self.infos[agent]["env_complete"] = False
@@ -187,9 +225,7 @@ class MAQuadXBaseEnv(AECEnv):
         self._agent_selector = agent_selector(self.agents)
         self.agent_selection = self._agent_selector.next()
 
-        # disconnect and rebuilt the environment
-        if hasattr(self, "aviary"):
-            self.aviary.disconnect()
+        # rebuild the environment
         self.aviary = Aviary(
             start_pos=self.start_pos,
             start_orn=self.start_orn,
@@ -214,7 +250,9 @@ class MAQuadXBaseEnv(AECEnv):
         """This returns the auxiliary state form the drone."""
         return self.aviary.aux_state(agent_id)
 
-    def compute_attitude_by_id(self, agent_id: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def compute_attitude_by_id(
+        self, agent_id: int
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """state.
 
         This returns the base attitude for the drone.
@@ -237,7 +275,9 @@ class MAQuadXBaseEnv(AECEnv):
 
         return ang_vel, ang_pos, lin_vel, lin_pos, quarternion
 
-    def compute_base_term_trunc_reward_info_by_id(self, agent_id: int) -> Tuple[bool, bool, float, dict[str, Any]]:
+    def compute_base_term_trunc_reward_info_by_id(
+        self, agent_id: int
+    ) -> tuple[bool, bool, float, dict[str, Any]]:
         """compute_base_term_trunc_reward_by_id."""
         # initialize
         term = False
@@ -262,7 +302,9 @@ class MAQuadXBaseEnv(AECEnv):
 
         return term, trunc, reward, info
 
-    def compute_term_trunc_reward_info_by_id(self, agent_id: int) -> Tuple[bool, bool, float, dict[str, Any]]:
+    def compute_term_trunc_reward_info_by_id(
+        self, agent_id: int
+    ) -> tuple[bool, bool, float, dict[str, Any]]:
         """compute_term_trunc_reward_info_by_id.
 
         Args:
@@ -286,7 +328,7 @@ class MAQuadXBaseEnv(AECEnv):
             self._was_dead_step(action)
             return
 
-        # set the actions, clear the agent's cumulative reards since it's seen it
+        # set the actions, clear the agent's cumulative rewards since it's seen it
         self.current_actions[self.agent_name_mapping[agent]] = action
         self._cumulative_rewards[agent] = 0
 
@@ -308,7 +350,9 @@ class MAQuadXBaseEnv(AECEnv):
                     ag_id = self.agent_name_mapping[ag]
 
                     # compute term trunc reward
-                    term, trunc, rew, info = self.compute_term_trunc_reward_info_by_id(ag_id)
+                    term, trunc, rew, info = self.compute_term_trunc_reward_info_by_id(
+                        ag_id
+                    )
                     self.terminations[ag] |= term
                     self.truncations[ag] |= trunc
                     self.rewards[ag] += rew
@@ -317,4 +361,3 @@ class MAQuadXBaseEnv(AECEnv):
         # accumulate rewards and select next agent
         self.agent_selection = self._agent_selector.next()
         self._accumulate_rewards()
-

@@ -4,28 +4,34 @@ import warnings
 import pytest
 from gymnasium.utils.env_checker import data_equivalence
 from pettingzoo.test import api_test
+from pettingzoo.utils import wrappers
 
-from PyFlyt.pz_envs import make_ma_quadx_hover_env
+from PyFlyt.pz_envs import MAQuadXHoverEnv
 
 # waypoint envs
 _ALL_ENV_CONFIGS = []
 _ALL_ENV_CONFIGS.append(
     (
-        make_ma_quadx_hover_env,
+        MAQuadXHoverEnv,
         dict(),
     )
 )
 
 # can be edited depending on gymnasium version
-CHECK_ENV_IGNORE_WARNINGS = []
+CHECK_ENV_IGNORE_WARNINGS = [
+    "Agent's minimum observation space value is -infinity. This is probably too low.",
+    "Agent's maximum observation space value is infinity. This is probably too high",
+]
 
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
 def test_check_env(env_config):
     """Check that environment pass the pettingzoo api_test."""
     env = env_config[0](**env_config[1])
+    env = wrappers.OrderEnforcingWrapper(env)
 
     with warnings.catch_warnings(record=True) as caught_warnings:
+        print(caught_warnings)
         api_test(env)
 
     for warning_message in caught_warnings:
@@ -41,7 +47,8 @@ def test_seeding(env_config):
     """Check that two AEC environments execute the same way."""
     env1 = env_config[0](**env_config[1])
     env2 = env_config[0](**env_config[1])
-
+    env1 = wrappers.OrderEnforcingWrapper(env1)
+    env2 = wrappers.OrderEnforcingWrapper(env2)
     env1.reset(seed=42)
     env2.reset(seed=42)
 
@@ -67,8 +74,8 @@ def test_seeding(env_config):
         if termination1 or truncation1:
             break
 
-        action1 = env1.action_space(agent1)
-        action2 = env2.action_space(agent2)
+        action1 = env1.action_space(agent1).sample()
+        action2 = env2.action_space(agent2).sample()
 
         assert data_equivalence(
             action1, action2

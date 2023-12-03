@@ -5,8 +5,8 @@ from typing import Any
 
 import numpy as np
 from gymnasium import spaces
-from PyFlyt.pz_envs.quadx_envs.ma_quadx_base_env import MAQuadXBaseEnv
 
+from PyFlyt.pz_envs.quadx_envs.ma_quadx_base_env import MAQuadXBaseEnv
 
 
 class MAQuadXHoverEnv(MAQuadXBaseEnv):
@@ -55,9 +55,12 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         self.sparse_reward = sparse_reward
 
         # observation space
-        low = np.concatenate(self.combined_space.low, np.array([-np.inf, -np.inf, -np.inf]))
-        high = np.concatenate(self.combined_space.high, np.array([np.inf, np.inf, np.inf]))
-        self._observation_space = spaces.Box(low=low, high=high)
+        self._observation_space = spaces.Box(
+            low=-np.inf,
+            high=np.inf,
+            shape=(self.combined_space.shape[0] + 3,),
+            dtype=np.float64,
+        )
 
     def observation_space(self, _):
         """observation_space.
@@ -78,10 +81,13 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         super().end_reset(seed, options)
 
     def observe_by_id(self, agent_id: int) -> np.ndarray:
-        """observe.
+        """observe_by_id.
 
         Args:
-            agent:
+            agent_id (int): agent_id
+
+        Returns:
+            np.ndarray:
         """
         # get all the relevant things
         raw_state = self.compute_attitude_by_id(agent_id)
@@ -97,22 +103,44 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         # depending on angle representation, return the relevant thing
         if self.angle_representation == 0:
             return np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *aux_state, *self.past_actions[agent_id], *self.start_pos[agent_id]]
+                [
+                    *ang_vel,
+                    *ang_pos,
+                    *lin_vel,
+                    *lin_pos,
+                    *aux_state,
+                    *self.past_actions[agent_id],
+                    *self.start_pos[agent_id],
+                ]
             )
         elif self.angle_representation == 1:
             return np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *aux_state, *self.past_actions[agent_id], *self.start_pos[agent_id]]
+                [
+                    *ang_vel,
+                    *quarternion,
+                    *lin_vel,
+                    *lin_pos,
+                    *aux_state,
+                    *self.past_actions[agent_id],
+                    *self.start_pos[agent_id],
+                ]
             )
         else:
             raise AssertionError("Not supposed to end up here!")
 
-    def compute_term_trunc_reward_info_by_id(self, agent_id: int) -> tuple[bool, bool, float, dict[str, Any]]:
+    def compute_term_trunc_reward_info_by_id(
+        self, agent_id: int
+    ) -> tuple[bool, bool, float, dict[str, Any]]:
         """Computes the termination, truncation, and reward of the current timestep."""
-        term, trunc, reward, info = super().compute_base_term_trunc_reward_info_by_id(agent_id)
+        term, trunc, reward, info = super().compute_base_term_trunc_reward_info_by_id(
+            agent_id
+        )
 
         if not self.sparse_reward:
             # distance from 0, 0, 1 hover point
-            linear_distance = np.linalg.norm(self.aviary.state(agent_id)[-1] - self.start_pos[agent_id])
+            linear_distance = np.linalg.norm(
+                self.aviary.state(agent_id)[-1] - self.start_pos[agent_id]
+            )
 
             # how far are we from 0 roll pitch
             angular_distance = np.linalg.norm(self.aviary.state(agent_id)[1][:2])
