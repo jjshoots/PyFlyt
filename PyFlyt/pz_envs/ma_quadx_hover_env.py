@@ -1,17 +1,20 @@
+"""Multiagent QuadX Hover Environment."""
+from __future__ import annotations
 from copy import deepcopy
 
 import numpy as np
 from gymnasium import spaces
 from pettingzoo import AECEnv
 from pettingzoo.utils import agent_selector, wrappers
+
 from PyFlyt.core import Aviary
 
 
-def make_ma_hover_env(render_mode=None):
-    """
-    The env function often wraps the environment in wrappers by default.
-    You can find full documentation for these methods
-    elsewhere in the developer documentation.
+def make_ma_quadx_hover_env(render_mode: None | str = None):
+    """Makes the MA QuadX Hover Environment.
+
+    Args:
+        render_mode:
     """
     env = MAQuadXHoverEnv(render_mode=render_mode)
     env = wrappers.AssertOutOfBoundsWrapper(env)
@@ -20,24 +23,47 @@ def make_ma_hover_env(render_mode=None):
 
 
 class MAQuadXHoverEnv(AECEnv):
+    """Simple Multiagent Hover Environment.
+
+    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    The target is to not crash for the longest time possible.
+
+    Args:
+        render_mode (None | str)
+    """
+    """
+
+    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    The target is to not crash for the longest time possible.
+
+    Args:
+        sparse_reward (bool): whether to use sparse rewards or not.
+        flight_dome_size (float): size of the allowable flying area.
+        max_duration_seconds (float): maximum simulation time of the environment.
+        angle_representation (str): can be "euler" or "quaternion".
+        agent_hz (int): looprate of the agent to environment interaction.
+        render_mode (None | str): can be "human" or None.
+        render_resolution (tuple[int, int]): render_resolution.
+    """
+
     metadata = {"render_modes": ["human"], "name": "ma_quadx_hover"}
 
-    def __init__(self, render_mode=None):
+    def __init__(self, render_mode: None | str = None):
+        """__init__.
+
+        Args:
+            render_mode:
+        """
         self._start_pos = np.array([[-1.0, 0.0, 1.0], [1.0, 0.0, 1.0]])
         self._start_orn = np.zeros_like(self._start_pos)
         num_agents = len(self._start_pos)
-        self.step_limit = 300
+        self.time_limit_seconds = 300
 
+        # render mode
+        assert render_mode in self.metadata["render_modes"], f"Expected `render_mode` to be either {self.metadata['render_modes']}, got {render_mode}."
         self.render_mode = render_mode is not None
-        self.aviary = Aviary(
-            start_pos=self._start_pos,
-            start_orn=self._start_orn,
-            drone_type="quadx",
-            render=self.render_mode,
-        )
-        # self.aviary.set_mode(6)
 
-        # optional: a mapping between agent name and ID
+        # select agents
         self.possible_agents = ["player_" + str(r) for r in range(num_agents)]
         self.agent_name_mapping = dict(
             zip(self.possible_agents, list(range(len(self.possible_agents))))
@@ -88,15 +114,28 @@ class MAQuadXHoverEnv(AECEnv):
             (num_agents, *self.action_space(None).shape)
         )  # pyright: ignore
 
-        self.render_mode = render_mode
-
     def observation_space(self, _):
+        """observation_space.
+
+        Args:
+            _:
+        """
         return self._observation_space
 
     def action_space(self, _):
+        """action_space.
+
+        Args:
+            _:
+        """
         return self._action_space
 
     def observe(self, agent):
+        """observe.
+
+        Args:
+            agent:
+        """
         agent_id = self.agent_name_mapping[agent]
         raw_state = self.aviary.state(agent_id)
 
@@ -121,9 +160,17 @@ class MAQuadXHoverEnv(AECEnv):
         )
 
     def close(self):
+        """close.
+        """
         self.aviary.disconnect()
 
     def reset(self, seed=None, options=None):
+        """reset.
+
+        Args:
+            seed:
+            options:
+        """
         self.agents = self.possible_agents[:]
         self.rewards = {agent: 0.0 for agent in self.agents}
         self._cumulative_rewards = {agent: 0.0 for agent in self.agents}
@@ -144,7 +191,7 @@ class MAQuadXHoverEnv(AECEnv):
             render=bool(self.render_mode),
             seed=seed,
         )
-        # self.aviary.set_mode(6)
+        self.aviary.set_mode(0)
 
     def step(self, action):
         """
@@ -187,9 +234,7 @@ class MAQuadXHoverEnv(AECEnv):
                 self.rewards[ag] = -float(linear_distance + angular_distance)
 
                 # truncations and terminations
-                self.truncations[ag] = bool(
-                    self.aviary.elapsed_time > self.step_limit
-                )
+                self.truncations[ag] = bool(self.aviary.elapsed_time > self.time_limit_seconds)
                 self.terminations[ag] = bool(self.aviary.contact_array[ag_id].sum() > 0)
         else:
             self._clear_rewards()
@@ -201,7 +246,7 @@ class MAQuadXHoverEnv(AECEnv):
 
 
 if __name__ == "__main__":
-    env = make_ma_hover_env(render_mode="human")
+    env = make_ma_quadx_hover_env(render_mode="human")
     env.reset(seed=42)
 
     for agent in env.agent_iter():

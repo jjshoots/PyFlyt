@@ -1,17 +1,17 @@
 """Tests the API compatibility of all PyFlyt Pettingzoo Environments."""
 import warnings
 
-from gymnasium.utils.env_checker import data_equivalence
 import pytest
-
-from PyFlyt.pz_envs import *
+from gymnasium.utils.env_checker import data_equivalence
 from pettingzoo.test import api_test
+
+from PyFlyt.pz_envs import make_ma_quadx_hover_env
 
 # waypoint envs
 _ALL_ENV_CONFIGS = []
 _ALL_ENV_CONFIGS.append(
     (
-        make_ma_hover_env,
+        make_ma_quadx_hover_env,
         dict(),
     )
 )
@@ -34,6 +34,7 @@ def test_check_env(env_config):
             raise AssertionError(f"Unexpected warning: {warning_message.message}")
 
     env.close()
+
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
 def test_seeding(env_config):
