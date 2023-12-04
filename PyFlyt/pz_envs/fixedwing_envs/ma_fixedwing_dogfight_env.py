@@ -10,7 +10,7 @@ from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseE
 
 
 # fix numpy buggy cross
-def __np_cross(x, y) -> np.ndarray:
+def _np_cross(x, y) -> np.ndarray:
     """__np_cross.
 
     Args:
@@ -167,12 +167,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         Returns:
             None:
         """
-        # don't recompute if we've already done it
-        if self.last_obs_time == self.aviary.elapsed_time:
-            return
-        else:
-            self.last_obs_time = self.aviary.elapsed_time
-
         # get the states of both drones
         self.attitudes = np.stack(self.aviary.all_states, axis=0, dtype=np.float64)
 
@@ -196,7 +190,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # compute engagement offsets
         self.previous_offsets = self.current_offsets.copy()
         self.current_offsets = np.linalg.norm(
-            __np_cross(separation, forward_vecs), axis=-1
+            _np_cross(separation, forward_vecs), axis=-1
         )
 
         # whether we're lethal or chasing or have opponent in cone
@@ -260,16 +254,14 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         Returns:
             np.ndarray:
         """
+        # don't recompute if we've already done it
+        if self.last_obs_time != self.aviary.elapsed_time:
+            self.last_obs_time = self.aviary.elapsed_time
+            self._compute_agent_states()
         return self.observations[agent_id]
 
     def _compute_engagement_rewards(self) -> None:
         """_compute_engagement_rewards."""
-        # don't recompute if we've already done it
-        if self.last_rew_time == self.aviary.elapsed_time:
-            return
-        else:
-            self.last_rew_time = self.aviary.elapsed_time
-
         # reset rewards
         self.rewards *= 0.0
 
@@ -305,7 +297,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     ) -> tuple[bool, bool, float, dict[str, Any]]:
         """Computes the termination, truncation, and reward of the current timestep."""
         term, trunc, info = super().compute_base_term_trunc_info_by_id(agent_id)
-        self._compute_engagement_rewards()
+
+        # don't recompute if we've already done it
+        if self.last_rew_time != self.aviary.elapsed_time:
+            self.last_rew_time = self.aviary.elapsed_time
+            self._compute_engagement_rewards()
 
         reward = self.rewards[agent_id]
         reward -= bool(info.get("out_of_bounds")) * 3000.0

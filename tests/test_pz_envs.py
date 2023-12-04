@@ -59,7 +59,6 @@ def test_check_env(env_config: tuple[ParallelEnv, dict[str, Any]]):
     env = env_config[0](**env_config[1])  # pyright: ignore
 
     with warnings.catch_warnings(record=True) as caught_warnings:
-        print(caught_warnings)
         parallel_api_test(env, num_cycles=1000)
 
     for warning_message in caught_warnings:
@@ -76,4 +75,4 @@ def test_seeding(env_config: tuple[ParallelEnv, dict[str, Any]]):
     env1 = env_config[0](**env_config[1])  # pyright: ignore
     env2 = env_config[0](**env_config[1])  # pyright: ignore
 
-    check_environment_deterministic_parallel(env1, env2, num_cycles=1000)
+    check_environment_deterministic_parallel(env1, env2, num_cycles=10000)
