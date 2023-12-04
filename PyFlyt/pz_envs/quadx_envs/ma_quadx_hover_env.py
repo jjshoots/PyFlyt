@@ -26,7 +26,11 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         render_mode (None | str): render_mode
     """
 
-    metadata = {"render_modes": ["human"], "name": "ma_quadx_hover", "is_parallelizable": True}
+    metadata = {
+        "render_modes": ["human"],
+        "name": "ma_quadx_hover",
+        "is_parallelizable": True,
+    }
 
     def __init__(
         self,
@@ -82,7 +86,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """
         return self._observation_space
 
-    def reset(self, seed=None, options=dict()):
+    def reset(self, seed=None, options=dict()) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
         Args:
@@ -92,8 +96,15 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         super().begin_reset(seed, options)
         super().end_reset(seed, options)
 
-    def observe_by_id(self, agent_id: int) -> np.ndarray:
-        """observe_by_id.
+        observations = {
+            ag: self.compute_observation_by_id(self.agent_name_mapping[ag])
+            for ag in self.agents
+        }
+        infos = {ag: dict() for ag in self.agents}
+        return observations, infos
+
+    def compute_observation_by_id(self, agent_id: int) -> np.ndarray:
+        """compute_observation_by_id.
 
         Args:
             agent_id (int): agent_id

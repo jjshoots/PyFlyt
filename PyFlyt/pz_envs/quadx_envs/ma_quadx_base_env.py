@@ -1,41 +1,30 @@
-"""Base Multiagent QuadX Environment for use with the Pettingzoo API."""
-from __future__ import annotations
-
+"""Base Multiagent QuadX Environment."""
 from copy import deepcopy
 from typing import Any
 
 import numpy as np
 import pybullet as p
 from gymnasium import Space, spaces
-from pettingzoo import AECEnv
-from pettingzoo.utils import agent_selector
+from pettingzoo import ParallelEnv
 
 from PyFlyt.core import Aviary
 
 
-class MAQuadXBaseEnv(AECEnv):
-    """Base Multiagent QuadX Environment for use with the Pettingzoo API.
-
-    Args:
-        start_pos (np.ndarray): start_pos
-        start_orn (np.ndarray): start_orn
-        flight_dome_size (float): flight_dome_size
-        max_duration_seconds (float): max_duration_seconds
-        angle_representation (str): angle_representation
-        agent_hz (int): agent_hz
-        render_mode (None | str): render_mode
-    """
-
-    metadata = {"render_modes": ["human"], "name": "ma_quadx_hover"}
+class MAQuadXBaseEnv(ParallelEnv):
+    """MAQuadXBaseEnv."""
 
     def __init__(
         self,
-        start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
-        start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
-        flight_dome_size: float = np.inf,
-        max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
-        agent_hz: int = 30,
+        start_pos: np.ndarray = np.array(
+            [[-1.0, -1.0, 1.0], [1.0, -1.0, 0.0], [-1.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
+        ),
+        start_orn: np.ndarray = np.array(
+            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+        ),
+        flight_dome_size: float = 10.0,
+        max_duration_seconds: float = 30.0,
+        angle_representation: str = "euler",
+        agent_hz: int = 40,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -154,11 +143,14 @@ class MAQuadXBaseEnv(AECEnv):
             )
         )
 
-    def observation_space(self, _):
+    def observation_space(self, _) -> Space:
         """observation_space.
 
         Args:
             _:
+
+        Returns:
+            Space:
         """
         raise NotImplementedError
 
@@ -169,38 +161,24 @@ class MAQuadXBaseEnv(AECEnv):
             _:
 
         Returns:
-            Space:
+            spaces.Box:
         """
         return self._action_space
-
-    def observe(self, agent: str) -> np.ndarray:
-        """observe.
-
-        Args:
-            agent (str): agent
-        """
-        agent_id = self.agent_name_mapping[agent]
-        return self.observe_by_id(agent_id)
-
-    def observe_by_id(self, agent_id: int):
-        """observe_by_id.
-
-        Args:
-            agent_id (int): agent_id
-        """
-        raise NotImplementedError
 
     def close(self):
         """close."""
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
 
-    def reset(self, seed=None, options=dict()):
+    def reset(self, seed=None, options=dict()) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
         Args:
-            seed: seed
-            options: options
+            seed:
+            options:
+
+        Returns:
+            tuple[dict[str, Any], dict[str, Any]]: observation and infos
         """
         raise NotImplementedError
 
@@ -211,19 +189,6 @@ class MAQuadXBaseEnv(AECEnv):
             self.aviary.disconnect()
         self.step_count = 0
         self.agents = self.possible_agents[:]
-        self.rewards = {agent: 0.0 for agent in self.agents}
-        self._cumulative_rewards = {agent: 0.0 for agent in self.agents}
-        self.terminations = {agent: False for agent in self.agents}
-        self.truncations = {agent: False for agent in self.agents}
-        self.infos = {agent: dict() for agent in self.agents}
-        for agent in self.agents:
-            self.infos[agent]["out_of_bounds"] = False
-            self.infos[agent]["collision"] = False
-            self.infos[agent]["env_complete"] = False
-
-        # Our agent_selector utility allows easy cyclic stepping through the agents list.
-        self._agent_selector = agent_selector(self.agents)
-        self.agent_selection = self._agent_selector.next()
 
         # rebuild the environment
         self.aviary = Aviary(
@@ -275,6 +240,17 @@ class MAQuadXBaseEnv(AECEnv):
 
         return ang_vel, ang_pos, lin_vel, lin_pos, quaternion
 
+    def compute_observation_by_id(self, agent_id: int) -> Any:
+        """compute_observation_by_id.
+
+        Args:
+            agent_id (int): agent_id
+
+        Returns:
+            Any:
+        """
+        raise NotImplementedError
+
     def compute_base_term_trunc_reward_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
@@ -315,49 +291,64 @@ class MAQuadXBaseEnv(AECEnv):
         """
         raise NotImplementedError
 
-    def step(self, action: np.ndarray):
+    def step(
+        self, actions: dict[str, np.ndarray]
+    ) -> tuple[
+        dict[str, Any],
+        dict[str, float],
+        dict[str, bool],
+        dict[str, bool],
+        dict[str, dict[str, Any]],
+    ]:
         """step.
 
         Args:
-            action (np.ndarray): action
+            actions (dict[str, np.ndarray]): actions
+
+        Returns:
+            tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
         """
-        agent = self.agent_selection
+        # copy over the past actions
+        self.past_actions = deepcopy(self.current_actions)
 
-        # terminate if agent is dead
-        if self.terminations[agent] or self.truncations[agent]:
-            self._was_dead_step(action)
-            return
+        # set the new actions and send to aviary
+        for k, v in actions.items():
+            self.current_actions[self.agent_name_mapping[k]] = v
+        self.aviary.set_all_setpoints(self.current_actions)
 
-        # set the actions, clear the agent's cumulative rewards since it's seen it
-        self.current_actions[self.agent_name_mapping[agent]] = action
-        self._cumulative_rewards[agent] = 0
+        # observation and rewards dictionary
+        observations = dict()
+        terminations = {k: False for k in self.agents}
+        truncations = {k: False for k in self.agents}
+        rewards = {k: 0.0 for k in self.agents}
+        infos = {k: dict() for k in self.agents}
 
-        # environment logic
-        if not self._agent_selector.is_last():
-            # don't do anything if all agents haven't acted
-            self._clear_rewards()
-        else:
-            # collect reward if it is the last agent to act
-            self.aviary.set_all_setpoints(self.current_actions)
-            self.past_actions = deepcopy(self.current_actions)
+        # step enough times for one RL step
+        for _ in range(self.env_step_ratio):
+            self.aviary.step()
 
-            # step enough times for one RL step
-            for _ in range(self.env_step_ratio):
-                self.aviary.step()
+            # update reward, term, trunc, for each agent
+            for ag in self.agents:
+                # compute term trunc reward
+                term, trunc, rew, info = self.compute_term_trunc_reward_info_by_id(
+                    self.agent_name_mapping[ag]
+                )
+                terminations[ag] |= term
+                truncations[ag] |= trunc
+                rewards[ag] += rew
+                infos[ag] = {**infos[ag], **info}
 
-                # update reward, term, trunc, for each agent
-                for ag in self.agents:
-                    ag_id = self.agent_name_mapping[ag]
+        # compute observations at the end
+        observations = {
+            ag: self.compute_observation_by_id(self.agent_name_mapping[ag])
+            for ag in self.agents
+        }
 
-                    # compute term trunc reward
-                    term, trunc, rew, info = self.compute_term_trunc_reward_info_by_id(
-                        ag_id
-                    )
-                    self.terminations[ag] |= term
-                    self.truncations[ag] |= trunc
-                    self.rewards[ag] += rew
-                    self.infos[ag] = {**self.infos[ag], **info}
+        # cull dead agents for the next round
+        self.agents = [
+            agent
+            for agent in self.agents
+            if not (terminations[agent] or truncations[agent])
+        ]
 
-        # accumulate rewards and select next agent
-        self.agent_selection = self._agent_selector.next()
-        self._accumulate_rewards()
+        return observations, rewards, terminations, truncations, infos
