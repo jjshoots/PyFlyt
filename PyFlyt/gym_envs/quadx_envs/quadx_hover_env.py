@@ -107,5 +107,5 @@ class QuadXHoverEnv(QuadXBaseEnv):
             # how far are we from 0 roll pitch
             angular_distance = np.linalg.norm(self.env.state(0)[1][:2])
 
-            self.reward -= (linear_distance + angular_distance)
+            self.reward -= linear_distance + angular_distance
             self.reward += 1.0
