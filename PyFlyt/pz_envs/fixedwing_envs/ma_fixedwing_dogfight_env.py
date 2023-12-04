@@ -9,20 +9,6 @@ from gymnasium import spaces
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
-# fix numpy buggy cross
-def _np_cross(x, y) -> np.ndarray:
-    """__np_cross.
-
-    Args:
-        x:
-        y:
-
-    Returns:
-        np.ndarray:
-    """
-    return np.cross(x, y)
-
-
 class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     """Base Dogfighting Environment for the Acrowing model using custom environment API."""
 
@@ -190,7 +176,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # compute engagement offsets
         self.previous_offsets = self.current_offsets.copy()
         self.current_offsets = np.linalg.norm(
-            _np_cross(separation, forward_vecs), axis=-1
+            np.cross(separation, forward_vecs), axis=-1
         )
 
         # whether we're lethal or chasing or have opponent in cone
