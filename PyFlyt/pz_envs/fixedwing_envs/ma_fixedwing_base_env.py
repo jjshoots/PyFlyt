@@ -1,4 +1,6 @@
-"""Base Multiagent QuadX Environment."""
+"""Base Multiagent Fixedwing Environment."""
+from __future__ import annotations
+
 from copy import deepcopy
 from typing import Any
 
@@ -10,21 +12,18 @@ from pettingzoo import ParallelEnv
 from PyFlyt.core import Aviary
 
 
-class MAQuadXBaseEnv(ParallelEnv):
-    """MAQuadXBaseEnv."""
+class MAFixedwingBaseEnv(ParallelEnv):
+    """Base Dogfighting Environment for the Aggressor model using custom environment API."""
 
     def __init__(
         self,
-        start_pos: np.ndarray = np.array(
-            [[-1.0, -1.0, 1.0], [1.0, -1.0, 1.0], [-1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-        ),
-        start_orn: np.ndarray = np.array(
-            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-        ),
-        flight_dome_size: float = 10.0,
-        max_duration_seconds: float = 10.0,
+        start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
+        start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
+        assisted_flight: bool = True,
+        flight_dome_size: float = 150.0,
+        max_duration_seconds: float = 60.0,
         angle_representation: str = "euler",
-        agent_hz: int = 40,
+        agent_hz: int = 30,
         render_mode: None | str = None,
     ):
         """__init__.
@@ -32,6 +31,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         Args:
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
+            assisted_flight (bool): assisted_flight
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
             angle_representation (str): angle_representation
@@ -63,29 +63,14 @@ class MAQuadXBaseEnv(ParallelEnv):
             )
 
         # action space
-        angular_rate_limit = np.pi
-        thrust_limit = 0.8
-        high = np.array(
-            [
-                angular_rate_limit,
-                angular_rate_limit,
-                angular_rate_limit,
-                thrust_limit,
-            ]
-        )
-        low = np.array(
-            [
-                -angular_rate_limit,
-                -angular_rate_limit,
-                -angular_rate_limit,
-                0.0,
-            ]
-        )
+        high = np.ones(4 if assisted_flight else 6)
+        low = high * -1.0
+        low[-1] = 0.0
         self._action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         # observation space
         self.auxiliary_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(4,), dtype=np.float64
+            low=-np.inf, high=np.inf, shape=(5,), dtype=np.float64
         )
         self.combined_space = spaces.Box(
             low=-np.inf,
@@ -93,12 +78,11 @@ class MAQuadXBaseEnv(ParallelEnv):
             shape=(
                 attitude_shape
                 + self.auxiliary_space.shape[0]
-                + self.action_space(None).shape[0],  # pyright: ignore
+                + self.action_space(None).shape[0],
             ),
-            dtype=np.float64,
         )
 
-        """ENVIRONMENT CONSTANTS"""
+        """CONSTANTS"""
         # check the start_pos shapes
         assert (
             len(start_pos.shape) == 2
@@ -134,13 +118,15 @@ class MAQuadXBaseEnv(ParallelEnv):
             (
                 self.num_possible_agents,
                 *self.action_space(None).shape,
-            )
+            ),
+            dtype=np.float64,
         )
         self.past_actions = np.zeros(
             (
                 self.num_possible_agents,
                 *self.action_space(None).shape,
-            )
+            ),
+            dtype=np.float64,
         )
 
     def observation_space(self, _) -> Space:
@@ -190,11 +176,19 @@ class MAQuadXBaseEnv(ParallelEnv):
         self.step_count = 0
         self.agents = self.possible_agents[:]
 
+        # options
+        drone_options = dict()
+        drone_options["drone_model"] = "acrowing"
+
+        # override options
+        for k, v in drone_options.items():
+            drone_options[k] = v
+
         # rebuild the environment
         self.aviary = Aviary(
             start_pos=self.start_pos,
             start_orn=self.start_orn,
-            drone_type="quadx",
+            drone_type="fixedwing",
             render=bool(self.render_mode),
             drone_options=drone_options,
             seed=seed,
@@ -252,14 +246,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def compute_base_term_trunc_reward_info_by_id(
+    def compute_base_term_trunc_info_by_id(
         self, agent_id: int
-    ) -> tuple[bool, bool, float, dict[str, Any]]:
+    ) -> tuple[bool, bool, dict[str, Any]]:
         """compute_base_term_trunc_reward_by_id."""
         # initialize
         term = False
         trunc = False
-        reward = 0.0
         info = dict()
 
         # exceed step count
@@ -267,17 +260,15 @@ class MAQuadXBaseEnv(ParallelEnv):
 
         # collision
         if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
-            reward -= 100.0
             info["collision"] = True
             term |= True
 
         # exceed flight dome
         if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
-            reward -= 100.0
             info["out_of_bounds"] = True
             term |= True
 
-        return term, trunc, reward, info
+        return term, trunc, info
 
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int

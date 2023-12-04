@@ -1,5 +1,4 @@
 """Common checks."""
-import sys
 import warnings
 from typing import Callable
 

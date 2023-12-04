@@ -1,0 +1,214 @@
+<?xml version="1.0" ?>
+
+<robot name="acrowing">
+
+  <material name="clear">
+    <color rgba="0.0 0.0 0.0 0.2"/>
+  </material>
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="white">
+    <color rgba="0.8 0.8 0.8 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+
+
+  <link name="motor_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="motor_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="motor_link"/>
+  </joint>
+
+
+  <link name="horizontal_tail_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.8 0.05"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 0.8 0.05"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="horizontal_tail_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-1.1 0 0"/>
+    <parent link="base_link"/>
+    <child link="horizontal_tail_link"/>
+  </joint>
+
+
+  <link name="vertical_tail_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.4 0.05 0.5"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.4 0.05 0.4"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="vertical_tail_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-1.1 0 0.25"/>
+    <parent link="base_link"/>
+    <child link="vertical_tail_link"/>
+  </joint>
+
+
+  <link name="ail_left_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.2"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.31 0.3 0.06"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.31 0.3 0.06"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="ail_left_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.35 0.95 0"/>
+    <parent link="base_link"/>
+    <child link="ail_left_link"/>
+  </joint>
+
+
+  <link name="ail_right_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.2"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.31 0.3 0.06"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.31 0.3 0.06"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="ail_right_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.35 -0.95  0"/>
+    <parent link="base_link"/>
+    <child link="ail_right_link"/>
+  </joint>
+
+
+  <link name="main_wing_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.3 1.8 0.05"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 1.8 0.05"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  <joint name="main_wing_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.35 0 0"/>
+    <parent link="base_link"/>
+    <child link="main_wing_link"/>
+  </joint>
+
+
+  <link name="fuselage_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="1.4 0.2 0.2"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="1.4 0.2 0.2"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+  <joint name="fuselage_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.45 0 0"/>
+    <parent link="base_link"/>
+    <child link="fuselage_link"/>
+  </joint>
+
+  <link name="gunsight_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <cylinder radius="0.3" length="15.0"/>
+      </geometry>
+      <material name="clear"/>
+    </visual>
+  </link>
+  <joint name="gunsight_joint" type="fixed">
+    <origin rpy="0 1.571 0" xyz="7.5 0 0"/>
+    <parent link="base_link"/>
+    <child link="gunsight_link"/>
+  </joint>
+</robot>

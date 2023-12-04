@@ -1,6 +1,8 @@
 """Base PyFlyt Environment for the QuadX model using the Gymnasim API."""
 from __future__ import annotations
 
+from typing import Any
+
 import gymnasium
 import numpy as np
 import pybullet as p
@@ -112,22 +114,27 @@ class QuadXBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.angle_representation = 1
 
-    def close(self):
+    def close(self) -> None:
         """Disconnects the internal Aviary."""
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
             self.env.disconnect()
 
-    def reset(self, seed=None, options=dict()):
-        """Resets the environment.
+    def reset(
+        self, seed: None | int = None, options: dict[str, Any] = dict()
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """reset.
 
         Args:
-            seed: seed to pass to the base environment.
-            options: None
+            seed (None | int): seed
+            options (dict[str, Any]): options
+
+        Returns:
+            tuple[dict[str, Any], dict[str, Any]]:
         """
         raise NotImplementedError
 
-    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
+    def begin_reset(self, seed=None, options=dict(), drone_options=dict()) -> None:
         """The first half of the reset function."""
         super().reset(seed=seed)
 
@@ -159,7 +166,9 @@ class QuadXBaseEnv(gymnasium.Env):
         if self.render_mode is not None:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
-    def end_reset(self, seed=None, options=dict()):
+    def end_reset(
+        self, seed: None | int = None, options: dict[str, Any] = dict()
+    ) -> None:
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.env.register_all_new_bodies()
@@ -173,15 +182,17 @@ class QuadXBaseEnv(gymnasium.Env):
 
         self.compute_state()
 
-    def compute_state(self):
-        """Computes the state of the Rocket."""
+    def compute_state(self) -> None:
+        """Computes the state of the QuadX."""
         raise NotImplementedError
 
-    def compute_auxiliary(self):
+    def compute_auxiliary(self) -> np.ndarray:
         """This returns the auxiliary state form the drone."""
         return self.env.aux_state(0)
 
-    def compute_attitude(self):
+    def compute_attitude(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """state.
 
         This returns the base attitude for the drone.
@@ -204,11 +215,11 @@ class QuadXBaseEnv(gymnasium.Env):
 
         return ang_vel, ang_pos, lin_vel, lin_pos, quarternion
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """compute_term_trunc_reward."""
         raise NotImplementedError
 
-    def compute_base_term_trunc_reward(self):
+    def compute_base_term_trunc_reward(self) -> None:
         """compute_base_term_trunc_reward."""
         # exceed step count
         if self.step_count > self.max_steps:
@@ -226,7 +237,7 @@ class QuadXBaseEnv(gymnasium.Env):
             self.info["out_of_bounds"] = True
             self.termination |= True
 
-    def step(self, action: np.ndarray):
+    def step(self, action: np.ndarray) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         """Steps the environment.
 
         Args:
@@ -259,7 +270,7 @@ class QuadXBaseEnv(gymnasium.Env):
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
-    def render(self):
+    def render(self) -> np.ndarray:
         """render."""
         check_numpy()
         assert (

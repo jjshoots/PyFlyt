@@ -29,7 +29,6 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     metadata = {
         "render_modes": ["human"],
         "name": "ma_quadx_hover",
-        "is_parallelizable": True,
     }
 
     def __init__(

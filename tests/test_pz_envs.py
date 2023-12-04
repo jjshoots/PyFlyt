@@ -7,7 +7,7 @@ from pettingzoo import ParallelEnv
 from pettingzoo.test import parallel_api_test
 from pettingzoo.test.seed_test import check_environment_deterministic_parallel
 
-from PyFlyt.pz_envs import MAQuadXHoverEnv
+from PyFlyt.pz_envs import MAFixedwingDogfightEnv, MAQuadXHoverEnv
 
 # waypoint envs
 _ALL_ENV_CONFIGS = []
@@ -31,6 +31,18 @@ _ALL_ENV_CONFIGS.append(
             agent_hz=30,
             angle_representation="euler",
         ),
+    ),
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        MAFixedwingDogfightEnv,
+        dict(sparse_reward=True),
+    ),
+)
+_ALL_ENV_CONFIGS.append(
+    (
+        MAFixedwingDogfightEnv,
+        dict(sparse_reward=False),
     ),
 )
 

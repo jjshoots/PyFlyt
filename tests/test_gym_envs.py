@@ -7,7 +7,7 @@ import pytest
 from gymnasium.error import Error
 from gymnasium.utils.env_checker import check_env, data_equivalence
 
-import PyFlyt.gym_envs
+import PyFlyt.gym_envs  # noqa
 from PyFlyt.gym_envs import FlattenWaypointEnv
 
 # waypoint envs
