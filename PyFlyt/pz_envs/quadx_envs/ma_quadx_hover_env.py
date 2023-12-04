@@ -56,6 +56,8 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             render_mode (None | str): render_mode
         """
         super().__init__(
+            start_pos=start_pos,
+            start_orn=start_orn,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
