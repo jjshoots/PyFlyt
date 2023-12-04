@@ -26,7 +26,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         render_mode (None | str): render_mode
     """
 
-    metadata = {"render_modes": ["human"], "name": "ma_quadx_hover"}
+    metadata = {"render_modes": ["human"], "name": "ma_quadx_hover", "is_parallelizable": True}
 
     def __init__(
         self,
