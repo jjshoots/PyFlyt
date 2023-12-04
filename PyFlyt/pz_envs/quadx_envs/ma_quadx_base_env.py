@@ -22,7 +22,7 @@ class MAQuadXBaseEnv(ParallelEnv):
             [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
         ),
         flight_dome_size: float = 10.0,
-        max_duration_seconds: float = 30.0,
+        max_duration_seconds: float = 10.0,
         angle_representation: str = "euler",
         agent_hz: int = 40,
         render_mode: None | str = None,
@@ -265,7 +265,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         trunc |= self.step_count > self.max_steps
 
         # collision
-        if np.any(self.aviary.contact_array[agent_id]):
+        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
             reward -= 100.0
             info["collision"] = True
             term |= True
@@ -312,6 +312,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         self.past_actions = deepcopy(self.current_actions)
 
         # set the new actions and send to aviary
+        self.current_actions *= 0.0
         for k, v in actions.items():
             self.current_actions[self.agent_name_mapping[k]] = v
         self.aviary.set_all_setpoints(self.current_actions)
@@ -329,22 +330,22 @@ class MAQuadXBaseEnv(ParallelEnv):
 
             # update reward, term, trunc, for each agent
             for ag in self.agents:
+                ag_id = self.agent_name_mapping[ag]
+
                 # compute term trunc reward
                 term, trunc, rew, info = self.compute_term_trunc_reward_info_by_id(
-                    self.agent_name_mapping[ag]
+                    ag_id
                 )
                 terminations[ag] |= term
                 truncations[ag] |= trunc
                 rewards[ag] += rew
                 infos[ag] = {**infos[ag], **info}
 
-        # compute observations at the end
-        observations = {
-            ag: self.compute_observation_by_id(self.agent_name_mapping[ag])
-            for ag in self.agents
-        }
+                # compute observations
+                observations[ag] = self.compute_observation_by_id(ag_id)
 
-        # cull dead agents for the next round
+        # increment step count and cull dead agents for the next round
+        self.step_count += 1
         self.agents = [
             agent
             for agent in self.agents

@@ -168,7 +168,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             # how far are we from 0 roll pitch
             angular_distance = np.linalg.norm(self.aviary.state(agent_id)[1][:2])
 
-            reward -= float(linear_distance + angular_distance)
+            reward -= float(linear_distance + angular_distance * 0.1)
             reward += 1.0
 
         return term, trunc, reward, info
