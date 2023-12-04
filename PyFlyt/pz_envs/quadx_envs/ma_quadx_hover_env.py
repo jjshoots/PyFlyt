@@ -169,5 +169,6 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             angular_distance = np.linalg.norm(self.aviary.state(agent_id)[1][:2])
 
             reward -= float(linear_distance + angular_distance)
+            reward += 1.0
 
         return term, trunc, reward, info
