@@ -1,4 +1,4 @@
-# `MAQuadXHoverEnv`
+# `PyFlyt/QuadX-Hover-v1`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif
     :width: 50%
@@ -6,26 +6,24 @@
 
 ## Task Description
 
-The goal of this environment is for all agents to hover at their starting positions for as long as possible.
+The goal of this environment is to hover a quadrotor drone for as long as possible.
 
 ## Usage
 
 ```python
-from PyFlyt.pz_envs import MAQuadXHoverEnv
+import gymnasium
+import PyFlyt.gym_envs
 
-env = MAQuadXHoverEnv(render_mode="human")
-observations, infos = env.reset()
+env = gymnasium.make("PyFlyt/QuadX-Hover-v1", render_mode="human")
 
-while env.agents:
-    # this is where you would insert your policy
-    actions = {agent: env.action_space(agent).sample() for agent in env.agents}
-
-    observations, rewards, terminations, truncations, infos = env.step(actions)
-env.close()
+term, trunc = False, False
+obs, _ = env.reset()
+while not (term or trunc):
+    obs, rew, term, trunc, _ = env.step(env.action_space.sample())
 ```
 
 ## Environment Options
 
 ```{eval-rst}
-.. autoclass:: PyFlyt.pz_envs.quadx_envs.ma_quadx_hover_env.MAQuadXHoverEnv
+.. autoclass:: PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv
 ```

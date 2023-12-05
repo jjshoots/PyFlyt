@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>MAQuadXHoverEnv &#8212; PyFlyt</title>
+    <title>PyFlyt/QuadX-Hover-v1 &#8212; PyFlyt</title>
   
   
   
@@ -297,14 +297,14 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../gym_envs.html">Gymnasium Environments</a><input checked class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v1</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v1</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v1</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v1</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../pz_envs.html">PettingZoo Environments</a><input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v1</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v1</span></code></a></li>
 </ul>
 </li>
@@ -351,7 +351,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../gym_envs.html" class="nav-link">Gymnasium Environments</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></li>
+    <li class="breadcrumb-item active" aria-current="page"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v1</span></code></li>
   </ul>
 </nav>
 </div>
@@ -368,50 +368,47 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="maquadxhoverenv">
-<h1><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code><a class="headerlink" href="#maquadxhoverenv" title="Link to this heading">#</a></h1>
+  <section id="pyflyt-quadx-hover-v1">
+<h1><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v1</span></code><a class="headerlink" href="#pyflyt-quadx-hover-v1" title="Link to this heading">#</a></h1>
 <figure class="align-default">
 <a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif" style="width: 50%;" /></a>
 </figure>
 <section id="task-description">
 <h2>Task Description<a class="headerlink" href="#task-description" title="Link to this heading">#</a></h2>
-<p>The goal of this environment is for all agents to hover at their starting positions for as long as possible.</p>
+<p>The goal of this environment is to hover a quadrotor drone for as long as possible.</p>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">PyFlyt.pz_envs</span> <span class="kn">import</span> <span class="n">MAQuadXHoverEnv</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span>
+<span class="kn">import</span> <span class="nn">PyFlyt.gym_envs</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">MAQuadXHoverEnv</span><span class="p">(</span><span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
-<span class="n">observations</span><span class="p">,</span> <span class="n">infos</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/QuadX-Hover-v1&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
 
-<span class="k">while</span> <span class="n">env</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
-    <span class="c1"># this is where you would insert your policy</span>
-    <span class="n">actions</span> <span class="o">=</span> <span class="p">{</span><span class="n">agent</span><span class="p">:</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">agents</span><span class="p">}</span>
-
-    <span class="n">observations</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">terminations</span><span class="p">,</span> <span class="n">truncations</span><span class="p">,</span> <span class="n">infos</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-<span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">term</span><span class="p">,</span> <span class="n">trunc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="n">term</span> <span class="ow">or</span> <span class="n">trunc</span><span class="p">):</span>
+    <span class="n">obs</span><span class="p">,</span> <span class="n">rew</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">trunc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span>
 </pre></div>
 </div>
 </section>
 <section id="environment-options">
 <h2>Environment Options<a class="headerlink" href="#environment-options" title="Link to this heading">#</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="PyFlyt.pz_envs.quadx_envs.ma_quadx_hover_env.MAQuadXHoverEnv">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.pz_envs.quadx_envs.ma_quadx_hover_env.</span></span><span class="sig-name descname"><span class="pre">MAQuadXHoverEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([[-1.,</span> <span class="pre">-1.,</span> <span class="pre">1.],</span> <span class="pre">[1.,</span> <span class="pre">-1.,</span> <span class="pre">1.],</span> <span class="pre">[-1.,</span> <span class="pre">1.,</span> <span class="pre">1.],</span> <span class="pre">[1.,</span> <span class="pre">1.,</span> <span class="pre">1.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([[0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span> <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span> <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span> <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.]])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_dome_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_representation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quaternion'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.pz_envs.quadx_envs.ma_quadx_hover_env.MAQuadXHoverEnv" title="Link to this definition">#</a></dt>
-<dd><p>Simple Multiagent Hover Environment.</p>
+<dt class="sig sig-object py" id="PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.gym_envs.quadx_envs.quadx_hover_env.</span></span><span class="sig-name descname"><span class="pre">QuadXHoverEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_dome_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_representation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quaternion'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(480,</span> <span class="pre">480)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv" title="Link to this definition">#</a></dt>
+<dd><p>Simple Hover Environment.</p>
 <p>Actions are vp, vq, vr, T, ie: angular rates and thrust.
-The target is for each agent to not crash for the longest time possible.</p>
+The target is to not crash for the longest time possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pos</strong> (<em>np.ndarray</em>) – an (num_drones x 3) numpy array specifiying the starting positions of each agent.</p></li>
-<li><p><strong>start_orn</strong> (<em>np.ndarray</em>) – an (num_drones x 3) numpy array specifiying the starting orientations of each agent.</p></li>
-<li><p><strong>sparse_reward</strong> (<em>bool</em>) – whether ot use sparse rewards or not.</p></li>
+<li><p><strong>sparse_reward</strong> (<em>bool</em>) – whether to use sparse rewards or not.</p></li>
 <li><p><strong>flight_dome_size</strong> (<em>float</em>) – size of the allowable flying area.</p></li>
 <li><p><strong>max_duration_seconds</strong> (<em>float</em>) – maximum simulation time of the environment.</p></li>
 <li><p><strong>angle_representation</strong> (<em>str</em>) – can be “euler” or “quaternion”.</p></li>
 <li><p><strong>agent_hz</strong> (<em>int</em>) – looprate of the agent to environment interaction.</p></li>
 <li><p><strong>render_mode</strong> (<em>None</em><em> | </em><em>str</em>) – can be “human” or None.</p></li>
+<li><p><strong>render_resolution</strong> (<em>tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – render_resolution.</p></li>
 </ul>
 </dd>
 </dl>
@@ -440,7 +437,7 @@ The target is for each agent to not crash for the longest time possible.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-description">Task Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-options">Environment Options</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.pz_envs.quadx_envs.ma_quadx_hover_env.MAQuadXHoverEnv"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv"><code class="docutils literal notranslate"><span class="pre">QuadXHoverEnv</span></code></a></li>
 </ul>
 </li>
 </ul>
