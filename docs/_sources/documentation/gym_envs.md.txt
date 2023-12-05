@@ -23,7 +23,8 @@ while not termination or truncation:
 
 ```{toctree}
 :hidden:
-gym_envs/fixedwing_envs
-gym_envs/rocket_envs
-gym_envs/quadx_envs
+gym_envs/quadx_hover_env
+gym_envs/quadx_waypoints_env
+gym_envs/fixedwing_waypoints_env
+gym_envs/rocket_landing_env
 ```

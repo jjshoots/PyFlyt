@@ -24,6 +24,6 @@ env.close()
 
 ```{toctree}
 :hidden:
-pz_envs/quadx_envs
-pz_envs/fixedwing_envs
+pz_envs/ma_quadx_hover_env
+pz_envs/ma_fixedwing_dogfight_env
 ```
