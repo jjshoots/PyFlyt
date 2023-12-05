@@ -424,14 +424,14 @@ The target is to not crash for the longest time possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_pos</strong> (<em>np.ndarray</em>) – start_pos</p></li>
-<li><p><strong>start_orn</strong> (<em>np.ndarray</em>) – start_orn</p></li>
-<li><p><strong>sparse_reward</strong> (<em>bool</em>) – sparse_reward</p></li>
-<li><p><strong>flight_dome_size</strong> (<em>float</em>) – flight_dome_size</p></li>
-<li><p><strong>max_duration_seconds</strong> (<em>float</em>) – max_duration_seconds</p></li>
-<li><p><strong>angle_representation</strong> (<em>str</em>) – angle_representation</p></li>
-<li><p><strong>agent_hz</strong> (<em>int</em>) – agent_hz</p></li>
-<li><p><strong>render_mode</strong> (<em>None</em><em> | </em><em>str</em>) – render_mode</p></li>
+<li><p><strong>start_pos</strong> (<em>np.ndarray</em>) – an (num_drones x 3) numpy array specifiying the starting positions of each agent.</p></li>
+<li><p><strong>start_orn</strong> (<em>np.ndarray</em>) – an (num_drones x 3) numpy array specifiying the starting orientations of each agent.</p></li>
+<li><p><strong>sparse_reward</strong> (<em>bool</em>) – whether ot use sparse rewards or not.</p></li>
+<li><p><strong>flight_dome_size</strong> (<em>float</em>) – size of the allowable flying area.</p></li>
+<li><p><strong>max_duration_seconds</strong> (<em>float</em>) – maximum simulation time of the environment.</p></li>
+<li><p><strong>angle_representation</strong> (<em>str</em>) – can be “euler” or “quaternion”.</p></li>
+<li><p><strong>agent_hz</strong> (<em>int</em>) – looprate of the agent to environment interaction.</p></li>
+<li><p><strong>render_mode</strong> (<em>None</em><em> | </em><em>str</em>) – can be “human” or None.</p></li>
 </ul>
 </dd>
 </dl>

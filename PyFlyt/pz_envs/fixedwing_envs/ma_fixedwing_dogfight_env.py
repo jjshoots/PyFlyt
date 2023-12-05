@@ -33,16 +33,16 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """__init__.
 
         Args:
-            spawn_height (float): spawn_height
-            damage_per_hit (float): damage_per_hit
-            lethal_distance (float): lethal_distance
-            lethal_angle_radians (float): lethal_angle_radians
-            assisted_flight (bool): assisted_flight
-            sparse_reward (bool): sparse_reward
-            flight_dome_size (float): flight_dome_size
-            max_duration_seconds (float): max_duration_seconds
-            agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            spawn_height (float): how high to spawn the agents at the beginning of the simulation.
+            damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
+            lethal_distance (float): how close before weapons become effective.
+            lethal_angle_radians (float): the width of the cone of fire.
+            assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
+            sparse_reward (bool): whether to use sparse rewards or not.
+            flight_dome_size (float): size of the allowable flying area.
+            max_duration_seconds (float): maximum simulation time of the environment.
+            agent_hz (int): looprate of the agent to environment interaction.
+            render_mode (None | str): can be "human" or None
         """
         # placeholder starting positions
         super().__init__(
