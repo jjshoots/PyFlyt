@@ -10,7 +10,20 @@ from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseE
 
 
 class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
-    """Base Dogfighting Environment for the Acrowing model using custom environment API."""
+    """Base Dogfighting Environment for the Acrowing model using the PettingZoo API.
+
+    Args:
+        spawn_height (float): how high to spawn the agents at the beginning of the simulation.
+        damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
+        lethal_distance (float): how close before weapons become effective.
+        lethal_angle_radians (float): the width of the cone of fire.
+        assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
+        sparse_reward (bool): whether to use sparse rewards or not.
+        flight_dome_size (float): size of the allowable flying area.
+        max_duration_seconds (float): maximum simulation time of the environment.
+        agent_hz (int): looprate of the agent to environment interaction.
+        render_mode (None | str): can be "human" or None
+    """
 
     metadata = {
         "render_modes": ["human"],

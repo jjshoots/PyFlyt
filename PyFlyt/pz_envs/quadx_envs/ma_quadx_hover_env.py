@@ -13,7 +13,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     """Simple Multiagent Hover Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The target is to not crash for the longest time possible.
+    The target is for each agent to not crash for the longest time possible.
 
     Args:
         start_pos (np.ndarray): an (num_drones x 3) numpy array specifiying the starting positions of each agent.
@@ -49,14 +49,14 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """__init__.
 
         Args:
-            start_pos (np.ndarray): start_pos
-            start_orn (np.ndarray): start_orn
-            sparse_reward (bool): sparse_reward
-            flight_dome_size (float): flight_dome_size
-            max_duration_seconds (float): max_duration_seconds
-            angle_representation (str): angle_representation
-            agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            start_pos (np.ndarray): an (num_drones x 3) numpy array specifiying the starting positions of each agent.
+            start_orn (np.ndarray): an (num_drones x 3) numpy array specifiying the starting orientations of each agent.
+            sparse_reward (bool): whether ot use sparse rewards or not.
+            flight_dome_size (float): size of the allowable flying area.
+            max_duration_seconds (float): maximum simulation time of the environment.
+            angle_representation (str): can be "euler" or "quaternion".
+            agent_hz (int): looprate of the agent to environment interaction.
+            render_mode (None | str): can be "human" or None.
         """
         super().__init__(
             start_pos=start_pos,
