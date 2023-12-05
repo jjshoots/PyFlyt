@@ -16,9 +16,9 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     The target is for each agent to not crash for the longest time possible.
 
     Args:
-        start_pos (np.ndarray): an (num_drones x 3) numpy array specifiying the starting positions of each agent.
-        start_orn (np.ndarray): an (num_drones x 3) numpy array specifiying the starting orientations of each agent.
-        sparse_reward (bool): whether ot use sparse rewards or not.
+        start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
+        start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
+        sparse_reward (bool): whether to use sparse rewards or not.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
         angle_representation (str): can be "euler" or "quaternion".
@@ -49,9 +49,9 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """__init__.
 
         Args:
-            start_pos (np.ndarray): an (num_drones x 3) numpy array specifiying the starting positions of each agent.
-            start_orn (np.ndarray): an (num_drones x 3) numpy array specifiying the starting orientations of each agent.
-            sparse_reward (bool): whether ot use sparse rewards or not.
+            start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
+            start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
+            sparse_reward (bool): whether to use sparse rewards or not.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (str): can be "euler" or "quaternion".
