@@ -4,6 +4,7 @@
 :hidden:
 documentation/core
 documentation/gym_envs
+documentation/pz_envs
 ```
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pyflyt_cover_photo.png
@@ -39,6 +40,11 @@ pip3 install pyflyt
 ## Gymnasium Environments
 
 If all you want are the Gymnasium environments, you can skip everything and go straight to the [Gymnasium Environments](documentation/gym_envs) section.
+
+
+## PettingZoo Environments
+
+Similarly, if all you want are the PettingZoo environments, you can skip everything and go straight to the [PettingZoo Environments](documentation/pz_envs) section.
 
 ## I want to do more!
 
