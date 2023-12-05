@@ -1,4 +1,4 @@
-# `PyFlyt/Fixedwing-Waypoints-v1`
+# `MAFixedwingDogfightEnv`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/fixedwing_dogfight.gif
     :width: 50%
