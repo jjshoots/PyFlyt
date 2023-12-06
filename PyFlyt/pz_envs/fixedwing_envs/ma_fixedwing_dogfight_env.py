@@ -297,6 +297,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """Computes the termination, truncation, and reward of the current timestep."""
         term, trunc, info = super().compute_base_term_trunc_info_by_id(agent_id)
 
+        # terminal if other agent is dead
+        term |= self.num_agents < 2
+
         # don't recompute if we've already done it
         if self.last_rew_time != self.aviary.elapsed_time:
             self.last_rew_time = self.aviary.elapsed_time
