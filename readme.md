@@ -27,9 +27,11 @@ pip3 install pyflyt
 
 ## Usage
 
-Usage is similar to any other Gymnasium and (soon) PettingZoo environment:
+Usage is similar to any other Gymnasium and PettingZoo environment:
 
-```py
+### Gymnasium
+
+```python
 import gymnasium
 import PyFlyt.gym_envs # noqa
 
@@ -44,6 +46,24 @@ while not termination or truncation:
 ```
 
 View the official documentation for gymnasium environments [here](https://jjshoots.github.io/PyFlyt/documentation/gym_envs.html).
+
+### PettingZoo
+
+```python
+from PyFlyt.pz_envs import MAFixedwingDogfightEnv
+
+env = MAFixedwingDogfightEnv(render_mode="human")
+observations, infos = env.reset()
+
+while env.agents:
+    # this is where you would insert your policy
+    actions = {agent: env.action_space(agent).sample() for agent in env.agents}
+
+    observations, rewards, terminations, truncations, infos = env.step(actions)
+env.close()
+```
+
+View the official documentation for pettingzoo environments [here](https://jjshoots.github.io/PyFlyt/documentation/pz_envs.html).
 
 ## Citation
 
