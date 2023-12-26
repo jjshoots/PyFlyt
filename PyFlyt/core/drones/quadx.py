@@ -144,16 +144,22 @@ class QuadX(DroneClass):
                 normal_areas=np.array([[drag_params["drag_area_xyz"]] * 3]),
             )
 
+            # input: angular velocity command
+            # outputs: normalized body torque command
             self.Kp_ang_vel = np.array(ctrl_params["ang_vel"]["kp"])
             self.Ki_ang_vel = np.array(ctrl_params["ang_vel"]["ki"])
             self.Kd_ang_vel = np.array(ctrl_params["ang_vel"]["kd"])
             self.lim_ang_vel = np.array(ctrl_params["ang_vel"]["lim"])
 
+            # input: angular position command
+            # outputs: angular velocity command
             self.Kp_ang_pos = np.array(ctrl_params["ang_pos"]["kp"])
             self.Ki_ang_pos = np.array(ctrl_params["ang_pos"]["ki"])
             self.Kd_ang_pos = np.array(ctrl_params["ang_pos"]["kd"])
             self.lim_ang_pos = np.array(ctrl_params["ang_pos"]["lim"])
 
+            # input: linear velocity command
+            # outputs: angular position command
             self.Kp_lin_vel = np.array(ctrl_params["lin_vel"]["kp"])
             self.Ki_lin_vel = np.array(ctrl_params["lin_vel"]["ki"])
             self.Kd_lin_vel = np.array(ctrl_params["lin_vel"]["kd"])
@@ -398,7 +404,7 @@ class QuadX(DroneClass):
             self.pwm = np.array([*a_output, z_output])
             return
 
-        # angle controllers
+        # base level controllers
         if mode in [0, 2]:
             a_output = self.PIDs[0].step(self.state[0], a_output)
         elif mode in [1, 3]:
@@ -435,10 +441,10 @@ class QuadX(DroneClass):
         # height controllers
         if mode == 0:
             z_output = np.clip(z_output, 0.0, 1.0).flatten()
-        elif mode == 1 or mode == 5 or mode == 6:
+        elif mode in [1, 5, 6]:
             z_output = self.z_PIDs[0].step(self.state[2][-1].flatten(), z_output)
             z_output = np.clip(z_output, 0, 1)
-        elif mode == 2 or mode == 3 or mode == 4 or mode == 7:
+        elif mode in [2, 3, 4, 7]:
             z_output = self.z_PIDs[1].step(self.state[3][-1].flatten(), z_output)
             z_output = self.z_PIDs[0].step(self.state[2][-1].flatten(), z_output)
             z_output = np.clip(z_output, 0, 1)
