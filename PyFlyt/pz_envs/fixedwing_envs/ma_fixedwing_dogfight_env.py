@@ -167,7 +167,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             None:
         """
         # get the states of both drones
-        self.attitudes = np.stack(self.aviary.all_states, axis=0, dtype=np.float64)
+        self.attitudes = np.stack(self.aviary.all_states, axis=0)
 
         """COMPUTE HITS"""
         # get the rotation matrices and forward vectors
