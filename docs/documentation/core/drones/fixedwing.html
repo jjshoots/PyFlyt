@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 
 
@@ -6,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Fixedwing &#8212; PyFlyt</title>
   
@@ -28,15 +29,15 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script src="../../../_static/documentation_options.js?v=8a448e45"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/core/drones/fixedwing';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -374,31 +375,31 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="fixedwing">
-<h1>Fixedwing<a class="headerlink" href="#fixedwing" title="Link to this heading">#</a></h1>
+<h1>Fixedwing<a class="headerlink" href="#fixedwing" title="Permalink to this heading">#</a></h1>
 <section id="model-description">
-<h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">#</a></h2>
+<h2>Model Description<a class="headerlink" href="#model-description" title="Permalink to this heading">#</a></h2>
 <p>Small tube-and-wing fixed wing UAV with a single motor (~2.5 Kg).</p>
 </section>
 <section id="control-mode">
-<h2>Control Mode<a class="headerlink" href="#control-mode" title="Link to this heading">#</a></h2>
+<h2>Control Mode<a class="headerlink" href="#control-mode" title="Permalink to this heading">#</a></h2>
 <p>Only one control mode is provided.
 Setpoints are mapped directly to <code class="docutils literal notranslate"><span class="pre">[pitch,</span> <span class="pre">roll,</span> <span class="pre">yaw,</span> <span class="pre">thrust]</span></code> actuator commands.</p>
 </section>
 <section id="class-description">
-<h2>Class Description<a class="headerlink" href="#class-description" title="Link to this heading">#</a></h2>
+<h2>Class Description<a class="headerlink" href="#class-description" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.drones.</span></span><span class="sig-name descname"><span class="pre">Fixedwing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fixedwing'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_camera</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gimbal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_angle_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_FOV_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(128,</span> <span class="pre">128)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_position_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-3.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_velocity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([20.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.drones.</span></span><span class="sig-name descname"><span class="pre">Fixedwing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">240</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fixedwing'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_camera</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gimbal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_angle_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_FOV_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(128,</span> <span class="pre">128)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera_position_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([-3.,</span> <span class="pre">0.,</span> <span class="pre">1.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_velocity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([20.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing" title="Permalink to this definition">#</a></dt>
 <dd><p>Fixedwing instance that handles everything about a FixedWing.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.reset">
-<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.reset" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.reset" title="Permalink to this definition">#</a></dt>
 <dd><p>Resets the vehicle to the initial state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.set_mode">
-<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.set_mode" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.set_mode" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets the current flight mode of the vehicle.</p>
 <dl class="simple">
 <dt>flight modes:</dt><dd><ul class="simple">
@@ -416,31 +417,31 @@ Setpoints are mapped directly to <code class="docutils literal notranslate"><spa
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.starting_velocity">
-<span class="sig-name descname"><span class="pre">starting_velocity</span></span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.starting_velocity" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">starting_velocity</span></span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.starting_velocity" title="Permalink to this definition">#</a></dt>
 <dd><p>Reads fixedwing.yaml file and load UAV parameters</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.update_control">
-<span class="sig-name descname"><span class="pre">update_control</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_control" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_control</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_control" title="Permalink to this definition">#</a></dt>
 <dd><p>Runs through controllers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.update_last">
-<span class="sig-name descname"><span class="pre">update_last</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_last" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_last</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_last" title="Permalink to this definition">#</a></dt>
 <dd><p>Updates things only at the end of <cite>Aviary.step()</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.update_physics">
-<span class="sig-name descname"><span class="pre">update_physics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_physics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_physics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_physics" title="Permalink to this definition">#</a></dt>
 <dd><p>Updates the physics of the vehicle.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.drones.Fixedwing.update_state">
-<span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_state" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.drones.Fixedwing.update_state" title="Permalink to this definition">#</a></dt>
 <dd><p>Updates the current state of the UAV.</p>
 <p>This includes: ang_vel, ang_pos, lin_vel, lin_pos.</p>
 </dd></dl>
@@ -525,7 +526,7 @@ Setpoints are mapped directly to <code class="docutils literal notranslate"><spa
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.4.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     <br/>
   </p>
 </div>

@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 import numpy as np
 from pybullet_utils import bullet_client
 
-from .base_controller import ControlClass
-from .camera import Camera
+from PyFlyt.core.abstractions.base_controller import ControlClass
+from PyFlyt.core.abstractions.camera import Camera
 
 
 class DroneClass(ABC):

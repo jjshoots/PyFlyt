@@ -11,8 +11,8 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from .abstractions import DroneClass, WindFieldClass
-from .drones import Fixedwing, QuadX, Rocket
+from PyFlyt.core.abstractions import DroneClass, WindFieldClass
+from PyFlyt.core.drones import Fixedwing, QuadX, Rocket
 
 DroneIndex = int
 

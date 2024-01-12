@@ -7,12 +7,12 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from ..abstractions.base_controller import ControlClass
-from ..abstractions.base_drone import DroneClass
-from ..abstractions.boring_bodies import BoringBodies
-from ..abstractions.camera import Camera
-from ..abstractions.motors import Motors
-from ..abstractions.pid import PID
+from PyFlyt.core.abstractions.base_controller import ControlClass
+from PyFlyt.core.abstractions.base_drone import DroneClass
+from PyFlyt.core.abstractions.boring_bodies import BoringBodies
+from PyFlyt.core.abstractions.camera import Camera
+from PyFlyt.core.abstractions.motors import Motors
+from PyFlyt.core.abstractions.pid import PID
 
 
 class QuadX(DroneClass):
@@ -365,7 +365,7 @@ class QuadX(DroneClass):
 
         Args:
             controller_id (int): controller_id
-            controller_constructor (type[CtrlClass]): controller_constructor
+            controller_constructor (type[ControlClass]): controller_constructor
             base_mode (int): base_mode
         """
         assert (

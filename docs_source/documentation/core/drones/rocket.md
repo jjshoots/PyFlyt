@@ -3,7 +3,7 @@
 ## Model Description
 
 The rocket describes a 1:10th scale SpaceX Falcon 9 v1.2 first stage and interstage.
-Mass and geometry properties were extracted from [Space Launch Report datasheet](https://web.archive.org/web/20170825204357/spacelaunchreport.com/falcon9ft.html#f9stglog).
+Mass and geometry properties were extracted from [Space Launch Report datasheet](https://web.archive.org/web/20170825204357/spacelaunchreport.com/falcon9ft.html).
 
 ## Control Mode
 

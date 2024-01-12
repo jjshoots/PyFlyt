@@ -3,8 +3,8 @@
 # delete the old build files
 rm -r ../docs ./build
 
-# built the thing
-make html
+# build the thing
+make html linkcheck
 
 # move the thing to the right place
 mv ./build/html/ ../docs

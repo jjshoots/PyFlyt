@@ -5,10 +5,10 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from ..abstractions.base_drone import DroneClass
-from ..abstractions.camera import Camera
-from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
-from ..abstractions.motors import Motors
+from PyFlyt.core.abstractions.base_drone import DroneClass
+from PyFlyt.core.abstractions.camera import Camera
+from PyFlyt.core.abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
+from PyFlyt.core.abstractions.motors import Motors
 
 
 class Fixedwing(DroneClass):

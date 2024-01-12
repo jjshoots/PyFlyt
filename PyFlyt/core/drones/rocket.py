@@ -5,12 +5,12 @@ import numpy as np
 import yaml
 from pybullet_utils import bullet_client
 
-from ..abstractions.base_drone import DroneClass
-from ..abstractions.boosters import Boosters
-from ..abstractions.boring_bodies import BoringBodies
-from ..abstractions.camera import Camera
-from ..abstractions.gimbals import Gimbals
-from ..abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
+from PyFlyt.core.abstractions.base_drone import DroneClass
+from PyFlyt.core.abstractions.boosters import Boosters
+from PyFlyt.core.abstractions.boring_bodies import BoringBodies
+from PyFlyt.core.abstractions.camera import Camera
+from PyFlyt.core.abstractions.gimbals import Gimbals
+from PyFlyt.core.abstractions.lifting_surfaces import LiftingSurface, LiftingSurfaces
 
 
 class Rocket(DroneClass):

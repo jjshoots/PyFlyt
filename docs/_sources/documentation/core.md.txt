@@ -75,6 +75,6 @@ PyFlyt uses two reference frames, the ground frame (subscript `G`) and the body 
 The ground frame defines three axes relative to the local horizontal plane and the direction of gravity.
 The body frame defines the axes relative to the body of the drone.
 
-We utilize the [ENU](https://en.wikipedia.org/wiki/Geodetic_datum#Local_east.2C_north.2C_up_.28ENU.29_coordinates) frame convention, where for the ground frame,
+We utilize the [ENU](https://en.wikipedia.org/wiki/Axes_conventions) frame convention, where for the ground frame,
 the X-axis points East, Y-axis points North, and Z-axis points Up (East and North are just cardinal references).
 On the body frame, this convention defines the X, Y, and Z axes to point out the front, left, and upward direction from the drone.

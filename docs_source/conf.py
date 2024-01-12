@@ -21,12 +21,14 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
     "sphinx.ext.mathjax",
+    "sphinx.builders.linkcheck",
 ]
 
 source_suffix = [".rst", ".md"]
 templates_path = ["_templates"]
 exclude_patterns = ["readme.md"]
-
+linkcheck_ignore = []
+linkcheck_timeout = 5
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
