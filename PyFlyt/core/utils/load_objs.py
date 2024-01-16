@@ -81,9 +81,15 @@ def obj_collision(
         meshScale (list[float] | np.ndarray): meshScale
         concave (bool): Whether the object should use concave trimesh, do not use this for dynamic/moving objects
     """
-    return env.createCollisionShape(
-        shapeType=env.GEOM_MESH,
-        fileName=fileName,
-        meshScale=meshScale,
-        flags=env.GEOM_FORCE_CONCAVE_TRIMESH if concave else None,
+    return (
+        env.createCollisionShape(
+            shapeType=env.GEOM_MESH,
+            fileName=fileName,
+            meshScale=meshScale,
+            flags=env.GEOM_FORCE_CONCAVE_TRIMESH,
+        )
+        if concave
+        else env.createCollisionShape(
+            shapeType=env.GEOM_MESH, fileName=fileName, meshScale=meshScale
+        )
     )
