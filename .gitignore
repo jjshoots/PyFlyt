@@ -1,6 +1,9 @@
 # vim
 .vim/
 
+# vscode
+.vscode/
+
 # pypi credentials
 .pyirc
 
