@@ -47,6 +47,7 @@ class Aviary(bullet_client.BulletClient):
         wind_type: None | str | type[WindFieldClass] = None,
         wind_options: dict[str, Any] = {},
         render: bool = False,
+        darw_local_axis: bool = False,
         physics_hz: int = 240,
         world_scale: float = 1.0,
         orn_conv: str = "ENU_FLU",
@@ -157,7 +158,7 @@ class Aviary(bullet_client.BulletClient):
 
         # render
         self.render = render
-        self.draw_local_axis = True
+        self.draw_local_axis = darw_local_axis
         if self.render:
             self.configureDebugVisualizer(p.COV_ENABLE_GUI, self._client)
 

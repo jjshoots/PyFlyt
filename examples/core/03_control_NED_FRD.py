@@ -16,6 +16,7 @@ env = Aviary(
     start_pos=start_pos,
     start_orn=start_orn,
     render=True,
+    darw_local_axis=True,
     drone_type="quadx",
     orn_conv="NED_FRD",
 )
