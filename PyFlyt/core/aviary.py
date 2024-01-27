@@ -49,6 +49,7 @@ class Aviary(bullet_client.BulletClient):
         render: bool = False,
         physics_hz: int = 240,
         world_scale: float = 1.0,
+        orn_conv: str = "ENU_FLU",
         seed: None | int = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
@@ -82,6 +83,10 @@ class Aviary(bullet_client.BulletClient):
         assert (
             start_orn.shape == start_pos.shape
         ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
+        assert orn_conv in [
+            "ENU_FLU",
+            "NED_FRD",
+        ], f"orn_conv must be either 'ENU_FLU' or 'NED_FRD', currently {orn_conv}."
 
         # check the physics hz
         if physics_hz != 240.0:
@@ -147,11 +152,14 @@ class Aviary(bullet_client.BulletClient):
         self.world_scale = world_scale
         self.setAdditionalSearchPath(pybullet_data.getDataPath())
 
+        # set the orn convention
+        self.orn_conv = orn_conv
+
         # render
         self.render = render
-        self.rtf_debug_line = self.addUserDebugText(
-            text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
-        )
+        self.draw_local_axis = True
+        if self.render:
+            self.configureDebugVisualizer(p.COV_ENABLE_GUI, self._client)
 
         self.reset(seed)
 
@@ -161,27 +169,72 @@ class Aviary(bullet_client.BulletClient):
         Args:
             seed (None | int): seed
         """
-        self.resetSimulation()
+        self.resetSimulation(self._client)
         self.setGravity(0, 0, -9.81)
         self.physics_steps: int = 0
         self.aviary_steps: int = 0
         self.elapsed_time: float = 0
-
-        # reset the camera position to a sane place
-        self.resetDebugVisualizerCamera(
-            cameraDistance=5,
-            cameraYaw=30,
-            cameraPitch=-30,
-            cameraTargetPosition=[0, 0, 1],
-        )
 
         # define new RNG
         self.np_random = np.random.RandomState(seed=seed)
 
         # construct the world
         self.planeId = self.loadURDF(
-            "plane.urdf", useFixedBase=True, globalScaling=self.world_scale
+            "plane_transparent.urdf", useFixedBase=True, globalScaling=self.world_scale
         )
+
+        if self.render:
+            # reset the camera position to a same place
+            if self.orn_conv == "ENU_FLU":
+                self.resetDebugVisualizerCamera(
+                    cameraDistance=5,
+                    cameraYaw=30,
+                    cameraPitch=-30,
+                    cameraTargetPosition=[0, 0, 1],
+                )
+            elif self.orn_conv == "NED_FRD":
+                self.resetDebugVisualizerCamera(
+                    cameraDistance=5,
+                    cameraYaw=30,
+                    cameraPitch=-30,
+                    cameraTargetPosition=[0, 0, 1],
+                )
+            else:
+                raise LookupError("Invalid orn_conv.")
+
+            # add a debug text for rtf
+            self.rtf_debug_line = self.addUserDebugText(
+                text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
+            )
+
+            # add debug lines for world axes
+            if self.orn_conv == "ENU_FLU":
+                self.addUserDebugLine(
+                    [0, 0, 0], [1, 0, 0], lineColorRGB=[1, 0, 0], lineWidth=5
+                )  # X-axis
+                self.addUserDebugLine(
+                    [0, 0, 0], [0, 1, 0], lineColorRGB=[0, 1, 0], lineWidth=5
+                )  # Y-axis
+                self.addUserDebugLine(
+                    [0, 0, 0], [0, 0, 1], lineColorRGB=[0, 0, 1], lineWidth=5
+                )  # Z-axis
+            elif self.orn_conv == "NED_FRD":
+                self.addUserDebugLine(
+                    [0, 0, 0], [0, 1, 0], lineColorRGB=[1, 0, 0], lineWidth=5
+                )  # X-axis
+                self.addUserDebugLine(
+                    [0, 0, 0], [1, 0, 0], lineColorRGB=[0, 1, 0], lineWidth=5
+                )  # Y-axis
+                self.world_z_axis = self.addUserDebugLine(
+                    [0, 0, 0], [0, 0, -1], lineColorRGB=[0, 0, 1], lineWidth=5
+                )  # Z-axis
+            else:
+                raise LookupError("Invalid orn_conv.")
+
+            # add debug lines for local axes
+            self.local_x_line = -1
+            self.local_y_line = -1
+            self.local_z_line = -1
 
         # spawn drones
         self.drones: list[DroneClass] = []
@@ -196,6 +249,7 @@ class Aviary(bullet_client.BulletClient):
                     self,
                     start_pos=start_pos,
                     start_orn=start_orn,
+                    orn_conv=self.orn_conv,
                     physics_hz=self.physics_hz,
                     np_random=self.np_random,
                     **drone_options,
@@ -417,6 +471,49 @@ class Aviary(bullet_client.BulletClient):
             self._frame_elapsed += elapsed
 
             time.sleep(max(self._sim_elapsed - self._frame_elapsed, 0.0))
+
+            if self.draw_local_axis:
+                for drone in self.armed_drones:
+                    # draw local coordinate frame
+                    pos, orn = self.getBasePositionAndOrientation(drone.Id)
+                    rotation = np.array(self.getMatrixFromQuaternion(orn)).reshape(3, 3)
+
+                    local_x = np.matmul(rotation, [0.5, 0, 0])
+                    local_y = np.matmul(rotation, [0, 0.5, 0])
+                    local_z = np.matmul(rotation, [0, 0, 0.5])
+
+                    if self.orn_conv == "ENU_FLU":
+                        local_x = pos + np.array([local_x[0], local_x[1], local_x[2]])
+                        local_y = pos + np.array([local_y[0], local_y[1], local_y[2]])
+                        local_z = pos + np.array([local_z[0], local_z[1], local_z[2]])
+                    elif self.orn_conv == "NED_FRD":
+                        local_x = pos + np.array([local_x[0], local_x[1], local_x[2]])
+                        local_y = pos - np.array([local_y[0], local_y[1], local_y[2]])
+                        local_z = pos - np.array([local_z[0], local_z[1], local_z[2]])
+                    else:
+                        raise LookupError("Invalid orn_conv.")
+
+                    self.local_x_line = self.addUserDebugLine(
+                        pos,
+                        local_x,
+                        lineColorRGB=[0.5, 0, 0],
+                        lineWidth=1,
+                        replaceItemUniqueId=self.local_x_line,
+                    )  # Local X-axis
+                    self.local_y_line = self.addUserDebugLine(
+                        pos,
+                        local_y,
+                        lineColorRGB=[0, 0.5, 0],
+                        lineWidth=1,
+                        replaceItemUniqueId=self.local_y_line,
+                    )  # Local Y-axis
+                    self.local_z_line = self.addUserDebugLine(
+                        pos,
+                        local_z,
+                        lineColorRGB=[0, 0, 0.5],
+                        lineWidth=1,
+                        replaceItemUniqueId=self.local_z_line,
+                    )  # Local Z-axis
 
             # print RTF every 0.5 seconds, this actually adds considerable overhead
             if self._frame_elapsed >= 0.5:

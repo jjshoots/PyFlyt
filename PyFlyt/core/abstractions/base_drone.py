@@ -74,6 +74,7 @@ class DroneClass(ABC):
         control_hz: int,
         physics_hz: int,
         drone_model: str,
+        orn_conv: str = "ENU_FLU",
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
     ):
@@ -86,6 +87,7 @@ class DroneClass(ABC):
             control_hz (int): an integer representing the control looprate of the drone.
             physics_hz (int): an integer representing the physics looprate of the `Aviary`.
             drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
+            orn_conv ("ENU_FLU" | str = "ENU_FLU"): orientation convention of the drone, defaults to "ENU_FLU" (East-North-Up, Front-Left-Up) can also be "NED_FRD" (North-East-Down, Front-Right-Down).
             model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
             np_random (None | np.random.RandomState = None): random number generator of the simulation.
         """
@@ -99,6 +101,7 @@ class DroneClass(ABC):
         self.physics_control_ratio = int(physics_hz / control_hz)
         self.physics_period = 1.0 / physics_hz
         self.control_period = 1.0 / control_hz
+        self.orn_conv = orn_conv
         if model_dir is None:
             model_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "../../models/vehicles/"
@@ -108,8 +111,16 @@ class DroneClass(ABC):
         self.camera: Camera
 
         """DEFINE SPAWN"""
-        self.start_pos = start_pos
-        self.start_orn = self.p.getQuaternionFromEuler(start_orn)
+        if self.orn_conv == "ENU_FLU":
+            self.start_pos = start_pos
+            self.start_orn = self.p.getQuaternionFromEuler(start_orn)
+        elif self.orn_conv == "NED_FRD":
+            self.start_pos = [start_pos[1], start_pos[0], -start_pos[2]]
+            self.start_orn = self.p.getQuaternionFromEuler(
+                [start_orn[0], -start_orn[1], (90 * (np.pi / 180)) - start_orn[2]]
+            )
+        else:
+            raise (ValueError(f"Unknown orn_conv {self.orn_conv}"))
         self.Id = self.p.loadURDF(
             self.drone_path,
             basePosition=self.start_pos,

@@ -26,6 +26,7 @@ class QuadX(DroneClass):
         control_hz: int = 120,
         physics_hz: int = 240,
         drone_model: str = "cf2x",
+        orn_conv: str = "ENU_FLU",
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
         use_camera: bool = False,
@@ -57,21 +58,33 @@ class QuadX(DroneClass):
             start_orn=start_orn,
             control_hz=control_hz,
             physics_hz=physics_hz,
+            orn_conv=orn_conv,
             model_dir=model_dir,
             drone_model=drone_model,
             np_random=np_random,
         )
         """
         DRONE CONTROL
-            motor ids correspond to quadrotor X in PX4,
-            -------------------------
-            |  (cw)2  0(ccw)        |
-            |      \\//           x |
-            |      //\\         y_| |
-            | (ccw)1  3(cw)         |
-            -------------------------
-            using the ENU convention
-            control commands are in the form of roll-pitch-yaw-thrust
+            if orn_conv == "ENU_FLU":
+                motor ids correspond to quadrotor X in PX4,
+                -------------------------
+                |  (cw)2  0(ccw)        |
+                |      \\//           x |
+                |      //\\         y_| |
+                | (ccw)1  3(cw)         |
+                -------------------------
+                using the FLU convention
+                control commands are in the form of roll-pitch-yaw-thrust
+            if orn_conv == "NED_FRD":
+                motor ids correspond to quadrotor X in Arducopter,
+                 -------------------------
+                |  (ccw)2  0(cw)        |
+                |      \\//         x   |
+                |      //\\         |_y |
+                | (cw)1  3(ccw)         |
+                -------------------------
+                using the FRD convention
+                control commands are in the form of roll-pitch-yaw-thrust
         """
 
         # All the params for the drone
@@ -121,14 +134,28 @@ class QuadX(DroneClass):
             )
 
             # motor mapping from command to individual motors
-            self.motor_map = np.array(
-                [
-                    [-1.0, -1.0, -1.0, +1.0],
-                    [+1.0, +1.0, -1.0, +1.0],
-                    [+1.0, -1.0, +1.0, +1.0],
-                    [-1.0, +1.0, +1.0, +1.0],
-                ]
-            )
+            if self.orn_conv == "NED_FRD":
+                self.motor_map = np.array(
+                    [
+                        [-1.0, +1.0, +1.0, -1.0],
+                        [+1.0, -1.0, +1.0, -1.0],
+                        [+1.0, +1.0, -1.0, -1.0],
+                        [-1.0, -1.0, -1.0, -1.0],
+                    ]
+                )
+            elif self.orn_conv == "ENU_FLU":
+                self.motor_map = np.array(
+                    [
+                        [-1.0, -1.0, -1.0, +1.0],
+                        [+1.0, +1.0, -1.0, +1.0],
+                        [+1.0, -1.0, +1.0, +1.0],
+                        [-1.0, +1.0, +1.0, +1.0],
+                    ]
+                )
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
 
             # pseudo drag coef
             self.drag_coef_pqr = drag_params["drag_coef_pqr"]
@@ -412,7 +439,14 @@ class QuadX(DroneClass):
             a_output = self.PIDs[0].step(self.state[0], a_output)
         elif mode in [4, 5]:
             a_output[:2] = self.PIDs[2].step(self.state[2][:2], a_output[:2])
-            a_output[:2] = np.array([-a_output[1], a_output[0]])
+            if self.orn_conv == "NED_FRD":
+                a_output = np.array([a_output[1], -a_output[0]])
+            elif self.orn_conv == "ENU_FLU":
+                a_output[:2] = np.array([-a_output[1], a_output[0]])
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
             a_output[:2] = self.PIDs[1].step(self.state[1][:2], a_output[:2])
             a_output = self.PIDs[0].step(self.state[0], a_output)
         elif mode == 6:
@@ -422,7 +456,14 @@ class QuadX(DroneClass):
             a_output[:2] = np.matmul(rot_mat, a_output[:2])
 
             a_output[:2] = self.PIDs[2].step(self.state[2][:2], a_output[:2])
-            a_output[:2] = np.array([-a_output[1], a_output[0]])
+            if self.orn_conv == "NED_FRD":
+                a_output = np.array([a_output[1], -a_output[0]])
+            elif self.orn_conv == "ENU_FLU":
+                a_output[:2] = np.array([-a_output[1], a_output[0]])
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
             a_output[:2] = self.PIDs[1].step(self.state[1][:2], a_output[:2])
             a_output = self.PIDs[0].step(self.state[0], a_output)
         elif mode == 7:
@@ -434,20 +475,48 @@ class QuadX(DroneClass):
             a_output[:2] = np.matmul(rot_mat, a_output[:2])
 
             a_output[:2] = self.PIDs[2].step(self.state[2][:2], a_output[:2])
-            a_output = np.array([-a_output[1], a_output[0], a_output[2]])
+            if self.orn_conv == "NED_FRD":
+                a_output = np.array([a_output[1], -a_output[0], -a_output[2]])
+            elif self.orn_conv == "ENU_FLU":
+                a_output = np.array([-a_output[1], a_output[0], a_output[2]])
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
             a_output = self.PIDs[1].step(self.state[1], a_output)
             a_output = self.PIDs[0].step(self.state[0], a_output)
 
         # height controllers
         if mode == 0:
-            z_output = np.clip(z_output, 0.0, 1.0).flatten()
+            if self.orn_conv == "NED_FRD":
+                z_output = np.clip(z_output, -1.0, 0.0).flatten()
+            elif self.orn_conv == "ENU_FLU":
+                z_output = np.clip(z_output, 0.0, 1.0).flatten()
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
         elif mode in [1, 5, 6]:
             z_output = self.z_PIDs[0].step(self.state[2][-1].flatten(), z_output)
-            z_output = np.clip(z_output, 0, 1)
+            if self.orn_conv == "NED_FRD":
+                z_output = np.clip(z_output, -1, 0)
+            elif self.orn_conv == "ENU_FLU":
+                z_output = np.clip(z_output, 0, 1)
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
         elif mode in [2, 3, 4, 7]:
             z_output = self.z_PIDs[1].step(self.state[3][-1].flatten(), z_output)
             z_output = self.z_PIDs[0].step(self.state[2][-1].flatten(), z_output)
-            z_output = np.clip(z_output, 0, 1)
+            if self.orn_conv == "NED_FRD":
+                z_output = np.clip(z_output, -1, 0)
+            elif self.orn_conv == "ENU_FLU":
+                z_output = np.clip(z_output, 0, 1)
+            else:
+                raise ValueError(
+                    f"`orn_conv` must be either 'ENU_FLU' or 'NED_FRD', got {self.orn_conv}."
+                )
 
         # mix the commands according to motor mix
         cmd = np.array([*a_output, *z_output])
@@ -466,7 +535,7 @@ class QuadX(DroneClass):
         self.motors.physics_update(self.pwm)
 
         # simulate rotational damping
-        drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)
+        drag_pqr = -self.drag_coef_pqr * (np.array(self.sim_state[0]) ** 2)
 
         # warning, the physics is funky for bounces
         if len(self.p.getContactPoints()) == 0:
@@ -477,21 +546,48 @@ class QuadX(DroneClass):
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
-        lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
-        lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
 
-        # express vels in local frame
-        rotation = np.array(self.p.getMatrixFromQuaternion(ang_pos)).reshape(3, 3).T
-        lin_vel = np.matmul(rotation, lin_vel)
-        ang_vel = np.matmul(rotation, ang_vel)
-
+        sim_lin_pos, sim_ang_pos_quat = self.p.getBasePositionAndOrientation(self.Id)
         # ang_pos in euler form
-        ang_pos = self.p.getEulerFromQuaternion(ang_pos)
+        sim_ang_pos = self.p.getEulerFromQuaternion(sim_ang_pos_quat)
+        sim_lin_vel, sim_ang_vel = self.p.getBaseVelocity(self.Id)
+
+        sim_rotation = (
+            np.array(self.p.getMatrixFromQuaternion(sim_ang_pos_quat)).reshape(3, 3).T
+        )
+
+        if self.orn_conv == "NED_FRD":
+            lin_pos = np.array([sim_lin_pos[1], sim_lin_pos[0], -sim_lin_pos[2]])
+            ang_pos = np.array(
+                [
+                    sim_ang_pos[0],
+                    -sim_ang_pos[1],
+                    (90 * (math.pi / 180)) - sim_ang_pos[2],
+                ]
+            )
+
+            # express vels in local frame
+            lin_vel = np.matmul(sim_rotation, sim_lin_vel)
+            lin_vel = np.array([lin_vel[0], -lin_vel[1], -lin_vel[2]])
+            ang_vel = np.matmul(sim_rotation, sim_ang_vel)
+            ang_vel = np.array([ang_vel[0], -ang_vel[1], -ang_vel[2]])
+
+        else:
+            lin_pos = np.array(sim_lin_pos)
+            ang_pos = np.array(sim_ang_pos)
+            lin_vel = np.array(sim_lin_vel)
+            ang_vel = np.array(sim_ang_vel)
+
+            lin_vel = np.matmul(sim_rotation, lin_vel)
+            ang_vel = np.matmul(sim_rotation, ang_vel)
 
         # update the main body
-        self.body.state_update(rotation)
+        self.body.state_update(sim_rotation)
 
         # create the state
+        self.sim_state = np.stack(
+            [sim_ang_vel, sim_ang_pos, sim_lin_vel, sim_lin_pos], axis=0
+        )
         self.state = np.stack([ang_vel, ang_pos, lin_vel, lin_pos], axis=0)
 
         # update auxiliary information
