@@ -129,7 +129,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
             dtype=np.float64,
         )
 
-    def observation_space(self, _) -> Space:
+    def observation_space(self, agent) -> Space:
         """observation_space.
 
         Args:
@@ -140,7 +140,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def action_space(self, _) -> spaces.Box:
+    def action_space(self, agent) -> spaces.Box:
         """action_space.
 
         Args:
@@ -156,15 +156,17 @@ class MAFixedwingBaseEnv(ParallelEnv):
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
 
-    def reset(self, seed=None, options=dict()) -> tuple[dict[str, Any], dict[str, Any]]:
+    def reset(
+        self, seed: None | int = None, options: dict | None = dict()
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
         Args:
-            seed:
-            options:
+            seed (None | int): seed
+            options (dict | None): options
 
         Returns:
-            tuple[dict[str, Any], dict[str, Any]]: observation and infos
+            tuple[dict[str, Any], dict[str, Any]]:
         """
         raise NotImplementedError
 

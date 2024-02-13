@@ -83,11 +83,14 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             shape=(self.combined_space.shape[0] + 1 + 12,),
         )
 
-    def observation_space(self, _) -> spaces.Box:
+    def observation_space(self, agent) -> spaces.Box:
         """observation_space.
 
         Args:
-            _:
+            agent:
+
+        Returns:
+            spaces.Box:
         """
         return self._observation_space
 
@@ -109,7 +112,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         return start_pos, start_orn
 
     def reset(
-        self, seed: None | int = None, options: dict[str, Any] = dict()
+        self, seed: None | int = None, options: dict | None = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
