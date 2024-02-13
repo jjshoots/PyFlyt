@@ -91,9 +91,7 @@ class BoringBodies:
             body_positions = np.array([item[0] for item in link_states])
             body_velocities -= self.p.wind_field(self.p.elapsed_time, body_positions)
 
-        # rotate all velocities to be in local frame
-        body_velocities = np.matmul(rotation_matrix, body_velocities.T).T
-
+        # rotate all velocities to be in body frame
         if rotation_matrix.shape == (len(self.body_ids), 3, 3):
             body_velocities = np.matmul(
                 rotation_matrix, np.expand_dims(body_velocities, -1)
