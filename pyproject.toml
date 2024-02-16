@@ -46,5 +46,7 @@ Documentation = "https://jjshoots.github.io/PyFlyt/documentation.html"
 reportMissingImports = "none"
 
 [tool.ruff.lint]
-select = []
-ignore = ["F401"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
