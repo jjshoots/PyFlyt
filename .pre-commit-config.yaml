@@ -1,9 +1,5 @@
 ---
 repos:
-  - repo: https://github.com/python/black
-    rev: 23.7.0
-    hooks:
-      - id: black
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.5
     hooks:
@@ -11,35 +7,12 @@ repos:
         args:
           - --ignore-words-list=null
         exclude: docs/
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.2.1
     hooks:
-      - id: flake8
-        args:
-          - '--per-file-ignores=**/__init__.py:F401'
-          - --max-complexity=30
-          - --max-line-length=456
-          - --show-source
-          - --statistics
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        args:
-          - --source
-          - --explain
-          - --convention=google
-        additional_dependencies: ["tomli"]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
-    hooks:
-      - id: pyupgrade
-        args: ["--py38-plus"]
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
   - repo: local
     hooks:
       - id: pyright

@@ -44,3 +44,7 @@ Documentation = "https://jjshoots.github.io/PyFlyt/documentation.html"
 #######################################################################################
 [tool.pyright]
 reportMissingImports = "none"
+
+[tool.ruff.lint]
+select = []
+ignore = ["F401"]

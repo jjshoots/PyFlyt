@@ -390,8 +390,8 @@ class QuadX(DroneClass):
             custom_output = self.instanced_controllers[self.mode].step(
                 self.state, self.setpoint
             )
-            assert custom_output.shape == (
-                4,
+            assert (
+                custom_output.shape == (4,)
             ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
 
             # splice things out to be passed along
