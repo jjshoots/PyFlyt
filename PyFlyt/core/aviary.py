@@ -28,7 +28,7 @@ class Aviary(bullet_client.BulletClient):
         start_orn (np.ndarray): an `(n, 3)` array for the starting orientations for each drone, in terms of Euler angles.
         drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
         drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
-        drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
+        drone_options (dict[str, Any] | Sequence[dict[str, Any]] | None): dictionary mapping of custom parameters for each drone.
         wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
         wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
         render (bool): a boolean whether to render the simulation.
@@ -43,7 +43,7 @@ class Aviary(bullet_client.BulletClient):
         start_orn: np.ndarray,
         drone_type: str | Sequence[str],
         drone_type_mappings: None | dict[str, type[DroneClass]] = None,
-        drone_options: dict[str, Any] | Sequence[dict[str, Any]] = {},
+        drone_options: dict[str, Any] | Sequence[dict[str, Any]] | None = None,
         wind_type: None | str | type[WindFieldClass] = None,
         wind_options: dict[str, Any] = {},
         render: bool = False,
@@ -61,7 +61,7 @@ class Aviary(bullet_client.BulletClient):
             start_orn (np.ndarray): an `(n, 3)` array for the starting orientations for each drone, in terms of Euler angles.
             drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
             drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
-            drone_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for each drone.
+            drone_options (dict[str, Any] | Sequence[dict[str, Any]] | None): dictionary mapping of custom parameters for each drone.
             wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
             wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
             render (bool): a boolean whether to render the simulation.
@@ -191,6 +191,8 @@ class Aviary(bullet_client.BulletClient):
             self.drone_type,
             self.drone_options,
         ):
+            if drone_options is None:
+                drone_options = dict()
             self.drones.append(
                 self.drone_type_mappings[drone_type](
                     self,

@@ -37,11 +37,11 @@ class FlattenWaypointEnv(ObservationWrapper):
         Args:
             observation: a dictionary observation with an "attitude" and "target_deltas" keys.
         """
-        num_targets = min(self.context_length, observation["target_deltas"].shape[0])
+        num_targets = min(self.context_length, observation["target_deltas"].shape[0])  # pyright: ignore[reportGeneralTypeIssues]
 
         targets = np.zeros((self.context_length, self.target_shape))
-        targets[:num_targets] = observation["target_deltas"][:num_targets]
+        targets[:num_targets] = observation["target_deltas"][:num_targets]  # pyright: ignore[reportGeneralTypeIssues]
 
-        new_obs = np.concatenate([observation["attitude"], *targets])
+        new_obs = np.concatenate([observation["attitude"], *targets])  # pyright: ignore[reportGeneralTypeIssues]
 
         return new_obs

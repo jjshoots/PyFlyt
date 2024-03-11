@@ -1,6 +1,8 @@
 """Fixedwing Waypoints Environment."""
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from gymnasium import spaces
 
@@ -18,6 +20,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
+        flight_mode (int): The flight mode of the UAV.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
         angle_representation (str): can be "euler" or "quaternion".
@@ -31,6 +34,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         sparse_reward: bool = False,
         num_targets: int = 4,
         goal_reach_distance: float = 2.0,
+        flight_mode: int = 0,
         flight_dome_size: float = 100.0,
         max_duration_seconds: float = 120.0,
         angle_representation: str = "quaternion",
@@ -44,6 +48,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
+            flight_mode (int): The flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (str): can be "euler" or "quaternion".
@@ -53,6 +58,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 10.0]]),
+            flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
@@ -91,7 +97,9 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
 
-    def reset(self, seed=None, options=dict()):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """reset.
 
         Args:

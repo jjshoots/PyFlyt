@@ -83,7 +83,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             shape=(self.combined_space.shape[0] + 1 + 12,),
         )
 
-    def observation_space(self, agent) -> spaces.Box:
+    def observation_space(self, agent: Any = None) -> spaces.Box:
         """observation_space.
 
         Args:
@@ -112,7 +112,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         return start_pos, start_orn
 
     def reset(
-        self, seed: None | int = None, options: dict | None = dict()
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
@@ -223,7 +223,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         opponent_velocities = (
             np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
         ).reshape(2, 3)
-        opponent_attitudes[:, 2] = opponent_velocities - self.attitudes[:, 2]
+        opponent_attitudes[:, 2] = opponent_velocities - self.attitudes[:, 2]  # pyright: ignore[reportGeneralTypeIssues]
 
         # opponent position is relative to ours in our body frame
         opponent_attitudes[:, 3] = (

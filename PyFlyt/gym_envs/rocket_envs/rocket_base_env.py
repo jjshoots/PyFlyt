@@ -1,6 +1,8 @@
 """Base PyFlyt Environment for the Rocket model using the Gymnasim API."""
 from __future__ import annotations
 
+from typing import Any
+
 import gymnasium
 import numpy as np
 import pybullet as p
@@ -126,7 +128,9 @@ class RocketBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.angle_representation = 1
 
-    def reset(self, seed=None, options=dict()):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """Resets the environment.
 
         Args:
@@ -141,7 +145,12 @@ class RocketBaseEnv(gymnasium.Env):
         if hasattr(self, "env"):
             self.env.disconnect()
 
-    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
+    def begin_reset(
+        self,
+        seed: None | int = None,
+        options: None | dict[str, Any] = dict(),
+        drone_options: None | dict[str, Any] = dict(),
+    ):
         """The first half of the reset function."""
         super().reset(seed=seed)
 
@@ -159,6 +168,12 @@ class RocketBaseEnv(gymnasium.Env):
         self.info["out_of_bounds"] = False
         self.info["fatal_collision"] = False
         self.info["env_complete"] = False
+
+        # need to handle Nones
+        if options is None:
+            options = dict()
+        if drone_options is None:
+            drone_options = dict()
 
         # override the spawn location if needed
         if "randomize_drop" in options and options["randomize_drop"]:
@@ -206,7 +221,9 @@ class RocketBaseEnv(gymnasium.Env):
         if self.render_mode is not None:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
-    def end_reset(self, seed=None, options=dict()):
+    def end_reset(
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.env.register_all_new_bodies()

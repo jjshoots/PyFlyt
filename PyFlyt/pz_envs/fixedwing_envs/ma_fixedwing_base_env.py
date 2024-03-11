@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 import pybullet as p
@@ -129,22 +129,16 @@ class MAFixedwingBaseEnv(ParallelEnv):
             dtype=np.float64,
         )
 
-    def observation_space(self, agent) -> Space:
+    def observation_space(self, agent: Any = None) -> Space:
         """observation_space.
-
-        Args:
-            _:
 
         Returns:
             Space:
         """
         raise NotImplementedError
 
-    def action_space(self, agent) -> spaces.Box:
+    def action_space(self, agent: Any = None) -> spaces.Box:
         """action_space.
-
-        Args:
-            _:
 
         Returns:
             spaces.Box:
@@ -157,7 +151,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
             self.aviary.disconnect()
 
     def reset(
-        self, seed: None | int = None, options: dict | None = dict()
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
@@ -170,7 +164,12 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
+    def begin_reset(
+        self,
+        seed: None | int = None,
+        options: None | dict[str, Any] = dict(),
+        drone_options: None | dict[str, Any] | Sequence[dict[str, Any]] = dict(),
+    ):
         """The first half of the reset function."""
         # if we already have an env, disconnect from it
         if hasattr(self, "aviary"):
@@ -178,13 +177,23 @@ class MAFixedwingBaseEnv(ParallelEnv):
         self.step_count = 0
         self.agents = self.possible_agents[:]
 
-        # options
-        drone_options = dict()
-        drone_options["drone_model"] = "acrowing"
+        # need to handle Nones
+        if options is None:
+            options = dict()
+        if drone_options is None:
+            drone_options = dict()
 
-        # override options
-        for k, v in drone_options.items():
-            drone_options[k] = v
+        # options
+        if isinstance(drone_options, Sequence):
+            for i in range(len(drone_options)):
+                model = drone_options[i].get("drone_model") or "acrowing"
+                drone_options[i]["drone_model"] = model
+        elif isinstance(drone_options, dict):
+            drone_options["drone_model"] = (
+                drone_options.get("drone_model") or "acrowing"
+            )
+        else:
+            drone_options = dict(drone_model="acrowing")
 
         # rebuild the environment
         self.aviary = Aviary(
@@ -196,7 +205,9 @@ class MAFixedwingBaseEnv(ParallelEnv):
             seed=seed,
         )
 
-    def end_reset(self, seed=None, options=dict()):
+    def end_reset(
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.aviary.register_all_new_bodies()
