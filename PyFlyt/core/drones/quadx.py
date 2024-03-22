@@ -454,9 +454,11 @@ class QuadX(DroneClass):
         self.pwm = np.matmul(self.motor_map, cmd)
 
         # deal with motor saturations
-        if (high := np.max(self.pwm)) > 1.0:
+        high = np.max(self.pwm)
+        if high > 1.0:
             self.pwm /= high
-        if (low := np.min(self.pwm)) < 0.05:
+        low = np.min(self.pwm)
+        if low < 0.05:
             self.pwm += (high - self.pwm) / (high - low) * (0.05 - low)
 
     def update_physics(self):
