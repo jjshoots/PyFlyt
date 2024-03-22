@@ -456,12 +456,14 @@ class QuadX(DroneClass):
         # deal with motor saturations
         high, low = np.max(self.pwm), np.min(self.pwm)
         if high > 1.0:
+            pwm_range = high - low + 1e-6
             overflow = max(0.0, low - 1.0)
-            self.pwm -= (high - 1.0) / (high - low) * (self.pwm - 1.0) + overflow
+            self.pwm -= (high - 1.0) / pwm_range * (self.pwm - 1.0) + overflow
         high, low = np.max(self.pwm), np.min(self.pwm)
         if low < 0.05:
+            pwm_range = high - low + 1e-6
             underflow = max(0.0, 0.05 - high)
-            self.pwm += (0.05 - low) / (high - low) * (high - self.pwm) + underflow
+            self.pwm += (0.05 - low) / pwm_range * (high - self.pwm) + underflow
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
