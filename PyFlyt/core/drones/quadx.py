@@ -457,7 +457,7 @@ class QuadX(DroneClass):
         if (high := np.max(self.pwm)) > 1.0:
             self.pwm /= high
         if (low := np.min(self.pwm)) < 0.05:
-            self.pwm += (1.0 - self.pwm) / (1.0 - low) * (0.05 - low)
+            self.pwm += (high - self.pwm) / (high - low) * (0.05 - low)
 
     def update_physics(self):
         """Updates the physics of the vehicle."""
