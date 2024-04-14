@@ -19,25 +19,29 @@ class FlattenWaypointEnv(ObservationWrapper):
             context_length: how many waypoints should be included in the flattened observation space.
         """
         super().__init__(env=env)
-        assert hasattr(env, "waypoints") and isinstance(env.waypoints, WaypointHandler), "Only a waypoints environment can be used with the `FlattenWaypointEnv` wrapper."  # type: ignore [reportGeneralTypeIssues]
+        assert (
+            hasattr(env, "waypoints") and isinstance(env.waypoints, WaypointHandler)  # type: ignore [reportGeneralTypeIssues]
+        ), "Only a waypoints environment can be used with the `FlattenWaypointEnv` wrapper."
         self.context_length = context_length
         self.attitude_shape = env.observation_space["attitude"].shape[0]  # type: ignore [reportGeneralTypeIssues]
-        self.target_shape = env.observation_space["target_deltas"].feature_space.shape[0]  # type: ignore [reportGeneralTypeIssues]
+        self.target_shape = env.observation_space["target_deltas"].feature_space.shape[  # type: ignore [reportGeneralTypeIssues]
+            0
+        ]  # type: ignore [reportGeneralTypeIssues]
         self.observation_space = Box(
             low=-np.inf, high=np.inf, shape=(self.attitude_shape + self.target_shape,)
         )
 
-    def observation(self, obs) -> np.ndarray:
+    def observation(self, observation) -> np.ndarray:
         """Flattens an observation from the super env.
 
         Args:
-            obs: a dictionary observation with an "attitude" and "target_deltas" keys.
+            observation: a dictionary observation with an "attitude" and "target_deltas" keys.
         """
-        num_targets = min(self.context_length, obs["target_deltas"].shape[0])
+        num_targets = min(self.context_length, observation["target_deltas"].shape[0])  # pyright: ignore[reportGeneralTypeIssues]
 
         targets = np.zeros((self.context_length, self.target_shape))
-        targets[:num_targets] = obs["target_deltas"][:num_targets]
+        targets[:num_targets] = observation["target_deltas"][:num_targets]  # pyright: ignore[reportGeneralTypeIssues]
 
-        new_obs = np.concatenate([obs["attitude"], *targets])
+        new_obs = np.concatenate([observation["attitude"], *targets])  # pyright: ignore[reportGeneralTypeIssues]
 
         return new_obs

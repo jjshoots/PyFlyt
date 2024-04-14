@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import numpy as np
 import pybullet as p
@@ -82,17 +83,21 @@ class RocketLandingEnv(RocketBaseEnv):
         """CONSTANTS"""
         self.sparse_reward = sparse_reward
 
-    def reset(self, seed=None, options=dict()):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """Resets the environment.
 
         Args:
             seed: int
             options: None
         """
-        options = dict(randomize_drop=True, accelerate_drop=True)
-        drone_options = dict(starting_fuel_ratio=0.01)
+        if options is None:
+            options = dict(randomize_drop=True, accelerate_drop=True)
 
-        super().begin_reset(seed, options, drone_options)
+        super().begin_reset(
+            seed=seed, options=options, drone_options=dict(starting_fuel_ratio=0.01)
+        )
 
         # reset the tracked parameters
         self.landing_pad_contact = 0.0

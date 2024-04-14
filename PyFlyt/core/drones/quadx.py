@@ -390,8 +390,8 @@ class QuadX(DroneClass):
             custom_output = self.instanced_controllers[self.mode].step(
                 self.state, self.setpoint
             )
-            assert custom_output.shape == (
-                4,
+            assert (
+                custom_output.shape == (4,)
             ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
 
             # splice things out to be passed along
@@ -454,10 +454,14 @@ class QuadX(DroneClass):
         self.pwm = np.matmul(self.motor_map, cmd)
 
         # deal with motor saturations
-        if (high := np.max(self.pwm)) > 1.0:
-            self.pwm /= high
-        if (low := np.min(self.pwm)) < 0.05:
-            self.pwm += (1.0 - self.pwm) / (1.0 - low) * (0.05 - low)
+        # we want to maintain the output low and output high if possible
+        high, low = np.max(self.pwm), np.min(self.pwm)
+        if high != low:
+            pwm_max, pwm_min = min(high, 1.0), max(low, 0.05)
+            add = (pwm_min - low) / (pwm_max - low) * (pwm_max - self.pwm)
+            sub = (high - pwm_max) / (high - pwm_min) * (self.pwm - pwm_min)
+            self.pwm += add - sub
+        self.pwm = np.clip(self.pwm, 0.05, 1.0)
 
     def update_physics(self):
         """Updates the physics of the vehicle."""

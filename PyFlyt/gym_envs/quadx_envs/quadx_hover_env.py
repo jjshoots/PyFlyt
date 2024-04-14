@@ -1,6 +1,8 @@
 """QuadX Hover Environment."""
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
@@ -14,6 +16,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
     Args:
         sparse_reward (bool): whether to use sparse rewards or not.
+        flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
         angle_representation (str): can be "euler" or "quaternion".
@@ -25,6 +28,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
     def __init__(
         self,
         sparse_reward: bool = False,
+        flight_mode: int = 0,
         flight_dome_size: float = 3.0,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
@@ -36,6 +40,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
         Args:
             sparse_reward (bool): whether to use sparse rewards or not.
+            flight_mode (int): the flight mode of the UAV
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (str): can be "euler" or "quaternion".
@@ -44,6 +49,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
             render_resolution (tuple[int, int]): render_resolution.
         """
         super().__init__(
+            flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
@@ -58,7 +64,9 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
 
-    def reset(self, seed=None, options=dict()):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ) -> tuple[np.ndarray, dict[str, Any]]:
         """reset.
 
         Args:

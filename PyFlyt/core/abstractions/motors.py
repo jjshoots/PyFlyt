@@ -181,7 +181,8 @@ class Motors:
             thrust_unit = thrust_unit[..., 0]
 
         # rpm to thrust and torque
-        thrust = (rpm**2) * thrust_coef * thrust_unit
-        torque = (rpm**2) * torque_coef * thrust_unit
+        rpm_const = (rpm**2) * np.sign(rpm) * thrust_unit
+        thrust = rpm_const * thrust_coef
+        torque = rpm_const * torque_coef
 
         return thrust, torque

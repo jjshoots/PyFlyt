@@ -1,6 +1,8 @@
 """Base PyFlyt Environment for the Fixedwing model using the Gymnasim API."""
 from __future__ import annotations
 
+from typing import Any
+
 import gymnasium
 import numpy as np
 import pybullet as p
@@ -19,6 +21,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         self,
         start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
         start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
+        flight_mode: int = 0,
         flight_dome_size: float = np.inf,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
@@ -31,6 +34,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         Args:
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
+            flight_mode (int): flight_mode
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
             angle_representation (str): angle_representation
@@ -104,6 +108,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         """ ENVIRONMENT CONSTANTS """
         self.start_pos = start_pos
         self.start_orn = start_orn
+        self.flight_mode = flight_mode
         self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
@@ -112,7 +117,9 @@ class FixedwingBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.angle_representation = 1
 
-    def reset(self, seed=None, options=dict()):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """reset.
 
         Args:
@@ -127,7 +134,12 @@ class FixedwingBaseEnv(gymnasium.Env):
         if hasattr(self, "env"):
             self.env.disconnect()
 
-    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
+    def begin_reset(
+        self,
+        seed: None | int = None,
+        options: None | dict[str, Any] = dict(),
+        drone_options: None | dict[str, Any] = dict(),
+    ):
         """The first half of the reset function."""
         super().reset(seed=seed)
 
@@ -145,6 +157,12 @@ class FixedwingBaseEnv(gymnasium.Env):
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
         self.info["env_complete"] = False
+
+        # need to handle Nones
+        if options is None:
+            options = dict()
+        if drone_options is None:
+            drone_options = dict()
 
         # camera handling
         if "use_camera" not in drone_options:
@@ -165,13 +183,15 @@ class FixedwingBaseEnv(gymnasium.Env):
         if self.render_mode is not None:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
-    def end_reset(self, seed=None, options=dict()):
+    def end_reset(
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.env.register_all_new_bodies()
 
         # set flight mode
-        self.env.set_mode(0)
+        self.env.set_mode(self.flight_mode)
 
         # wait for env to stabilize
         for _ in range(10):

@@ -1,6 +1,6 @@
 """Base Multiagent QuadX Environment."""
 from copy import deepcopy
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 import pybullet as p
@@ -21,6 +21,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         start_orn: np.ndarray = np.array(
             [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
         ),
+        flight_mode: int = 0,
         flight_dome_size: float = 10.0,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "euler",
@@ -32,6 +33,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         Args:
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
+            flight_mode (int): flight_mode
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
             angle_representation (str): angle_representation
@@ -112,6 +114,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         self.start_pos = start_pos
         self.start_orn = start_orn
 
+        self.flight_mode = flight_mode
         self.flight_dome_size = flight_dome_size
         self.max_steps = int(agent_hz * max_duration_seconds)
         self.env_step_ratio = int(120 / agent_hz)
@@ -143,22 +146,22 @@ class MAQuadXBaseEnv(ParallelEnv):
             )
         )
 
-    def observation_space(self, _) -> Space:
+    def observation_space(self, agent: Any = None) -> Space:
         """observation_space.
 
         Args:
-            _:
+            agent:
 
         Returns:
             Space:
         """
         raise NotImplementedError
 
-    def action_space(self, _) -> spaces.Box:
+    def action_space(self, agent: Any = None) -> spaces.Box:
         """action_space.
 
         Args:
-            _:
+            agent:
 
         Returns:
             spaces.Box:
@@ -170,7 +173,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
 
-    def reset(self, seed=None, options=dict()) -> tuple[dict[str, Any], dict[str, Any]]:
+    def reset(
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         """reset.
 
         Args:
@@ -182,7 +187,12 @@ class MAQuadXBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def begin_reset(self, seed=None, options=dict(), drone_options=dict()):
+    def begin_reset(
+        self,
+        seed: None | int = None,
+        options: None | dict[str, Any] = dict(),
+        drone_options: None | dict[str, Any] | Sequence[dict[str, Any]] = dict(),
+    ):
         """The first half of the reset function."""
         # if we already have an env, disconnect from it
         if hasattr(self, "aviary"):
@@ -200,13 +210,15 @@ class MAQuadXBaseEnv(ParallelEnv):
             seed=seed,
         )
 
-    def end_reset(self, seed=None, options=dict()):
+    def end_reset(
+        self, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.aviary.register_all_new_bodies()
 
         # set flight mode
-        self.aviary.set_mode(0)
+        self.aviary.set_mode(self.flight_mode)
 
         # wait for env to stabilize
         for _ in range(10):

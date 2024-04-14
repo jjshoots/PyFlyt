@@ -1,6 +1,8 @@
 """QuadX Waypoints Environment."""
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 from gymnasium import spaces
 
@@ -20,12 +22,13 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
         goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
+        flight_mode (int): the flight mode of the UAV.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
         angle_representation (str): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction.
-        render_mode (None | str): can be "human" or None
-        render_resolution (tuple[int, int]): render_resolution
+        render_mode (None | str): can be "human" or None.
+        render_resolution (tuple[int, int]): render_resolution.
     """
 
     def __init__(
@@ -35,6 +38,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         use_yaw_targets: bool = False,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
+        flight_mode: int = 0,
         flight_dome_size: float = 5.0,
         max_duration_seconds: float = 10.0,
         angle_representation: str = "quaternion",
@@ -50,15 +54,17 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
             use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
             goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
+            flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (str): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
-            render_mode (None | str): can be "human" or None
-            render_resolution (tuple[int, int]): render_resolution
+            render_mode (None | str): can be "human" or None.
+            render_resolution (tuple[int, int]): render_resolution.
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 1.0]]),
+            flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
@@ -97,7 +103,9 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
 
-    def reset(self, seed=None, options=dict()):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """Resets the environment.
 
         Args:

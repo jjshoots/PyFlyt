@@ -51,4 +51,4 @@ control_params:
     kp: 2.0
     ki: 0.5
     kd: 0.05
-    lim: 2.0
+    lim: 1.0

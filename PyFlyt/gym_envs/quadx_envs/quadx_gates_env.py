@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import math
 import os
+from typing import Any
 
 import numpy as np
 import pybullet as p
@@ -25,6 +26,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
     def __init__(
         self,
         num_targets: int = 5,
+        flight_mode: int = 0,
         goal_reach_distance: float = 0.21,
         min_gate_height: float = 1.0,
         max_gate_angles: list[float] = [0.0, 0.3, 1.0],
@@ -40,6 +42,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+            flight_mode (int): the flight mode of the UAV
             num_targets (int): num_targets
             goal_reach_distance (float): goal_reach_distance
             min_gate_height (float): min_gate_height
@@ -54,6 +57,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
             render_resolution (tuple[int, int]): render_resolution
         """
         super().__init__(
+            flight_mode=flight_mode,
             max_duration_seconds=max_duration_seconds,
             angle_representation=angle_representation,
             agent_hz=agent_hz,
@@ -91,7 +95,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.camera_resolution = camera_resolution
         self.num_targets = num_targets
 
-    def reset(self, seed=None, options=None):
+    def reset(
+        self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
+    ):
         """Resets the environment.
 
         Args:
