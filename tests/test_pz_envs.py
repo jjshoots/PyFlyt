@@ -1,4 +1,6 @@
 """Tests the API compatibility of all PyFlyt Pettingzoo Environments."""
+from __future__ import annotations
+
 import warnings
 from typing import Any
 
