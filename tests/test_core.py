@@ -271,7 +271,7 @@ def test_simple_wind(model: str):
     # define the wind field
     def simple_wind(time: float, position: np.ndarray):
         wind = np.zeros_like(position)
-        wind[:, -1] = np.log(position[:, -1])
+        wind[:, -1] = np.exp(position[:, -1])
         return wind
 
     # the starting position and orientations
@@ -312,7 +312,7 @@ def test_custom_wind(model: str):
 
         def __call__(self, time: float, position: np.ndarray):
             wind = np.zeros_like(position)
-            wind[:, -1] = np.log(position[:, -1]) * self.strength
+            wind[:, -1] = np.exp(position[:, -1]) * self.strength
             wind += self.np_random.randn(*wind.shape)
             return wind
 
