@@ -99,7 +99,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> tuple[dict[Literal["attitude", "target_deltas"], np.ndarray], dict]:
         """reset.
 
         Args:
@@ -114,7 +114,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
 
         return self.state, self.info
 
-    def compute_state(self):
+    def compute_state(self) -> None:
         """Computes the state of the current timestep.
 
         This returns the observation as well as the distances to target.
@@ -132,7 +132,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         aux_state = super().compute_auxiliary()
 
         # combine everything
-        new_state = dict()
+        new_state: dict[Literal["attitude", "target_deltas"], np.ndarray] = dict()
         if self.angle_representation == 0:
             new_state["attitude"] = np.array(
                 [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
@@ -149,9 +149,9 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             np.linalg.norm(new_state["target_deltas"][0])
         )
 
-        self.state = new_state
+        self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """Computes the termination, trunction, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 

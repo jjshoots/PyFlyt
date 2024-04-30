@@ -85,7 +85,7 @@ class RocketLandingEnv(RocketBaseEnv):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> tuple[np.ndarray, dict]:
         """Resets the environment.
 
         Args:
@@ -124,7 +124,7 @@ class RocketLandingEnv(RocketBaseEnv):
 
         return self.state, self.info
 
-    def compute_state(self):
+    def compute_state(self) -> None:
         """Computes the state of the current timestep.
 
         This returns the observation.
@@ -183,7 +183,7 @@ class RocketLandingEnv(RocketBaseEnv):
                 ]
             )
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward(
             collision_ignore_mask=[self.env.drones[0].Id, self.landing_pad_id]

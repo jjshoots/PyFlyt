@@ -78,7 +78,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
         return self.state, self.info
 
-    def compute_state(self):
+    def compute_state(self) -> None:
         """Computes the state of the current timestep.
 
         This returns the observation.
@@ -102,7 +102,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
                 [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
