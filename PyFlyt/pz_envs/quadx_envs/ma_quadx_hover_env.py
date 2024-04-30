@@ -81,7 +81,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             dtype=np.float64,
         )
 
-    def observation_space(self, agent: Any = None):
+    def observation_space(self, agent: Any = None) -> spaces.Space:
         """observation_space.
 
         Args:
@@ -89,7 +89,9 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """
         return self._observation_space
 
-    def reset(self, seed=None, options=dict()) -> tuple[dict[str, Any], dict[str, Any]]:
+    def reset(
+        self, seed=None, options=dict()
+    ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
         """reset.
 
         Args:
