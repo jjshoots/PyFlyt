@@ -415,7 +415,7 @@ class Aviary(bullet_client.BulletClient):
             elapsed = time.time() - self.now
             self.now = time.time()
 
-            self._sim_elapsed += self.update_period * self.updates_per_step
+            self._sim_elapsed += self.update_period
             self._frame_elapsed += elapsed
 
             time.sleep(max(self._sim_elapsed - self._frame_elapsed, 0.0))
