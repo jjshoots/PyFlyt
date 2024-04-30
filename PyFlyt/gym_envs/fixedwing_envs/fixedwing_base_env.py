@@ -177,12 +177,12 @@ class FixedwingBaseEnv(gymnasium.Env):
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="fixedwing",
-            render=self.render_mode is not None and self.render_gui,
+            render=self.render_mode is not None and self.render_mode is not "rgb_array",
             drone_options=drone_options,
             seed=seed,
         )
 
-        if self.render_mode is not None and self.render_gui:
+        if self.render_mode is not None and self.render_mode is not "rgb_array":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(

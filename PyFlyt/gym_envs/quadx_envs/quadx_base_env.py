@@ -27,7 +27,6 @@ class QuadXBaseEnv(gymnasium.Env):
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
-        render_gui: bool = True,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -168,12 +167,12 @@ class QuadXBaseEnv(gymnasium.Env):
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="quadx",
-            render=self.render_mode is not None and self.render_gui,
+            render=self.render_mode is not None and self.render_mode is not "rgb_array",
             drone_options=drone_options,
             seed=seed,
         )
 
-        if self.render_mode is not None and self.render_gui:
+        if self.render_mode is not None and self.render_mode is not "rgb_array":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
