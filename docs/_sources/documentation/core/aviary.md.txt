@@ -246,18 +246,18 @@ This is __invalid__.
 
 ### Methods
 ```{eval-rst}
-.. function:: PyFlyt.core.Aviary.print_all_bodies
+.. autofunction:: PyFlyt.core.Aviary.print_all_bodies
 
-.. function:: PyFlyt.core.Aviary.reset
-.. function:: PyFlyt.core.Aviary.register_all_new_bodies
+.. autofunction:: PyFlyt.core.Aviary.reset
+.. autofunction:: PyFlyt.core.Aviary.register_all_new_bodies
 
-.. function:: PyFlyt.core.Aviary.state
-.. function:: PyFlyt.core.Aviary.aux_state
+.. autofunction:: PyFlyt.core.Aviary.state
+.. autofunction:: PyFlyt.core.Aviary.aux_state
 
-.. function:: PyFlyt.core.Aviary.set_armed
-.. function:: PyFlyt.core.Aviary.set_mode
-.. function:: PyFlyt.core.Aviary.set_setpoint
-.. function:: PyFlyt.core.Aviary.set_all_setpoints
+.. autofunction:: PyFlyt.core.Aviary.set_armed
+.. autofunction:: PyFlyt.core.Aviary.set_mode
+.. autofunction:: PyFlyt.core.Aviary.set_setpoint
+.. autofunction:: PyFlyt.core.Aviary.set_all_setpoints
 
-.. function:: PyFlyt.core.Aviary.step
+.. autofunction:: PyFlyt.core.Aviary.step
 ```
