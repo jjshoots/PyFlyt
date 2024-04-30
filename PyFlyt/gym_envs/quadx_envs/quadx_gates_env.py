@@ -4,7 +4,7 @@ from __future__ import annotations
 import copy
 import math
 import os
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pybullet as p
@@ -21,6 +21,21 @@ class QuadXGatesEnv(QuadXBaseEnv):
     The target is a set of `[x, y, z, yaw]` targets in space
 
     Reward is -(distance from waypoint + angle error) for each timestep, and -100.0 for hitting the ground.
+
+    Args:
+        flight_mode (int): the flight mode of the UAV
+        num_targets (int): num_targets
+        goal_reach_distance (float): goal_reach_distance
+        min_gate_height (float): min_gate_height
+        max_gate_angles (list[float]): max_gate_angles
+        min_gate_distance (float): min_gate_distance
+        max_gate_distance (float): max_gate_distance
+        camera_resolution (tuple[int, int]): camera_resolution
+        max_duration_seconds (float): max_duration_seconds
+        angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
+        agent_hz (int): looprate of the agent to environment interaction.
+        render_mode (None | Literal["human", "rgb_array"]): render_mode
+        render_resolution (tuple[int, int]): render_resolution
     """
 
     def __init__(
@@ -34,9 +49,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
         max_gate_distance: float = 4.0,
         camera_resolution: tuple[int, int] = (128, 128),
         max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
+        angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 40,
-        render_mode: None | str = None,
+        render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -51,9 +66,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
             max_gate_distance (float): max_gate_distance
             camera_resolution (tuple[int, int]): camera_resolution
             max_duration_seconds (float): max_duration_seconds
-            angle_representation (str): angle_representation
-            agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
+            agent_hz (int): looprate of the agent to environment interaction.
+            render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
         """
         super().__init__(
@@ -97,7 +112,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> tuple[
+        dict[Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray], dict
+    ]:
         """Resets the environment.
 
         Args:
@@ -120,7 +137,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
 
         return self.state, self.info
 
-    def generate_gates(self):
+    def generate_gates(self) -> None:
         """Generates the gates."""
         # sample a bunch of distances for gate distances
         distances = self.np_random.uniform(
@@ -179,7 +196,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.colour_first_gate()
         self.colour_other_gate()
 
-    def colour_dead_gate(self, gate: int):
+    def colour_dead_gate(self, gate: int) -> None:
         """Colours the gates that are done.
 
         Args:
@@ -193,7 +210,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
                 rgbaColor=(1, 0, 0, 1),
             )
 
-    def colour_first_gate(self):
+    def colour_first_gate(self) -> None:
         """Colours the immediate target gate."""
         # colour the first gate green
         for i in range(p.getNumJoints(self.gates[0])):
@@ -203,7 +220,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
                 rgbaColor=(0, 1, 0, 1),
             )
 
-    def colour_other_gate(self):
+    def colour_other_gate(self) -> None:
         """Colours gates that are neither targets nor dead."""
         # colour all other gates yellow
         for gate in self.gates[1:]:
@@ -214,7 +231,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
                     rgbaColor=(1, 1, 0, 1),
                 )
 
-    def compute_state(self):
+    def compute_state(self) -> None:
         """This returns the observation as well as the distances to target.
 
         - "attitude" (Box)
@@ -238,7 +255,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.dis_error_scalar = np.linalg.norm(target_deltas[0])
 
         # combine everything
-        new_state = dict()
+        new_state: dict[
+            Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray
+        ] = dict()
         if self.angle_representation == 0:
             new_state["attitude"] = np.array(
                 [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
@@ -255,17 +274,19 @@ class QuadXGatesEnv(QuadXBaseEnv):
         # distances to targets
         new_state["target_deltas"] = target_deltas
 
-        self.state = new_state
+        self.state: dict[
+            Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray
+        ] = new_state
 
     @property
-    def target_reached(self):
+    def target_reached(self) -> bool:
         """Checks if the immediate target has been reached."""
         if self.dis_error_scalar < self.goal_reach_distance:
             return True
         else:
             return False
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """Computes the termination, truncation, and reward of the current step."""
         super().compute_base_term_trunc_reward()
 

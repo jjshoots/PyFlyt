@@ -1,7 +1,7 @@
 """Base PyFlyt Environment for the Fixedwing model using the Gymnasim API."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import gymnasium
 import numpy as np
@@ -24,9 +24,9 @@ class FixedwingBaseEnv(gymnasium.Env):
         flight_mode: int = 0,
         flight_dome_size: float = np.inf,
         max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
+        angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
-        render_mode: None | str = None,
+        render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -37,22 +37,22 @@ class FixedwingBaseEnv(gymnasium.Env):
             flight_mode (int): flight_mode
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
-            angle_representation (str): angle_representation
+            angle_representation (Literal["euler", "quaternion"]): angle_representation
             agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
             highest = int(120 / int(120 / agent_hz))
-            raise AssertionError(
+            raise ValueError(
                 f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
             )
 
-        if render_mode is not None:
-            assert (
-                render_mode in self.metadata["render_modes"]
-            ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+        if render_mode and render_mode not in self.metadata["render_modes"]:
+            raise ValueError(
+                f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+            )
         self.render_mode = render_mode
         self.render_resolution = render_resolution
 
@@ -63,7 +63,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             attitude_shape = 13
         else:
-            raise AssertionError(
+            raise ValueError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
             )
 
@@ -119,7 +119,7 @@ class FixedwingBaseEnv(gymnasium.Env):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> tuple[Any, dict]:
         """reset.
 
         Args:
@@ -128,7 +128,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         """
         raise NotImplementedError
 
-    def close(self):
+    def close(self) -> None:
         """Disconnects the internal Aviary."""
         # if we already have an env, disconnect from it
         if hasattr(self, "env"):
@@ -139,7 +139,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         seed: None | int = None,
         options: None | dict[str, Any] = dict(),
         drone_options: None | dict[str, Any] = dict(),
-    ):
+    ) -> None:
         """The first half of the reset function."""
         super().reset(seed=seed)
 
@@ -185,7 +185,7 @@ class FixedwingBaseEnv(gymnasium.Env):
 
     def end_reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> None:
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.env.register_all_new_bodies()
@@ -199,15 +199,17 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         self.compute_state()
 
-    def compute_state(self):
+    def compute_state(self) -> None:
         """Computes the state of the Rocket."""
         raise NotImplementedError
 
-    def compute_auxiliary(self):
+    def compute_auxiliary(self) -> np.ndarray:
         """This returns the auxiliary state form the drone."""
         return self.env.aux_state(0)
 
-    def compute_attitude(self):
+    def compute_attitude(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """state.
 
         This returns the base attitude for the drone.
@@ -215,7 +217,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         - ang_pos (vector of 3/4 values)
         - lin_vel (vector of 3 values)
         - lin_pos (vector of 3 values)
-        - previous_action (vector of 4 values)
+        - quaternion (vector of 4 values)
         """
         raw_state = self.env.state(0)
 
@@ -230,11 +232,11 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         return ang_vel, ang_pos, lin_vel, lin_pos, quarternion
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """compute_term_trunc_reward."""
         raise NotImplementedError
 
-    def compute_base_term_trunc_reward(self):
+    def compute_base_term_trunc_reward(self) -> None:
         """compute_base_term_trunc_reward."""
         # exceed step count
         if self.step_count > self.max_steps:
@@ -252,7 +254,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             self.info["out_of_bounds"] = True
             self.termination |= True
 
-    def step(self, action: np.ndarray):
+    def step(self, action: np.ndarray) -> tuple[Any, float, bool, bool, dict]:
         """Steps the environment.
 
         Args:
@@ -285,12 +287,13 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
-    def render(self):
+    def render(self) -> np.ndarray:
         """render."""
         check_numpy()
-        assert (
-            self.render_mode is not None
-        ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
+        if self.render_mode is None:
+            raise ValueError(
+                "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
+            )
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
             width=self.render_resolution[1],

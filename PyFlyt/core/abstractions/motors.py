@@ -87,7 +87,7 @@ class Motors:
         self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
         self.noise_ratio = noise_ratio
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset the motors."""
         self.throttle = np.zeros((self.num_motors,))
 
@@ -99,11 +99,13 @@ class Motors:
         """
         return self.throttle.flatten()
 
-    def state_update(self):
+    def state_update(self) -> None:
         """This does not need to be called for motors."""
         warnings.warn("`state_update` does not need to be called for motors.")
 
-    def physics_update(self, pwm: np.ndarray, rotation: None | np.ndarray = None):
+    def physics_update(
+        self, pwm: np.ndarray, rotation: None | np.ndarray = None
+    ) -> None:
         """Converts motor PWM values to forces, this motor allows negative thrust.
 
         Args:

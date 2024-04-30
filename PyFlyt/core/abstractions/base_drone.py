@@ -134,7 +134,7 @@ class DroneClass(ABC):
         self.segImg: np.ndarray
 
     @abstractmethod
-    def reset(self):
+    def reset(self) -> None:
         """Resets the vehicle to the initial state.
 
         Example Implementation:
@@ -155,7 +155,7 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_control(self):
+    def update_control(self) -> None:
         """Updates onboard flight control laws at a rate specified by `control_hz`.
 
         Example Implementation:
@@ -178,7 +178,7 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_physics(self):
+    def update_physics(self) -> None:
         """Updates all physics on the vehicle at a rate specified by `physics_hz`.
 
         Example Implementation:
@@ -190,7 +190,7 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_state(self):
+    def update_state(self) -> None:
         """Updates the vehicle's state values at a rate specified by `phyiscs_hz`.
 
         Example Implementation:
@@ -222,7 +222,7 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_last(self):
+    def update_last(self) -> None:
         """Update that happens at the end of `Aviary.step()`, usually reserved for camera updates.
 
         Example Implementation:
@@ -232,7 +232,7 @@ class DroneClass(ABC):
         """
         raise NotImplementedError
 
-    def set_mode(self, mode):
+    def set_mode(self, mode: int) -> None:
         """Default set_mode.
 
         By default, mode 0 defines the following setpoint behaviour:
@@ -255,7 +255,7 @@ class DroneClass(ABC):
         controller_id: int,
         controller_constructor: type[ControlClass],
         base_mode: int,
-    ):
+    ) -> None:
         """Default register_controller.
 
         Args:
@@ -263,16 +263,18 @@ class DroneClass(ABC):
             controller_constructor (type[ControlClass]): A class pointer to the controller implementation, must be subclass of `ControlClass`.
             base_mode (int): Whether this controller uses outputs of an underlying controller as setpoints.
         """
-        assert (
-            controller_id > 0
-        ), f"`controller_id` must be more than 0, got {controller_id}."
-        assert (
-            base_mode == 0
-        ), f"`base_mode` must be 0, no other controllers available, got {base_mode}."
+        if controller_id <= 0:
+            raise ValueError(
+                f"`controller_id` must be more than 0, got {controller_id}."
+            )
+        if base_mode != 0:
+            raise ValueError(
+                f"`base_mode` must be 0, no other controllers available, got {base_mode}."
+            )
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
 
-    def get_joint_info(self):
+    def get_joint_info(self) -> None:
         """Debugging function for displaying all joint IDs and names as defined in URDF."""
         # read out all infos
         infos = dict()
@@ -287,7 +289,7 @@ class DroneClass(ABC):
 
         pprint(infos)
 
-    def disable_artificial_damping(self):
+    def disable_artificial_damping(self) -> None:
         """Disable the artificial damping that pybullet has to enable more accurate aerodynamics simulation."""
         for idx in range(-1, self.p.getNumJoints(self.Id)):
             self.p.changeDynamics(self.Id, idx, linearDamping=0.0, angularDamping=0.0)

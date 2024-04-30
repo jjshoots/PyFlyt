@@ -209,7 +209,7 @@ class Rocket(DroneClass):
                 is_tracking_camera=True,
             )
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
         self.setpoint = np.zeros(7)
@@ -222,7 +222,7 @@ class Rocket(DroneClass):
         self.booster_gimbal.reset()
         self.boosters.reset(starting_fuel_ratio=self.starting_fuel_ratio)
 
-    def set_mode(self, mode):
+    def set_mode(self, mode) -> None:
         """Sets the current flight mode of the vehicle.
 
         flight modes:
@@ -233,7 +233,7 @@ class Rocket(DroneClass):
         """
         super().set_mode(mode)
 
-    def update_control(self):
+    def update_control(self) -> None:
         """Runs through controllers."""
         # the default mode
         if self.mode == 0:
@@ -254,7 +254,7 @@ class Rocket(DroneClass):
         # custom controllers run if any
         self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
-    def update_physics(self):
+    def update_physics(self) -> None:
         """Updates the physics of the vehicle."""
         # update the forces on the main body
         self.bodies.physics_update()
@@ -274,7 +274,7 @@ class Rocket(DroneClass):
             rotation=rotation,
         )
 
-    def update_state(self):
+    def update_state(self) -> None:
         """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
@@ -308,7 +308,7 @@ class Rocket(DroneClass):
             )
         )
 
-    def update_last(self):
+    def update_last(self) -> None:
         """Updates things only at the end of `Aviary.step()`."""
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
