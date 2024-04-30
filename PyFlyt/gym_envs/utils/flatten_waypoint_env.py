@@ -19,10 +19,13 @@ class FlattenWaypointEnv(ObservationWrapper):
             context_length: how many waypoints should be included in the flattened observation space.
         """
         super().__init__(env=env)
-        assert (
-            hasattr(env, "waypoints")
-            and isinstance(env.unwrapped.waypoints, WaypointHandler)  # type: ignore [reportGeneralTypeIssues]
-        ), "Only a waypoints environment can be used with the `FlattenWaypointEnv` wrapper."
+        if not hasattr(env, "waypoints") and not isinstance(
+            env.unwrapped.waypoints,  # type: ignore[reportAttributeAccess]
+            WaypointHandler,
+        ):
+            raise AttributeError(
+                "Only a waypoints environment can be used with the `FlattenWaypointEnv` wrapper."
+            )
         self.context_length = context_length
         self.attitude_shape = env.observation_space["attitude"].shape[0]  # type: ignore [reportGeneralTypeIssues]
         self.target_shape = env.observation_space["target_deltas"].feature_space.shape[  # type: ignore [reportGeneralTypeIssues]
