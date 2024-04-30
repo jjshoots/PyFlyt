@@ -112,7 +112,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> tuple[
+        dict[Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray], dict
+    ]:
         """Resets the environment.
 
         Args:
@@ -135,7 +137,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
 
         return self.state, self.info
 
-    def generate_gates(self):
+    def generate_gates(self) -> None:
         """Generates the gates."""
         # sample a bunch of distances for gate distances
         distances = self.np_random.uniform(
@@ -194,7 +196,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.colour_first_gate()
         self.colour_other_gate()
 
-    def colour_dead_gate(self, gate: int):
+    def colour_dead_gate(self, gate: int) -> None:
         """Colours the gates that are done.
 
         Args:
@@ -208,7 +210,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
                 rgbaColor=(1, 0, 0, 1),
             )
 
-    def colour_first_gate(self):
+    def colour_first_gate(self) -> None:
         """Colours the immediate target gate."""
         # colour the first gate green
         for i in range(p.getNumJoints(self.gates[0])):
@@ -218,7 +220,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
                 rgbaColor=(0, 1, 0, 1),
             )
 
-    def colour_other_gate(self):
+    def colour_other_gate(self) -> None:
         """Colours gates that are neither targets nor dead."""
         # colour all other gates yellow
         for gate in self.gates[1:]:
@@ -229,7 +231,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
                     rgbaColor=(1, 1, 0, 1),
                 )
 
-    def compute_state(self):
+    def compute_state(self) -> None:
         """This returns the observation as well as the distances to target.
 
         - "attitude" (Box)
@@ -253,7 +255,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.dis_error_scalar = np.linalg.norm(target_deltas[0])
 
         # combine everything
-        new_state = dict()
+        new_state: dict[
+            Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray
+        ] = dict()
         if self.angle_representation == 0:
             new_state["attitude"] = np.array(
                 [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
@@ -270,17 +274,19 @@ class QuadXGatesEnv(QuadXBaseEnv):
         # distances to targets
         new_state["target_deltas"] = target_deltas
 
-        self.state = new_state
+        self.state: dict[
+            Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray
+        ] = new_state
 
     @property
-    def target_reached(self):
+    def target_reached(self) -> bool:
         """Checks if the immediate target has been reached."""
         if self.dis_error_scalar < self.goal_reach_distance:
             return True
         else:
             return False
 
-    def compute_term_trunc_reward(self):
+    def compute_term_trunc_reward(self) -> None:
         """Computes the termination, truncation, and reward of the current step."""
         super().compute_base_term_trunc_reward()
 
