@@ -1,7 +1,7 @@
 """QuadX Hover Environment."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 
@@ -19,9 +19,9 @@ class QuadXHoverEnv(QuadXBaseEnv):
         flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
-        angle_representation (str): can be "euler" or "quaternion".
+        angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction.
-        render_mode (None | str): can be "human" or None.
+        render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
     """
 
@@ -31,9 +31,9 @@ class QuadXHoverEnv(QuadXBaseEnv):
         flight_mode: int = 0,
         flight_dome_size: float = 3.0,
         max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
+        angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 40,
-        render_mode: None | str = None,
+        render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -43,9 +43,9 @@ class QuadXHoverEnv(QuadXBaseEnv):
             flight_mode (int): the flight mode of the UAV
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
-            angle_representation (str): can be "euler" or "quaternion".
+            angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
-            render_mode (None | str): can be "human" or None.
+            render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
         """
         super().__init__(

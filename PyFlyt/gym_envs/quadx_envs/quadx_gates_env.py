@@ -4,7 +4,7 @@ from __future__ import annotations
 import copy
 import math
 import os
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pybullet as p
@@ -21,6 +21,21 @@ class QuadXGatesEnv(QuadXBaseEnv):
     The target is a set of `[x, y, z, yaw]` targets in space
 
     Reward is -(distance from waypoint + angle error) for each timestep, and -100.0 for hitting the ground.
+
+    Args:
+        flight_mode (int): the flight mode of the UAV
+        num_targets (int): num_targets
+        goal_reach_distance (float): goal_reach_distance
+        min_gate_height (float): min_gate_height
+        max_gate_angles (list[float]): max_gate_angles
+        min_gate_distance (float): min_gate_distance
+        max_gate_distance (float): max_gate_distance
+        camera_resolution (tuple[int, int]): camera_resolution
+        max_duration_seconds (float): max_duration_seconds
+        angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
+        agent_hz (int): looprate of the agent to environment interaction.
+        render_mode (None | Literal["human", "rgb_array"]): render_mode
+        render_resolution (tuple[int, int]): render_resolution
     """
 
     def __init__(
@@ -34,9 +49,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
         max_gate_distance: float = 4.0,
         camera_resolution: tuple[int, int] = (128, 128),
         max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
+        angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 40,
-        render_mode: None | str = None,
+        render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -51,9 +66,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
             max_gate_distance (float): max_gate_distance
             camera_resolution (tuple[int, int]): camera_resolution
             max_duration_seconds (float): max_duration_seconds
-            angle_representation (str): angle_representation
-            agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
+            agent_hz (int): looprate of the agent to environment interaction.
+            render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
         """
         super().__init__(
