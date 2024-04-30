@@ -155,7 +155,7 @@ class Aviary(bullet_client.BulletClient):
 
         self.reset(seed)
 
-    def reset(self, seed: None | int = None):
+    def reset(self, seed: None | int = None) -> None:
         """Resets the simulation.
 
         Args:
@@ -253,7 +253,7 @@ class Aviary(bullet_client.BulletClient):
         [drone.update_state() for drone in self.drones]
         [drone.update_last() for drone in self.drones]
 
-    def register_all_new_bodies(self):
+    def register_all_new_bodies(self) -> None:
         """Registers all new bodies in the environment to be able to handle collisions later.
 
         Call this when there is an update in the number of bodies in the environment.
@@ -264,7 +264,7 @@ class Aviary(bullet_client.BulletClient):
         )
         self.contact_array = np.zeros((num_bodies, num_bodies), dtype=bool)
 
-    def register_wind_field_function(self, wind_field: Callable):
+    def register_wind_field_function(self, wind_field: Callable) -> None:
         """For less complicated wind field models (time invariant models), this allows the registration of a normal function as a wind field model.
 
         Args:
@@ -348,7 +348,7 @@ class Aviary(bullet_client.BulletClient):
 
         return aux_states
 
-    def print_all_bodies(self):
+    def print_all_bodies(self) -> None:
         """Debugging function used to print out all bodies in the environment along with their IDs."""
         bodies = dict()
         for i in range(self.getNumBodies()):
@@ -358,7 +358,7 @@ class Aviary(bullet_client.BulletClient):
 
         pprint(bodies)
 
-    def set_armed(self, settings: int | bool | list[int] | list[bool]):
+    def set_armed(self, settings: int | bool | list[int] | list[bool]) -> None:
         """Sets the arming state of each drone in the environment. Unarmed drones won't receive updates and will ragdoll.
 
         Args:
@@ -374,7 +374,7 @@ class Aviary(bullet_client.BulletClient):
         else:
             self.armed_drones = [drone for drone in self.drones] if settings else []
 
-    def set_mode(self, flight_modes: int | list[int]):
+    def set_mode(self, flight_modes: int | list[int]) -> None:
         """Sets the flight control mode of each drone in the environment.
 
         Args:
@@ -390,7 +390,7 @@ class Aviary(bullet_client.BulletClient):
             for drone in self.drones:
                 drone.set_mode(flight_modes)
 
-    def set_setpoint(self, index: DroneIndex, setpoint: np.ndarray):
+    def set_setpoint(self, index: DroneIndex, setpoint: np.ndarray) -> None:
         """Sets the setpoint of one drone in the environment.
 
         Args:
@@ -399,7 +399,7 @@ class Aviary(bullet_client.BulletClient):
         """
         self.drones[index].setpoint = setpoint
 
-    def set_all_setpoints(self, setpoints: np.ndarray):
+    def set_all_setpoints(self, setpoints: np.ndarray) -> None:
         """Sets the setpoints of each drone in the environment.
 
         Args:
@@ -408,14 +408,14 @@ class Aviary(bullet_client.BulletClient):
         for i, drone in enumerate(self.drones):
             drone.setpoint = setpoints[i]
 
-    def step(self):
+    def step(self) -> None:
         """Steps the environment, this automatically handles physics and control looprates, one step is equivalent to one control loop step."""
         # compute rtf if we're rendering
         if self.render:
             elapsed = time.time() - self.now
             self.now = time.time()
 
-            self._sim_elapsed += self.update_period * self.updates_per_step
+            self._sim_elapsed += self.update_period
             self._frame_elapsed += elapsed
 
             time.sleep(max(self._sim_elapsed - self._frame_elapsed, 0.0))

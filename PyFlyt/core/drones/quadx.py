@@ -203,7 +203,7 @@ class QuadX(DroneClass):
                 camera_resolution=camera_resolution,
             )
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
         self.setpoint = np.zeros(4)
@@ -214,7 +214,7 @@ class QuadX(DroneClass):
         self.body.reset()
         self.motors.reset()
 
-    def set_mode(self, mode: int):
+    def set_mode(self, mode: int) -> None:
         """Sets the current flight mode of the vehicle.
 
         flight modes:
@@ -360,7 +360,7 @@ class QuadX(DroneClass):
         controller_id: int,
         controller_constructor: type[ControlClass],
         base_mode: int,
-    ):
+    ) -> None:
         """Registers a new controller for the UAV.
 
         Args:
@@ -368,17 +368,19 @@ class QuadX(DroneClass):
             controller_constructor (type[ControlClass]): controller_constructor
             base_mode (int): base_mode
         """
-        assert (
-            controller_id > 7
-        ), f"`controller_id` must be more than 7, currently {controller_id}"
-        assert (
-            base_mode >= -1 and base_mode <= 7
-        ), f"`base_mode` must be within -1 and 7, currently {base_mode}."
+        if controller_id <= 7:
+            raise ValueError(
+                f"`controller_id` must be more than 7, currently {controller_id}"
+            )
+        if base_mode < -1 or base_mode > 7:
+            raise ValueError(
+                f"`base_mode` must be within -1 and 7, currently {base_mode}."
+            )
 
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
 
-    def update_control(self):
+    def update_control(self) -> None:
         """Runs through controllers."""
         # this is the thing we cascade down controllers
         a_output = self.setpoint[:3].copy()
@@ -463,20 +465,24 @@ class QuadX(DroneClass):
             self.pwm += add - sub
         self.pwm = np.clip(self.pwm, 0.05, 1.0)
 
-    def update_physics(self):
+    def update_physics(self) -> None:
         """Updates the physics of the vehicle."""
         # update the body and motors
         self.body.physics_update()
         self.motors.physics_update(self.pwm)
 
         # simulate rotational damping
-        drag_pqr = -self.drag_coef_pqr * (np.array(self.state[0]) ** 2)
+        drag_pqr = (
+            -np.sign(self.state[0])
+            * self.drag_coef_pqr
+            * (np.array(self.state[0]) ** 2)
+        )
 
         # warning, the physics is funky for bounces
         if len(self.p.getContactPoints()) == 0:
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
-    def update_state(self):
+    def update_state(self) -> None:
         """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
@@ -501,7 +507,7 @@ class QuadX(DroneClass):
         # update auxiliary information
         self.aux_state = self.motors.get_states()
 
-    def update_last(self):
+    def update_last(self) -> None:
         """Updates things only at the end of `Aviary.step()`."""
         if self.use_camera:
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
