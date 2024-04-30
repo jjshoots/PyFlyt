@@ -69,7 +69,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
 
         # define waypoints
         self.waypoints = WaypointHandler(
-            enable_render=self.render_mode is not None and self.render_gui,
+            enable_render=self.render_mode is not None and self.render_mode is not "rgb_array",
             num_targets=num_targets,
             use_yaw_targets=False,
             goal_reach_distance=goal_reach_distance,
