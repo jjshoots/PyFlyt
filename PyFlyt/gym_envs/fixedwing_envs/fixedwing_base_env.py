@@ -27,6 +27,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         angle_representation: str = "quaternion",
         agent_hz: int = 30,
         render_mode: None | str = None,
+        render_gui: bool = True,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -55,6 +56,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
         self.render_mode = render_mode
         self.render_resolution = render_resolution
+        self.render_gui = render_gui
 
         """GYMNASIUM STUFF"""
         # attitude size increases by 1 for quaternion
@@ -175,7 +177,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="fixedwing",
-            render=self.render_mode is not None,
+            render=self.render_mode is not None and self.render_gui,
             drone_options=drone_options,
             seed=seed,
         )
