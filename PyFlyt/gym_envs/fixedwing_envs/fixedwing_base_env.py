@@ -290,7 +290,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         check_numpy()
         if self.render_mode is None:
             raise ValueError(
-                 "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
+                "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
             )
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
