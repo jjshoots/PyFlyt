@@ -421,6 +421,28 @@ c) Loses all its health</p></li>
 </section>
 <section id="environment-options">
 <h2>Environment Options<a class="headerlink" href="#environment-options" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_dogfight_env.MAFixedwingDogfightEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_dogfight_env.</span></span><span class="sig-name descname"><span class="pre">MAFixedwingDogfightEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spawn_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damage_per_hit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lethal_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lethal_angle_radians</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assisted_flight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_dome_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">150.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_dogfight_env.MAFixedwingDogfightEnv" title="Link to this definition">#</a></dt>
+<dd><p>Base Dogfighting Environment for the Acrowing model using the PettingZoo API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spawn_height</strong> (<em>float</em>) – how high to spawn the agents at the beginning of the simulation.</p></li>
+<li><p><strong>damage_per_hit</strong> (<em>float</em>) – how much damage per hit per physics step, each agent starts with a health of 1.0.</p></li>
+<li><p><strong>lethal_distance</strong> (<em>float</em>) – how close before weapons become effective.</p></li>
+<li><p><strong>lethal_angle_radians</strong> (<em>float</em>) – the width of the cone of fire.</p></li>
+<li><p><strong>assisted_flight</strong> (<em>bool</em>) – whether to use high level commands (RPYT) instead of full actuator commands.</p></li>
+<li><p><strong>sparse_reward</strong> (<em>bool</em>) – whether to use sparse rewards or not.</p></li>
+<li><p><strong>flight_dome_size</strong> (<em>float</em>) – size of the allowable flying area.</p></li>
+<li><p><strong>max_duration_seconds</strong> (<em>float</em>) – maximum simulation time of the environment.</p></li>
+<li><p><strong>agent_hz</strong> (<em>int</em>) – looprate of the agent to environment interaction.</p></li>
+<li><p><strong>render_mode</strong> (<em>None</em><em> | </em><em>str</em>) – can be “human” or None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -449,7 +471,10 @@ c) Loses all its health</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-description">Task Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-rules">Environment Rules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-options">Environment Options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-options">Environment Options</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_dogfight_env.MAFixedwingDogfightEnv"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnv</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

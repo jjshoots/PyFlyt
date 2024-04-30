@@ -394,6 +394,69 @@ document.write(`
 </div></blockquote>
 <section id="class-description">
 <h2>Class Description<a class="headerlink" href="#class-description" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">DroneClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_orn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drone_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass" title="Link to this definition">#</a></dt>
+<dd><p>The <cite>DroneClass</cite> is an abstract class that all drones should inherit from.</p>
+<p>It serves as a template class for interfacing with the <cite>Aviary</cite>.
+Each drone inheriting from this class must have several attributes and methods implemented before they can be considered usable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>start_pos</strong> (<em>np.ndarray</em>) – an <cite>(3,)</cite> array for the starting X, Y, Z position for the drone.</p></li>
+<li><p><strong>start_orn</strong> (<em>np.ndarray</em>) – an <cite>(3,)</cite> array for the starting X, Y, Z orientation for the drone.</p></li>
+<li><p><strong>control_hz</strong> (<em>int</em>) – an integer representing the control looprate of the drone.</p></li>
+<li><p><strong>physics_hz</strong> (<em>int</em>) – an integer representing the physics looprate of the <cite>Aviary</cite>.</p></li>
+<li><p><strong>drone_model</strong> (<em>str</em>) – name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.</p></li>
+<li><p><strong>model_dir</strong> (<em>None</em><em> | </em><em>str = None</em>) – directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.</p></li>
+<li><p><strong>np_random</strong> (<em>None</em><em> | </em><em>np.random.RandomState = None</em>) – random number generator of the simulation.</p></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">p</span><span class="p">:</span> <span class="n">bullet_client</span><span class="o">.</span><span class="n">BulletClient</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">start_pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">start_orn</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">control_hz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">120</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">physics_hz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">240</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">drone_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rocket_brick&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model_dir</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">np_random</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">use_camera</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">use_gimbal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">camera_angle_degrees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">camera_FOV_degrees</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">camera_resolution</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">start_orn</span><span class="o">=</span><span class="n">start_orn</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">control_hz</span><span class="o">=</span><span class="n">control_hz</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">physics_hz</span><span class="o">=</span><span class="n">physics_hz</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">model_dir</span><span class="o">=</span><span class="n">model_dir</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">drone_model</span><span class="o">=</span><span class="n">drone_model</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">np_random</span><span class="o">=</span><span class="n">np_random</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># load all params from yaml into components</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">all_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">lifting_surfaces</span> <span class="o">=</span> <span class="n">LiftingSurfaces</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">boosters</span> <span class="o">=</span> <span class="n">Boosters</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">use_camera</span> <span class="o">=</span> <span class="n">use_camera</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_camera</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 <section id="default-attributes">
 <h3>Default Attributes<a class="headerlink" href="#default-attributes" title="Link to this heading">#</a></h3>
 <dl class="py property">
@@ -498,12 +561,161 @@ document.write(`
 </section>
 <section id="default-methods">
 <h3>Default Methods<a class="headerlink" href="#default-methods" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.set_mode">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.set_mode" title="Link to this definition">#</a></dt>
+<dd><p>Default set_mode.</p>
+<p>By default, mode 0 defines the following setpoint behaviour:
+Mode 0 - [Roll, Pitch, Yaw, Thrust]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.get_joint_info">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">get_joint_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.get_joint_info" title="Link to this definition">#</a></dt>
+<dd><p>Debugging function for displaying all joint IDs and names as defined in URDF.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.disable_artificial_damping">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">disable_artificial_damping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.disable_artificial_damping" title="Link to this definition">#</a></dt>
+<dd><p>Disable the artificial damping that pybullet has to enable more accurate aerodynamics simulation.</p>
+</dd></dl>
+
 </section>
 <section id="required-methods">
 <h3>Required Methods<a class="headerlink" href="#required-methods" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.reset">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.reset" title="Link to this definition">#</a></dt>
+<dd><p>Resets the vehicle to the initial state.</p>
+<dl>
+<dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># set the flight mode and reset the setpoint and actuator command</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># reset the drone position and orientation and damping</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">resetBasePositionAndOrientation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_orn</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">disable_artificial_damping</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># reset the components to their default states</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">lifting_surfaces</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">boosters</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.update_control">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">update_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.update_control" title="Link to this definition">#</a></dt>
+<dd><p>Updates onboard flight control laws at a rate specified by <cite>control_hz</cite>.</p>
+<dl>
+<dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">update_control</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># depending on the flight control mode, do things</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># assign the actuator commands to be some function of the setpoint</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setpoint</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># otherwise, check that we have a custom controller</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">registered_controllers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="sa">f</span><span class="s2">&quot;Don&#39;t have other modes aside from 0, received </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># run custom controllers if any</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instanced_controllers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">setpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.update_physics">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">update_physics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.update_physics" title="Link to this definition">#</a></dt>
+<dd><p>Updates all physics on the vehicle at a rate specified by <cite>physics_hz</cite>.</p>
+<dl>
+<dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">update_physics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">lifting_surfaces</span><span class="o">.</span><span class="n">physics_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">boosters</span><span class="o">.</span><span class="n">physics_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.update_state">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.update_state" title="Link to this definition">#</a></dt>
+<dd><p>Updates the vehicle’s state values at a rate specified by <cite>phyiscs_hz</cite>.</p>
+<dl>
+<dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># get all relevant information from PyBullet backend</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lin_pos</span><span class="p">,</span> <span class="n">ang_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">getBasePositionAndOrientation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lin_vel</span><span class="p">,</span> <span class="n">ang_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">getBaseVelocity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># express vels in local frame</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rotation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">getMatrixFromQuaternion</span><span class="p">(</span><span class="n">ang_pos</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">lin_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">rotation</span><span class="p">,</span> <span class="n">lin_vel</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">ang_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">rotation</span><span class="p">,</span> <span class="n">ang_vel</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># ang_pos in euler form</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">ang_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">getEulerFromQuaternion</span><span class="p">(</span><span class="n">ang_pos</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># create the state, this is accessed from the aviary</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">ang_vel</span><span class="p">,</span> <span class="n">ang_pos</span><span class="p">,</span> <span class="n">lin_vel</span><span class="p">,</span> <span class="n">lin_pos</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># update all relevant components as required</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">lifting_surfaces</span><span class="o">.</span><span class="n">state_update</span><span class="p">(</span><span class="n">rotation</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># update auxiliary information</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="o">.</span><span class="n">aux_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lifting_surfaces</span><span class="o">.</span><span class="n">get_states</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">boosters</span><span class="o">.</span><span class="n">get_states</span><span class="p">(),</span> <span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.update_last">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">update_last</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.update_last" title="Link to this definition">#</a></dt>
+<dd><p>Update that happens at the end of <cite>Aviary.step()</cite>, usually reserved for camera updates.</p>
+<dl>
+<dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">update_last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_camera</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">rgbaImg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depthImg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">segImg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">capture_image</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="optional-methods">
 <h3>Optional Methods<a class="headerlink" href="#optional-methods" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.register_controller">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">register_controller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller_constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">ControlClass</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.register_controller" title="Link to this definition">#</a></dt>
+<dd><p>Default register_controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>controller_id</strong> (<em>int</em>) – ID to bind to this controller</p></li>
+<li><p><strong>controller_constructor</strong> (<em>type</em><em>[</em><em>ControlClass</em><em>]</em>) – A class pointer to the controller implementation, must be subclass of <cite>ControlClass</cite>.</p></li>
+<li><p><strong>base_mode</strong> (<em>int</em>) – Whether this controller uses outputs of an underlying controller as setpoints.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -531,6 +743,7 @@ document.write(`
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-description">Class Description</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass"><code class="docutils literal notranslate"><span class="pre">DroneClass</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-attributes">Default Attributes</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.np_random"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.np_random</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.physics_period"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.physics_period</span></code></a></li>
@@ -555,9 +768,24 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.registered_base_controllers"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.DroneClass.registered_base_controllers</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-methods">Default Methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-methods">Required Methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-methods">Optional Methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-methods">Default Methods</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.set_mode"><code class="docutils literal notranslate"><span class="pre">set_mode()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.get_joint_info"><code class="docutils literal notranslate"><span class="pre">get_joint_info()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.disable_artificial_damping"><code class="docutils literal notranslate"><span class="pre">disable_artificial_damping()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-methods">Required Methods</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.reset"><code class="docutils literal notranslate"><span class="pre">reset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.update_control"><code class="docutils literal notranslate"><span class="pre">update_control()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.update_physics"><code class="docutils literal notranslate"><span class="pre">update_physics()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.update_state"><code class="docutils literal notranslate"><span class="pre">update_state()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.update_last"><code class="docutils literal notranslate"><span class="pre">update_last()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-methods">Optional Methods</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.register_controller"><code class="docutils literal notranslate"><span class="pre">register_controller()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
