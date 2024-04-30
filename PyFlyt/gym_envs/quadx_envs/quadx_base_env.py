@@ -49,7 +49,7 @@ class QuadXBaseEnv(gymnasium.Env):
                 f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
             )
 
-        if render_mode is not None and render_mode not in self.metadata["render_modes"]:
+        if render_mode and render_mode not in self.metadata["render_modes"]:
             raise ValueError(
                 f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
             )

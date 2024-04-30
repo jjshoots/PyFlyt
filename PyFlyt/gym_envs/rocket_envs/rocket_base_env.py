@@ -47,14 +47,14 @@ class RocketBaseEnv(gymnasium.Env):
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
             highest = int(120 / int(120 / agent_hz))
-            raise AssertionError(
+            raise ValueError(
                 f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
             )
 
-        if render_mode is not None:
-            assert (
-                render_mode in self.metadata["render_modes"]
-            ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+        if render_mode and render_mode not in self.metadata["render_modes"]:
+            raise ValueError(
+                f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+            )
         self.render_mode = render_mode
         self.render_resolution = render_resolution
 
@@ -65,7 +65,7 @@ class RocketBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             attitude_shape = 13
         else:
-            raise AssertionError(
+            raise ValueError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
             )
 
