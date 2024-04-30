@@ -1,7 +1,7 @@
 """Base PyFlyt Environment for the QuadX model using the Gymnasim API."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import gymnasium
 import numpy as np
@@ -24,9 +24,9 @@ class QuadXBaseEnv(gymnasium.Env):
         flight_mode: int = 0,
         flight_dome_size: float = np.inf,
         max_duration_seconds: float = 10.0,
-        angle_representation: str = "quaternion",
+        angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
-        render_mode: None | str = None,
+        render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
         """__init__.
@@ -37,22 +37,22 @@ class QuadXBaseEnv(gymnasium.Env):
             flight_mode (int): flight_mode
             flight_dome_size (float): flight_dome_size
             max_duration_seconds (float): max_duration_seconds
-            angle_representation (str): angle_representation
+            angle_representation (Literal["euler", "quaternion"]): angle_representation
             agent_hz (int): agent_hz
-            render_mode (None | str): render_mode
+            render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
             highest = int(120 / int(120 / agent_hz))
-            raise AssertionError(
+            raise ValueError(
                 f"`agent_hz` must be round denominator of 120, try {lowest} or {highest}."
             )
 
-        if render_mode is not None:
-            assert (
-                render_mode in self.metadata["render_modes"]
-            ), f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+        if render_mode is not None and render_mode not in self.metadata["render_modes"]:
+            raise ValueError(
+                f"Invalid render mode {render_mode}, only {self.metadata['render_modes']} allowed."
+            )
         self.render_mode = render_mode
         self.render_resolution = render_resolution
 
@@ -63,7 +63,7 @@ class QuadXBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             attitude_shape = 13
         else:
-            raise AssertionError(
+            raise ValueError(
                 f"angle_representation must be either `euler` or `quaternion`, not {angle_representation}"
             )
 
@@ -281,9 +281,10 @@ class QuadXBaseEnv(gymnasium.Env):
     def render(self) -> np.ndarray:
         """render."""
         check_numpy()
-        assert (
-            self.render_mode is not None
-        ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
+        if self.render_mode is None:
+            raise ValueError(
+                 "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
+            )
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(
             width=self.render_resolution[1],
