@@ -263,12 +263,14 @@ class DroneClass(ABC):
             controller_constructor (type[ControlClass]): A class pointer to the controller implementation, must be subclass of `ControlClass`.
             base_mode (int): Whether this controller uses outputs of an underlying controller as setpoints.
         """
-        assert (
-            controller_id > 0
-        ), f"`controller_id` must be more than 0, got {controller_id}."
-        assert (
-            base_mode == 0
-        ), f"`base_mode` must be 0, no other controllers available, got {base_mode}."
+        if controller_id <= 0:
+            raise ValueError(
+                f"`controller_id` must be more than 0, got {controller_id}."
+            )
+        if base_mode != 0:
+            raise ValueError(
+                f"`base_mode` must be 0, no other controllers available, got {base_mode}."
+            )
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
 
