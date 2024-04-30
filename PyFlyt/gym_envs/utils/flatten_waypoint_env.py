@@ -20,7 +20,7 @@ class FlattenWaypointEnv(ObservationWrapper):
         """
         super().__init__(env=env)
         assert (
-            hasattr(env, "waypoints") and isinstance(env.waypoints, WaypointHandler)  # type: ignore [reportGeneralTypeIssues]
+            hasattr(env, "waypoints") and isinstance(env.unwrapped.waypoints, WaypointHandler)  # type: ignore [reportGeneralTypeIssues]
         ), "Only a waypoints environment can be used with the `FlattenWaypointEnv` wrapper."
         self.context_length = context_length
         self.attitude_shape = env.observation_space["attitude"].shape[0]  # type: ignore [reportGeneralTypeIssues]
