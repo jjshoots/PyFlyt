@@ -119,7 +119,7 @@ class FixedwingBaseEnv(gymnasium.Env):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ) -> None:
+    ) -> tuple[Any, dict]:
         """reset.
 
         Args:
