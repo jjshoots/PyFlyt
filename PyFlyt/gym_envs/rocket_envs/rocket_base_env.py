@@ -26,7 +26,6 @@ class RocketBaseEnv(gymnasium.Env):
         max_duration_seconds: float = 60.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
-        render_gui: bool = True,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
@@ -58,7 +57,6 @@ class RocketBaseEnv(gymnasium.Env):
             )
         self.render_mode = render_mode
         self.render_resolution = render_resolution
-        self.render_gui = render_gui
 
         """GYMNASIUM STUFF"""
         # attitude size increases by 1 for quaternion
@@ -191,16 +189,16 @@ class RocketBaseEnv(gymnasium.Env):
 
         # camera handling
         if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None and self.render_gui
+            drone_options["use_camera"] = self.render_mode is not None
         else:
-            drone_options["use_camera"] |= self.render_mode is not None and self.render_gui
+            drone_options["use_camera"] |= self.render_mode is not None
 
         # init env
         self.env = Aviary(
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="rocket",
-            render=self.render_mode is not None and self.render_gui,
+            render=self.render_mode is not None and self.render_mode is not "rgb_array",
             drone_options=drone_options,
             seed=seed,
         )
@@ -220,7 +218,7 @@ class RocketBaseEnv(gymnasium.Env):
 
         self.env.resetBaseVelocity(self.env.drones[0].Id, start_lin_vel, start_ang_vel)
 
-        if self.render_mode is not None and self.render_gui:
+        if self.render_mode is not None and self.render_mode is not "rgb_array":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
