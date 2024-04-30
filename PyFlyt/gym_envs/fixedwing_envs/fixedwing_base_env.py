@@ -168,9 +168,9 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         # camera handling
         if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None
+            drone_options["use_camera"] = self.render_mode is not None and self.render_gui,
         else:
-            drone_options["use_camera"] |= self.render_mode is not None
+            drone_options["use_camera"] |= self.render_mode is not None and self.render_gui,
 
         # init env
         self.env = Aviary(
@@ -182,7 +182,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             seed=seed,
         )
 
-        if self.render_mode is not None:
+        if self.render_mode is not None and self.render_gui:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
@@ -291,7 +291,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         """render."""
         check_numpy()
         assert (
-            self.render_mode is not None
+            self.render_mode is not None,
         ), "Please set `render_mode='human'` or `render_mode='rgb_array'` to use this function."
 
         _, _, rgbaImg, _, _ = self.env.getCameraImage(

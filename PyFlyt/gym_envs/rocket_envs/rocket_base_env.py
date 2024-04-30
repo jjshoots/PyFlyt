@@ -191,9 +191,9 @@ class RocketBaseEnv(gymnasium.Env):
 
         # camera handling
         if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None
+            drone_options["use_camera"] = self.render_mode is not None and self.render_gui
         else:
-            drone_options["use_camera"] |= self.render_mode is not None
+            drone_options["use_camera"] |= self.render_mode is not None and self.render_gui
 
         # init env
         self.env = Aviary(
@@ -220,7 +220,7 @@ class RocketBaseEnv(gymnasium.Env):
 
         self.env.resetBaseVelocity(self.env.drones[0].Id, start_lin_vel, start_ang_vel)
 
-        if self.render_mode is not None:
+        if self.render_mode is not None and self.render_gui:
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
