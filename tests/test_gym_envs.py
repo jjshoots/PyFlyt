@@ -172,11 +172,12 @@ def test_flatten_env(env_config, context_length):
 
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
-def test_render(env_config):
+@pytest.mark.parametrize("render_mode", ["human", "rgb_array"])
+def test_render(env_config, render_mode):
     """Test that pyflyt rendering works."""
     env = gym.make(
         env_config[0],
-        render_mode="rgb_array",
+        render_mode=render_mode,
         **env_config[1],
     )
     env.reset()

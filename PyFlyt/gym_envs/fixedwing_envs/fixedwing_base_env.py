@@ -165,22 +165,19 @@ class FixedwingBaseEnv(gymnasium.Env):
             drone_options = dict()
 
         # camera handling
-        if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None
-        else:
-            drone_options["use_camera"] |= self.render_mode is not None
+        drone_options["use_camera"] = drone_options.get("use_camera", False) or bool(self.render_mode)
 
         # init env
         self.env = Aviary(
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="fixedwing",
-            render=self.render_mode is not None,
+            render=self.render_mode == "human",
             drone_options=drone_options,
             seed=seed,
         )
 
-        if self.render_mode is not None:
+        if self.render_mode == "human":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(

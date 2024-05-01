@@ -161,17 +161,20 @@ class QuadXBaseEnv(gymnasium.Env):
         self.info["collision"] = False
         self.info["env_complete"] = False
 
+        # camera handling
+        drone_options["use_camera"] = drone_options.get("use_camera", False) or bool(self.render_mode)
+
         # init env
         self.env = Aviary(
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="quadx",
-            render=self.render_mode is not None,
+            render=self.render_mode == "human",
             drone_options=drone_options,
             seed=seed,
         )
 
-        if self.render_mode is not None:
+        if self.render_mode == "human":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
@@ -285,13 +288,23 @@ class QuadXBaseEnv(gymnasium.Env):
             raise ValueError(
                 "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
             )
-
-        _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=self.render_resolution[1],
-            height=self.render_resolution[0],
-            viewMatrix=self.camera_parameters[2],
-            projectionMatrix=self.camera_parameters[3],
-        )
+        
+        if self.render_mode is "human":
+            _, _, rgbaImg, _, _ = self.env.getCameraImage(
+                width=self.render_resolution[1],
+                height=self.render_resolution[0],
+                viewMatrix=self.camera_parameters[2],
+                projectionMatrix=self.camera_parameters[3],
+            )
+        elif self.render_mode is "rgb_array":
+            _, _, rgbaImg, _, _ = self.env.getCameraImage(
+                width=self.render_resolution[1],
+                height=self.render_resolution[0],
+                viewMatrix=self.env.drones[0].camera.view_mat,
+                projectionMatrix=self.env.drones[0].camera.proj_mat,
+            )
+        else:
+            raise ValueError(f"Unknown render mode {self.render_mode}, should not have ended up here")
 
         rgbaImg = np.asarray(rgbaImg).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
