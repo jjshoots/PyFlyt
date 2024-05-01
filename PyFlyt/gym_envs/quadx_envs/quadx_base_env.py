@@ -177,7 +177,7 @@ class QuadXBaseEnv(gymnasium.Env):
             seed=seed,
         )
 
-        if self.render_mode is not None and self.render_mode is "human":
+        if self.render_mode is not None and self.render_mode is not "rgb_array":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(

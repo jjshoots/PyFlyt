@@ -26,7 +26,6 @@ class FixedwingBaseEnv(gymnasium.Env):
         max_duration_seconds: float = 10.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
-        render_gui: bool = True,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
@@ -56,7 +55,6 @@ class FixedwingBaseEnv(gymnasium.Env):
             )
         self.render_mode = render_mode
         self.render_resolution = render_resolution
-        self.render_gui = render_gui
 
         """GYMNASIUM STUFF"""
         # attitude size increases by 1 for quaternion
@@ -168,9 +166,9 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         # camera handling
         if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None and self.render_gui,
+            drone_options["use_camera"] = self.render_mode is not None,
         else:
-            drone_options["use_camera"] |= self.render_mode is not None and self.render_gui,
+            drone_options["use_camera"] |= self.render_mode is not None,
 
         # init env
         self.env = Aviary(
