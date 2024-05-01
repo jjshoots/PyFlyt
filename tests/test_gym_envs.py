@@ -194,3 +194,28 @@ def test_render(env_config):
         ), f"Expected 4 channels in the rendered image, got {frame.shape[-1]}."
 
     env.close()
+
+@pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
+def test_render(env_config):
+    """Test that pyflyt rendering works with the GUI."""
+    env = gym.make(
+        env_config[0],
+        render_mode="human",
+        **env_config[1],
+    )
+    env.reset()
+    frames = []
+    for _ in range(10):
+        frames.append(env.render())
+        env.step(env.action_space.sample())
+
+    for frame in frames:
+        assert isinstance(
+            frame, np.ndarray
+        ), f"Expected render frames to be of type `np.ndarray`, got {type(frame)}."
+        assert (
+            frame.shape[-1] == 4
+        ), f"Expected 4 channels in the rendered image, got {frame.shape[-1]}."
+
+    env.close()
+
