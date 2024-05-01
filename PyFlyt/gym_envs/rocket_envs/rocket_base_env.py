@@ -188,7 +188,7 @@ class RocketBaseEnv(gymnasium.Env):
             self.start_orn = rotation
 
         # camera handling
-        drone_options["use_camera"] = drone_options.get("use_camera", False) or self.render_mode == "rgb_array"
+        drone_options["use_camera"] = drone_options.get("use_camera", False) or bool(self.render_mode)
 
         # init env
         self.env = Aviary(
