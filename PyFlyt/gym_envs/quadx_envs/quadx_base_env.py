@@ -162,22 +162,19 @@ class QuadXBaseEnv(gymnasium.Env):
         self.info["env_complete"] = False
 
         # camera handling
-        if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None
-        else:
-            drone_options["use_camera"] |= self.render_mode is not None
+        drone_options["use_camera"] = drone_options.get("use_camera", False) or self.render_mode == "rgb_array"
 
         # init env
         self.env = Aviary(
             start_pos=self.start_pos,
             start_orn=self.start_orn,
             drone_type="quadx",
-            render=self.render_mode is not None and self.render_mode is not "rgb_array",
+            render=self.render_mode == "human",
             drone_options=drone_options,
             seed=seed,
         )
 
-        if self.render_mode is not None and self.render_mode is not "rgb_array":
+        if self.render_mode == "human":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
@@ -292,7 +289,7 @@ class QuadXBaseEnv(gymnasium.Env):
                 "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
             )
         
-        if self.render_mode is not "rgb_array":
+        if self.render_mode is "human":
             self.view_matrix = self.camera_parameters[2]
             self.projection_matrix = self.camera_parameters[3]
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
@@ -301,15 +298,15 @@ class QuadXBaseEnv(gymnasium.Env):
                 viewMatrix=self.camera_parameters[2],
                 projectionMatrix=self.camera_parameters[3],
             )
-        else:
+        elif self.render_mode is "rgb_array":
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
                 width=self.render_resolution[1],
                 height=self.render_resolution[0],
                 viewMatrix=self.env.drones[0].camera.view_mat,
                 projectionMatrix=self.env.drones[0].camera.proj_mat,
             )
-            self.view_matrix=self.env.drones[0].camera.view_mat,
-            self.projection_matrix=self.env.drones[0].camera.proj_mat,
+        else:
+            raise ValueError(f"Unknown render mode {self.render_mode}, should not have ended up here")
 
         rgbaImg = np.asarray(rgbaImg).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
