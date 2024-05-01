@@ -29,7 +29,7 @@ class MyWindField(WindFieldClass):
             position (np.ndarray): position as an (n, 3) array
         """
         wind = np.zeros_like(position)
-        wind[:, -1] = np.log(position[:, -1]) * self.strength
+        wind[:, -1] = np.exp(position[:, -1]) * self.strength
         wind += self.np_random.randn(*wind.shape)
         return wind
 

@@ -145,7 +145,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         return self._action_space
 
-    def close(self):
+    def close(self) -> None:
         """close."""
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
@@ -169,7 +169,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         seed: None | int = None,
         options: None | dict[str, Any] = dict(),
         drone_options: None | dict[str, Any] | Sequence[dict[str, Any]] = dict(),
-    ):
+    ) -> None:
         """The first half of the reset function."""
         # if we already have an env, disconnect from it
         if hasattr(self, "aviary"):
@@ -207,7 +207,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
 
     def end_reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ):
+    ) -> None:
         """The tailing half of the reset function."""
         # register all new collision bodies
         self.aviary.register_all_new_bodies()
@@ -219,7 +219,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         for _ in range(10):
             self.aviary.step()
 
-    def compute_auxiliary_by_id(self, agent_id: int):
+    def compute_auxiliary_by_id(self, agent_id: int) -> np.ndarray:
         """This returns the auxiliary state form the drone."""
         return self.aviary.aux_state(agent_id)
 

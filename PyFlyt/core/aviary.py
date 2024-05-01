@@ -377,6 +377,9 @@ class Aviary(bullet_client.BulletClient):
     def set_mode(self, flight_modes: int | list[int]) -> None:
         """Sets the flight control mode of each drone in the environment.
 
+        When this is an int, sets the same flight mode for each drone.
+        When this is a list of integers, sets a different flight mode for each drone depending on the list.
+
         Args:
             flight_modes (int | list[int]): flight mode
         """

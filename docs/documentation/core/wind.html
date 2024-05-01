@@ -448,6 +448,43 @@ The following is an example:</p>
 <section id="more-complex-custom-wind-modelling">
 <h2>More Complex Custom Wind Modelling<a class="headerlink" href="#more-complex-custom-wind-modelling" title="Link to this heading">#</a></h2>
 <p>To define custom wind models, refer the the example provided by the <code class="docutils literal notranslate"><span class="pre">WindFieldClass</span></code> below:</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.WindFieldClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">WindFieldClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.WindFieldClass" title="Link to this definition">#</a></dt>
+<dd><p>Basic WindField class to implement custom wind field models.</p>
+<dl>
+<dt>Example Usage:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyFlyt.core</span> <span class="kn">import</span> <span class="n">Aviary</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">PyFlyt.core.abstractions</span> <span class="kn">import</span> <span class="n">WindFieldClass</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># define the wind field</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyWindField</span><span class="p">(</span><span class="n">WindFieldClass</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">my_parameter</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">np_random</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">np_random</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">strength</span> <span class="o">=</span> <span class="n">my_parameter</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># simulate a thermal windfield, where the xy velocities are 0,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">wind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># but the z velocity varies to the log of height,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">wind</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">position</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">strength</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># plus some noise,</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">wind</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">np_random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">wind</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">wind</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># environment setup, attach the windfield, override the parameter `my_parameter` from the default</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="n">Aviary</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">wind_type</span><span class="o">=</span><span class="n">MyWindField</span><span class="p">,</span> <span class="n">wind_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">my_parameter</span><span class="o">=</span><span class="mf">1.2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># step as usual</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
 <section id="default-attributes">
 <h3>Default Attributes<a class="headerlink" href="#default-attributes" title="Link to this heading">#</a></h3>
 <dl class="py property">
@@ -459,6 +496,18 @@ The following is an example:</p>
 </section>
 <section id="required-methods">
 <h3>Required Methods<a class="headerlink" href="#required-methods" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.WindFieldClass.__init__">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.WindFieldClass.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RandomState</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.WindFieldClass.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initializes the wind_field.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.__call__">
+<span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.__call__" title="Link to this definition">#</a></dt>
+<dd><p>Call self as a function.</p>
+</dd></dl>
+
 </section>
 </section>
 </section>
@@ -489,11 +538,16 @@ The following is an example:</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preimplemented-wind-models">Preimplemented Wind Models</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-custom-wind-modelling">Simple Custom Wind Modelling</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-complex-custom-wind-modelling">More Complex Custom Wind Modelling</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass"><code class="docutils literal notranslate"><span class="pre">WindFieldClass</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-attributes">Default Attributes</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass.np_random"><code class="docutils literal notranslate"><span class="pre">PyFlyt.core.abstractions.WindFieldClass.np_random</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-methods">Required Methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-methods">Required Methods</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.WindFieldClass.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.abstractions.DroneClass.__call__"><code class="docutils literal notranslate"><span class="pre">__call__()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

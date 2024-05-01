@@ -28,4 +28,4 @@ jobs:
           pip install .[dev]
       - name: Release Test
         run: |
-          xvfb-run -s "-screen 0 1024x768x24" ./tests/runner.sh
+          xvfb-run -s "-screen 0 1024x768x24" pytest tests/*.py -vvv
