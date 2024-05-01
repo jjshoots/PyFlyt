@@ -293,8 +293,8 @@ class QuadXBaseEnv(gymnasium.Env):
             self.view_matrix = self.camera_parameters[2]
             self.projection_matrix = self.camera_parameters[3]
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
-                viewMatrix=self.camera_parameters[2],
-                projectionMatrix=self.camera_parameters[3],
+                width=self.render_resolution[1],
+                height=self.render_resolution[0],
             )
         elif self.render_mode is "rgb_array":
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
