@@ -166,9 +166,9 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         # camera handling
         if "use_camera" not in drone_options:
-            drone_options["use_camera"] = self.render_mode is not None,
+            drone_options["use_camera"] = self.render_mode is not None
         else:
-            drone_options["use_camera"] |= self.render_mode is not None,
+            drone_options["use_camera"] |= self.render_mode is not None
 
         # init env
         self.env = Aviary(
