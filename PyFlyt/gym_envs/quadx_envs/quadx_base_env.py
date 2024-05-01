@@ -55,7 +55,6 @@ class QuadXBaseEnv(gymnasium.Env):
             )
         self.render_mode = render_mode
         self.render_resolution = render_resolution
-        self.render_gui = render_gui
 
         """GYMNASIUM STUFF"""
         # attitude size increases by 1 for quaternion
@@ -162,6 +161,12 @@ class QuadXBaseEnv(gymnasium.Env):
         self.info["collision"] = False
         self.info["env_complete"] = False
 
+        # camera handling
+        if "use_camera" not in drone_options:
+            drone_options["use_camera"] = self.render_mode is not None
+        else:
+            drone_options["use_camera"] |= self.render_mode is not None
+
         # init env
         self.env = Aviary(
             start_pos=self.start_pos,
@@ -172,7 +177,7 @@ class QuadXBaseEnv(gymnasium.Env):
             seed=seed,
         )
 
-        if self.render_mode is not None and self.render_mode is not "rgb_array":
+        if self.render_mode is not None and self.render_mode is "human":
             self.camera_parameters = self.env.getDebugVisualizerCamera()
 
     def end_reset(
@@ -286,13 +291,21 @@ class QuadXBaseEnv(gymnasium.Env):
             raise ValueError(
                 "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
             )
-
-        _, _, rgbaImg, _, _ = self.env.getCameraImage(
-            width=self.render_resolution[1],
-            height=self.render_resolution[0],
-            viewMatrix=self.camera_parameters[2],
-            projectionMatrix=self.camera_parameters[3],
-        )
+        
+        if self.render_mode != "rgb_array":
+            self.view_matrix = self.camera_parameters[2]
+            self.projection_matrix = self.camera_parameters[3]
+        
+    
+        if self.render_mode is "rgb_array":
+            _, _, rgbaImg, _, _ = self.env.getCameraImage(
+                width=self.render_resolution[1],
+                height=self.render_resolution[0],
+                viewMatrix=self.env.drones[0].camera.view_mat,
+                projectionMatrix=self.env.drones[0].camera.proj_mat,
+            )
+            self.view_matrix=self.env.drones[0].camera.view_mat,
+            self.projection_matrix=self.env.drones[0].camera.proj_mat,
 
         rgbaImg = np.asarray(rgbaImg).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
