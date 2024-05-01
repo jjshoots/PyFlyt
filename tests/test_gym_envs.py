@@ -196,7 +196,7 @@ def test_render(env_config):
     env.close()
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
-def test_render(env_config):
+def test_human_render(env_config):
     """Test that pyflyt rendering works with the GUI."""
     env = gym.make(
         env_config[0],
