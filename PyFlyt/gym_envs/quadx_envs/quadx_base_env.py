@@ -161,8 +161,16 @@ class QuadXBaseEnv(gymnasium.Env):
         self.info["collision"] = False
         self.info["env_complete"] = False
 
+        # need to handle Nones
+        if options is None:
+            options = dict()
+        if drone_options is None:
+            drone_options = dict()
+
         # camera handling
-        drone_options["use_camera"] = drone_options.get("use_camera", False) or bool(self.render_mode)
+        drone_options["use_camera"] = drone_options.get("use_camera", False) or bool(
+            self.render_mode
+        )
 
         # init env
         self.env = Aviary(
@@ -288,15 +296,15 @@ class QuadXBaseEnv(gymnasium.Env):
             raise ValueError(
                 "Please set `render_mode='human'` or `render_mode='rgb_array'` in init to use this function."
             )
-        
-        if self.render_mode is "human":
+
+        if self.render_mode == "human":
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
                 width=self.render_resolution[1],
                 height=self.render_resolution[0],
                 viewMatrix=self.camera_parameters[2],
                 projectionMatrix=self.camera_parameters[3],
             )
-        elif self.render_mode is "rgb_array":
+        elif self.render_mode == "rgb_array":
             _, _, rgbaImg, _, _ = self.env.getCameraImage(
                 width=self.render_resolution[1],
                 height=self.render_resolution[0],
@@ -304,7 +312,9 @@ class QuadXBaseEnv(gymnasium.Env):
                 projectionMatrix=self.env.drones[0].camera.proj_mat,
             )
         else:
-            raise ValueError(f"Unknown render mode {self.render_mode}, should not have ended up here")
+            raise ValueError(
+                f"Unknown render mode {self.render_mode}, should not have ended up here"
+            )
 
         rgbaImg = np.asarray(rgbaImg).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
