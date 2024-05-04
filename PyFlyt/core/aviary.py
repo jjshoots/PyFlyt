@@ -227,16 +227,14 @@ class Aviary(bullet_client.BulletClient):
             raise LookupError("Invalid setting for wind field.")
 
         # constants for tracking how many times to step depending on control hz
-        min_control_hz = np.min(
-            [int(1.0 / drone.control_period) for drone in self.drones]
-        )
-        self.updates_per_step = int(self.physics_hz / min_control_hz)
-        self.step_period = 1.0 / min_control_hz
+        all_control_hz = [int(1.0 / drone.control_period) for drone in self.drones]
+        self.updates_per_step = int(self.physics_hz / np.min(all_control_hz))
+        self.step_period = 1.0 / np.min(all_control_hz)
 
         # sanity check the control looprates
-        if len(min_control_hz) > 0:
-            min_control_hz.sort()
-            all_ratios = np.array(min_control_hz)[1:] / np.array(min_control_hz)[:-1]
+        if len(all_control_hz) > 0:
+            all_control_hz.sort()
+            all_ratios = np.array(all_control_hz)[1:] / np.array(all_control_hz)[:-1]
             assert all(
                 r % 1.0 == 0.0 for r in all_ratios
             ), "Looprates must form common multiples of each other."
