@@ -49,6 +49,7 @@ class Aviary(bullet_client.BulletClient):
         render: bool = False,
         physics_hz: int = 240,
         world_scale: float = 1.0,
+        camera_update_skip: int = 4,
         seed: None | int = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
@@ -109,6 +110,9 @@ class Aviary(bullet_client.BulletClient):
         # default physics looprate is 240 Hz
         self.physics_hz = physics_hz
         self.physics_period = 1.0 / physics_hz
+        # update the camera waste time (~16ms),
+        # so we can skip some camera updates
+        self.camera_update_skip = camera_update_skip
 
         # mapping of drone type string to the constructors
         self.drone_type_mappings = dict()
@@ -466,6 +470,8 @@ class Aviary(bullet_client.BulletClient):
             self.elapsed_time = self.physics_steps / self.physics_hz
 
         # update the last components of the drones, this is usually limited to cameras only
-        [drone.update_last() for drone in self.armed_drones]
+        # update once in some steps
+        if self.aviary_steps % self.camera_update_skip == 0:
+            [drone.update_last() for drone in self.armed_drones]
 
         self.aviary_steps += 1
