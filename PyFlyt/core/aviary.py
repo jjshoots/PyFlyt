@@ -129,7 +129,7 @@ class Aviary(bullet_client.BulletClient):
         self.physics_period: float = 1.0 / physics_hz
 
         # mapping of drone type string to the constructors
-        self.drone_type_mappings = dict()
+        self.drone_type_mappings: dict[str, type[DroneClass]] = dict()
         self.drone_type_mappings["quadx"] = QuadX
         self.drone_type_mappings["fixedwing"] = Fixedwing
         self.drone_type_mappings["rocket"] = Rocket
