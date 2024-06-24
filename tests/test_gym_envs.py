@@ -14,73 +14,73 @@ from PyFlyt.gym_envs import FlattenWaypointEnv
 _WAYPOINT_ENV_CONFIGS = []
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="euler", sparse_reward=True),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="quaternion", sparse_reward=True),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="euler", sparse_reward=False),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="quaternion", sparse_reward=False),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="euler", use_yaw_targets=True),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="quaternion", use_yaw_targets=True),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="euler", use_yaw_targets=False),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/QuadX-Waypoints-v1",
+        "PyFlyt/QuadX-Waypoints-v2",
         dict(angle_representation="quaternion", use_yaw_targets=False),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/Fixedwing-Waypoints-v1",
+        "PyFlyt/Fixedwing-Waypoints-v2",
         dict(angle_representation="euler", sparse_reward=True),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/Fixedwing-Waypoints-v1",
+        "PyFlyt/Fixedwing-Waypoints-v2",
         dict(angle_representation="quaternion", sparse_reward=True),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/Fixedwing-Waypoints-v1",
+        "PyFlyt/Fixedwing-Waypoints-v2",
         dict(angle_representation="euler", sparse_reward=False),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/Fixedwing-Waypoints-v1",
+        "PyFlyt/Fixedwing-Waypoints-v2",
         dict(angle_representation="quaternion", sparse_reward=False),
     )
 )
@@ -88,18 +88,18 @@ _WAYPOINT_ENV_CONFIGS.append(
 # all other environments
 _ALL_ENV_CONFIGS = [] + _WAYPOINT_ENV_CONFIGS
 # quadx envs
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v1", dict(angle_representation="euler")))
+_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v2", dict(angle_representation="euler")))
 _ALL_ENV_CONFIGS.append(
-    ("PyFlyt/QuadX-Hover-v1", dict(angle_representation="quaternion"))
+    ("PyFlyt/QuadX-Hover-v2", dict(angle_representation="quaternion"))
 )
 # rocket envs
 _ALL_ENV_CONFIGS.append(
-    ("PyFlyt/Rocket-Landing-v1", dict(angle_representation="euler"))
+    ("PyFlyt/Rocket-Landing-v2", dict(angle_representation="euler"))
 )
 _ALL_ENV_CONFIGS.append(
-    ("PyFlyt/Rocket-Landing-v1", dict(angle_representation="quaternion"))
+    ("PyFlyt/Rocket-Landing-v2", dict(angle_representation="quaternion"))
 )
-_ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v1", dict(sparse_reward=True)))
+_ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v2", dict(sparse_reward=True)))
 
 # can be edited depending on gymnasium version
 CHECK_ENV_IGNORE_WARNINGS = [
