@@ -231,7 +231,8 @@ class DroneClass(ABC):
 
         Example Implementation:
             >>> def update_last(self, physics_step: int) -> None:
-            >>>     if self.use_camera:
+            >>>
+            >>>     if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             >>>         self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
         """
         raise NotImplementedError
