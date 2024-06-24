@@ -158,7 +158,7 @@ class Aviary(bullet_client.BulletClient):
             self.drone_type = repeat(drone_type)
 
         # store the drone options
-        if isinstance(drone_options, (tuple, list)):
+        if isinstance(drone_options, Sequence):
             self.drone_options = drone_options
         else:
             self.drone_options = repeat(drone_options)
