@@ -155,11 +155,15 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_control(self) -> None:
+    def update_control(self, physics_step: int) -> None:
         """Updates onboard flight control laws at a rate specified by `control_hz`.
 
         Example Implementation:
-            >>> def update_control(self):
+            >>> def update_control(self, physics_step: int) -> None:
+            >>>     # skip control if we have not enough physics steps
+            >>>     if physics_step % self.physics_control_ratio != 0:
+            >>>         return
+            >>>
             >>>     # depending on the flight control mode, do things
             >>>     if self.mode == 0:
             >>>         # assign the actuator commands to be some function of the setpoint
@@ -182,7 +186,7 @@ class DroneClass(ABC):
         """Updates all physics on the vehicle at a rate specified by `physics_hz`.
 
         Example Implementation:
-            >>> def update_physics(self):
+            >>> def update_physics(self) -> None:
             >>>     self.lifting_surfaces.physics_update(self.cmd[...])
             >>>     self.boosters.physics_update(self.cmd[...])
             >>>     ...
@@ -194,7 +198,7 @@ class DroneClass(ABC):
         """Updates the vehicle's state values at a rate specified by `phyiscs_hz`.
 
         Example Implementation:
-            >>> def update_state(self):
+            >>> def update_state(self) -> None:
             >>>     # get all relevant information from PyBullet backend
             >>>     lin_pos, ang_pos = self.p.getBasePositionAndOrientation(self.Id)
             >>>     lin_vel, ang_vel = self.p.getBaseVelocity(self.Id)
@@ -222,12 +226,13 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_last(self) -> None:
+    def update_last(self, physics_step: int) -> None:
         """Update that happens at the end of `Aviary.step()`, usually reserved for camera updates.
 
         Example Implementation:
-            >>> def update_last(self):
-            >>>     if self.use_camera:
+            >>> def update_last(self, physics_step: int) -> None:
+            >>>
+            >>>     if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             >>>         self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
         """
         raise NotImplementedError

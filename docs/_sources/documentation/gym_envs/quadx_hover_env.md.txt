@@ -1,4 +1,4 @@
-# `PyFlyt/QuadX-Hover-v1`
+# `PyFlyt/QuadX-Hover-v2`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif
     :width: 50%
@@ -14,7 +14,7 @@ The goal of this environment is to hover a quadrotor drone for as long as possib
 import gymnasium
 import PyFlyt.gym_envs
 
-env = gymnasium.make("PyFlyt/QuadX-Hover-v1", render_mode="human")
+env = gymnasium.make("PyFlyt/QuadX-Hover-v2", render_mode="human")
 
 term, trunc = False, False
 obs, _ = env.reset()

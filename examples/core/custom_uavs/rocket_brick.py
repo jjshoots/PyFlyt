@@ -28,6 +28,7 @@ class RocketBrick(DroneClass):
         camera_angle_degrees: int = 0,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
+        camera_fps: None | int = None,
     ):
         """Creates a UAV a brick acting as a lifting surface with a rocket attached.
 
@@ -45,6 +46,7 @@ class RocketBrick(DroneClass):
             camera_angle_degrees (int): camera_angle_degrees.
             camera_FOV_degrees (int): camera_FOV_degrees.
             camera_resolution (tuple[int, int]): camera_resolution.
+            camera_fps (None | int): camera_fps
         """
         super().__init__(
             p=p,
@@ -116,7 +118,16 @@ class RocketBrick(DroneClass):
                 is_tracking_camera=True,
             )
 
-    def reset(self):
+        # compute camera fps parameters
+        if camera_fps:
+            assert (
+                (physics_hz / camera_fps) % 1 == 0
+            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+            self.physics_camera_ratio = int(physics_hz / camera_fps)
+        else:
+            self.physics_camera_ratio = 1
+
+    def reset(self) -> None:
         """Resets the vehicle to the initial state."""
         self.set_mode(0)
         self.setpoint = np.zeros(2)
@@ -130,8 +141,16 @@ class RocketBrick(DroneClass):
         self.brick.reset()
         self.boosters.reset()
 
-    def update_control(self):
-        """Runs through controllers."""
+    def update_control(self, physics_step: int) -> None:
+        """Runs through controllers.
+
+        Args:
+            physics_step (int): the current physics step
+        """
+        # skip control if we don't have enough physics steps
+        if physics_step % self.physics_control_ratio != 0:
+            return
+
         # the default mode
         if self.mode == 0:
             self.cmd = self.setpoint
@@ -146,12 +165,12 @@ class RocketBrick(DroneClass):
         # custom controllers run if any
         self.cmd = self.instanced_controllers[self.mode].step(self.state, self.setpoint)
 
-    def update_physics(self):
+    def update_physics(self) -> None:
         """Updates the physics of the vehicle."""
         self.brick.physics_update()
         self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
 
-    def update_state(self):
+    def update_state(self) -> None:
         """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
@@ -176,7 +195,11 @@ class RocketBrick(DroneClass):
         # update auxiliary information
         self.aux_state = self.boosters.get_states()
 
-    def update_last(self):
-        """Updates things only at the end of `Aviary.step()`."""
-        if self.use_camera:
+    def update_last(self, physics_step: int) -> None:
+        """Updates things only at the end of `Aviary.step()`.
+
+        Args:
+            physics_step (int): the current physics step
+        """
+        if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

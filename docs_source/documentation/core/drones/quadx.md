@@ -16,9 +16,9 @@ The available models are:
 
 ## Control Modes
 
-The control mode of the QuadX can be changed using the [`Aviary.set_mode`](https://jjshoots.github.io/PyFlyt/documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode) or specifically calling [`set_mode`](https://jjshoots.github.io/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode) on the drone instance itself.
+The control mode of the QuadX can be changed using the [`Aviary.set_mode`](https://taijunjet.com/PyFlyt/documentation/core/aviary.html#PyFlyt.core.Aviary.set_mode) or specifically calling [`set_mode`](https://taijunjet.com/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode) on the drone instance itself.
 Inspired by [pybullet drones by University of Toronto's Dynamic Systems Lab](https://github.com/utiasDSL/gym-pybullet-drones).
-The various modes available are documented [below](https://jjshoots.github.io/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode).
+The various modes available are documented [below](https://taijunjet.com/PyFlyt/documentation/core/drones/quadx.html#PyFlyt.core.drones.QuadX.set_mode).
 
 ## Class Description
 ```{eval-rst}
