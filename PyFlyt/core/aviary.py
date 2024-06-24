@@ -17,6 +17,15 @@ from PyFlyt.core.drones import Fixedwing, QuadX, Rocket
 DroneIndex = int
 
 
+class AviaryInitException(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        return f"Aviary Error: {self.message}"
+
+
 class Aviary(bullet_client.BulletClient):
     """Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment.
 
@@ -29,6 +38,7 @@ class Aviary(bullet_client.BulletClient):
         drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
         drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
         drone_options (dict[str, Any] | Sequence[dict[str, Any]] | None): dictionary mapping of custom parameters for each drone.
+        onboard_camera_FPS (int): the FPS of the onboard camera on each drone.
         wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
         wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
         render (bool): a boolean whether to render the simulation.
@@ -44,12 +54,12 @@ class Aviary(bullet_client.BulletClient):
         drone_type: str | Sequence[str],
         drone_type_mappings: None | dict[str, type[DroneClass]] = None,
         drone_options: dict[str, Any] | Sequence[dict[str, Any]] | None = None,
+        onboard_camera_FPS: int | Sequence[int] = 120,
         wind_type: None | str | type[WindFieldClass] = None,
         wind_options: dict[str, Any] = {},
         render: bool = False,
         physics_hz: int = 240,
         world_scale: float = 1.0,
-        camera_update_skip: int = 4,
         seed: None | int = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
@@ -63,6 +73,7 @@ class Aviary(bullet_client.BulletClient):
             drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
             drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
             drone_options (dict[str, Any] | Sequence[dict[str, Any]] | None): dictionary mapping of custom parameters for each drone.
+            onboard_camera_FPS (int): the FPS of the onboard camera on each drone.
             wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
             wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
             render (bool): a boolean whether to render the simulation.
@@ -74,15 +85,18 @@ class Aviary(bullet_client.BulletClient):
         print("\033[A                             \033[A")
 
         # check for starting position and orientation shapes
-        assert (
-            len(start_pos.shape) == 2
-        ), f"start_pos must be shape (n, 3), currently {start_pos.shape}."
-        assert (
-            start_pos.shape[-1] == 3
-        ), f"start_pos must be shape (n, 3), currently {start_pos.shape}."
-        assert (
-            start_orn.shape == start_pos.shape
-        ), f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
+        if len(start_pos.shape) != 2:
+            raise AviaryInitException(
+                f"start_pos must be shape (n, 3), currently {start_pos.shape}."
+            )
+        if start_pos.shape[-1] != 3:
+            raise AviaryInitException(
+                f"start_pos must be shape (n, 3), currently {start_pos.shape}."
+            )
+        if start_orn.shape != start_pos.shape:
+            raise AviaryInitException(
+                f"start_orn must be same shape as start_pos, currently {start_orn.shape}."
+            )
 
         # check the physics hz
         if physics_hz != 240.0:
@@ -92,27 +106,57 @@ class Aviary(bullet_client.BulletClient):
 
         # check to ensure drone type has same number as drones if is list/tuple
         if isinstance(drone_type, (tuple, list)):
-            assert (
-                len(drone_type) == start_pos.shape[0]
-            ), f"If multiple `drone_types` are used, must have same number of `drone_types` ({len(drone_type)}) as number of drones ({start_pos.shape[0]})."
+            if len(drone_type) != start_pos.shape[0]:
+                raise AviaryInitException(
+                    f"If multiple `drone_types` are used, must have same number of `drone_types` ({len(drone_type)}) as number of drones ({start_pos.shape[0]})."
+                )
+            if len(drone_type) != start_pos.shape[0]:
+                raise AviaryInitException(
+                    f"If multiple `drone_types` are used, must have same number of `drone_types` ({len(drone_type)}) as number of drones ({start_pos.shape[0]})."
+                )
         # check to ensure drone type has same number as drones if is list/tuple
         if isinstance(drone_options, (tuple, list)):
-            assert (
-                len(drone_options) == start_pos.shape[0]
-            ), f"If multiple `drone_options` ({len(drone_options)}) are used, must have same number of `drone_options` as number of drones ({start_pos.shape[0]})."
+            if len(drone_options) != start_pos.shape[0]:
+                raise AviaryInitException(
+                    f"If multiple `drone_options` ({len(drone_options)}) are used, must have same number of `drone_options` as number of drones ({start_pos.shape[0]})."
+                )
 
         # constants
-        self.num_drones = start_pos.shape[0]
-        self.start_pos = start_pos
-        self.start_orn = start_orn
+        self.num_drones: int = start_pos.shape[0]
+        self.start_pos: np.ndarray = start_pos
+        self.start_orn: np.ndarray = start_orn
 
         # do not change because pybullet doesn't like it
         # default physics looprate is 240 Hz
-        self.physics_hz = physics_hz
-        self.physics_period = 1.0 / physics_hz
-        # update the camera waste time (~16ms),
+        self.physics_hz: int = physics_hz
+        self.physics_period: float = 1.0 / physics_hz
+
+        # each camera update consumes a significant overhead (~16ms)
         # so we can skip some camera updates
-        self.camera_update_skip = camera_update_skip
+        if isinstance(onboard_camera_FPS, int):
+            np_camera_fps = np.ndarray(
+                [onboard_camera_FPS for _ in range(self.num_drones)], dtype=np.int32
+            )
+        else:
+            np_camera_fps = np.ndarray(onboard_camera_FPS, dtype=np.int32)
+
+        # check that all ints
+        # check that same length as num_drones
+        if not np.all(np_camera_fps % 0 == 0):
+            raise AviaryInitException(
+                f"Expected `onboard_camera_FPS` to be an array of ints, got {np_camera_fps}."
+            )
+        if not len(np_camera_fps) == self.num_drones:
+            raise AviaryInitException(
+                f"If a sequence of numbers are given for `onboard_camera_FPS`, the expected number of items must be same as `num_drones` ({self.num_drones})."
+            )
+
+        # find the ratio of physics_steps:camera_update
+        self.physics_camera_ratio = self.physics_hz / np_camera_fps
+        if not np.all(self.physics_camera_ratio % 0 == 0):
+            raise AviaryInitException(
+                f"Expected `onboard_camera_FPS` to roundly divide `physics_hz`, instead got {physics_hz=} and {onboard_camera_FPS=}."
+            )
 
         # mapping of drone type string to the constructors
         self.drone_type_mappings = dict()
@@ -127,14 +171,20 @@ class Aviary(bullet_client.BulletClient):
 
         # store all drone types
         if isinstance(drone_type, (tuple, list)):
-            assert all(
-                dt in self.drone_type_mappings for dt in drone_type
-            ), f"One of types in `drone_type` {drone_type} is not amongst known types {self.drone_type_mappings.keys()}."
+            if not all(dt in self.drone_type_mappings for dt in drone_type):
+                raise AviaryInitException(
+                    f"One of types in `drone_type` {drone_type} is not amongst known types {self.drone_type_mappings.keys()}."
+                )
+            if not all(dt in self.drone_type_mappings for dt in drone_type):
+                raise AviaryInitException(
+                    f"One of types in `drone_type` {drone_type} is not amongst known types {self.drone_type_mappings.keys()}."
+                )
             self.drone_type = drone_type
         else:
-            assert (
-                drone_type in self.drone_type_mappings
-            ), f"Can't find `drone_type` {drone_type} amongst known types {self.drone_type_mappings.keys()}."
+            if drone_type not in self.drone_type_mappings:
+                raise AviaryInitException(
+                    f"Can't find `drone_type` {drone_type} amongst known types {self.drone_type_mappings.keys()}."
+                )
             self.drone_type = repeat(drone_type)
 
         # store the drone options
@@ -465,13 +515,17 @@ class Aviary(bullet_client.BulletClient):
                 self.contact_array[collision[1], collision[2]] = True
                 self.contact_array[collision[2], collision[1]] = True
 
+            # updates the cameras if needed
+            [
+                drone.update_last()
+                for drone, skip_ratio in zip(
+                    self.armed_drones, self.physics_camera_ratio
+                )
+                if (self.physics_steps % skip_ratio == 0)
+            ]
+
             # increment the number of physics steps
             self.physics_steps += 1
             self.elapsed_time = self.physics_steps / self.physics_hz
-
-        # update the last components of the drones, this is usually limited to cameras only
-        # update once in some steps
-        if self.aviary_steps % self.camera_update_skip == 0:
-            [drone.update_last() for drone in self.armed_drones]
 
         self.aviary_steps += 1
