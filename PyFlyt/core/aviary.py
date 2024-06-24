@@ -38,7 +38,6 @@ class Aviary(bullet_client.BulletClient):
         drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
         drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
         drone_options (dict[str, Any] | Sequence[dict[str, Any]] | None): dictionary mapping of custom parameters for each drone.
-        onboard_camera_FPS (int): the FPS of the onboard camera on each drone.
         wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
         wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
         render (bool): a boolean whether to render the simulation.
@@ -54,7 +53,6 @@ class Aviary(bullet_client.BulletClient):
         drone_type: str | Sequence[str],
         drone_type_mappings: None | dict[str, type[DroneClass]] = None,
         drone_options: dict[str, Any] | Sequence[dict[str, Any]] | None = None,
-        onboard_camera_FPS: int | Sequence[int] = 120,
         wind_type: None | str | type[WindFieldClass] = None,
         wind_options: dict[str, Any] = {},
         render: bool = False,
@@ -73,7 +71,6 @@ class Aviary(bullet_client.BulletClient):
             drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
             drone_type_mappings (None | dict(str, Type[DroneClass])): a dictionary mapping of `{str: DroneClass}` for spawning custom drones.
             drone_options (dict[str, Any] | Sequence[dict[str, Any]] | None): dictionary mapping of custom parameters for each drone.
-            onboard_camera_FPS (int): the FPS of the onboard camera on each drone.
             wind_type (None | str | Type[WindField]): a wind field model that will be used throughout the simulation.
             wind_options (dict[str, Any] | Sequence[dict[str, Any]]): dictionary mapping of custom parameters for the wind field.
             render (bool): a boolean whether to render the simulation.
@@ -130,33 +127,6 @@ class Aviary(bullet_client.BulletClient):
         # default physics looprate is 240 Hz
         self.physics_hz: int = physics_hz
         self.physics_period: float = 1.0 / physics_hz
-
-        # each camera update consumes a significant overhead (~16ms)
-        # so we can skip some camera updates
-        if isinstance(onboard_camera_FPS, int):
-            np_camera_fps = np.ndarray(
-                [onboard_camera_FPS for _ in range(self.num_drones)], dtype=np.int32
-            )
-        else:
-            np_camera_fps = np.ndarray(onboard_camera_FPS, dtype=np.int32)
-
-        # check that all ints
-        # check that same length as num_drones
-        if not np.all(np_camera_fps % 0 == 0):
-            raise AviaryInitException(
-                f"Expected `onboard_camera_FPS` to be an array of ints, got {np_camera_fps}."
-            )
-        if not len(np_camera_fps) == self.num_drones:
-            raise AviaryInitException(
-                f"If a sequence of numbers are given for `onboard_camera_FPS`, the expected number of items must be same as `num_drones` ({self.num_drones})."
-            )
-
-        # find the ratio of physics_steps:camera_update
-        self.physics_camera_ratio = self.physics_hz / np_camera_fps
-        if not np.all(self.physics_camera_ratio % 0 == 0):
-            raise AviaryInitException(
-                f"Expected `onboard_camera_FPS` to roundly divide `physics_hz`, instead got {physics_hz=} and {onboard_camera_FPS=}."
-            )
 
         # mapping of drone type string to the constructors
         self.drone_type_mappings = dict()
@@ -305,7 +275,7 @@ class Aviary(bullet_client.BulletClient):
         # reset all drones and initialize required states
         [drone.reset() for drone in self.drones]
         [drone.update_state() for drone in self.drones]
-        [drone.update_last() for drone in self.drones]
+        [drone.update_last(0) for drone in self.drones]
 
     def register_all_new_bodies(self) -> None:
         """Registers all new bodies in the environment to be able to handle collisions later.
@@ -495,13 +465,9 @@ class Aviary(bullet_client.BulletClient):
         self.contact_array &= False
 
         # step the environment enough times for one control loop of the slowest controller
-        for step in range(self.updates_per_step):
+        for _ in range(self.updates_per_step):
             # update onboard avionics conditionally
-            [
-                drone.update_control()
-                for drone in self.armed_drones
-                if step % drone.physics_control_ratio == 0
-            ]
+            [drone.update_control(self.physics_steps) for drone in self.armed_drones]
 
             # update physics and state
             [drone.update_physics() for drone in self.armed_drones]
@@ -516,13 +482,7 @@ class Aviary(bullet_client.BulletClient):
                 self.contact_array[collision[2], collision[1]] = True
 
             # updates the cameras if needed
-            [
-                drone.update_last()
-                for drone, skip_ratio in zip(
-                    self.armed_drones, self.physics_camera_ratio
-                )
-                if (self.physics_steps % skip_ratio == 0)
-            ]
+            [drone.update_last(self.physics_steps) for drone in self.armed_drones]
 
             # increment the number of physics steps
             self.physics_steps += 1

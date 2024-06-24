@@ -33,6 +33,7 @@ class QuadX(DroneClass):
         camera_angle_degrees: int = 20,
         camera_FOV_degrees: int = 90,
         camera_resolution: tuple[int, int] = (128, 128),
+        camera_fps: None | int = None,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
@@ -50,6 +51,7 @@ class QuadX(DroneClass):
             camera_angle_degrees (int): camera_angle_degrees
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
+            camera_fps (None | int): camera_fps
         """
         super().__init__(
             p=p,
@@ -202,6 +204,15 @@ class QuadX(DroneClass):
                 camera_angle_degrees=camera_angle_degrees,
                 camera_resolution=camera_resolution,
             )
+
+        # compute camera fps parameters
+        if camera_fps:
+            assert (
+                (physics_hz / camera_fps) % 0 == 0
+            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+            self.physics_camera_ratio = int(physics_hz / camera_fps)
+        else:
+            self.physics_camera_ratio = 1
 
     def reset(self) -> None:
         """Resets the vehicle to the initial state."""
@@ -380,8 +391,16 @@ class QuadX(DroneClass):
         self.registered_controllers[controller_id] = controller_constructor
         self.registered_base_modes[controller_id] = base_mode
 
-    def update_control(self) -> None:
-        """Runs through controllers."""
+    def update_control(self, physics_step: int) -> None:
+        """Runs through controllers.
+
+        Args:
+            physics_step (int): the current physics step
+        """
+        # skip control if we don't have enough physics steps
+        if physics_step % self.physics_control_ratio != 0:
+            return
+
         # this is the thing we cascade down controllers
         a_output = self.setpoint[:3].copy()
         z_output = self.setpoint[-1].copy()
@@ -507,7 +526,11 @@ class QuadX(DroneClass):
         # update auxiliary information
         self.aux_state = self.motors.get_states()
 
-    def update_last(self) -> None:
-        """Updates things only at the end of `Aviary.step()`."""
-        if self.use_camera:
+    def update_last(self, physics_step: int) -> None:
+        """Updates things only at the end of `Aviary.step()`.
+
+        Args:
+            physics_step (int): the current physics step
+        """
+        if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()
