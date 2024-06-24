@@ -1,4 +1,4 @@
-# `PyFlyt/Fixedwing-Waypoints-v1`
+# `PyFlyt/Fixedwing-Waypoints-v2`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/fixedwing_waypoint.gif
     :width: 50%
@@ -14,7 +14,7 @@ The goal of this environment is to fly a fixedwing aircraft towards a set of way
 import gymnasium
 import PyFlyt.gym_envs
 
-env = gymnasium.make("PyFlyt/Fixedwing-Waypoints-v1", render_mode="human")
+env = gymnasium.make("PyFlyt/Fixedwing-Waypoints-v2", render_mode="human")
 
 term, trunc = False, False
 obs, _ = env.reset()
@@ -34,7 +34,7 @@ import gymnasium
 import PyFlyt.gym_envs
 from PyFlyt.gym_envs import FlattenWaypointEnv
 
-env = gymnasium.make("PyFlyt/Fixedwing-Waypoints-v1", render_mode="human")
+env = gymnasium.make("PyFlyt/Fixedwing-Waypoints-v2", render_mode="human")
 env = FlattenWaypointEnv(env, context_length=2)
 
 term, trunc = False, False
