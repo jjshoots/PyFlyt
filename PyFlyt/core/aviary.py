@@ -466,23 +466,21 @@ class Aviary(bullet_client.BulletClient):
 
         # step the environment enough times for one control loop of the slowest controller
         for _ in range(self.updates_per_step):
-            # update onboard avionics conditionally
+            # update control and physics
             [drone.update_control(self.physics_steps) for drone in self.armed_drones]
-
-            # update physics and state
             [drone.update_physics() for drone in self.armed_drones]
-            [drone.update_state() for drone in self.armed_drones]
 
             # advance pybullet
             self.stepSimulation()
+
+            # update states and camera
+            [drone.update_state() for drone in self.armed_drones]
+            [drone.update_last(self.physics_steps) for drone in self.armed_drones]
 
             # splice out collisions
             for collision in self.getContactPoints():
                 self.contact_array[collision[1], collision[2]] = True
                 self.contact_array[collision[2], collision[1]] = True
-
-            # updates the cameras if needed
-            [drone.update_last(self.physics_steps) for drone in self.armed_drones]
 
             # increment the number of physics steps
             self.physics_steps += 1
