@@ -32,7 +32,9 @@ class FlattenWaypointEnv(ObservationWrapper):
             0
         ]  # type: ignore [reportGeneralTypeIssues]
         self.observation_space = Box(
-            low=-np.inf, high=np.inf, shape=(self.attitude_shape + self.target_shape,)
+            low=-np.inf,
+            high=np.inf,
+            shape=(self.attitude_shape + self.target_shape * self.context_length,),
         )
 
     def observation(self, observation) -> np.ndarray:
