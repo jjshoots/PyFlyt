@@ -12,8 +12,7 @@ class FlattenWaypointEnv(ObservationWrapper):
     """FlattenWaypontEnv."""
 
     def __init__(self, env: Env, context_length=2):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -41,8 +40,7 @@ class FlattenWaypointEnv(ObservationWrapper):
         )
 
     def observation(self, observation) -> np.ndarray:
-        """
-        Flattens an observation from the super env.
+        """Flattens an observation from the super env.
 
         Args:
         ----

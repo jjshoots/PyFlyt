@@ -35,8 +35,7 @@ class QuadX(DroneClass):
         camera_resolution: tuple[int, int] = (128, 128),
         camera_fps: None | int = None,
     ):
-        """
-        Creates a drone in the QuadX configuration and handles all relevant control and physics.
+        """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
         ----
@@ -229,8 +228,7 @@ class QuadX(DroneClass):
         self.motors.reset()
 
     def set_mode(self, mode: int) -> None:
-        """
-        Sets the current flight mode of the vehicle.
+        """Sets the current flight mode of the vehicle.
 
         flight modes:
             - -1: m1, m2, m3, m4
@@ -378,8 +376,7 @@ class QuadX(DroneClass):
         controller_constructor: type[ControlClass],
         base_mode: int,
     ) -> None:
-        """
-        Registers a new controller for the UAV.
+        """Registers a new controller for the UAV.
 
         Args:
         ----
@@ -401,8 +398,7 @@ class QuadX(DroneClass):
         self.registered_base_modes[controller_id] = base_mode
 
     def update_control(self, physics_step: int) -> None:
-        """
-        Runs through controllers.
+        """Runs through controllers.
 
         Args:
         ----
@@ -514,8 +510,7 @@ class QuadX(DroneClass):
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def update_state(self) -> None:
-        """
-        Updates the current state of the UAV.
+        """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -540,8 +535,7 @@ class QuadX(DroneClass):
         self.aux_state = self.motors.get_states()
 
     def update_last(self, physics_step: int) -> None:
-        """
-        Updates things only at the end of `Aviary.step()`.
+        """Updates things only at the end of `Aviary.step()`.
 
         Args:
         ----

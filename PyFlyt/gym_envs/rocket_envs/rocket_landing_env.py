@@ -12,8 +12,7 @@ from PyFlyt.gym_envs.rocket_envs.rocket_base_env import RocketBaseEnv
 
 
 class RocketLandingEnv(RocketBaseEnv):
-    """
-    Rocket Landing Environment.
+    """Rocket Landing Environment.
 
     Actions are finlet_x, finlet_y, finlet_roll, booster ignition, throttle, booster gimbal x, booster gimbal y
     The goal is to land the rocket on the landing pad.
@@ -42,8 +41,7 @@ class RocketLandingEnv(RocketBaseEnv):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -92,8 +90,7 @@ class RocketLandingEnv(RocketBaseEnv):
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[np.ndarray, dict]:
-        """
-        Resets the environment.
+        """Resets the environment.
 
         Args:
         ----
@@ -134,8 +131,7 @@ class RocketLandingEnv(RocketBaseEnv):
         return self.state, self.info
 
     def compute_state(self) -> None:
-        """
-        Computes the state of the current timestep.
+        """Computes the state of the current timestep.
 
         This returns the observation.
         - ang_vel (vector of 3 values)

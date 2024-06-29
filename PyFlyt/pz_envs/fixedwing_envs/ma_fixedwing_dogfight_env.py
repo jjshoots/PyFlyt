@@ -10,8 +10,7 @@ from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseE
 
 
 class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
-    """
-    Base Dogfighting Environment for the Acrowing model using the PettingZoo API.
+    """Base Dogfighting Environment for the Acrowing model using the PettingZoo API.
 
     Args:
     ----
@@ -46,8 +45,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         agent_hz: int = 30,
         render_mode: None | str = None,
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -90,8 +88,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
 
     def observation_space(self, agent: Any = None) -> spaces.Box:
-        """
-        observation_space.
+        """observation_space.
 
         Args:
         ----
@@ -105,8 +102,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         return self._observation_space
 
     def _get_start_pos_orn(self, seed: None | int) -> tuple[np.ndarray, np.ndarray]:
-        """
-        _get_start_pos_orn.
+        """_get_start_pos_orn.
 
         Args:
         ----
@@ -129,8 +125,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     def reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        """
-        reset.
+        """reset.
 
         Args:
         ----
@@ -181,8 +176,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         return observations, infos
 
     def _compute_agent_states(self) -> None:
-        """
-        _compute_agent_states.
+        """_compute_agent_states.
 
         Returns
         -------
@@ -268,8 +262,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
 
     def compute_observation_by_id(self, agent_id: int) -> np.ndarray:
-        """
-        compute_observation_by_id.
+        """compute_observation_by_id.
 
         Args:
         ----
@@ -344,8 +337,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
     @staticmethod
     def compute_rotation_forward(orn: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Computes the rotation matrix and forward vector of an aircraft given its orientation.
+        """Computes the rotation matrix and forward vector of an aircraft given its orientation.
 
         Args:
         ----
@@ -392,8 +384,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         dict[str, bool],
         dict[str, dict[str, Any]],
     ]:
-        """
-        step.
+        """step.
 
         Args:
         ----

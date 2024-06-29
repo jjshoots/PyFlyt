@@ -10,8 +10,7 @@ from PyFlyt.core.utils.compile_helpers import jitter
 
 
 class Motors:
-    """
-    Simulates an array of brushless motor driven propellers.
+    """Simulates an array of brushless motor driven propellers.
 
     The `Motors` component is used to simulate a series of brushless motor driven propellers at arbitrary locations of the drone.
     Counter rotating motors (producing reversed torque) can be represented using negative `torque_coef` values.
@@ -47,8 +46,7 @@ class Motors:
         thrust_unit: np.ndarray,
         noise_ratio: np.ndarray,
     ):
-        """
-        Used for simulating an array of motors.
+        """Used for simulating an array of motors.
 
         Args:
         ----
@@ -98,8 +96,7 @@ class Motors:
         self.throttle = np.zeros((self.num_motors,))
 
     def get_states(self) -> np.ndarray:
-        """
-        Gets the current state of the components.
+        """Gets the current state of the components.
 
         Returns
         -------
@@ -115,8 +112,7 @@ class Motors:
     def physics_update(
         self, pwm: np.ndarray, rotation: None | np.ndarray = None
     ) -> None:
-        """
-        Converts motor PWM values to forces, this motor allows negative thrust.
+        """Converts motor PWM values to forces, this motor allows negative thrust.
 
         Args:
         ----
@@ -171,8 +167,7 @@ class Motors:
         thrust_coef: np.ndarray,
         torque_coef: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Computes the thrusts and torques for the array of motors.
+        """Computes the thrusts and torques for the array of motors.
 
         Args:
         ----

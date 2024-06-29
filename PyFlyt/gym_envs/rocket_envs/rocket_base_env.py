@@ -29,8 +29,7 @@ class RocketBaseEnv(gymnasium.Env):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -134,8 +133,7 @@ class RocketBaseEnv(gymnasium.Env):
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
     ):
-        """
-        Resets the environment.
+        """Resets the environment.
 
         Args:
         ----
@@ -252,8 +250,7 @@ class RocketBaseEnv(gymnasium.Env):
         return self.env.aux_state(0)
 
     def compute_attitude(self):
-        """
-        state.
+        """state.
 
         This returns the base attitude for the drone.
         - ang_vel (vector of 3 values)
@@ -282,8 +279,7 @@ class RocketBaseEnv(gymnasium.Env):
     def compute_base_term_trunc_reward(
         self, collision_ignore_mask: np.ndarray | list[int] = []
     ):
-        """
-        compute_base_term_trunc_reward.
+        """compute_base_term_trunc_reward.
 
         Args:
         ----
@@ -316,8 +312,7 @@ class RocketBaseEnv(gymnasium.Env):
             self.termination |= True
 
     def step(self, action: np.ndarray):
-        """
-        Steps the environment.
+        """Steps the environment.
 
         Args:
         ----

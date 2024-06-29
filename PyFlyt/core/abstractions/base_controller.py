@@ -14,8 +14,7 @@ class ControlClass(ABC):
 
     @abstractmethod
     def step(self, state: np.ndarray, setpoint: np.ndarray) -> np.ndarray:
-        """
-        Step the controller.
+        """Step the controller.
 
         Args:
         ----

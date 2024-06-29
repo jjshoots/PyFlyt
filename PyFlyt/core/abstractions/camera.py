@@ -11,8 +11,7 @@ from PyFlyt.core.utils.compile_helpers import check_numpy
 
 
 class Camera:
-    """
-    A camera component.
+    """A camera component.
 
     The `Camera` component simulates a camera attached to a link on the drone.
     The camera itself can be gimballed to achieve a horizon lock effect.
@@ -47,8 +46,7 @@ class Camera:
         is_tracking_camera: bool = False,
         cinematic: bool = False,
     ):
-        """
-        Used for implementing camera modules.
+        """Used for implementing camera modules.
 
         Args:
         ----
@@ -100,8 +98,7 @@ class Camera:
 
     @property
     def view_mat(self) -> np.ndarray:
-        """
-        Generates the view matrix for the camera depending on the current orientation and implicit parameters.
+        """Generates the view matrix for the camera depending on the current orientation and implicit parameters.
 
         Returns
         -------
@@ -162,8 +159,7 @@ class Camera:
         )
 
     def capture_image(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Captures the 3 relevant images from the camera.
+        """Captures the 3 relevant images from the camera.
 
         Returns
         -------

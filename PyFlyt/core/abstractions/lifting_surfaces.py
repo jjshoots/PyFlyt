@@ -10,8 +10,7 @@ from PyFlyt.core.utils.compile_helpers import jitter
 
 
 class LiftingSurfaces:
-    """
-    Handler for multiple lifting surfaces.
+    """Handler for multiple lifting surfaces.
 
     This is a convenience class for handling multiple lifting surfaces as a single object.
     Simply pass it a list of `LiftingSurface` objects.
@@ -23,8 +22,7 @@ class LiftingSurfaces:
     """
 
     def __init__(self, lifting_surfaces: list[LiftingSurface]):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -47,8 +45,7 @@ class LiftingSurfaces:
         [surface.reset() for surface in self.surfaces]
 
     def get_states(self) -> np.ndarray:
-        """
-        Gets the current state of the components.
+        """Gets the current state of the components.
 
         Returns
         -------
@@ -58,8 +55,7 @@ class LiftingSurfaces:
         return np.array([surface.actuation for surface in self.surfaces])
 
     def physics_update(self, cmd: np.ndarray):
-        """
-        Converts actuation commands into forces on the lifting surfaces.
+        """Converts actuation commands into forces on the lifting surfaces.
 
         Args:
         ----
@@ -78,8 +74,7 @@ class LiftingSurfaces:
             surface.physics_update(actuation)
 
     def state_update(self, rotation_matrix: np.ndarray):
-        """
-        Updates all local surface velocities of the lifting surface, place under `update_state`.
+        """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
         ----
@@ -120,8 +115,7 @@ class LiftingSurfaces:
 
 
 class LiftingSurface:
-    """
-    Used to represent a single lifting surface.
+    """Used to represent a single lifting surface.
 
     The `Lifting Surface` component is used to simulate a single lifting surface based on "Real-time modeling of agile fixed-wing uav aerodynamics, Khan et. al.".
 
@@ -169,8 +163,7 @@ class LiftingSurface:
         deflection_limit: float,
         tau: float,
     ):
-        """
-        Used for simulating a single lifting surface.
+        """Used for simulating a single lifting surface.
 
         Args:
         ----
@@ -259,8 +252,7 @@ class LiftingSurface:
         self.actuation = 0.0
 
     def get_states(self) -> float:
-        """
-        Gets the current state of the components.
+        """Gets the current state of the components.
 
         Returns
         -------
@@ -270,8 +262,7 @@ class LiftingSurface:
         return self.actuation
 
     def state_update(self, surface_velocity: np.ndarray):
-        """
-        Updates the local surface velocity of the lifting surface.
+        """Updates the local surface velocity of the lifting surface.
 
         Args:
         ----
@@ -281,8 +272,7 @@ class LiftingSurface:
         self.local_surface_velocity = surface_velocity
 
     def physics_update(self, cmd: float):
-        """
-        Converts a commanded actuation state into forces on the lifting surface.
+        """Converts a commanded actuation state into forces on the lifting surface.
 
         Args:
         ----
@@ -348,8 +338,7 @@ class LiftingSurface:
     def _compute_aoa_freestream(
         local_surface_velocity: np.ndarray, lift_unit: np.ndarray, drag_unit: np.ndarray
     ) -> tuple[float, float]:
-        """
-        Computes the angle of attack (alpha) as well as the freestream speed.
+        """Computes the angle of attack (alpha) as well as the freestream speed.
 
         Args:
         ----
@@ -385,8 +374,7 @@ class LiftingSurface:
         alpha_stall_N_base: float,
         Cd_0: float,
     ) -> tuple[float, float, float]:
-        """
-        Computes the relevant aerodynamic data depending on the current state of the lifting surface.
+        """Computes the relevant aerodynamic data depending on the current state of the lifting surface.
 
         Args:
         ----
@@ -488,8 +476,7 @@ class LiftingSurface:
         drag_unit: np.ndarray,
         torque_unit: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Compute the force and torque vectors on the surface.
+        """Compute the force and torque vectors on the surface.
 
         Args:
         ----

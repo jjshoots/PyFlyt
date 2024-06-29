@@ -21,8 +21,7 @@ class AviaryInitException(Exception):
     """AviaryInitException."""
 
     def __init__(self, message: str) -> None:
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -37,8 +36,7 @@ class AviaryInitException(Exception):
         super().__init__(self.message)
 
     def __str__(self) -> str:
-        """
-        __str__.
+        """__str__.
 
         Returns
         -------
@@ -49,8 +47,7 @@ class AviaryInitException(Exception):
 
 
 class Aviary(bullet_client.BulletClient):
-    """
-    Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment.
+    """Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment.
 
     The `aviary` is a handler for physics stepping, setpoint handling, collisions tracking, and much more.
     It provides a common endpoint from where users may control drones or define tasks.
@@ -85,8 +82,7 @@ class Aviary(bullet_client.BulletClient):
         world_scale: float = 1.0,
         seed: None | int = None,
     ):
-        """
-        Initializes a PyBullet environment that hosts UAVs and other entities.
+        """Initializes a PyBullet environment that hosts UAVs and other entities.
 
         The Aviary class itself inherits from a BulletClient, so any function that a PyBullet client has, this class will have.
         The Aviary also handles dealing with physics and control looprates, as well as automatic construction of several default UAVs and their corresponding cameras.
@@ -208,8 +204,7 @@ class Aviary(bullet_client.BulletClient):
         self.reset(seed)
 
     def reset(self, seed: None | int = None) -> None:
-        """
-        Resets the simulation.
+        """Resets the simulation.
 
         Args:
         ----
@@ -309,8 +304,7 @@ class Aviary(bullet_client.BulletClient):
         [drone.update_last(0) for drone in self.drones]
 
     def register_all_new_bodies(self) -> None:
-        """
-        Registers all new bodies in the environment to be able to handle collisions later.
+        """Registers all new bodies in the environment to be able to handle collisions later.
 
         Call this when there is an update in the number of bodies in the environment.
         """
@@ -321,8 +315,7 @@ class Aviary(bullet_client.BulletClient):
         self.contact_array = np.zeros((num_bodies, num_bodies), dtype=bool)
 
     def register_wind_field_function(self, wind_field: Callable) -> None:
-        """
-        For less complicated wind field models (time invariant models), this allows the registration of a normal function as a wind field model.
+        """For less complicated wind field models (time invariant models), this allows the registration of a normal function as a wind field model.
 
         Args:
         ----
@@ -334,8 +327,7 @@ class Aviary(bullet_client.BulletClient):
         self.wind_field = wind_field
 
     def state(self, index: DroneIndex) -> np.ndarray:
-        """
-        Returns the state for the indexed drone.
+        """Returns the state for the indexed drone.
 
         This is a (4, 3) array, where:
             - `state[0, :]` represents body frame angular velocity
@@ -355,8 +347,7 @@ class Aviary(bullet_client.BulletClient):
         return self.drones[index].state
 
     def aux_state(self, index: DroneIndex) -> np.ndarray:
-        """
-        Returns the auxiliary state for the indexed drone.
+        """Returns the auxiliary state for the indexed drone.
 
         This is typically an (n, ) vector, representing various attributes such as:
             - booster thrust settings
@@ -377,8 +368,7 @@ class Aviary(bullet_client.BulletClient):
 
     @property
     def all_states(self) -> list[np.ndarray]:
-        """
-        Returns a list of states for all drones in the environment.
+        """Returns a list of states for all drones in the environment.
 
         This is a `num_drones` list of (4, 3) arrays, where each element in the list corresponds to the i-th drone state.
 
@@ -403,8 +393,7 @@ class Aviary(bullet_client.BulletClient):
 
     @property
     def all_aux_states(self) -> list[np.ndarray]:
-        """
-        Returns a list of auxiliary states for all drones in the environment.
+        """Returns a list of auxiliary states for all drones in the environment.
 
         This is a `num_drones` list of auxiliary states.
 
@@ -432,8 +421,7 @@ class Aviary(bullet_client.BulletClient):
         pprint(bodies)
 
     def set_armed(self, settings: int | bool | list[int] | list[bool]) -> None:
-        """
-        Sets the arming state of each drone in the environment. Unarmed drones won't receive updates and will ragdoll.
+        """Sets the arming state of each drone in the environment. Unarmed drones won't receive updates and will ragdoll.
 
         Args:
         ----
@@ -451,8 +439,7 @@ class Aviary(bullet_client.BulletClient):
             self.armed_drones = [drone for drone in self.drones] if settings else []
 
     def set_mode(self, flight_modes: int | list[int]) -> None:
-        """
-        Sets the flight control mode of each drone in the environment.
+        """Sets the flight control mode of each drone in the environment.
 
         When this is an int, sets the same flight mode for each drone.
         When this is a list of integers, sets a different flight mode for each drone depending on the list.
@@ -473,8 +460,7 @@ class Aviary(bullet_client.BulletClient):
                 drone.set_mode(flight_modes)
 
     def set_setpoint(self, index: DroneIndex, setpoint: np.ndarray) -> None:
-        """
-        Sets the setpoint of one drone in the environment.
+        """Sets the setpoint of one drone in the environment.
 
         Args:
         ----
@@ -485,8 +471,7 @@ class Aviary(bullet_client.BulletClient):
         self.drones[index].setpoint = setpoint
 
     def set_all_setpoints(self, setpoints: np.ndarray) -> None:
-        """
-        Sets the setpoints of each drone in the environment.
+        """Sets the setpoints of each drone in the environment.
 
         Args:
         ----

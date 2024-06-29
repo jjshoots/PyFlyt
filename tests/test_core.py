@@ -152,8 +152,7 @@ def test_custom_controller():
             pass
 
         def step(self, state: np.ndarray, setpoint: np.ndarray):
-            """
-            Step the controller here.
+            """Step the controller here.
 
             Args:
             ----
@@ -265,8 +264,7 @@ def test_mixed_drones():
     ["fixedwing", "rocket"],
 )
 def test_simple_wind(model: str):
-    """
-    Tests the wind field functionality.
+    """Tests the wind field functionality.
 
     Args:
     ----
@@ -302,8 +300,7 @@ def test_simple_wind(model: str):
     ["fixedwing", "rocket"],
 )
 def test_custom_wind(model: str):
-    """
-    Tests the wind field functionality.
+    """Tests the wind field functionality.
 
     Args:
     ----

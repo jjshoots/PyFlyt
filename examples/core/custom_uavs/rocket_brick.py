@@ -30,8 +30,7 @@ class RocketBrick(DroneClass):
         camera_resolution: tuple[int, int] = (128, 128),
         camera_fps: None | int = None,
     ):
-        """
-        Creates a UAV a brick acting as a lifting surface with a rocket attached.
+        """Creates a UAV a brick acting as a lifting surface with a rocket attached.
 
         Args:
         ----
@@ -145,8 +144,7 @@ class RocketBrick(DroneClass):
         self.boosters.reset()
 
     def update_control(self, physics_step: int) -> None:
-        """
-        Runs through controllers.
+        """Runs through controllers.
 
         Args:
         ----
@@ -177,8 +175,7 @@ class RocketBrick(DroneClass):
         self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
 
     def update_state(self) -> None:
-        """
-        Updates the current state of the UAV.
+        """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -203,8 +200,7 @@ class RocketBrick(DroneClass):
         self.aux_state = self.boosters.get_states()
 
     def update_last(self, physics_step: int) -> None:
-        """
-        Updates things only at the end of `Aviary.step()`.
+        """Updates things only at the end of `Aviary.step()`.
 
         Args:
         ----

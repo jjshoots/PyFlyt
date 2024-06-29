@@ -6,8 +6,7 @@ from PyFlyt.core import Aviary
 
 # define the wind field
 def simple_wind(time: float, position: np.ndarray):
-    """
-    Defines a simple wind updraft model.
+    """Defines a simple wind updraft model.
 
     Args:
     ----

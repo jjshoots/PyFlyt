@@ -17,8 +17,7 @@ class CustomController(ControlClass):
         pass
 
     def step(self, state: np.ndarray, setpoint: np.ndarray):
-        """
-        Step the controller here.
+        """Step the controller here.
 
         Args:
         ----

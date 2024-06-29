@@ -10,8 +10,7 @@ from PyFlyt.core.utils.compile_helpers import jitter
 
 
 class Gimbals:
-    """
-    A set of actuated gimbals.
+    """A set of actuated gimbals.
 
     The `Gimbals` component simulates a series of servo actuated gimbals.
     Each gimbal can rotate about two arbitrary axis that may not be orthogonal to each other.
@@ -38,8 +37,7 @@ class Gimbals:
         gimbal_tau: np.ndarray,
         gimbal_range_degrees: np.ndarray,
     ):
-        """
-        Used for simulating an array of gimbals.
+        """Used for simulating an array of gimbals.
 
         Args:
         ----
@@ -123,8 +121,7 @@ class Gimbals:
         self.rotation2 = np.array([np.eye(3)] * self.num_gimbals, dtype=np.float64)
 
     def get_states(self) -> np.ndarray:
-        """
-        Gets the current state of the components.
+        """Gets the current state of the components.
 
         Returns
         -------
@@ -148,8 +145,7 @@ class Gimbals:
         )
 
     def compute_rotation(self, gimbal_command: np.ndarray) -> np.ndarray:
-        """
-        Returns a rotation vector after the gimbal rotation.
+        """Returns a rotation vector after the gimbal rotation.
 
         Args:
         ----
@@ -192,8 +188,7 @@ class Gimbals:
         w1_squared: np.ndarray,
         w2_squared: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Compute the rotation matrix given the gimbal action values.
+        """Compute the rotation matrix given the gimbal action values.
 
         Args:
         ----

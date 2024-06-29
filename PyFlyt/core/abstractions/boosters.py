@@ -8,8 +8,7 @@ from pybullet_utils import bullet_client
 
 
 class Boosters:
-    """
-    Vectorized implementation of a series of fueled boosters.
+    """Vectorized implementation of a series of fueled boosters.
 
     The `Boosters` component is used to represent an array of fueled boosters, each at arbitrary locations with different parameters.
     Fueled boosters are propulsion units that produce no meaningful torque around their thrust axis and have limited throttleability.
@@ -54,8 +53,7 @@ class Boosters:
         reignitable: np.ndarray | list[bool],
         noise_ratio: np.ndarray,
     ):
-        """
-        Used for simulating an array of boosters.
+        """Used for simulating an array of boosters.
 
         Args:
         ----
@@ -121,8 +119,7 @@ class Boosters:
         self.noise_ratio = noise_ratio
 
     def reset(self, starting_fuel_ratio: float | np.ndarray = 1.0):
-        """
-        Reset the boosters.
+        """Reset the boosters.
 
         Args:
         ----
@@ -137,8 +134,7 @@ class Boosters:
         self.ignition_state = np.zeros((self.num_boosters,), dtype=bool)
 
     def get_states(self) -> np.ndarray:
-        """
-        Gets the current state of the components.
+        """Gets the current state of the components.
 
         Returns a (a0, a1, ..., an, b0, b1, ... bn, c0, c1, ... cn) array where:
         - (a0, a1, ..., an) represent the ignition state
@@ -165,8 +161,7 @@ class Boosters:
     def physics_update(
         self, ignition: np.ndarray, pwm: np.ndarray, rotation: None | np.ndarray = None
     ):
-        """
-        Converts booster settings into forces on the booster and inertia change on fuel tank.
+        """Converts booster settings into forces on the booster and inertia change on fuel tank.
 
         Args:
         ----
@@ -226,8 +221,7 @@ class Boosters:
     def _compute_thrust_mass_inertia(
         self, ignition: np.ndarray, pwm: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        _compute_thrust_mass_inertia.
+        """_compute_thrust_mass_inertia.
 
         Args:
         ----

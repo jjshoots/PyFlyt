@@ -21,8 +21,7 @@ class WaypointHandler:
         flight_dome_size: float,
         np_random: np.random.Generator,
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -110,8 +109,7 @@ class WaypointHandler:
         lin_pos: np.ndarray,
         quarternion: np.ndarray,
     ):
-        """
-        distance_to_target.
+        """distance_to_target.
 
         Args:
         ----

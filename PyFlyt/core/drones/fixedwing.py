@@ -33,8 +33,7 @@ class Fixedwing(DroneClass):
         camera_fps: None | int = None,
         starting_velocity: np.ndarray = np.array([20.0, 0.0, 0.0]),
     ):
-        """
-        Creates a Fixedwing UAV and handles all relevant control and physics.
+        """Creates a Fixedwing UAV and handles all relevant control and physics.
 
         Args:
         ----
@@ -205,8 +204,7 @@ class Fixedwing(DroneClass):
         self.motors.reset()
 
     def set_mode(self, mode) -> None:
-        """
-        Sets the current flight mode of the vehicle.
+        """Sets the current flight mode of the vehicle.
 
         flight modes:
             - -1: Left Aileron, Right Aileron, Horizontal Tail, Vertical Tail, Main Wing, Thrust
@@ -230,8 +228,7 @@ class Fixedwing(DroneClass):
             self.setpoint = np.zeros(4)
 
     def update_control(self, physics_step: int) -> None:
-        """
-        Runs through controllers.
+        """Runs through controllers.
 
         Args:
         ----
@@ -269,8 +266,7 @@ class Fixedwing(DroneClass):
         self.motors.physics_update(self.cmd[[5]])
 
     def update_state(self) -> None:
-        """
-        Updates the current state of the UAV.
+        """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -297,8 +293,7 @@ class Fixedwing(DroneClass):
         )
 
     def update_last(self, physics_step: int) -> None:
-        """
-        Updates things only at the end of `Aviary.step()`.
+        """Updates things only at the end of `Aviary.step()`.
 
         Args:
         ----

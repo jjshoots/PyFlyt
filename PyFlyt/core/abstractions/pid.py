@@ -25,8 +25,7 @@ class PID:
         limits: np.ndarray,
         period: float,
     ):
-        """
-        Defines a simple PID controller that works on numpy arrays.
+        """Defines a simple PID controller that works on numpy arrays.
 
         This function is jitted to achieve 1.3x speedup.
         Because of this, all arguments passed into this function, except `period`, must be a 1D np array and have the same shape.
@@ -70,8 +69,7 @@ class PID:
         self._prev_error *= 0.0
 
     def step(self, state: np.ndarray, setpoint: np.ndarray) -> np.ndarray:
-        """
-        Steps the PID controller.
+        """Steps the PID controller.
 
         Args:
         ----

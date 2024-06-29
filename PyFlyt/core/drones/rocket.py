@@ -14,8 +14,7 @@ from PyFlyt.core.abstractions.lifting_surfaces import LiftingSurface, LiftingSur
 
 
 class Rocket(DroneClass):
-    """
-    Rocket instance that handles everything about a thrust vectored rocket with throttleable boosters and controllable finlets.
+    """Rocket instance that handles everything about a thrust vectored rocket with throttleable boosters and controllable finlets.
 
     The setpoint for this model has 7 values:
         - finlet x deflection
@@ -46,8 +45,7 @@ class Rocket(DroneClass):
         camera_fps: None | int = None,
         starting_fuel_ratio: float = 0.05,
     ):
-        """
-        Creates a drone in the QuadX configuration and handles all relevant control and physics.
+        """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
         ----
@@ -238,8 +236,7 @@ class Rocket(DroneClass):
         self.boosters.reset(starting_fuel_ratio=self.starting_fuel_ratio)
 
     def set_mode(self, mode) -> None:
-        """
-        Sets the current flight mode of the vehicle.
+        """Sets the current flight mode of the vehicle.
 
         flight modes:
             - 0: finlet x deflection, finlet y deflection, finlet yaw, ignition, throttle, booster gimbal axis 1, booster gimbal axis 2
@@ -252,8 +249,7 @@ class Rocket(DroneClass):
         super().set_mode(mode)
 
     def update_control(self, physics_step: int) -> None:
-        """
-        Runs through controllers.
+        """Runs through controllers.
 
         Args:
         ----
@@ -304,8 +300,7 @@ class Rocket(DroneClass):
         )
 
     def update_state(self) -> None:
-        """
-        Updates the current state of the UAV.
+        """Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -339,8 +334,7 @@ class Rocket(DroneClass):
         )
 
     def update_last(self, physics_step: int) -> None:
-        """
-        Updates things only at the end of `Aviary.step()`.
+        """Updates things only at the end of `Aviary.step()`.
 
         Args:
         ----

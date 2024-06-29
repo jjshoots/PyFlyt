@@ -9,8 +9,7 @@ from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 
 
 class QuadXHoverEnv(QuadXBaseEnv):
-    """
-    Simple Hover Environment.
+    """Simple Hover Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
     The target is to not crash for the longest time possible.
@@ -39,8 +38,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -73,8 +71,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[np.ndarray, dict[str, Any]]:
-        """
-        reset.
+        """reset.
 
         Args:
         ----
@@ -88,8 +85,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         return self.state, self.info
 
     def compute_state(self) -> None:
-        """
-        Computes the state of the current timestep.
+        """Computes the state of the current timestep.
 
         This returns the observation.
         - ang_vel (vector of 3 values)

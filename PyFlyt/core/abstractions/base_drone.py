@@ -12,8 +12,7 @@ from PyFlyt.core.abstractions.camera import Camera
 
 
 class DroneClass(ABC):
-    """
-    The `DroneClass` is an abstract class that all drones should inherit from.
+    """The `DroneClass` is an abstract class that all drones should inherit from.
 
     It serves as a template class for interfacing with the `Aviary`.
     Each drone inheriting from this class must have several attributes and methods implemented before they can be considered usable.
@@ -80,8 +79,7 @@ class DroneClass(ABC):
         model_dir: None | str = None,
         np_random: None | np.random.RandomState = None,
     ):
-        """
-        Defines the default configuration for UAVs, to be used in conjunction with the Aviary class.
+        """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class.
 
         Args:
         ----
@@ -141,8 +139,7 @@ class DroneClass(ABC):
 
     @abstractmethod
     def reset(self) -> None:
-        """
-        Resets the vehicle to the initial state.
+        """Resets the vehicle to the initial state.
 
         Example Implementation:
             >>> def reset(self):
@@ -163,8 +160,7 @@ class DroneClass(ABC):
 
     @abstractmethod
     def update_control(self, physics_step: int) -> None:
-        """
-        Updates onboard flight control laws at a rate specified by `control_hz`.
+        """Updates onboard flight control laws at a rate specified by `control_hz`.
 
         Example Implementation:
             >>> def update_control(self, physics_step: int) -> None:
@@ -191,8 +187,7 @@ class DroneClass(ABC):
 
     @abstractmethod
     def update_physics(self) -> None:
-        """
-        Updates all physics on the vehicle at a rate specified by `physics_hz`.
+        """Updates all physics on the vehicle at a rate specified by `physics_hz`.
 
         Example Implementation:
             >>> def update_physics(self) -> None:
@@ -204,8 +199,7 @@ class DroneClass(ABC):
 
     @abstractmethod
     def update_state(self) -> None:
-        """
-        Updates the vehicle's state values at a rate specified by `phyiscs_hz`.
+        """Updates the vehicle's state values at a rate specified by `phyiscs_hz`.
 
         Example Implementation:
             >>> def update_state(self) -> None:
@@ -237,8 +231,7 @@ class DroneClass(ABC):
 
     @abstractmethod
     def update_last(self, physics_step: int) -> None:
-        """
-        Update that happens at the end of `Aviary.step()`, usually reserved for camera updates.
+        """Update that happens at the end of `Aviary.step()`, usually reserved for camera updates.
 
         Example Implementation:
             >>> def update_last(self, physics_step: int) -> None:
@@ -249,8 +242,7 @@ class DroneClass(ABC):
         raise NotImplementedError
 
     def set_mode(self, mode: int) -> None:
-        """
-        Default set_mode.
+        """Default set_mode.
 
         By default, mode 0 defines the following setpoint behaviour:
         Mode 0 - [Roll, Pitch, Yaw, Thrust]
@@ -273,8 +265,7 @@ class DroneClass(ABC):
         controller_constructor: type[ControlClass],
         base_mode: int,
     ) -> None:
-        """
-        Default register_controller.
+        """Default register_controller.
 
         Args:
         ----

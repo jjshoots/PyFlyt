@@ -11,8 +11,7 @@ from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 
 
 class FixedwingWaypointsEnv(FixedwingBaseEnv):
-    """
-    Fixedwing Waypoints Environment.
+    """Fixedwing Waypoints Environment.
 
     Actions are roll, pitch, yaw, thrust commands.
     The target is a set of `[x, y, z]` targets in space
@@ -45,8 +44,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -106,8 +104,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[Literal["attitude", "target_deltas"], np.ndarray], dict]:
-        """
-        reset.
+        """reset.
 
         Args:
         ----
@@ -124,8 +121,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         return self.state, self.info
 
     def compute_state(self) -> None:
-        """
-        Computes the state of the current timestep.
+        """Computes the state of the current timestep.
 
         This returns the observation as well as the distances to target.
         - "attitude" (Box)

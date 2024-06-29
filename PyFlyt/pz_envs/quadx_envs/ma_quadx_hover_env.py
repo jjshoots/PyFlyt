@@ -10,8 +10,7 @@ from PyFlyt.pz_envs.quadx_envs.ma_quadx_base_env import MAQuadXBaseEnv
 
 
 class MAQuadXHoverEnv(MAQuadXBaseEnv):
-    """
-    Simple Multiagent Hover Environment.
+    """Simple Multiagent Hover Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
     The target is for each agent to not crash for the longest time possible.
@@ -51,8 +50,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         agent_hz: int = 40,
         render_mode: None | str = None,
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -88,8 +86,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         )
 
     def observation_space(self, agent: Any = None) -> spaces.Space:
-        """
-        observation_space.
+        """observation_space.
 
         Args:
         ----
@@ -105,8 +102,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     def reset(
         self, seed=None, options=dict()
     ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
-        """
-        reset.
+        """reset.
 
         Args:
         ----
@@ -125,8 +121,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         return observations, infos
 
     def compute_observation_by_id(self, agent_id: int) -> np.ndarray:
-        """
-        compute_observation_by_id.
+        """compute_observation_by_id.
 
         Args:
         ----

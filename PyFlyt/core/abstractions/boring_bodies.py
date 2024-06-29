@@ -8,8 +8,7 @@ from pybullet_utils import bullet_client
 
 
 class BoringBodies:
-    """
-    Vectorized implementation of a series of plain bodies affected by aerodynamics.
+    """Vectorized implementation of a series of plain bodies affected by aerodynamics.
 
     The `BoringBodies` component is used to represent a normal body moving through the air.
 
@@ -35,8 +34,7 @@ class BoringBodies:
         drag_coefs: np.ndarray,
         normal_areas: np.ndarray,
     ):
-        """
-        Used for simulating a body moving through the air.
+        """Used for simulating a body moving through the air.
 
         Args:
         ----
@@ -79,8 +77,7 @@ class BoringBodies:
         )
 
     def state_update(self, rotation_matrix: np.ndarray):
-        """
-        Updates the local surface velocity of the boring body.
+        """Updates the local surface velocity of the boring body.
 
         Args:
         ----

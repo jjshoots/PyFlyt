@@ -15,8 +15,7 @@ def loadOBJ(
     basePosition: list[float] | np.ndarray = [0.0, 0.0, 0.0],
     baseOrientation: list[float] | np.ndarray = [0.0, 0.0, 0.0],
 ):
-    """
-    Loads an object into the environment.
+    """Loads an object into the environment.
 
     Args:
     ----
@@ -54,8 +53,7 @@ def obj_visual(
     fileName: str,
     meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
 ):
-    """
-    Loads an object visual model.
+    """Loads an object visual model.
 
     Args:
     ----
@@ -79,8 +77,7 @@ def obj_collision(
     meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
     concave: bool = False,
 ):
-    """
-    Loads an object collision model.
+    """Loads an object collision model.
 
     Args:
     ----

@@ -12,8 +12,7 @@ class MyWindField(WindFieldClass):
     def __init__(
         self, my_parameter=1.0, np_random: None | np.random.RandomState = None
     ):
-        """
-        __init__.
+        """__init__.
 
         Args:
         ----
@@ -25,8 +24,7 @@ class MyWindField(WindFieldClass):
         self.strength = my_parameter
 
     def __call__(self, time: float, position: np.ndarray):
-        """
-        __call__.
+        """__call__.
 
         Args:
         ----
