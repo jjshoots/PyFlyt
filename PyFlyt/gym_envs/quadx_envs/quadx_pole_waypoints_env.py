@@ -37,10 +37,9 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         num_targets: int = 4,
         goal_reach_distance: float = 0.2,
-        goal_reach_angle: float = 0.1,
         flight_mode: int = 0,
-        flight_dome_size: float = 5.0,
-        max_duration_seconds: float = 10.0,
+        flight_dome_size: float = 10.0,
+        max_duration_seconds: float = 60.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
@@ -79,8 +78,9 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             num_targets=num_targets,
             use_yaw_targets=False,
             goal_reach_distance=goal_reach_distance,
-            goal_reach_angle=goal_reach_angle,
+            goal_reach_angle=np.inf,
             flight_dome_size=flight_dome_size,
+            min_height=1.3,
             np_random=self.np_random,
         )
 
@@ -98,10 +98,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         combined_plus_pole_space = spaces.Box(
             low=-np.inf,
             high=np.inf,
-            shape=(
-                self.combined_space.shape[0]
-                + pole_space.shape[0],
-            ),
+            shape=(self.combined_space.shape[0] + pole_space.shape[0],),
             dtype=np.float64,
         )
 
@@ -135,7 +132,9 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             options: None
 
         """
-        super().begin_reset(seed, options, drone_options={"drone_model": "primitive_drone"})
+        super().begin_reset(
+            seed, options, drone_options={"drone_model": "primitive_drone"}
+        )
 
         # spawn in a pole
         self.poleId = self.env.loadURDF(
@@ -166,11 +165,15 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         ----- list of body_frame distances to target (vector of 3/4 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
-        rotation = np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
+        rotation = (
+            np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
+        )
         aux_state = super().compute_auxiliary()
 
         # compute the attitude of the pole in global coords
-        pole_lin_pos, pole_quaternion = self.env.getBasePositionAndOrientation(self.poleId)
+        pole_lin_pos, pole_quaternion = self.env.getBasePositionAndOrientation(
+            self.poleId
+        )
         pole_lin_vel, pole_ang_vel = self.env.getBaseVelocity(self.poleId)
         pole_ang_pos = self.env.getEulerFromQuaternion(pole_quaternion)
 

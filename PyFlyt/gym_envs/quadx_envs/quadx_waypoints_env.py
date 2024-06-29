@@ -85,6 +85,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
             goal_reach_distance=goal_reach_distance,
             goal_reach_angle=goal_reach_angle,
             flight_dome_size=flight_dome_size,
+            min_height=0.1,
             np_random=self.np_random,
         )
 

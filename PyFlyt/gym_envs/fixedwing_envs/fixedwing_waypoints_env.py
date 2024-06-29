@@ -79,6 +79,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             goal_reach_distance=goal_reach_distance,
             goal_reach_angle=np.inf,
             flight_dome_size=flight_dome_size,
+            min_height=0.5,
             np_random=self.np_random,
         )
 
