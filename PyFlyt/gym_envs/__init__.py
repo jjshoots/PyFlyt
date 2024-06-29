@@ -13,12 +13,16 @@ register(
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env:QuadXWaypointsEnv",
 )
 register(
-    id="PyFlyt/QuadX-Pole-Waypoints-v2",
-    entry_point="PyFlyt.gym_envs.quadx_envs.quadx_pole_waypoints_env:QuadXPoleWaypointsEnv",
-)
-register(
     id="PyFlyt/QuadX-Gates-v2",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_gates_env:QuadXGatesEnv",
+)
+register(
+    id="PyFlyt/QuadX-Pole-Balance-v2",
+    entry_point="PyFlyt.gym_envs.quadx_envs.quadx_pole_balance_env:QuadXPoleBalanceEnv",
+)
+register(
+    id="PyFlyt/QuadX-Pole-Waypoints-v2",
+    entry_point="PyFlyt.gym_envs.quadx_envs.quadx_pole_waypoints_env:QuadXPoleWaypointsEnv",
 )
 
 # Fixedwing Envs
