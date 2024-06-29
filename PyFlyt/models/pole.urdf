@@ -6,11 +6,6 @@
   </material>
 
   <link name="base_link">
-    <!-- <collision> -->
-    <!--   <geometry> -->
-    <!--     <box size="0 0 0"/> -->
-    <!--   </geometry> -->
-    <!-- </collision> -->
     <inertial>
       <mass value="0.001"/>
     	<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
@@ -38,6 +33,12 @@
       </geometry>
       <material name="pole_colour"/>
     </visual>
+    <contact>
+      <ode>
+        <mu>1000.0</mu> <!-- Coefficient of friction -->
+        <mu2>1000.0</mu2> <!-- Second friction direction -->
+      </ode>
+    </contact>
   </link>
 
   <joint name="base_to_pole" type="fixed">
