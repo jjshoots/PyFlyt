@@ -95,7 +95,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         - previous_action (vector of 4 values)
         - auxiliary information (vector of 4 values)
         """
-        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
         # combine everything
@@ -105,7 +105,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
             )
         elif self.angle_representation == 1:
             self.state = np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+                [*ang_vel, *quaternion, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
 
     def compute_term_trunc_reward(self) -> None:

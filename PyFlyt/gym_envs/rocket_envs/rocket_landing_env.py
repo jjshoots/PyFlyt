@@ -152,12 +152,12 @@ class RocketLandingEnv(RocketBaseEnv):
             self.ang_pos,
             self.lin_vel,
             lin_pos,
-            quarternion,
+            quaternion,
         ) = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
         # drone to landing pad
-        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
+        rotation = np.array(p.getMatrixFromQuaternion(quaternion)).reshape(3, 3)
         self.distance = lin_pos - self.landing_pad_position
         rotated_distance = np.matmul(self.distance, rotation)
 
@@ -179,7 +179,7 @@ class RocketLandingEnv(RocketBaseEnv):
             self.state = np.array(
                 [
                     *self.ang_vel,
-                    *quarternion,
+                    *quaternion,
                     *self.lin_vel,
                     *lin_pos,
                     *self.action,

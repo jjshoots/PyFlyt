@@ -62,8 +62,26 @@ _WAYPOINT_ENV_CONFIGS.append(
 )
 _WAYPOINT_ENV_CONFIGS.append(
     (
-        "PyFlyt/Fixedwing-Waypoints-v2",
+        "PyFlyt/QuadX-Pole-Waypoints-v2",
         dict(angle_representation="euler", sparse_reward=True),
+    )
+)
+_WAYPOINT_ENV_CONFIGS.append(
+    (
+        "PyFlyt/Fixedwing-Waypoints-v2",
+        dict(angle_representation="quaternion", sparse_reward=True),
+    )
+)
+_WAYPOINT_ENV_CONFIGS.append(
+    (
+        "PyFlyt/QuadX-Pole-Waypoints-v2",
+        dict(angle_representation="euler", sparse_reward=False),
+    )
+)
+_WAYPOINT_ENV_CONFIGS.append(
+    (
+        "PyFlyt/Fixedwing-Waypoints-v2",
+        dict(angle_representation="quaternion", sparse_reward=False),
     )
 )
 _WAYPOINT_ENV_CONFIGS.append(

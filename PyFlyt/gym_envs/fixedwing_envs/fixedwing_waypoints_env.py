@@ -134,7 +134,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         - "target_deltas" (Sequence)
         ----- list of body_frame distances to target (vector of 3/4 values)
         """
-        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
         # combine everything
@@ -145,11 +145,11 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             )
         elif self.angle_representation == 1:
             new_state["attitude"] = np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+                [*ang_vel, *quaternion, *lin_vel, *lin_pos, *self.action, *aux_state]
             )
 
         new_state["target_deltas"] = self.waypoints.distance_to_target(
-            ang_pos, lin_pos, quarternion
+            ang_pos, lin_pos, quaternion
         )
         self.distance_to_immediate = float(
             np.linalg.norm(new_state["target_deltas"][0])

@@ -107,7 +107,7 @@ class WaypointHandler:
         self,
         ang_pos: np.ndarray,
         lin_pos: np.ndarray,
-        quarternion: np.ndarray,
+        quaternion: np.ndarray,
     ):
         """distance_to_target.
 
@@ -115,11 +115,11 @@ class WaypointHandler:
         ----
             ang_pos (np.ndarray): ang_pos
             lin_pos (np.ndarray): lin_pos
-            quarternion (np.ndarray): quarternion
+            quaternion (np.ndarray): quaternion
 
         """
         # rotation matrix
-        rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
+        rotation = np.array(self.p.getMatrixFromQuaternion(quaternion)).reshape(3, 3)
 
         # drone to target
         target_deltas = np.matmul((self.targets - lin_pos), rotation)

@@ -1,6 +1,7 @@
 """QuadX Waypoints Environment."""
 from __future__ import annotations
 
+import os
 from typing import Any, Literal
 
 import numpy as np
@@ -10,19 +11,17 @@ from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 
 
-class QuadXWaypointsEnv(QuadXBaseEnv):
-    """QuadX Waypoints Environment.
+class QuadXPoleWaypointsEnv(QuadXBaseEnv):
+    """QuadX Pole Waypoints Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The target is a set of `[x, y, z, (optional) yaw]` waypoints in space.
+    The target is to get the tip of a pole to a set of `[x, y, z]` waypoints in space.
 
     Args:
     ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
-        use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
-        goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
         flight_mode (int): the flight mode of the UAV.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
@@ -37,7 +36,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         self,
         sparse_reward: bool = False,
         num_targets: int = 4,
-        use_yaw_targets: bool = False,
         goal_reach_distance: float = 0.2,
         goal_reach_angle: float = 0.1,
         flight_mode: int = 0,
@@ -54,9 +52,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
-            use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
-            goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
             flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
@@ -81,22 +77,43 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         self.waypoints = WaypointHandler(
             enable_render=self.render_mode is not None,
             num_targets=num_targets,
-            use_yaw_targets=use_yaw_targets,
+            use_yaw_targets=False,
             goal_reach_distance=goal_reach_distance,
             goal_reach_angle=goal_reach_angle,
             flight_dome_size=flight_dome_size,
             np_random=self.np_random,
         )
 
+        # the pole urdf
+        file_dir = os.path.dirname(os.path.realpath(__file__))
+        self.pole_obj_dir = os.path.join(file_dir, "../../models/pole.urdf")
+
+        # modify the state to take into account the pole's state
+        pole_space = spaces.Box(
+            low=-np.inf,
+            high=np.inf,
+            shape=(self.attitude_space.shape[0],),
+            dtype=np.float64,
+        )
+        combined_plus_pole_space = spaces.Box(
+            low=-np.inf,
+            high=np.inf,
+            shape=(
+                self.combined_space.shape[0]
+                + pole_space.shape[0],
+            ),
+            dtype=np.float64,
+        )
+
         # Define observation space
         self.observation_space = spaces.Dict(
             {
-                "attitude": self.combined_space,
+                "attitude": combined_plus_pole_space,
                 "target_deltas": spaces.Sequence(
                     space=spaces.Box(
                         low=-2 * flight_dome_size,
                         high=2 * flight_dome_size,
-                        shape=(4,) if use_yaw_targets else (3,),
+                        shape=(3,),
                         dtype=np.float64,
                     ),
                     stack=True,
@@ -118,7 +135,15 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
             options: None
 
         """
-        super().begin_reset(seed, options)
+        super().begin_reset(seed, options, drone_options={"drone_model": "primitive_drone"})
+
+        # spawn in a pole
+        self.poleId = self.env.loadURDF(
+            self.pole_obj_dir,
+            basePosition=np.array([0.0, 0.0, 2.1]),
+            useFixedBase=False,
+        )
+
         self.waypoints.reset(self.env, self.np_random)
         self.info["num_targets_reached"] = 0
         self.distance_to_immediate = np.inf
@@ -141,21 +166,60 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         ----- list of body_frame distances to target (vector of 3/4 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
+        rotation = np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
         aux_state = super().compute_auxiliary()
+
+        # compute the attitude of the pole in global coords
+        pole_lin_pos, pole_quaternion = self.env.getBasePositionAndOrientation(self.poleId)
+        pole_lin_vel, pole_ang_vel = self.env.getBaseVelocity(self.poleId)
+        pole_ang_pos = self.env.getEulerFromQuaternion(pole_quaternion)
+
+        # express everything relative to self
+        # positions are global, hence the subtract
+        rel_pole_lin_pos = np.matmul(rotation, (pole_lin_pos - lin_pos))
+        rel_pole_ang_pos = np.matmul(rotation, (pole_ang_pos - ang_pos))
+        # velocities of self are already rotated, pole isn't
+        rel_pole_lin_vel = np.matmul(rotation, pole_lin_vel) - lin_vel
+        rel_pole_ang_vel = np.matmul(rotation, pole_ang_vel) - ang_vel
+
+        # regenerate the quaternion
+        rel_pole_quaternion = self.env.getQuaternionFromEuler(rel_pole_ang_pos)
 
         # combine everything
         new_state: dict[Literal["attitude", "target_deltas"], np.ndarray] = dict()
         if self.angle_representation == 0:
             new_state["attitude"] = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
+                [
+                    *ang_vel,
+                    *ang_pos,
+                    *lin_vel,
+                    *lin_pos,
+                    *self.action,
+                    *aux_state,
+                    *rel_pole_ang_vel,
+                    *rel_pole_ang_pos,
+                    *rel_pole_lin_vel,
+                    *rel_pole_lin_pos,
+                ]
             )
         elif self.angle_representation == 1:
             new_state["attitude"] = np.array(
-                [*ang_vel, *quaternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+                [
+                    *ang_vel,
+                    *quaternion,
+                    *lin_vel,
+                    *lin_pos,
+                    *self.action,
+                    *aux_state,
+                    *rel_pole_ang_vel,
+                    *rel_pole_quaternion,
+                    *rel_pole_lin_vel,
+                    *rel_pole_lin_pos,
+                ]
             )
 
         new_state["target_deltas"] = self.waypoints.distance_to_target(
-            ang_pos, lin_pos, quaternion
+            pole_ang_pos, pole_lin_pos, pole_quaternion
         )
         self.distance_to_immediate = float(
             np.linalg.norm(new_state["target_deltas"][0])
