@@ -17,6 +17,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
     The target is a set of `[x, y, z]` targets in space
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -27,6 +28,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution
+
     """
 
     def __init__(
@@ -45,6 +47,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """__init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -55,6 +58,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
+
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 10.0]]),
@@ -103,8 +107,10 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """reset.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         super().begin_reset(seed, options)
         self.waypoints.reset(self.env, self.np_random)

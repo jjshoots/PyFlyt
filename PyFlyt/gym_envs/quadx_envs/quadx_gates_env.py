@@ -23,6 +23,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
     Reward is -(distance from waypoint + angle error) for each timestep, and -100.0 for hitting the ground.
 
     Args:
+    ----
         flight_mode (int): the flight mode of the UAV
         num_targets (int): num_targets
         goal_reach_distance (float): goal_reach_distance
@@ -36,6 +37,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution
+
     """
 
     def __init__(
@@ -57,6 +59,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+        ----
             flight_mode (int): the flight mode of the UAV
             num_targets (int): num_targets
             goal_reach_distance (float): goal_reach_distance
@@ -70,6 +73,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
+
         """
         super().__init__(
             flight_mode=flight_mode,
@@ -118,8 +122,10 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         aviary_options = dict()
         aviary_options["use_camera"] = True
@@ -200,7 +206,9 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """Colours the gates that are done.
 
         Args:
+        ----
             gate (int): body ID of the gate
+
         """
         # colour the dead gates red
         for i in range(p.getNumJoints(gate)):

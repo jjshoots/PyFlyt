@@ -33,6 +33,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         """__init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -41,6 +42,7 @@ class MAQuadXBaseEnv(ParallelEnv):
             angle_representation (str): angle_representation
             agent_hz (int): agent_hz
             render_mode (None | str): render_mode
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -152,10 +154,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """observation_space.
 
         Args:
-            agent:
+        ----
+            agent (Any): agent
 
         Returns:
+        -------
             Space:
+
         """
         raise NotImplementedError
 
@@ -163,10 +168,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """action_space.
 
         Args:
-            agent:
+        ----
+            agent (Any): agent
 
         Returns:
+        -------
             spaces.Box:
+
         """
         return self._action_space
 
@@ -181,11 +189,14 @@ class MAQuadXBaseEnv(ParallelEnv):
         """reset.
 
         Args:
-            seed:
-            options:
+        ----
+            seed (None | int): seed
+            options (None | dict[str, Any]): options
 
         Returns:
-            tuple[dict[str, Any], dict[str, Any]]: observation and infos
+        -------
+            tuple[dict[str, Any], dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -195,7 +206,19 @@ class MAQuadXBaseEnv(ParallelEnv):
         options: None | dict[str, Any] = dict(),
         drone_options: None | dict[str, Any] | Sequence[dict[str, Any]] = dict(),
     ) -> None:
-        """The first half of the reset function."""
+        """The first half of the reset function.
+
+        Args:
+        ----
+            seed (None | int): seed
+            options (None | dict[str, Any]): options
+            drone_options (None | dict[str, Any] | Sequence[dict[str, Any]]): drone_options
+
+        Returns:
+        -------
+            None:
+
+        """
         # if we already have an env, disconnect from it
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
@@ -259,10 +282,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Any:
+
         """
         raise NotImplementedError
 
@@ -299,10 +325,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """compute_term_trunc_reward_info_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Tuple[bool, bool, float, dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -318,10 +347,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """step.
 
         Args:
+        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
+
         """
         # copy over the past actions
         self.past_actions = deepcopy(self.current_actions)

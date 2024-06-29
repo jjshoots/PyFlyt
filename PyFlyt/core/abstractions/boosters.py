@@ -16,6 +16,7 @@ class Boosters:
     Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -31,6 +32,7 @@ class Boosters:
         thrust_unit (np.ndarray): an `(n, 3)` array representing the unit vector pointing in the direction of force for each booster, relative to the booster link's body frame.
         reignitable (np.ndarray | list[bool]): a list of booleans representing whether the booster can be extinguished and then reignited.
         noise_ratio (np.ndarray): a list of floats representing the percent amount of fluctuation present in each booster.
+
     """
 
     def __init__(
@@ -54,6 +56,7 @@ class Boosters:
         """Used for simulating an array of boosters.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -69,6 +72,7 @@ class Boosters:
             thrust_unit (np.ndarray): an `(n, 3)` array representing the unit vector pointing in the direction of force for each booster, relative to the booster link's body frame.
             reignitable (np.ndarray | list[bool]): a list of booleans representing whether the booster can be extinguished and then reignited.
             noise_ratio (np.ndarray): a list of floats representing the percent amount of fluctuation present in each booster.
+
         """
         self.p = p
         self.physics_period = physics_period
@@ -118,7 +122,9 @@ class Boosters:
         """Reset the boosters.
 
         Args:
+        ----
             starting_fuel_ratio (float | np.ndarray): ratio amount of fuel that the booster is reset to.
+
         """
         # deal with everything in percents
         self.ratio_fuel_remaining = (
@@ -135,8 +141,10 @@ class Boosters:
         - (b0, b1, ..., bn) represent the remaining fuel ratio
         - (c0, c1, ..., cn) represent the current throttle state
 
-        Returns:
+        Returns
+        -------
             np.ndarray: A (3 * num_boosters, ) array
+
         """
         return np.concatenate(
             [
@@ -156,9 +164,11 @@ class Boosters:
         """Converts booster settings into forces on the booster and inertia change on fuel tank.
 
         Args:
+        ----
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
             pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
             rotation (np.ndarray): (num_boosters, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
+
         """
         assert np.all(ignition >= 0.0) and np.all(
             ignition <= 1.0
@@ -214,8 +224,10 @@ class Boosters:
         """_compute_thrust_mass_inertia.
 
         Args:
+        ----
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
             pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
+
         """
         # if not reignitable, logical or ignition_state with ignition
         # otherwise, just follow ignition

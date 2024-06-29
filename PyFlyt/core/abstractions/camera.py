@@ -19,6 +19,7 @@ class Camera:
     On image capture, the camera returns an RGBA image, a depth map, and a segmentation map with pixel values representing the IDs of objects in the environment.
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         uav_id (int): ID of the drone.
         camera_id (int): integer representing the ID of the link that the camera is attached to.
@@ -29,6 +30,7 @@ class Camera:
         camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`.
         is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity.
         cinematic (bool = False): it's not a bug, it's a feature.
+
     """
 
     def __init__(
@@ -47,6 +49,7 @@ class Camera:
         """Used for implementing camera modules.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             uav_id (int): ID of the drone.
             camera_id (int): integer representing the ID of the link that the camera is attached to.
@@ -57,6 +60,7 @@ class Camera:
             camera_position_offset (np.ndarray = np.array([0.0, 0.0, 0.0])): an (3,) array representing an offset of where the camera is from the center of the link in `camera_id`.
             is_tracking_camera (bool = False): if the camera is a tracking camera, the focus point of the camera is adjusted to focus on the center body of the aircraft instead of at infinity.
             cinematic (bool = False): it's not a bug, it's a feature.
+
         """
         check_numpy()
         if is_tracking_camera and use_gimbal:
@@ -96,8 +100,10 @@ class Camera:
     def view_mat(self) -> np.ndarray:
         """Generates the view matrix for the camera depending on the current orientation and implicit parameters.
 
-        Returns:
+        Returns
+        -------
             np.ndarray: view matrix.
+
         """
         # get the state of the camera on the robot
         camera_state = self.p.getLinkState(self.uav_id, self.camera_id)
@@ -155,8 +161,10 @@ class Camera:
     def capture_image(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Captures the 3 relevant images from the camera.
 
-        Returns:
+        Returns
+        -------
             tuple[np.ndarray, np.ndarray, np.ndarray]: rgbaImg, depthImg, segImg
+
         """
         _, _, rgbaImg, depthImg, segImg = self.p.getCameraImage(
             height=self.camera_resolution[0],

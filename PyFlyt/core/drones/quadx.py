@@ -38,6 +38,7 @@ class QuadX(DroneClass):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
+        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -52,6 +53,7 @@ class QuadX(DroneClass):
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
             camera_fps (None | int): camera_fps
+
         """
         super().__init__(
             p=p,
@@ -248,7 +250,9 @@ class QuadX(DroneClass):
             - T = thrust
 
         Args:
+        ----
             mode (int): flight mode
+
         """
         if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
             raise ValueError(
@@ -375,9 +379,11 @@ class QuadX(DroneClass):
         """Registers a new controller for the UAV.
 
         Args:
+        ----
             controller_id (int): controller_id
             controller_constructor (type[ControlClass]): controller_constructor
             base_mode (int): base_mode
+
         """
         if controller_id <= 7:
             raise ValueError(
@@ -395,7 +401,9 @@ class QuadX(DroneClass):
         """Runs through controllers.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         # skip control if we don't have enough physics steps
         if physics_step % self.physics_control_ratio != 0:
@@ -530,7 +538,9 @@ class QuadX(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

@@ -32,6 +32,7 @@ class RocketBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             drone_type (str): drone_type
@@ -43,6 +44,7 @@ class RocketBaseEnv(gymnasium.Env):
             agent_hz (int): agent_hz
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -134,8 +136,10 @@ class RocketBaseEnv(gymnasium.Env):
         """Resets the environment.
 
         Args:
+        ----
             seed: int
             options: None
+
         """
         raise NotImplementedError
 
@@ -278,7 +282,9 @@ class RocketBaseEnv(gymnasium.Env):
         """compute_base_term_trunc_reward.
 
         Args:
+        ----
             collision_ignore_mask (np.ndarray | list[int]): list of ids to ignore collisions between
+
         """
         # exceed step count
         if self.step_count > self.max_steps:
@@ -309,10 +315,13 @@ class RocketBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
+        ----
             action (np.ndarray): action
 
         Returns:
+        -------
             state, reward, termination, truncation, info
+
         """
         # unsqueeze the action to be usable in aviary
         self.action = action.copy()

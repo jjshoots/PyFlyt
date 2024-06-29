@@ -18,6 +18,7 @@ class DroneClass(ABC):
     Each drone inheriting from this class must have several attributes and methods implemented before they can be considered usable.
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         start_pos (np.ndarray): an `(3,)` array for the starting X, Y, Z position for the drone.
         start_orn (np.ndarray): an `(3,)` array for the starting X, Y, Z orientation for the drone.
@@ -64,6 +65,7 @@ class DroneClass(ABC):
         >>>     self.use_camera = use_camera
         >>>     if self.use_camera:
         >>>         self.camera = Camera(...)
+
     """
 
     def __init__(
@@ -80,6 +82,7 @@ class DroneClass(ABC):
         """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             start_pos (np.ndarray): an `(3,)` array for the starting X, Y, Z position for the drone.
             start_orn (np.ndarray): an `(3,)` array for the starting X, Y, Z orientation for the drone.
@@ -88,6 +91,7 @@ class DroneClass(ABC):
             drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
             model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
             np_random (None | np.random.RandomState = None): random number generator of the simulation.
+
         """
         if physics_hz % control_hz != 0:
             raise ValueError(
@@ -264,9 +268,11 @@ class DroneClass(ABC):
         """Default register_controller.
 
         Args:
+        ----
             controller_id (int): ID to bind to this controller
             controller_constructor (type[ControlClass]): A class pointer to the controller implementation, must be subclass of `ControlClass`.
             base_mode (int): Whether this controller uses outputs of an underlying controller as setpoints.
+
         """
         if controller_id <= 0:
             raise ValueError(

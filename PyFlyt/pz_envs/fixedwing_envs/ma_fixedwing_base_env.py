@@ -29,6 +29,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """__init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             assisted_flight (bool): assisted_flight
@@ -37,6 +38,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
             angle_representation (str): angle_representation
             agent_hz (int): agent_hz
             render_mode (None | str): render_mode
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -132,16 +134,20 @@ class MAFixedwingBaseEnv(ParallelEnv):
     def observation_space(self, agent: Any = None) -> Space:
         """observation_space.
 
-        Returns:
+        Returns
+        -------
             Space:
+
         """
         raise NotImplementedError
 
     def action_space(self, agent: Any = None) -> spaces.Box:
         """action_space.
 
-        Returns:
+        Returns
+        -------
             spaces.Box:
+
         """
         return self._action_space
 
@@ -156,11 +162,14 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """reset.
 
         Args:
+        ----
             seed (None | int): seed
             options (dict | None): options
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -252,10 +261,13 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Any:
+
         """
         raise NotImplementedError
 
@@ -289,10 +301,13 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """compute_term_trunc_reward_info_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Tuple[bool, bool, float, dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -308,10 +323,13 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """step.
 
         Args:
+        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
+
         """
         # copy over the past actions
         self.past_actions = deepcopy(self.current_actions)

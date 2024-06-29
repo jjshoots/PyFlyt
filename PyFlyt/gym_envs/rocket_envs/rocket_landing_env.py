@@ -18,6 +18,7 @@ class RocketLandingEnv(RocketBaseEnv):
     The goal is to land the rocket on the landing pad.
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         ceiling (float): the absolute ceiling of the flying area.
         max_displacement (float): the maximum horizontal distance the rocket can go.
@@ -26,6 +27,7 @@ class RocketLandingEnv(RocketBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
+
     """
 
     def __init__(
@@ -42,6 +44,7 @@ class RocketLandingEnv(RocketBaseEnv):
         """__init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             ceiling (float): the absolute ceiling of the flying area.
             max_displacement (float): the maximum horizontal distance the rocket can go.
@@ -50,6 +53,7 @@ class RocketLandingEnv(RocketBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
+
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, ceiling * 0.9]]),
@@ -89,8 +93,10 @@ class RocketLandingEnv(RocketBaseEnv):
         """Resets the environment.
 
         Args:
+        ----
             seed: int
             options: None
+
         """
         if options is None:
             options = dict(randomize_drop=True, accelerate_drop=True)

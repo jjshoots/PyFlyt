@@ -31,6 +31,7 @@ class PID:
         Because of this, all arguments passed into this function, except `period`, must be a 1D np array and have the same shape.
 
         Example:
+        -------
             Invalid implementation:
             >>> controller = PID(0.5, 0.4, 0.3, 1.0, 0.01)
             >>> controller.step(5.0, 2.0)
@@ -44,11 +45,13 @@ class PID:
             >>> controller.step(np.array([5.0]), np.array([2.0]))
 
         Args:
+        ----
             kp (np.ndarray): kp
             ki (np.ndarray): ki
             kd (np.ndarray): kd
             limits (np.ndarray): limits
             period (float): period
+
         """
         self.kp = kp
         self.ki = ki
@@ -69,11 +72,14 @@ class PID:
         """Steps the PID controller.
 
         Args:
+        ----
             state (np.ndarray): the state of the system, must be same shape as controller parameters.
             setpoint (np.ndarray): the setpoint of the system, must be same shape as controller parameters.
 
         Returns:
+        -------
             np.ndarray:
+
         """
         error = setpoint - state
 

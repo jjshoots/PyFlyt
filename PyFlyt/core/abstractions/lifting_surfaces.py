@@ -16,14 +16,18 @@ class LiftingSurfaces:
     Simply pass it a list of `LiftingSurface` objects.
 
     Args:
+    ----
         lifting_surfaces (list[LiftingSurface]): a list of `LiftingSurface` objects.
+
     """
 
     def __init__(self, lifting_surfaces: list[LiftingSurface]):
         """__init__.
 
         Args:
+        ----
             lifting_surfaces (list[LiftingSurface]): a list of `LiftingSurface` objects.
+
         """
         # assert all is lifting surfaces
         assert all(
@@ -43,8 +47,10 @@ class LiftingSurfaces:
     def get_states(self) -> np.ndarray:
         """Gets the current state of the components.
 
-        Returns:
+        Returns
+        -------
             np.ndarray: a (num_surfaces, ) array representing the actuation state for each surface
+
         """
         return np.array([surface.actuation for surface in self.surfaces])
 
@@ -52,7 +58,9 @@ class LiftingSurfaces:
         """Converts actuation commands into forces on the lifting surfaces.
 
         Args:
+        ----
             cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface, normalized in [-1, 1].
+
         """
         assert len(cmd.shape) == 1, f"`{cmd=}` must be 1D array."
         assert (
@@ -69,7 +77,9 @@ class LiftingSurfaces:
         """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
+        ----
             rotation_matrix (np.ndarray): (3, 3) OR (num_surfaces, 3, 3) array rotation_matrix
+
         """
         # get all the states for all the surfaces
         link_states = self.p.getLinkStates(
@@ -110,6 +120,7 @@ class LiftingSurface:
     The `Lifting Surface` component is used to simulate a single lifting surface based on "Real-time modeling of agile fixed-wing uav aerodynamics, Khan et. al.".
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -128,6 +139,7 @@ class LiftingSurface:
         Cd_0 (float): drag coefficient at zero angle-of-attack.
         deflection_limit (float): maximum deflection limit of the actuated flap in degrees.
         tau (float): actuation ramp time constant.
+
     """
 
     def __init__(
@@ -154,6 +166,7 @@ class LiftingSurface:
         """Used for simulating a single lifting surface.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -172,6 +185,7 @@ class LiftingSurface:
             Cd_0 (float): drag coefficient at zero angle-of-attack.
             deflection_limit (float): maximum deflection limit of the actuated flap in degrees.
             tau (float): actuation ramp time constant.
+
         """
         self.p = p
         self.physics_period = physics_period
@@ -240,8 +254,10 @@ class LiftingSurface:
     def get_states(self) -> float:
         """Gets the current state of the components.
 
-        Returns:
+        Returns
+        -------
             float: the level of deflection of the surface.
+
         """
         return self.actuation
 
@@ -249,7 +265,9 @@ class LiftingSurface:
         """Updates the local surface velocity of the lifting surface.
 
         Args:
+        ----
             surface_velocity (np.ndarray): surface_velocity.
+
         """
         self.local_surface_velocity = surface_velocity
 
@@ -257,10 +275,13 @@ class LiftingSurface:
         """Converts a commanded actuation state into forces on the lifting surface.
 
         Args:
+        ----
             cmd (float): normalized actuation in [-1, 1].
 
         Returns:
+        -------
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
+
         """
         # model the deflection using first order ODE, y' = T/tau * (setpoint - y)
         self.actuation += (self.physics_period / self.cmd_tau) * (cmd - self.actuation)
@@ -320,12 +341,15 @@ class LiftingSurface:
         """Computes the angle of attack (alpha) as well as the freestream speed.
 
         Args:
+        ----
             local_surface_velocity (np.ndarray): local_surface_velocity from self
             lift_unit (np.ndarray): lift_unit from self
             drag_unit (np.ndarray): drag_unit from self
 
         Returns:
+        -------
             tuple[float, float]:
+
         """
         freestream_speed = np.linalg.norm(local_surface_velocity).item()
         lifting_airspeed = np.dot(local_surface_velocity, lift_unit)
@@ -353,6 +377,7 @@ class LiftingSurface:
         """Computes the relevant aerodynamic data depending on the current state of the lifting surface.
 
         Args:
+        ----
             alpha (float): alpha
             aspect (float): aspect from self
             flap_to_chord (float): flap_to_chord from self
@@ -367,7 +392,9 @@ class LiftingSurface:
             Cd_0 (float): Cd_0 from self
 
         Returns:
+        -------
             tuple[float, float, float]:
+
         """
         # deflection must be in degrees because engineering uses degrees
         deflection_radians = np.deg2rad(actuation * deflection_limit)
@@ -452,6 +479,7 @@ class LiftingSurface:
         """Compute the force and torque vectors on the surface.
 
         Args:
+        ----
             alpha (float): alpha
             freestream_speed (float): freestream_speed
             Cl (float): Cl
@@ -465,7 +493,9 @@ class LiftingSurface:
             torque_unit (np.ndarray): torque_unit from self
 
         Returns:
+        -------
             tuple[np.ndarray, np.ndarray]:
+
         """
         # compute dynamic pressure
         Q = half_rho * np.square(freestream_speed)

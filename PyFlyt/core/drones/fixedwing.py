@@ -36,6 +36,7 @@ class Fixedwing(DroneClass):
         """Creates a Fixedwing UAV and handles all relevant control and physics.
 
         Args:
+        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -52,6 +53,7 @@ class Fixedwing(DroneClass):
             camera_position_offset (np.ndarray): offset position of the camera
             camera_fps (None | int): camera_fps
             starting_velocity (np.ndarray): vector representing the velocity at spawn
+
         """
         super().__init__(
             p=p,
@@ -209,7 +211,9 @@ class Fixedwing(DroneClass):
             - 0: Pitch, Roll, Yaw, Thrust
 
         Args:
+        ----
             mode (int): flight mode
+
         """
         if (mode < -1 or mode > 0) and mode not in self.registered_controllers.keys():
             raise ValueError(
@@ -227,7 +231,9 @@ class Fixedwing(DroneClass):
         """Runs through controllers.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         # skip control if we don't have enough physics steps
         if physics_step % self.physics_control_ratio != 0:
@@ -290,7 +296,9 @@ class Fixedwing(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

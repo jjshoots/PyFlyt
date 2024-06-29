@@ -13,6 +13,7 @@ class BoringBodies:
     The `BoringBodies` component is used to represent a normal body moving through the air.
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -20,6 +21,7 @@ class BoringBodies:
         body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
         drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.
         normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions.
+
     """
 
     def __init__(
@@ -35,6 +37,7 @@ class BoringBodies:
         """Used for simulating a body moving through the air.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -42,6 +45,7 @@ class BoringBodies:
             body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
             drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.
             normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions.
+
         """
         self.p = p
         self.physics_period = physics_period
@@ -76,7 +80,9 @@ class BoringBodies:
         """Updates the local surface velocity of the boring body.
 
         Args:
+        ----
             rotation_matrix (np.ndarray): (3, 3) rotation_matrix of the main body
+
         """
         # get all the states for all the bodies
         link_states = self.p.getLinkStates(

@@ -17,6 +17,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
     The target is a set of `[x, y, z, (optional) yaw]` waypoints in space.
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
@@ -29,6 +30,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
+
     """
 
     def __init__(
@@ -49,6 +51,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
@@ -61,6 +64,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
+
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, 1.0]]),
@@ -109,8 +113,10 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         super().begin_reset(seed, options)
         self.waypoints.reset(self.env, self.np_random)

@@ -15,6 +15,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
     The target is to not crash for the longest time possible.
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
@@ -23,6 +24,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
+
     """
 
     def __init__(
@@ -39,6 +41,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             flight_mode (int): the flight mode of the UAV
             flight_dome_size (float): size of the allowable flying area.
@@ -47,6 +50,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
+
         """
         super().__init__(
             flight_mode=flight_mode,
@@ -70,8 +74,10 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """reset.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         super().begin_reset(seed, options)
         super().end_reset(seed, options)

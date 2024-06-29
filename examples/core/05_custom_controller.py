@@ -20,8 +20,10 @@ class CustomController(ControlClass):
         """Step the controller here.
 
         Args:
+        ----
             state (np.ndarray): Current state of the UAV
             setpoint (np.ndarray): Desired setpoint
+
         """
         # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.5
         target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]

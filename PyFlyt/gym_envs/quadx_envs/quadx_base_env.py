@@ -32,6 +32,7 @@ class QuadXBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -41,6 +42,7 @@ class QuadXBaseEnv(gymnasium.Env):
             agent_hz (int): agent_hz
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -129,11 +131,14 @@ class QuadXBaseEnv(gymnasium.Env):
         """reset.
 
         Args:
+        ----
             seed (None | int): seed
             options (dict[str, Any]): options
 
         Returns:
+        -------
             tuple[Any, dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -261,10 +266,13 @@ class QuadXBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
+        ----
             action (np.ndarray): action
 
         Returns:
+        -------
             state, reward, termination, truncation, info
+
         """
         # unsqueeze the action to be usable in aviary
         self.action = action.copy()

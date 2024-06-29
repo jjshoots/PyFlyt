@@ -17,7 +17,9 @@ class ControlClass(ABC):
         """Step the controller.
 
         Args:
+        ----
             state (np.ndarray): state
             setpoint (np.ndarray): setpoint
+
         """
         pass

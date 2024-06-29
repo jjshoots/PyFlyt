@@ -16,6 +16,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     The target is for each agent to not crash for the longest time possible.
 
     Args:
+    ----
         start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
         start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
         sparse_reward (bool): whether to use sparse rewards or not.
@@ -25,6 +26,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         angle_representation (str): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None.
+
     """
 
     metadata = {
@@ -51,6 +53,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """__init__.
 
         Args:
+        ----
             start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
             start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
             sparse_reward (bool): whether to use sparse rewards or not.
@@ -60,6 +63,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             angle_representation (str): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None.
+
         """
         super().__init__(
             start_pos=start_pos,
@@ -85,7 +89,13 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """observation_space.
 
         Args:
-            _:
+        ----
+            agent (Any): agent
+
+        Returns:
+        -------
+            spaces.Space:
+
         """
         return self._observation_space
 
@@ -95,8 +105,10 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """reset.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         super().begin_reset(seed, options)
         super().end_reset(seed, options)
@@ -112,10 +124,13 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             np.ndarray:
+
         """
         # get all the relevant things
         raw_state = self.compute_attitude_by_id(agent_id)

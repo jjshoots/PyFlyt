@@ -15,8 +15,10 @@ class MyWindField(WindFieldClass):
         """__init__.
 
         Args:
+        ----
             my_parameter: supports an arbitrary number of parameters
             np_random (None | np.random.RandomState): np random state
+
         """
         super().__init__(np_random)
         self.strength = my_parameter
@@ -25,8 +27,10 @@ class MyWindField(WindFieldClass):
         """__call__.
 
         Args:
+        ----
             time (float): time
             position (np.ndarray): position as an (n, 3) array
+
         """
         wind = np.zeros_like(position)
         wind[:, -1] = np.exp(position[:, -1]) * self.strength
