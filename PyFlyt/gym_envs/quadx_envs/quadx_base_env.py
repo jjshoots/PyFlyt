@@ -250,11 +250,11 @@ class QuadXBaseEnv(gymnasium.Env):
         if self.step_count > self.max_steps:
             self.truncation |= True
 
-        # # if anything hits the floor, basically game over
-        # if np.any(self.env.contact_array[self.env.planeId]):
-        #     self.reward = -100.0
-        #     self.info["collision"] = True
-        #     self.termination |= True
+        # if anything hits the floor, basically game over
+        if np.any(self.env.contact_array[self.env.planeId]):
+            self.reward = -100.0
+            self.info["collision"] = True
+            self.termination |= True
 
         # exceed flight dome
         if np.linalg.norm(self.env.state(0)[-1]) > self.flight_dome_size:

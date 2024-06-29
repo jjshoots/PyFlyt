@@ -163,30 +163,32 @@ class RocketLandingEnv(RocketBaseEnv):
 
         # combine everything
         if self.angle_representation == 0:
-            self.state = np.array(
+            self.state = np.concatenate(
                 [
-                    *self.ang_vel,
-                    *self.ang_pos,
-                    *self.lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    self.landing_pad_contact,
-                    *rotated_distance,
-                ]
+                    self.ang_vel,
+                    self.ang_pos,
+                    self.lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    np.array([self.landing_pad_contact]),
+                    rotated_distance,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            self.state = np.array(
+            self.state = np.concatenate(
                 [
-                    *self.ang_vel,
-                    *quaternion,
-                    *self.lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    self.landing_pad_contact,
-                    *rotated_distance,
-                ]
+                    self.ang_vel,
+                    quaternion,
+                    self.lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    np.array([self.landing_pad_contact]),
+                    rotated_distance,
+                ],
+                axis=-1,
             )
 
     def compute_term_trunc_reward(self) -> None:

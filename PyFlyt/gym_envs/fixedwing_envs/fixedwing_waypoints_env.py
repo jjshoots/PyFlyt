@@ -141,12 +141,28 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         # combine everything
         new_state: dict[Literal["attitude", "target_deltas"], np.ndarray] = dict()
         if self.angle_representation == 0:
-            new_state["attitude"] = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
+            new_state["attitude"] = np.concatenate(
+                [
+                    ang_vel,
+                    ang_pos,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            new_state["attitude"] = np.array(
-                [*ang_vel, *quaternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+            new_state["attitude"] = np.concatenate(
+                [
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                ],
+                axis=-1,
             )
 
         new_state["target_deltas"] = self.waypoints.distance_to_target(

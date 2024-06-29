@@ -1,8 +1,8 @@
 """QuadX Hover Environment."""
 from __future__ import annotations
 
-from typing import Any, Literal
 import os
+from typing import Any, Literal
 
 import numpy as np
 from gymnasium import spaces
@@ -75,7 +75,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         pole_space = spaces.Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.attitude_space.shape[0],),
+            shape=(12,),
             dtype=np.float64,
         )
 
@@ -110,7 +110,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         # spawn in a pole and make it have enough friction
         self.poleId = self.env.loadURDF(
             self.pole_obj_dir,
-            basePosition=np.array([0.0, 0.0, 2.1]),
+            basePosition=np.array([0.0, 0.0, 1.55]),
             useFixedBase=False,
         )
         self.env.changeDynamics(
@@ -120,7 +120,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
             restitution=0.01,
         )
 
-        self.pole_uprightness = 0.0
+        self.pole_leaningness = 0.0
         super().end_reset(seed, options)
 
         return self.state, self.info
@@ -144,54 +144,67 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         aux_state = super().compute_auxiliary()
 
         # we measure the top and bottom linear position and velocity of the pole
-        pole_top_pos = self.env.getLinkState(self.poleId, linkIndex=-1, computeLinkVelocity=True)
-        pole_bot_pos = self.env.getLinkState(self.poleId, linkIndex=1, computeLinkVelocity=True)
-
         # compute the attitude of the pole in global coords
         pole_lin_pos, pole_quaternion = self.env.getBasePositionAndOrientation(
             self.poleId
         )
         pole_lin_vel, pole_ang_vel = self.env.getBaseVelocity(self.poleId)
-        pole_ang_pos = self.env.getEulerFromQuaternion(pole_quaternion)
-        self.pole_uprightness = np.linalg.norm(pole_ang_pos[:2])
 
-        # positions of both self and pole are global, so subtract then rotate
-        rel_pole_lin_pos = np.matmul(rotation, (pole_lin_pos - lin_pos))
+        pole_top_pos, *_, pole_top_vel, _ = self.env.getLinkState(
+            self.poleId, linkIndex=0, computeLinkVelocity=True
+        )
+        pole_bot_pos, *_, pole_bot_vel, _ = self.env.getLinkState(
+            self.poleId, linkIndex=1, computeLinkVelocity=True
+        )
+        pole_top_pos = np.array(pole_top_pos)
+        pole_top_vel = np.array(pole_top_vel)
+        pole_bot_pos = np.array(pole_bot_pos)
+        pole_bot_vel = np.array(pole_bot_vel)
 
-        # velocities of self are already rotated but pole isn't, so rotate then subtract
-        rel_pole_lin_vel = np.matmul(rotation, pole_lin_vel) - lin_vel
+        # compute the uprightness of the pole
+        if pole_top_pos[-1] > pole_bot_pos[-1]:
+            self.pole_leaningness = np.linalg.norm(pole_top_pos[:2] - pole_bot_pos[:2])
+        else:
+            self.pole_leaningness = 1.0
+
+        # get everything relative to self
+        pole_top_pos = np.matmul(rotation, (pole_top_pos - lin_pos))
+        pole_bot_pos = np.matmul(rotation, (pole_bot_pos - lin_pos))
+        pole_top_vel = np.matmul(rotation, pole_top_vel) - lin_vel
+        pole_bot_vel = np.matmul(rotation, pole_bot_vel) - lin_vel
 
         # combine everything
         if self.angle_representation == 0:
-            self.state = np.array(
+            self.state = np.concatenate(
                 [
-                    *ang_vel,
-                    *ang_pos,
-                    *lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    *pole_ang_vel,
-                    *pole_ang_pos,
-                    *rel_pole_lin_vel,
-                    *rel_pole_lin_pos,
-                ]
+                    ang_vel,
+                    ang_pos,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    pole_top_pos,
+                    pole_bot_pos,
+                    pole_top_vel,
+                    pole_bot_vel,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            self.state = np.array(
+            self.state = np.concatenate(
                 [
-                    *ang_vel,
-                    *quaternion,
-                    *lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    *pole_ang_vel,
-                    *pole_ang_pos,
-                    *pole_quaternion,
-                    *rel_pole_lin_vel,
-                    *rel_pole_lin_pos,
-                ]
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    pole_top_pos,
+                    pole_bot_pos,
+                    pole_top_vel,
+                    pole_bot_vel,
+                ],
+                axis=-1,
             )
 
     def compute_term_trunc_reward(self) -> None:
@@ -208,5 +221,5 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
             angular_distance = np.linalg.norm(self.env.state(0)[1][:2])
 
             self.reward -= linear_distance + angular_distance
-            self.reward -= self.pole_uprightness
+            self.reward -= self.pole_leaningness
             self.reward += 1.0

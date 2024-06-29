@@ -100,12 +100,20 @@ class QuadXHoverEnv(QuadXBaseEnv):
 
         # combine everything
         if self.angle_representation == 0:
-            self.state = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
+            self.state = np.concatenate(
+                [
+                    ang_vel,
+                    ang_pos,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            self.state = np.array(
-                [*ang_vel, *quaternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+            self.state = np.concatenate(
+                [ang_vel, quaternion, lin_vel, lin_pos, self.action, aux_state], axis=-1
             )
 
     def compute_term_trunc_reward(self) -> None:

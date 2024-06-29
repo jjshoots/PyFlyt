@@ -145,28 +145,30 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
 
         # depending on angle representation, return the relevant thing
         if self.angle_representation == 0:
-            return np.array(
+            return np.concatenate(
                 [
-                    *ang_vel,
-                    *ang_pos,
-                    *lin_vel,
-                    *lin_pos,
-                    *aux_state,
-                    *self.past_actions[agent_id],
-                    *self.start_pos[agent_id],
-                ]
+                    ang_vel,
+                    ang_pos,
+                    lin_vel,
+                    lin_pos,
+                    aux_state,
+                    self.past_actions[agent_id],
+                    self.start_pos[agent_id],
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            return np.array(
+            return np.concatenate(
                 [
-                    *ang_vel,
-                    *quaternion,
-                    *lin_vel,
-                    *lin_pos,
-                    *aux_state,
-                    *self.past_actions[agent_id],
-                    *self.start_pos[agent_id],
-                ]
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    aux_state,
+                    self.past_actions[agent_id],
+                    self.start_pos[agent_id],
+                ],
+                axis=-1,
             )
         else:
             raise AssertionError("Not supposed to end up here!")
