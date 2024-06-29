@@ -247,7 +247,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
             self.reward += 0.1 / self.distance_to_immediate
             self.reward -= 0.1 * self.pole_uprightness
-            print(self.pole_uprightness)
 
         # target reached
         if self.waypoints.target_reached():
