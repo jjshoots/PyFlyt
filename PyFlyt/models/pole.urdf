@@ -1,11 +1,20 @@
 <?xml version="1.0"?>
 <robot name="cube">
 
-  <material name="pole_colour">
-    <color rgba="1.0 0.2 0.2 1.0"/>
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
   </material>
 
   <link name="base_link">
+    <visual>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
     <inertial>
       <mass value="0.001"/>
     	<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
@@ -31,14 +40,8 @@
       <geometry>
         <cylinder radius="0.005" length="1.0"/>
       </geometry>
-      <material name="pole_colour"/>
+      <material name="red"/>
     </visual>
-    <contact>
-      <ode>
-        <mu>1000.0</mu> <!-- Coefficient of friction -->
-        <mu2>1000.0</mu2> <!-- Second friction direction -->
-      </ode>
-    </contact>
   </link>
 
   <joint name="base_to_pole" type="fixed">

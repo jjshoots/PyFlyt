@@ -136,16 +136,23 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             seed, options, drone_options={"drone_model": "primitive_drone"}
         )
 
-        # spawn in a pole
+        # spawn in a pole and make it have enough friction
         self.poleId = self.env.loadURDF(
             self.pole_obj_dir,
             basePosition=np.array([0.0, 0.0, 2.1]),
             useFixedBase=False,
         )
+        self.env.changeDynamics(
+            self.poleId,
+            linkIndex=1,
+            anisotropicFriction=1e9,
+            lateralFriction=1e9,
+        )
 
         self.waypoints.reset(self.env, self.np_random)
         self.info["num_targets_reached"] = 0
         self.distance_to_immediate = np.inf
+        self.pole_uprightness = 0.0
         super().end_reset()
 
         return self.state, self.info
@@ -176,6 +183,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         )
         pole_lin_vel, pole_ang_vel = self.env.getBaseVelocity(self.poleId)
         pole_ang_pos = self.env.getEulerFromQuaternion(pole_quaternion)
+        self.pole_uprightness = np.linalg.norm(pole_ang_pos[:2])
 
         # express everything relative to self
         # positions are global, hence the subtract
@@ -238,6 +246,8 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
             self.reward += 0.1 / self.distance_to_immediate
+            self.reward -= 0.1 * self.pole_uprightness
+            print(self.pole_uprightness)
 
         # target reached
         if self.waypoints.target_reached():
