@@ -26,9 +26,11 @@ class MAFixedwingBaseEnv(ParallelEnv):
         agent_hz: int = 30,
         render_mode: None | str = None,
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             assisted_flight (bool): assisted_flight
@@ -37,6 +39,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
             angle_representation (str): angle_representation
             agent_hz (int): agent_hz
             render_mode (None | str): render_mode
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -130,18 +133,24 @@ class MAFixedwingBaseEnv(ParallelEnv):
         )
 
     def observation_space(self, agent: Any = None) -> Space:
-        """observation_space.
+        """
+        observation_space.
 
-        Returns:
+        Returns
+        -------
             Space:
+
         """
         raise NotImplementedError
 
     def action_space(self, agent: Any = None) -> spaces.Box:
-        """action_space.
+        """
+        action_space.
 
-        Returns:
+        Returns
+        -------
             spaces.Box:
+
         """
         return self._action_space
 
@@ -153,14 +162,18 @@ class MAFixedwingBaseEnv(ParallelEnv):
     def reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        """reset.
+        """
+        reset.
 
         Args:
+        ----
             seed (None | int): seed
             options (dict | None): options
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -226,7 +239,8 @@ class MAFixedwingBaseEnv(ParallelEnv):
     def compute_attitude_by_id(
         self, agent_id: int
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """state.
+        """
+        state.
 
         This returns the base attitude for the drone.
         - ang_vel (vector of 3 values)
@@ -249,13 +263,17 @@ class MAFixedwingBaseEnv(ParallelEnv):
         return ang_vel, ang_pos, lin_vel, lin_pos, quaternion
 
     def compute_observation_by_id(self, agent_id: int) -> Any:
-        """compute_observation_by_id.
+        """
+        compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Any:
+
         """
         raise NotImplementedError
 
@@ -286,13 +304,17 @@ class MAFixedwingBaseEnv(ParallelEnv):
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
-        """compute_term_trunc_reward_info_by_id.
+        """
+        compute_term_trunc_reward_info_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Tuple[bool, bool, float, dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -305,13 +327,17 @@ class MAFixedwingBaseEnv(ParallelEnv):
         dict[str, bool],
         dict[str, dict[str, Any]],
     ]:
-        """step.
+        """
+        step.
 
         Args:
+        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
+
         """
         # copy over the past actions
         self.past_actions = deepcopy(self.current_actions)

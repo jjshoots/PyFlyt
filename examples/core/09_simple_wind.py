@@ -6,11 +6,14 @@ from PyFlyt.core import Aviary
 
 # define the wind field
 def simple_wind(time: float, position: np.ndarray):
-    """Defines a simple wind updraft model.
+    """
+    Defines a simple wind updraft model.
 
     Args:
+    ----
         time (float): time
         position (np.ndarray): position as an (n, 3) array
+
     """
     # the xy velocities are 0...
     wind = np.zeros_like(position)

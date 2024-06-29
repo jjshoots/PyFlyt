@@ -30,9 +30,11 @@ class MAQuadXBaseEnv(ParallelEnv):
         agent_hz: int = 40,
         render_mode: None | str = None,
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -41,6 +43,7 @@ class MAQuadXBaseEnv(ParallelEnv):
             angle_representation (str): angle_representation
             agent_hz (int): agent_hz
             render_mode (None | str): render_mode
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -149,24 +152,32 @@ class MAQuadXBaseEnv(ParallelEnv):
         )
 
     def observation_space(self, agent: Any = None) -> Space:
-        """observation_space.
+        """
+        observation_space.
 
         Args:
-            agent:
+        ----
+            agent (Any): agent
 
         Returns:
+        -------
             Space:
+
         """
         raise NotImplementedError
 
     def action_space(self, agent: Any = None) -> spaces.Box:
-        """action_space.
+        """
+        action_space.
 
         Args:
-            agent:
+        ----
+            agent (Any): agent
 
         Returns:
+        -------
             spaces.Box:
+
         """
         return self._action_space
 
@@ -178,14 +189,18 @@ class MAQuadXBaseEnv(ParallelEnv):
     def reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        """reset.
+        """
+        reset.
 
         Args:
-            seed:
-            options:
+        ----
+            seed (None | int): seed
+            options (None | dict[str, Any]): options
 
         Returns:
-            tuple[dict[str, Any], dict[str, Any]]: observation and infos
+        -------
+            tuple[dict[str, Any], dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -195,7 +210,20 @@ class MAQuadXBaseEnv(ParallelEnv):
         options: None | dict[str, Any] = dict(),
         drone_options: None | dict[str, Any] | Sequence[dict[str, Any]] = dict(),
     ) -> None:
-        """The first half of the reset function."""
+        """
+        The first half of the reset function.
+
+        Args:
+        ----
+            seed (None | int): seed
+            options (None | dict[str, Any]): options
+            drone_options (None | dict[str, Any] | Sequence[dict[str, Any]]): drone_options
+
+        Returns:
+        -------
+            None:
+
+        """
         # if we already have an env, disconnect from it
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
@@ -233,7 +261,8 @@ class MAQuadXBaseEnv(ParallelEnv):
     def compute_attitude_by_id(
         self, agent_id: int
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """state.
+        """
+        state.
 
         This returns the base attitude for the drone.
         - ang_vel (vector of 3 values)
@@ -256,13 +285,17 @@ class MAQuadXBaseEnv(ParallelEnv):
         return ang_vel, ang_pos, lin_vel, lin_pos, quaternion
 
     def compute_observation_by_id(self, agent_id: int) -> Any:
-        """compute_observation_by_id.
+        """
+        compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Any:
+
         """
         raise NotImplementedError
 
@@ -296,13 +329,17 @@ class MAQuadXBaseEnv(ParallelEnv):
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
-        """compute_term_trunc_reward_info_by_id.
+        """
+        compute_term_trunc_reward_info_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             Tuple[bool, bool, float, dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -315,13 +352,17 @@ class MAQuadXBaseEnv(ParallelEnv):
         dict[str, bool],
         dict[str, dict[str, Any]],
     ]:
-        """step.
+        """
+        step.
 
         Args:
+        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
+
         """
         # copy over the past actions
         self.past_actions = deepcopy(self.current_actions)

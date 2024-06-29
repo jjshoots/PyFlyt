@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyFlyt"
-version = "0.22.1"
+version = "0.22.2"
 authors = [
   { name="Jet", email="taijunjet@hotmail.com" },
 ]
@@ -46,8 +46,8 @@ Documentation = "https://jjshoots.github.io/PyFlyt/documentation.html"
 reportMissingImports = "none"
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I"]
-ignore = []
+ignore = ["D401", "D404", "D203", "D212"]
+select = ["E4", "E7", "E9", "F", "I", "D"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]

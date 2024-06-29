@@ -10,9 +10,11 @@ from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseE
 
 
 class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
-    """Base Dogfighting Environment for the Acrowing model using the PettingZoo API.
+    """
+    Base Dogfighting Environment for the Acrowing model using the PettingZoo API.
 
     Args:
+    ----
         spawn_height (float): how high to spawn the agents at the beginning of the simulation.
         damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
         lethal_distance (float): how close before weapons become effective.
@@ -23,6 +25,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         max_duration_seconds (float): maximum simulation time of the environment.
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None
+
     """
 
     metadata = {
@@ -43,9 +46,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         agent_hz: int = 30,
         render_mode: None | str = None,
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             spawn_height (float): how high to spawn the agents at the beginning of the simulation.
             damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
             lethal_distance (float): how close before weapons become effective.
@@ -56,6 +61,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             max_duration_seconds (float): maximum simulation time of the environment.
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None
+
         """
         # placeholder starting positions
         super().__init__(
@@ -84,23 +90,32 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
 
     def observation_space(self, agent: Any = None) -> spaces.Box:
-        """observation_space.
+        """
+        observation_space.
 
         Args:
-            agent:
+        ----
+            agent (Any): agent
 
         Returns:
+        -------
             spaces.Box:
+
         """
         return self._observation_space
 
     def _get_start_pos_orn(self, seed: None | int) -> tuple[np.ndarray, np.ndarray]:
-        """_get_start_pos_orn.
+        """
+        _get_start_pos_orn.
 
         Args:
+        ----
+            seed (None | int): seed
 
         Returns:
+        -------
             tuple[np.ndarray, np.ndarray]:
+
         """
         np_random = np.random.RandomState(seed=seed)
         start_pos = np.zeros((2, 3))
@@ -114,14 +129,18 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     def reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        """reset.
+        """
+        reset.
 
         Args:
+        ----
             seed (None | int): seed
             options (dict[str, Any]): options
 
         Returns:
+        -------
             tuple[dict[str, Any], dict[str, Any]]:
+
         """
         self.start_pos, self.start_orn = self._get_start_pos_orn(seed)
 
@@ -162,12 +181,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         return observations, infos
 
     def _compute_agent_states(self) -> None:
-        """_compute_agent_states.
+        """
+        _compute_agent_states.
 
-        Args:
-
-        Returns:
+        Returns
+        -------
             None:
+
         """
         # get the states of both drones
         self.attitudes = np.stack(self.aviary.all_states, axis=0)
@@ -248,13 +268,17 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
 
     def compute_observation_by_id(self, agent_id: int) -> np.ndarray:
-        """compute_observation_by_id.
+        """
+        compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             np.ndarray:
+
         """
         # don't recompute if we've already done it
         if self.last_obs_time != self.aviary.elapsed_time:
@@ -320,14 +344,18 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
     @staticmethod
     def compute_rotation_forward(orn: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Computes the rotation matrix and forward vector of an aircraft given its orientation.
+        """
+        Computes the rotation matrix and forward vector of an aircraft given its orientation.
 
         Args:
+        ----
             orn (np.ndarray): an [n, 3] array of each drone's orientation
 
         Returns:
+        -------
             np.ndarray: an [n, 3, 3] rotation matrix of each aircraft
             np.ndarray: an [n, 3] forward vector of each aircraft
+
         """
         c, s = np.cos(orn), np.sin(orn)
         eye = np.stack([np.eye(3)] * orn.shape[0], axis=0)
@@ -364,12 +392,15 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         dict[str, bool],
         dict[str, dict[str, Any]],
     ]:
-        """step.
+        """
+        step.
 
         Args:
+        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
+        -------
             tuple[
                 dict[str, Any],
                 dict[str, float],
@@ -377,6 +408,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 dict[str, bool],
                 dict[str, dict[str, Any]],
             ]:
+
         """
         returns = super().step(actions=actions)
 

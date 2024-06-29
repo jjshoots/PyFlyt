@@ -10,12 +10,14 @@ from PyFlyt.core.utils.compile_helpers import jitter
 
 
 class Gimbals:
-    """A set of actuated gimbals.
+    """
+    A set of actuated gimbals.
 
     The `Gimbals` component simulates a series of servo actuated gimbals.
     Each gimbal can rotate about two arbitrary axis that may not be orthogonal to each other.
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -23,6 +25,7 @@ class Gimbals:
         gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around.
         gimbal_tau (np.ndarray): gimbal actuation time constant.
         gimbal_range_degrees (np.ndarray): gimbal actuation range in degrees.
+
     """
 
     def __init__(
@@ -35,9 +38,11 @@ class Gimbals:
         gimbal_tau: np.ndarray,
         gimbal_range_degrees: np.ndarray,
     ):
-        """Used for simulating an array of gimbals.
+        """
+        Used for simulating an array of gimbals.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -45,6 +50,7 @@ class Gimbals:
             gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around.
             gimbal_tau (np.ndarray): gimbal actuation time constant.
             gimbal_range_degrees (np.ndarray): gimbal actuation range in degrees.
+
         """
         self.p = p
         self.physics_period = physics_period
@@ -117,10 +123,13 @@ class Gimbals:
         self.rotation2 = np.array([np.eye(3)] * self.num_gimbals, dtype=np.float64)
 
     def get_states(self) -> np.ndarray:
-        """Gets the current state of the components.
+        """
+        Gets the current state of the components.
 
-        Returns:
+        Returns
+        -------
             np.ndarray: a (2 * num_gimbals, ) array where every pair of values represents the current state of the gimbal
+
         """
         return np.concatenate(
             [
@@ -139,13 +148,17 @@ class Gimbals:
         )
 
     def compute_rotation(self, gimbal_command: np.ndarray) -> np.ndarray:
-        """Returns a rotation vector after the gimbal rotation.
+        """
+        Returns a rotation vector after the gimbal rotation.
 
         Args:
+        ----
             gimbal_command (np.ndarray): (num_gimbals, 2) array of floats between [-1, 1].
 
         Returns:
+        -------
             rotation_vector (np.ndarray): (num_gimbals, 3, 3) rotation matrices for all gimbals.
+
         """
         assert np.all(gimbal_command >= -1.0) and np.all(
             gimbal_command <= 1.0
@@ -179,9 +192,11 @@ class Gimbals:
         w1_squared: np.ndarray,
         w2_squared: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Compute the rotation matrix given the gimbal action values.
+        """
+        Compute the rotation matrix given the gimbal action values.
 
         Args:
+        ----
             gimbal_angles (np.ndarray): gimbal_angles
             w1 (np.ndarray): w1 from self
             w2 (np.ndarray): w2 from self
@@ -189,7 +204,9 @@ class Gimbals:
             w2_squared (np.ndarray): w2_squared from self
 
         Returns:
+        -------
             tuple[np.ndarray, np.ndarray]:
+
         """
         # precompute some things
         sin_angles = np.sin(gimbal_angles)

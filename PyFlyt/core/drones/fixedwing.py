@@ -33,9 +33,11 @@ class Fixedwing(DroneClass):
         camera_fps: None | int = None,
         starting_velocity: np.ndarray = np.array([20.0, 0.0, 0.0]),
     ):
-        """Creates a Fixedwing UAV and handles all relevant control and physics.
+        """
+        Creates a Fixedwing UAV and handles all relevant control and physics.
 
         Args:
+        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -52,6 +54,7 @@ class Fixedwing(DroneClass):
             camera_position_offset (np.ndarray): offset position of the camera
             camera_fps (None | int): camera_fps
             starting_velocity (np.ndarray): vector representing the velocity at spawn
+
         """
         super().__init__(
             p=p,
@@ -202,14 +205,17 @@ class Fixedwing(DroneClass):
         self.motors.reset()
 
     def set_mode(self, mode) -> None:
-        """Sets the current flight mode of the vehicle.
+        """
+        Sets the current flight mode of the vehicle.
 
         flight modes:
             - -1: Left Aileron, Right Aileron, Horizontal Tail, Vertical Tail, Main Wing, Thrust
             - 0: Pitch, Roll, Yaw, Thrust
 
         Args:
+        ----
             mode (int): flight mode
+
         """
         if (mode < -1 or mode > 0) and mode not in self.registered_controllers.keys():
             raise ValueError(
@@ -224,10 +230,13 @@ class Fixedwing(DroneClass):
             self.setpoint = np.zeros(4)
 
     def update_control(self, physics_step: int) -> None:
-        """Runs through controllers.
+        """
+        Runs through controllers.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         # skip control if we don't have enough physics steps
         if physics_step % self.physics_control_ratio != 0:
@@ -260,7 +269,8 @@ class Fixedwing(DroneClass):
         self.motors.physics_update(self.cmd[[5]])
 
     def update_state(self) -> None:
-        """Updates the current state of the UAV.
+        """
+        Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -287,10 +297,13 @@ class Fixedwing(DroneClass):
         )
 
     def update_last(self, physics_step: int) -> None:
-        """Updates things only at the end of `Aviary.step()`.
+        """
+        Updates things only at the end of `Aviary.step()`.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

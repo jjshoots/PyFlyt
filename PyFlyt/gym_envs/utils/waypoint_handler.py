@@ -21,9 +21,11 @@ class WaypointHandler:
         flight_dome_size: float,
         np_random: np.random.Generator,
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             enable_render (bool): enable_render
             num_targets (int): num_targets
             use_yaw_targets (bool): use_yaw_targets
@@ -31,6 +33,7 @@ class WaypointHandler:
             goal_reach_angle (float): goal_reach_angle
             flight_dome_size (float): flight_dome_size
             np_random (np.random.Generator): np_random
+
         """
         # constants
         self.enable_render = enable_render
@@ -107,12 +110,15 @@ class WaypointHandler:
         lin_pos: np.ndarray,
         quarternion: np.ndarray,
     ):
-        """distance_to_target.
+        """
+        distance_to_target.
 
         Args:
+        ----
             ang_pos (np.ndarray): ang_pos
             lin_pos (np.ndarray): lin_pos
             quarternion (np.ndarray): quarternion
+
         """
         # rotation matrix
         rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)

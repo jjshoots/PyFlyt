@@ -35,9 +35,11 @@ class QuadX(DroneClass):
         camera_resolution: tuple[int, int] = (128, 128),
         camera_fps: None | int = None,
     ):
-        """Creates a drone in the QuadX configuration and handles all relevant control and physics.
+        """
+        Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
+        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -52,6 +54,7 @@ class QuadX(DroneClass):
             camera_FOV_degrees (int): camera_FOV_degrees
             camera_resolution (tuple[int, int]): camera_resolution
             camera_fps (None | int): camera_fps
+
         """
         super().__init__(
             p=p,
@@ -226,7 +229,8 @@ class QuadX(DroneClass):
         self.motors.reset()
 
     def set_mode(self, mode: int) -> None:
-        """Sets the current flight mode of the vehicle.
+        """
+        Sets the current flight mode of the vehicle.
 
         flight modes:
             - -1: m1, m2, m3, m4
@@ -248,7 +252,9 @@ class QuadX(DroneClass):
             - T = thrust
 
         Args:
+        ----
             mode (int): flight mode
+
         """
         if (mode < -1 or mode > 7) and mode not in self.registered_controllers.keys():
             raise ValueError(
@@ -372,12 +378,15 @@ class QuadX(DroneClass):
         controller_constructor: type[ControlClass],
         base_mode: int,
     ) -> None:
-        """Registers a new controller for the UAV.
+        """
+        Registers a new controller for the UAV.
 
         Args:
+        ----
             controller_id (int): controller_id
             controller_constructor (type[ControlClass]): controller_constructor
             base_mode (int): base_mode
+
         """
         if controller_id <= 7:
             raise ValueError(
@@ -392,10 +401,13 @@ class QuadX(DroneClass):
         self.registered_base_modes[controller_id] = base_mode
 
     def update_control(self, physics_step: int) -> None:
-        """Runs through controllers.
+        """
+        Runs through controllers.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         # skip control if we don't have enough physics steps
         if physics_step % self.physics_control_ratio != 0:
@@ -502,7 +514,8 @@ class QuadX(DroneClass):
             self.p.applyExternalTorque(self.Id, -1, drag_pqr, self.p.LINK_FRAME)
 
     def update_state(self) -> None:
-        """Updates the current state of the UAV.
+        """
+        Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -527,10 +540,13 @@ class QuadX(DroneClass):
         self.aux_state = self.motors.get_states()
 
     def update_last(self, physics_step: int) -> None:
-        """Updates things only at the end of `Aviary.step()`.
+        """
+        Updates things only at the end of `Aviary.step()`.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

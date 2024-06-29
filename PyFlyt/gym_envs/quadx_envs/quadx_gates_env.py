@@ -14,7 +14,8 @@ from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 
 
 class QuadXGatesEnv(QuadXBaseEnv):
-    """QuadX Gates Environment.
+    """
+    QuadX Gates Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust
 
@@ -23,6 +24,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
     Reward is -(distance from waypoint + angle error) for each timestep, and -100.0 for hitting the ground.
 
     Args:
+    ----
         flight_mode (int): the flight mode of the UAV
         num_targets (int): num_targets
         goal_reach_distance (float): goal_reach_distance
@@ -36,6 +38,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution
+
     """
 
     def __init__(
@@ -54,9 +57,11 @@ class QuadXGatesEnv(QuadXBaseEnv):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             flight_mode (int): the flight mode of the UAV
             num_targets (int): num_targets
             goal_reach_distance (float): goal_reach_distance
@@ -70,6 +75,7 @@ class QuadXGatesEnv(QuadXBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
+
         """
         super().__init__(
             flight_mode=flight_mode,
@@ -115,11 +121,14 @@ class QuadXGatesEnv(QuadXBaseEnv):
     ) -> tuple[
         dict[Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray], dict
     ]:
-        """Resets the environment.
+        """
+        Resets the environment.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         aviary_options = dict()
         aviary_options["use_camera"] = True
@@ -197,10 +206,13 @@ class QuadXGatesEnv(QuadXBaseEnv):
         self.colour_other_gate()
 
     def colour_dead_gate(self, gate: int) -> None:
-        """Colours the gates that are done.
+        """
+        Colours the gates that are done.
 
         Args:
+        ----
             gate (int): body ID of the gate
+
         """
         # colour the dead gates red
         for i in range(p.getNumJoints(gate)):
@@ -232,7 +244,8 @@ class QuadXGatesEnv(QuadXBaseEnv):
                 )
 
     def compute_state(self) -> None:
-        """This returns the observation as well as the distances to target.
+        """
+        This returns the observation as well as the distances to target.
 
         - "attitude" (Box)
             - ang_vel (vector of 3 values)

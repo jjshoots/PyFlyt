@@ -15,9 +15,11 @@ def loadOBJ(
     basePosition: list[float] | np.ndarray = [0.0, 0.0, 0.0],
     baseOrientation: list[float] | np.ndarray = [0.0, 0.0, 0.0],
 ):
-    """Loads an object into the environment.
+    """
+    Loads an object into the environment.
 
     Args:
+    ----
         env (Aviary): env
         fileName (str): fileName
         visualId (int): visualId
@@ -26,6 +28,7 @@ def loadOBJ(
         meshScale (list[float] | np.ndarray): meshScale
         basePosition (list[float] | np.ndarray): basePosition
         baseOrientation (list[float] | np.ndarray): baseOrientation
+
     """
     if len(baseOrientation) == 3:
         baseOrientation = env.getQuaternionFromEuler(baseOrientation)
@@ -51,12 +54,15 @@ def obj_visual(
     fileName: str,
     meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
 ):
-    """Loads an object visual model.
+    """
+    Loads an object visual model.
 
     Args:
+    ----
         env (Aviary): env
         fileName (str): fileName
         meshScale (list[float] | np.ndarray): meshScale
+
     """
     return env.createVisualShape(
         shapeType=env.GEOM_MESH,
@@ -73,13 +79,16 @@ def obj_collision(
     meshScale: list[float] | np.ndarray = [1.0, 1.0, 1.0],
     concave: bool = False,
 ):
-    """Loads an object collision model.
+    """
+    Loads an object collision model.
 
     Args:
+    ----
         env (Aviary): env
         fileName (str): fileName
         meshScale (list[float] | np.ndarray): meshScale
         concave (bool): Whether the object should use concave trimesh, do not use this for dynamic/moving objects
+
     """
     return (
         env.createCollisionShape(

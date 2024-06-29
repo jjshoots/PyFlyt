@@ -12,12 +12,14 @@ from PyFlyt.gym_envs.rocket_envs.rocket_base_env import RocketBaseEnv
 
 
 class RocketLandingEnv(RocketBaseEnv):
-    """Rocket Landing Environment.
+    """
+    Rocket Landing Environment.
 
     Actions are finlet_x, finlet_y, finlet_roll, booster ignition, throttle, booster gimbal x, booster gimbal y
     The goal is to land the rocket on the landing pad.
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         ceiling (float): the absolute ceiling of the flying area.
         max_displacement (float): the maximum horizontal distance the rocket can go.
@@ -26,6 +28,7 @@ class RocketLandingEnv(RocketBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
+
     """
 
     def __init__(
@@ -39,9 +42,11 @@ class RocketLandingEnv(RocketBaseEnv):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             ceiling (float): the absolute ceiling of the flying area.
             max_displacement (float): the maximum horizontal distance the rocket can go.
@@ -50,6 +55,7 @@ class RocketLandingEnv(RocketBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
+
         """
         super().__init__(
             start_pos=np.array([[0.0, 0.0, ceiling * 0.9]]),
@@ -86,11 +92,14 @@ class RocketLandingEnv(RocketBaseEnv):
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[np.ndarray, dict]:
-        """Resets the environment.
+        """
+        Resets the environment.
 
         Args:
+        ----
             seed: int
             options: None
+
         """
         if options is None:
             options = dict(randomize_drop=True, accelerate_drop=True)
@@ -125,7 +134,8 @@ class RocketLandingEnv(RocketBaseEnv):
         return self.state, self.info
 
     def compute_state(self) -> None:
-        """Computes the state of the current timestep.
+        """
+        Computes the state of the current timestep.
 
         This returns the observation.
         - ang_vel (vector of 3 values)

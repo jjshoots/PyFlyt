@@ -12,21 +12,27 @@ class MyWindField(WindFieldClass):
     def __init__(
         self, my_parameter=1.0, np_random: None | np.random.RandomState = None
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             my_parameter: supports an arbitrary number of parameters
             np_random (None | np.random.RandomState): np random state
+
         """
         super().__init__(np_random)
         self.strength = my_parameter
 
     def __call__(self, time: float, position: np.ndarray):
-        """__call__.
+        """
+        __call__.
 
         Args:
+        ----
             time (float): time
             position (np.ndarray): position as an (n, 3) array
+
         """
         wind = np.zeros_like(position)
         wind[:, -1] = np.exp(position[:, -1]) * self.strength

@@ -10,12 +10,14 @@ from PyFlyt.pz_envs.quadx_envs.ma_quadx_base_env import MAQuadXBaseEnv
 
 
 class MAQuadXHoverEnv(MAQuadXBaseEnv):
-    """Simple Multiagent Hover Environment.
+    """
+    Simple Multiagent Hover Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
     The target is for each agent to not crash for the longest time possible.
 
     Args:
+    ----
         start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
         start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
         sparse_reward (bool): whether to use sparse rewards or not.
@@ -25,6 +27,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         angle_representation (str): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None.
+
     """
 
     metadata = {
@@ -48,9 +51,11 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         agent_hz: int = 40,
         render_mode: None | str = None,
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
             start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
             sparse_reward (bool): whether to use sparse rewards or not.
@@ -60,6 +65,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
             angle_representation (str): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None.
+
         """
         super().__init__(
             start_pos=start_pos,
@@ -82,21 +88,31 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         )
 
     def observation_space(self, agent: Any = None) -> spaces.Space:
-        """observation_space.
+        """
+        observation_space.
 
         Args:
-            _:
+        ----
+            agent (Any): agent
+
+        Returns:
+        -------
+            spaces.Space:
+
         """
         return self._observation_space
 
     def reset(
         self, seed=None, options=dict()
     ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
-        """reset.
+        """
+        reset.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         super().begin_reset(seed, options)
         super().end_reset(seed, options)
@@ -109,13 +125,17 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         return observations, infos
 
     def compute_observation_by_id(self, agent_id: int) -> np.ndarray:
-        """compute_observation_by_id.
+        """
+        compute_observation_by_id.
 
         Args:
+        ----
             agent_id (int): agent_id
 
         Returns:
+        -------
             np.ndarray:
+
         """
         # get all the relevant things
         raw_state = self.compute_attitude_by_id(agent_id)

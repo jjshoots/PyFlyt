@@ -30,9 +30,11 @@ class RocketBrick(DroneClass):
         camera_resolution: tuple[int, int] = (128, 128),
         camera_fps: None | int = None,
     ):
-        """Creates a UAV a brick acting as a lifting surface with a rocket attached.
+        """
+        Creates a UAV a brick acting as a lifting surface with a rocket attached.
 
         Args:
+        ----
             p (bullet_client.BulletClient): p.
             start_pos (np.ndarray): start_pos.
             start_orn (np.ndarray): start_orn.
@@ -47,6 +49,7 @@ class RocketBrick(DroneClass):
             camera_FOV_degrees (int): camera_FOV_degrees.
             camera_resolution (tuple[int, int]): camera_resolution.
             camera_fps (None | int): camera_fps
+
         """
         super().__init__(
             p=p,
@@ -142,10 +145,13 @@ class RocketBrick(DroneClass):
         self.boosters.reset()
 
     def update_control(self, physics_step: int) -> None:
-        """Runs through controllers.
+        """
+        Runs through controllers.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         # skip control if we don't have enough physics steps
         if physics_step % self.physics_control_ratio != 0:
@@ -171,7 +177,8 @@ class RocketBrick(DroneClass):
         self.boosters.physics_update(self.cmd[[0]], self.cmd[[1]])
 
     def update_state(self) -> None:
-        """Updates the current state of the UAV.
+        """
+        Updates the current state of the UAV.
 
         This includes: ang_vel, ang_pos, lin_vel, lin_pos.
         """
@@ -196,10 +203,13 @@ class RocketBrick(DroneClass):
         self.aux_state = self.boosters.get_states()
 
     def update_last(self, physics_step: int) -> None:
-        """Updates things only at the end of `Aviary.step()`.
+        """
+        Updates things only at the end of `Aviary.step()`.
 
         Args:
+        ----
             physics_step (int): the current physics step
+
         """
         if self.use_camera and (physics_step % self.physics_camera_ratio == 0):
             self.rgbaImg, self.depthImg, self.segImg = self.camera.capture_image()

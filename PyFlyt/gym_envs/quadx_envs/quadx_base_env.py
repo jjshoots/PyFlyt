@@ -29,9 +29,11 @@ class QuadXBaseEnv(gymnasium.Env):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -41,6 +43,7 @@ class QuadXBaseEnv(gymnasium.Env):
             agent_hz (int): agent_hz
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution
+
         """
         if 120 % agent_hz != 0:
             lowest = int(120 / (int(120 / agent_hz) + 1))
@@ -126,14 +129,18 @@ class QuadXBaseEnv(gymnasium.Env):
     def reset(
         self, *, seed: None | int = None, options: dict[str, Any] | None = dict()
     ) -> tuple[Any, dict[str, Any]]:
-        """reset.
+        """
+        reset.
 
         Args:
+        ----
             seed (None | int): seed
             options (dict[str, Any]): options
 
         Returns:
+        -------
             tuple[Any, dict[str, Any]]:
+
         """
         raise NotImplementedError
 
@@ -213,7 +220,8 @@ class QuadXBaseEnv(gymnasium.Env):
     def compute_attitude(
         self,
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """state.
+        """
+        state.
 
         This returns the base attitude for the drone.
         - ang_vel (vector of 3 values)
@@ -258,13 +266,17 @@ class QuadXBaseEnv(gymnasium.Env):
             self.termination |= True
 
     def step(self, action: np.ndarray) -> tuple[Any, float, bool, bool, dict[str, Any]]:
-        """Steps the environment.
+        """
+        Steps the environment.
 
         Args:
+        ----
             action (np.ndarray): action
 
         Returns:
+        -------
             state, reward, termination, truncation, info
+
         """
         # unsqueeze the action to be usable in aviary
         self.action = action.copy()

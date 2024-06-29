@@ -7,7 +7,8 @@ import numpy as np
 
 
 class WindFieldClass(ABC):
-    """Basic WindField class to implement custom wind field models.
+    """
+    Basic WindField class to implement custom wind field models.
 
     Example Usage:
         >>> from PyFlyt.core import Aviary
@@ -44,11 +45,14 @@ class WindFieldClass(ABC):
 
     @abstractmethod
     def __call__(self, time: float, position: np.ndarray) -> np.ndarray:
-        """When given the time float and a position as an (n, 3) array, must return a (n, 3) array representing the local wind velocity.
+        """
+        When given the time float and a position as an (n, 3) array, must return a (n, 3) array representing the local wind velocity.
 
         Args:
+        ----
             time (float): float representing the timestep of the simulation in seconds.
             position (np.ndarray): (n, 3) array representing a series of n positions to sample wind velocites.
+
         """
         pass
 

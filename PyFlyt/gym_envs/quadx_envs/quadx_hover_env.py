@@ -9,12 +9,14 @@ from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
 
 
 class QuadXHoverEnv(QuadXBaseEnv):
-    """Simple Hover Environment.
+    """
+    Simple Hover Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
     The target is to not crash for the longest time possible.
 
     Args:
+    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
@@ -23,6 +25,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | Literal["human", "rgb_array"]): render_mode
         render_resolution (tuple[int, int]): render_resolution.
+
     """
 
     def __init__(
@@ -36,9 +39,11 @@ class QuadXHoverEnv(QuadXBaseEnv):
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
-        """__init__.
+        """
+        __init__.
 
         Args:
+        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             flight_mode (int): the flight mode of the UAV
             flight_dome_size (float): size of the allowable flying area.
@@ -47,6 +52,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | Literal["human", "rgb_array"]): render_mode
             render_resolution (tuple[int, int]): render_resolution.
+
         """
         super().__init__(
             flight_mode=flight_mode,
@@ -67,11 +73,14 @@ class QuadXHoverEnv(QuadXBaseEnv):
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[np.ndarray, dict[str, Any]]:
-        """reset.
+        """
+        reset.
 
         Args:
+        ----
             seed: seed to pass to the base environment.
             options: None
+
         """
         super().begin_reset(seed, options)
         super().end_reset(seed, options)
@@ -79,7 +88,8 @@ class QuadXHoverEnv(QuadXBaseEnv):
         return self.state, self.info
 
     def compute_state(self) -> None:
-        """Computes the state of the current timestep.
+        """
+        Computes the state of the current timestep.
 
         This returns the observation.
         - ang_vel (vector of 3 values)

@@ -8,7 +8,8 @@ from pybullet_utils import bullet_client
 
 
 class Boosters:
-    """Vectorized implementation of a series of fueled boosters.
+    """
+    Vectorized implementation of a series of fueled boosters.
 
     The `Boosters` component is used to represent an array of fueled boosters, each at arbitrary locations with different parameters.
     Fueled boosters are propulsion units that produce no meaningful torque around their thrust axis and have limited throttleability.
@@ -16,6 +17,7 @@ class Boosters:
     Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.
 
     Args:
+    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -31,6 +33,7 @@ class Boosters:
         thrust_unit (np.ndarray): an `(n, 3)` array representing the unit vector pointing in the direction of force for each booster, relative to the booster link's body frame.
         reignitable (np.ndarray | list[bool]): a list of booleans representing whether the booster can be extinguished and then reignited.
         noise_ratio (np.ndarray): a list of floats representing the percent amount of fluctuation present in each booster.
+
     """
 
     def __init__(
@@ -51,9 +54,11 @@ class Boosters:
         reignitable: np.ndarray | list[bool],
         noise_ratio: np.ndarray,
     ):
-        """Used for simulating an array of boosters.
+        """
+        Used for simulating an array of boosters.
 
         Args:
+        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -69,6 +74,7 @@ class Boosters:
             thrust_unit (np.ndarray): an `(n, 3)` array representing the unit vector pointing in the direction of force for each booster, relative to the booster link's body frame.
             reignitable (np.ndarray | list[bool]): a list of booleans representing whether the booster can be extinguished and then reignited.
             noise_ratio (np.ndarray): a list of floats representing the percent amount of fluctuation present in each booster.
+
         """
         self.p = p
         self.physics_period = physics_period
@@ -115,10 +121,13 @@ class Boosters:
         self.noise_ratio = noise_ratio
 
     def reset(self, starting_fuel_ratio: float | np.ndarray = 1.0):
-        """Reset the boosters.
+        """
+        Reset the boosters.
 
         Args:
+        ----
             starting_fuel_ratio (float | np.ndarray): ratio amount of fuel that the booster is reset to.
+
         """
         # deal with everything in percents
         self.ratio_fuel_remaining = (
@@ -128,15 +137,18 @@ class Boosters:
         self.ignition_state = np.zeros((self.num_boosters,), dtype=bool)
 
     def get_states(self) -> np.ndarray:
-        """Gets the current state of the components.
+        """
+        Gets the current state of the components.
 
         Returns a (a0, a1, ..., an, b0, b1, ... bn, c0, c1, ... cn) array where:
         - (a0, a1, ..., an) represent the ignition state
         - (b0, b1, ..., bn) represent the remaining fuel ratio
         - (c0, c1, ..., cn) represent the current throttle state
 
-        Returns:
+        Returns
+        -------
             np.ndarray: A (3 * num_boosters, ) array
+
         """
         return np.concatenate(
             [
@@ -153,12 +165,15 @@ class Boosters:
     def physics_update(
         self, ignition: np.ndarray, pwm: np.ndarray, rotation: None | np.ndarray = None
     ):
-        """Converts booster settings into forces on the booster and inertia change on fuel tank.
+        """
+        Converts booster settings into forces on the booster and inertia change on fuel tank.
 
         Args:
+        ----
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
             pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
             rotation (np.ndarray): (num_boosters, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
+
         """
         assert np.all(ignition >= 0.0) and np.all(
             ignition <= 1.0
@@ -211,11 +226,14 @@ class Boosters:
     def _compute_thrust_mass_inertia(
         self, ignition: np.ndarray, pwm: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """_compute_thrust_mass_inertia.
+        """
+        _compute_thrust_mass_inertia.
 
         Args:
+        ----
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
             pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
+
         """
         # if not reignitable, logical or ignition_state with ignition
         # otherwise, just follow ignition

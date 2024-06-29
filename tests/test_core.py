@@ -138,7 +138,7 @@ def test_camera():
 
 
 def test_custom_controller():
-    """Tests implementing a custom controller"""
+    """Tests implementing a custom controller."""
 
     class CustomController(ControlClass):
         """A custom controller that inherits from the CtrlClass."""
@@ -152,11 +152,14 @@ def test_custom_controller():
             pass
 
         def step(self, state: np.ndarray, setpoint: np.ndarray):
-            """Step the controller here.
+            """
+            Step the controller here.
 
             Args:
+            ----
                 state (np.ndarray): Current state of the UAV
                 setpoint (np.ndarray): Desired setpoint
+
             """
             # outputs a command to base flight mode 6 that makes the drone stay at x=1, y=1, z=1, yawrate=0.1
             target_velocity = np.array([1.0, 1.0, 1.0]) - state[-1]
@@ -262,10 +265,13 @@ def test_mixed_drones():
     ["fixedwing", "rocket"],
 )
 def test_simple_wind(model: str):
-    """Tests the wind field functionality
+    """
+    Tests the wind field functionality.
 
     Args:
+    ----
         model (str): model name
+
     """
 
     # define the wind field
@@ -296,10 +302,13 @@ def test_simple_wind(model: str):
     ["fixedwing", "rocket"],
 )
 def test_custom_wind(model: str):
-    """Tests the wind field functionality
+    """
+    Tests the wind field functionality.
 
     Args:
+    ----
         model (str): model name
+
     """
 
     # define the wind field
