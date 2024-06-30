@@ -66,7 +66,7 @@ class PoleHandler:
             float:
 
         """
-        return self._leaningness
+        return float(self._leaningness)
 
     def compute_state(
         self, rotation: np.ndarray, uav_lin_pos: np.ndarray, uav_lin_vel: np.ndarray
@@ -99,17 +99,17 @@ class PoleHandler:
         pole_bot_pos = np.array(pole_bot_pos)
         pole_bot_vel = np.array(pole_bot_vel)
 
+        # compute the uprightness of the pole BEFORE we do axis transforms
+        if pole_top_pos[-1] > pole_bot_pos[-1]:
+            self._leaningness = np.linalg.norm(pole_top_pos[:2] - pole_bot_pos[:2])
+        else:
+            self._leaningness = 1.0
+
         # get everything relative to the drone's position
         pole_top_pos: np.ndarray = np.matmul(rotation, (pole_top_pos - uav_lin_pos))
         pole_bot_pos: np.ndarray = np.matmul(rotation, (pole_bot_pos - uav_lin_pos))
         pole_top_vel: np.ndarray = np.matmul(rotation, pole_top_vel) - uav_lin_vel
         pole_bot_vel: np.ndarray = np.matmul(rotation, pole_bot_vel) - uav_lin_vel
-
-        # compute the uprightness of the pole
-        if pole_top_pos[-1] > pole_bot_pos[-1]:
-            self._leaningness = np.linalg.norm(pole_top_pos[:2] - pole_bot_pos[:2])
-        else:
-            self._leaningness = 1.0
 
         return (
             pole_top_pos,

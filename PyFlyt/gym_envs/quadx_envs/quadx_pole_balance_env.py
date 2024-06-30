@@ -111,6 +111,12 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         - lin_pos (vector of 3 values)
         - previous_action (vector of 4 values)
         - auxiliary information (vector of 4 values)
+        - 12 values for the pole's positions relative to self:
+        ------ top position XYZ
+        ------ bottom position XYZ
+        ------ top velocity XYZ
+        ------ bottom velocity XYZ
+        - auxiliary information (vector of 4 values)
         """
         # compute attitude of self
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
@@ -142,8 +148,8 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
                     self.action,
                     aux_state,
                     pole_top_pos,
-                    pole_top_vel,
                     pole_bot_pos,
+                    pole_top_vel,
                     pole_bot_vel,
                 ],
                 axis=-1,
@@ -158,8 +164,8 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
                     self.action,
                     aux_state,
                     pole_top_pos,
-                    pole_top_vel,
                     pole_bot_pos,
+                    pole_top_vel,
                     pole_bot_vel,
                 ],
                 axis=-1,

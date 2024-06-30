@@ -154,8 +154,8 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         ----- auxiliary information (vector of 4 values)
         ----- 12 values for the pole's positions relative to self:
         ---------- top position XYZ
-        ---------- top velocity XYZ
         ---------- bottom position XYZ
+        ---------- top velocity XYZ
         ---------- bottom velocity XYZ
         - "target_deltas" (Sequence)
         ----- list of body_frame distances to target (vector of 3/4 values)
