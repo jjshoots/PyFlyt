@@ -1,13 +1,13 @@
 """QuadX Pole Waypoints Environment."""
 from __future__ import annotations
 
-import os
 from typing import Any, Literal
 
 import numpy as np
 from gymnasium import spaces
 
 from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
+from PyFlyt.gym_envs.utils.pole_handler import PoleHandler
 from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 
 
@@ -15,7 +15,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
     """QuadX Pole Waypoints Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The target is to get the tip of a pole to a set of `[x, y, z]` waypoints in space.
+    The target is to get to a set of `[x, y, z]` waypoints in space without dropping the pole.
 
     Args:
     ----
@@ -84,21 +84,14 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             np_random=self.np_random,
         )
 
-        # the pole urdf
-        file_dir = os.path.dirname(os.path.realpath(__file__))
-        self.pole_obj_dir = os.path.join(file_dir, "../../models/pole.urdf")
-
-        # modify the state to take into account the pole's state
-        pole_space = spaces.Box(
-            low=-np.inf,
-            high=np.inf,
-            shape=(self.attitude_space.shape[0],),
-            dtype=np.float64,
-        )
+        # init the pole
+        self.pole = PoleHandler(self.env)
         combined_plus_pole_space = spaces.Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.combined_space.shape[0] + pole_space.shape[0],),
+            shape=(
+                self.combined_space.shape[0] + self.pole.observation_space.shape[0],
+            ),
             dtype=np.float64,
         )
 
@@ -136,23 +129,14 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             seed, options, drone_options={"drone_model": "primitive_drone"}
         )
 
-        # spawn in a pole and make it have enough friction
-        self.poleId = self.env.loadURDF(
-            self.pole_obj_dir,
-            basePosition=np.array([0.0, 0.0, 2.1]),
-            useFixedBase=False,
-        )
-        self.env.changeDynamics(
-            self.poleId,
-            linkIndex=1,
-            anisotropicFriction=1e9,
-            lateralFriction=1e9,
-        )
+        # spawn in a pole
+        self.pole.reset(start_location=np.array([0.0, 0.0, 1.55]))
 
+        # init some other metadata
         self.waypoints.reset(self.env, self.np_random)
         self.info["num_targets_reached"] = 0
         self.distance_to_immediate = np.inf
-        self.pole_uprightness = 0.0
+
         super().end_reset()
 
         return self.state, self.info
@@ -168,6 +152,11 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         ----- lin_pos (vector of 3 values)
         ----- previous_action (vector of 4 values)
         ----- auxiliary information (vector of 4 values)
+        ----- 12 values for the pole's positions relative to self:
+        ---------- top position XYZ
+        ---------- top velocity XYZ
+        ---------- bottom position XYZ
+        ---------- bottom velocity XYZ
         - "target_deltas" (Sequence)
         ----- list of body_frame distances to target (vector of 3/4 values)
         """
@@ -178,60 +167,54 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         )
         aux_state = super().compute_auxiliary()
 
-        # compute the attitude of the pole in global coords
-        pole_lin_pos, pole_quaternion = self.env.getBasePositionAndOrientation(
-            self.poleId
+        # compute the pole's states
+        (
+            pole_top_pos,
+            pole_top_vel,
+            pole_bot_pos,
+            pole_bot_vel,
+        ) = self.pole.compute_state(
+            rotation=rotation,
+            uav_lin_pos=lin_pos,
+            uav_lin_vel=lin_vel,
         )
-        pole_lin_vel, pole_ang_vel = self.env.getBaseVelocity(self.poleId)
-        pole_ang_pos = self.env.getEulerFromQuaternion(pole_quaternion)
-        self.pole_uprightness = np.linalg.norm(pole_ang_pos[:2])
-
-        # express pole relative to self
-        # positions are global, hence the subtract
-        rel_pole_lin_pos = np.matmul(rotation, (pole_lin_pos - lin_pos))
-        rel_pole_ang_pos = np.matmul(rotation, (pole_ang_pos - ang_pos))
-        # velocities of self are already rotated, pole isn't
-        rel_pole_lin_vel = np.matmul(rotation, pole_lin_vel) - lin_vel
-        rel_pole_ang_vel = np.matmul(rotation, pole_ang_vel) - ang_vel
-
-        # regenerate the quaternion
-        rel_pole_quaternion = self.env.getQuaternionFromEuler(rel_pole_ang_pos)
 
         # combine everything
         new_state: dict[Literal["attitude", "target_deltas"], np.ndarray] = dict()
         if self.angle_representation == 0:
-            new_state["attitude"] = np.array(
+            new_state["attitude"] = np.concatenate(
                 [
-                    *ang_vel,
-                    *ang_pos,
-                    *lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    *rel_pole_ang_vel,
-                    *rel_pole_ang_pos,
-                    *rel_pole_lin_vel,
-                    *rel_pole_lin_pos,
-                ]
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    pole_top_pos,
+                    pole_top_vel,
+                    pole_bot_pos,
+                    pole_bot_vel,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            new_state["attitude"] = np.array(
+            new_state["attitude"] = np.concatenate(
                 [
-                    *ang_vel,
-                    *quaternion,
-                    *lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    *rel_pole_ang_vel,
-                    *rel_pole_quaternion,
-                    *rel_pole_lin_vel,
-                    *rel_pole_lin_pos,
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    pole_top_pos,
+                    pole_top_vel,
+                    pole_bot_pos,
+                    pole_bot_vel,
                 ]
             )
 
         new_state["target_deltas"] = self.waypoints.distance_to_target(
-            pole_ang_pos, pole_lin_pos, pole_quaternion
+            ang_pos, lin_pos, quaternion
         )
         self.distance_to_immediate = float(
             np.linalg.norm(new_state["target_deltas"][0])
@@ -247,7 +230,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
             self.reward += 0.1 / self.distance_to_immediate
-            self.reward -= self.pole_uprightness
+            self.reward -= self.pole.leaningness
 
         # target reached
         if self.waypoints.target_reached():
