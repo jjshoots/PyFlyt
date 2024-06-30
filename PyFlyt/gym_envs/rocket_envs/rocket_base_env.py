@@ -267,10 +267,10 @@ class RocketBaseEnv(gymnasium.Env):
         lin_vel = raw_state[2]
         lin_pos = raw_state[3]
 
-        # quarternion angles
-        quarternion = p.getQuaternionFromEuler(ang_pos)
+        # quaternion angles
+        quaternion = p.getQuaternionFromEuler(ang_pos)
 
-        return ang_vel, ang_pos, lin_vel, lin_pos, quarternion
+        return ang_vel, ang_pos, lin_vel, lin_pos, quaternion
 
     def compute_term_trunc_reward(self):
         """compute_term_trunc_reward."""

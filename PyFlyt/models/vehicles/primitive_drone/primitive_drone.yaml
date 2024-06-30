@@ -13,9 +13,9 @@ drag_params:
 control_params:
   ang_vel:
     description: "input: angular velocity command | output: normalized angular torque command"
-    kp: [1.0e-2, 1.0e-2, 4.0e-3]
+    kp: [1.5e-2, 1.5e-2, 5.0e-3]
     ki: [1.0e-5, 1.0e-5, 2.0e-6]
-    kd: [1.0e-5, 1.0e-5, 1.0e-6]
+    kd: [1.2e-5, 1.2e-5, 1.2e-6]
     lim: [1.0, 1.0, 1.0]
 
   ang_pos:
@@ -27,8 +27,8 @@ control_params:
 
   lin_vel:
     description: "input: linear velocity command | output: angular position command"
-    kp: [0.5, 0.5]
-    ki: [0.2, 0.2]
+    kp: [0.3, 0.3]
+    ki: [0.03, 0.03]
     kd: [0.3, 0.3]
     lim: [1.0, 1.0]
 

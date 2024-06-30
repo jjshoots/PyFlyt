@@ -252,11 +252,11 @@ class QuadXGatesEnv(QuadXBaseEnv):
         - "target_deltas" (Graph)
             - list of body_frame distances to target (vector of 3/4 values)
         """
-        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
         # rotation matrix
-        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3).T
+        rotation = np.array(p.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
 
         # drone to target
         target_deltas = np.matmul(rotation, (self.targets - lin_pos).T).T
@@ -267,12 +267,12 @@ class QuadXGatesEnv(QuadXBaseEnv):
             Literal["attitude", "rgba_cam", "target_deltas"], np.ndarray
         ] = dict()
         if self.angle_representation == 0:
-            new_state["attitude"] = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
+            new_state["attitude"] = np.concatenate(
+                [ang_vel, ang_pos, lin_vel, lin_pos, self.action, aux_state], axis=-1
             )
         elif self.angle_representation == 1:
-            new_state["attitude"] = np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+            new_state["attitude"] = np.concatenate(
+                [ang_vel, quaternion, lin_vel, lin_pos, self.action, aux_state], axis=-1
             )
 
         # grab the image

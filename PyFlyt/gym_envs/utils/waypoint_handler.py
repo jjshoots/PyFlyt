@@ -19,6 +19,7 @@ class WaypointHandler:
         goal_reach_distance: float,
         goal_reach_angle: float,
         flight_dome_size: float,
+        min_height: float,
         np_random: np.random.Generator,
     ):
         """__init__.
@@ -31,6 +32,7 @@ class WaypointHandler:
             goal_reach_distance (float): goal_reach_distance
             goal_reach_angle (float): goal_reach_angle
             flight_dome_size (float): flight_dome_size
+            min_height (float): min_height
             np_random (np.random.Generator): np_random
 
         """
@@ -41,6 +43,7 @@ class WaypointHandler:
         self.goal_reach_distance = goal_reach_distance
         self.goal_reach_angle = goal_reach_angle
         self.flight_dome_size = flight_dome_size
+        self.min_height = min_height
         self.np_random = np_random
 
         # the target visual
@@ -75,7 +78,9 @@ class WaypointHandler:
             z = abs(dist * math.cos(phi))
 
             # check for floor of z
-            self.targets[i] = np.array([x, y, z if z > 0.1 else 0.1])
+            self.targets[i] = np.array(
+                [x, y, z if z > self.min_height else self.min_height]
+            )
 
         # yaw targets
         if self.use_yaw_targets:
@@ -107,7 +112,7 @@ class WaypointHandler:
         self,
         ang_pos: np.ndarray,
         lin_pos: np.ndarray,
-        quarternion: np.ndarray,
+        quaternion: np.ndarray,
     ):
         """distance_to_target.
 
@@ -115,11 +120,11 @@ class WaypointHandler:
         ----
             ang_pos (np.ndarray): ang_pos
             lin_pos (np.ndarray): lin_pos
-            quarternion (np.ndarray): quarternion
+            quaternion (np.ndarray): quaternion
 
         """
         # rotation matrix
-        rotation = np.array(self.p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
+        rotation = np.array(self.p.getMatrixFromQuaternion(quaternion)).reshape(3, 3)
 
         # drone to target
         target_deltas = np.matmul((self.targets - lin_pos), rotation)

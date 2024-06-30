@@ -1,18 +1,20 @@
-"""QuadX Hover Environment."""
+"""QuadX Pole Balance Environment."""
 from __future__ import annotations
 
 from typing import Any, Literal
 
 import numpy as np
+from gymnasium import spaces
 
 from PyFlyt.gym_envs.quadx_envs.quadx_base_env import QuadXBaseEnv
+from PyFlyt.gym_envs.utils.pole_handler import PoleHandler
 
 
-class QuadXHoverEnv(QuadXBaseEnv):
-    """Simple Hover Environment.
+class QuadXPoleBalanceEnv(QuadXBaseEnv):
+    """Simple Hover Environment with the additional goal of keeping a pole upright.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The target is to not crash for the longest time possible.
+    The target is to not crash and not let the pole hit the ground for the longest time possible.
 
     Args:
     ----
@@ -32,7 +34,7 @@ class QuadXHoverEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         flight_mode: int = 0,
         flight_dome_size: float = 3.0,
-        max_duration_seconds: float = 10.0,
+        max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 40,
         render_mode: None | Literal["human", "rgb_array"] = None,
@@ -61,9 +63,19 @@ class QuadXHoverEnv(QuadXBaseEnv):
             render_mode=render_mode,
             render_resolution=render_resolution,
         )
+        # init the pole
+        self.pole = PoleHandler()
 
         """GYMNASIUM STUFF"""
-        self.observation_space = self.combined_space
+        # Define observation space
+        self.observation_space = spaces.Box(
+            low=-np.inf,
+            high=np.inf,
+            shape=(
+                self.combined_space.shape[0] + self.pole.observation_space.shape[0],
+            ),
+            dtype=np.float64,
+        )
 
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
@@ -79,7 +91,12 @@ class QuadXHoverEnv(QuadXBaseEnv):
             options: None
 
         """
-        super().begin_reset(seed, options)
+        super().begin_reset(
+            seed,
+            options,
+            drone_options={"drone_model": "primitive_drone"},
+        )
+        self.pole.reset(p=self.env, start_location=np.array([0.0, 0.0, 1.55]))
         super().end_reset(seed, options)
 
         return self.state, self.info
@@ -94,9 +111,31 @@ class QuadXHoverEnv(QuadXBaseEnv):
         - lin_pos (vector of 3 values)
         - previous_action (vector of 4 values)
         - auxiliary information (vector of 4 values)
+        - 12 values for the pole's positions relative to self:
+        ------ top position XYZ
+        ------ bottom position XYZ
+        ------ top velocity XYZ
+        ------ bottom velocity XYZ
+        - auxiliary information (vector of 4 values)
         """
+        # compute attitude of self
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
+        rotation = (
+            np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
+        )
+
+        # compute the pole's states
+        (
+            pole_top_pos,
+            pole_top_vel,
+            pole_bot_pos,
+            pole_bot_vel,
+        ) = self.pole.compute_state(
+            rotation=rotation,
+            uav_lin_pos=lin_pos,
+            uav_lin_vel=lin_vel,
+        )
 
         # combine everything
         if self.angle_representation == 0:
@@ -108,12 +147,28 @@ class QuadXHoverEnv(QuadXBaseEnv):
                     lin_pos,
                     self.action,
                     aux_state,
+                    pole_top_pos,
+                    pole_bot_pos,
+                    pole_top_vel,
+                    pole_bot_vel,
                 ],
                 axis=-1,
             )
         elif self.angle_representation == 1:
             self.state = np.concatenate(
-                [ang_vel, quaternion, lin_vel, lin_pos, self.action, aux_state], axis=-1
+                [
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    pole_top_pos,
+                    pole_bot_pos,
+                    pole_top_vel,
+                    pole_bot_vel,
+                ],
+                axis=-1,
             )
 
     def compute_term_trunc_reward(self) -> None:
@@ -130,4 +185,5 @@ class QuadXHoverEnv(QuadXBaseEnv):
             angular_distance = np.linalg.norm(self.env.state(0)[1][:2])
 
             self.reward -= linear_distance + angular_distance
+            self.reward -= self.pole.leaningness
             self.reward += 1.0

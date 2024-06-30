@@ -152,41 +152,43 @@ class RocketLandingEnv(RocketBaseEnv):
             self.ang_pos,
             self.lin_vel,
             lin_pos,
-            quarternion,
+            quaternion,
         ) = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
         # drone to landing pad
-        rotation = np.array(p.getMatrixFromQuaternion(quarternion)).reshape(3, 3)
+        rotation = np.array(p.getMatrixFromQuaternion(quaternion)).reshape(3, 3)
         self.distance = lin_pos - self.landing_pad_position
         rotated_distance = np.matmul(self.distance, rotation)
 
         # combine everything
         if self.angle_representation == 0:
-            self.state = np.array(
+            self.state = np.concatenate(
                 [
-                    *self.ang_vel,
-                    *self.ang_pos,
-                    *self.lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    self.landing_pad_contact,
-                    *rotated_distance,
-                ]
+                    self.ang_vel,
+                    self.ang_pos,
+                    self.lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    np.array([self.landing_pad_contact]),
+                    rotated_distance,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            self.state = np.array(
+            self.state = np.concatenate(
                 [
-                    *self.ang_vel,
-                    *quarternion,
-                    *self.lin_vel,
-                    *lin_pos,
-                    *self.action,
-                    *aux_state,
-                    self.landing_pad_contact,
-                    *rotated_distance,
-                ]
+                    self.ang_vel,
+                    quaternion,
+                    self.lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                    np.array([self.landing_pad_contact]),
+                    rotated_distance,
+                ],
+                axis=-1,
             )
 
     def compute_term_trunc_reward(self) -> None:

@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<robot name="cube">
+
+  <material name="red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+
+  <link name="base_link">
+    <collision>
+      <geometry>
+        <cylinder radius="0.005" length="1.0"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.2"/>
+    	<inertia ixx="0.016668" ixy="0.0" ixz="0.0" iyy="0.016668" iyz="0.0" izz="0.000002"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <cylinder radius="0.005" length="1.0"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <link name="top_link">
+    <visual>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <inertial>
+      <mass value="0.0"/>
+    	<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <box size="0 0 0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="bottom_link">
+    <visual>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <inertial>
+      <mass value="0.0"/>
+    	<inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+  	</inertial>
+    <visual>
+      <geometry>
+        <box size="0 0 0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_to_top" type="fixed">
+    <parent link="base_link"/>
+    <child link="top_link"/>
+    <origin xyz="0.0 0.0 0.5"/>
+  </joint>
+  <joint name="base_to_bottom" type="fixed">
+    <parent link="base_link"/>
+    <child link="bottom_link"/>
+    <origin xyz="0.0 0.0 -0.5"/>
+  </joint>
+</robot>

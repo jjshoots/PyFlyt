@@ -1,4 +1,5 @@
 """Tests the API compatibility of all PyFlyt Gymnasium Envs."""
+import itertools
 import warnings
 
 import gymnasium as gym
@@ -12,94 +13,48 @@ from PyFlyt.gym_envs import FlattenWaypointEnv
 
 # waypoint envs
 _WAYPOINT_ENV_CONFIGS = []
-_WAYPOINT_ENV_CONFIGS.append(
-    (
+for env_name, angle_representation, sparse_reward in itertools.product(
+    [
         "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="euler", sparse_reward=True),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="quaternion", sparse_reward=True),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="euler", sparse_reward=False),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="quaternion", sparse_reward=False),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="euler", use_yaw_targets=True),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="quaternion", use_yaw_targets=True),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="euler", use_yaw_targets=False),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/QuadX-Waypoints-v2",
-        dict(angle_representation="quaternion", use_yaw_targets=False),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
+        "PyFlyt/QuadX-Pole-Waypoints-v2",
         "PyFlyt/Fixedwing-Waypoints-v2",
-        dict(angle_representation="euler", sparse_reward=True),
+    ],
+    ["euler", "quaternion"],
+    [True, False],
+):
+    _WAYPOINT_ENV_CONFIGS.append(
+        (
+            env_name,
+            dict(
+                angle_representation=angle_representation,
+                sparse_reward=sparse_reward,
+            ),
+        )
     )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/Fixedwing-Waypoints-v2",
-        dict(angle_representation="quaternion", sparse_reward=True),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/Fixedwing-Waypoints-v2",
-        dict(angle_representation="euler", sparse_reward=False),
-    )
-)
-_WAYPOINT_ENV_CONFIGS.append(
-    (
-        "PyFlyt/Fixedwing-Waypoints-v2",
-        dict(angle_representation="quaternion", sparse_reward=False),
-    )
-)
 
-# all other environments
-_ALL_ENV_CONFIGS = [] + _WAYPOINT_ENV_CONFIGS
-# quadx envs
-_ALL_ENV_CONFIGS.append(("PyFlyt/QuadX-Hover-v2", dict(angle_representation="euler")))
-_ALL_ENV_CONFIGS.append(
-    ("PyFlyt/QuadX-Hover-v2", dict(angle_representation="quaternion"))
-)
-# rocket envs
-_ALL_ENV_CONFIGS.append(
-    ("PyFlyt/Rocket-Landing-v2", dict(angle_representation="euler"))
-)
-_ALL_ENV_CONFIGS.append(
-    ("PyFlyt/Rocket-Landing-v2", dict(angle_representation="quaternion"))
-)
-_ALL_ENV_CONFIGS.append(("PyFlyt/Rocket-Landing-v2", dict(sparse_reward=True)))
+# non waypoint environments
+_NORMAL_ENV_CONFIGS = []
+for env_name, angle_representation, sparse_reward in itertools.product(
+    [
+        "PyFlyt/QuadX-Hover-v2",
+        "PyFlyt/QuadX-Pole-Balance-v2",
+        "PyFlyt/Rocket-Landing-v2",
+    ],
+    ["euler", "quaternion"],
+    [True, False],
+):
+    _NORMAL_ENV_CONFIGS.append(
+        (
+            env_name,
+            dict(
+                angle_representation=angle_representation,
+                sparse_reward=sparse_reward,
+            ),
+        )
+    )
+
+# all env configs
+_ALL_ENV_CONFIGS = _NORMAL_ENV_CONFIGS + _WAYPOINT_ENV_CONFIGS
 
 # can be edited depending on gymnasium version
 CHECK_ENV_IGNORE_WARNINGS = [

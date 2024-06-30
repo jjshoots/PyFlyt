@@ -79,6 +79,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             goal_reach_distance=goal_reach_distance,
             goal_reach_angle=np.inf,
             flight_dome_size=flight_dome_size,
+            min_height=0.5,
             np_random=self.np_random,
         )
 
@@ -134,22 +135,38 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         - "target_deltas" (Sequence)
         ----- list of body_frame distances to target (vector of 3/4 values)
         """
-        ang_vel, ang_pos, lin_vel, lin_pos, quarternion = super().compute_attitude()
+        ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
         # combine everything
         new_state: dict[Literal["attitude", "target_deltas"], np.ndarray] = dict()
         if self.angle_representation == 0:
-            new_state["attitude"] = np.array(
-                [*ang_vel, *ang_pos, *lin_vel, *lin_pos, *self.action, *aux_state]
+            new_state["attitude"] = np.concatenate(
+                [
+                    ang_vel,
+                    ang_pos,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                ],
+                axis=-1,
             )
         elif self.angle_representation == 1:
-            new_state["attitude"] = np.array(
-                [*ang_vel, *quarternion, *lin_vel, *lin_pos, *self.action, *aux_state]
+            new_state["attitude"] = np.concatenate(
+                [
+                    ang_vel,
+                    quaternion,
+                    lin_vel,
+                    lin_pos,
+                    self.action,
+                    aux_state,
+                ],
+                axis=-1,
             )
 
         new_state["target_deltas"] = self.waypoints.distance_to_target(
-            ang_pos, lin_pos, quarternion
+            ang_pos, lin_pos, quaternion
         )
         self.distance_to_immediate = float(
             np.linalg.norm(new_state["target_deltas"][0])

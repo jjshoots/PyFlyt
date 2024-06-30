@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PyFlyt"
-version = "0.22.2"
+version = "0.23.0"
 authors = [
   { name="Jet", email="taijunjet@hotmail.com" },
 ]
