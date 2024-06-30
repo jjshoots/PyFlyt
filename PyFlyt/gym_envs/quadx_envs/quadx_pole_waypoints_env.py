@@ -185,14 +185,14 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             new_state["attitude"] = np.concatenate(
                 [
                     ang_vel,
-                    quaternion,
+                    ang_pos,
                     lin_vel,
                     lin_pos,
                     self.action,
                     aux_state,
                     pole_top_pos,
-                    pole_top_vel,
                     pole_bot_pos,
+                    pole_top_vel,
                     pole_bot_vel,
                 ],
                 axis=-1,
@@ -207,8 +207,8 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
                     self.action,
                     aux_state,
                     pole_top_pos,
-                    pole_top_vel,
                     pole_bot_pos,
+                    pole_top_vel,
                     pole_bot_vel,
                 ]
             )
