@@ -13,9 +13,7 @@ class PoleHandler:
     """PoleHandler."""
 
     def __init__(self):
-        """__init__.
-
-        """
+        """__init__."""
         # the pole urdf
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.pole_obj_dir = os.path.join(file_dir, "../../models/pole.urdf")
@@ -36,8 +34,10 @@ class PoleHandler:
         """reset.
 
         Args:
+        ----
             p (bullet_client.BulletClient): p
             start_location (np.ndarray): start_location
+
         """
         # store the client
         self.p = p
