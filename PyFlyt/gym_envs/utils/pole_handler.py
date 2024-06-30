@@ -81,7 +81,7 @@ class PoleHandler:
 
         Returns:
         -------
-            tuple[np.ndarray, np.ndarray, np.ndarray]:
+            tuple[np.ndarray, np.ndarray, np.ndarray]: top_pos, top_vel, bot_pos, bot_vel
 
         """
         # we measure the top and bottom linear position and velocity of the pole
