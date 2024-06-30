@@ -6,22 +6,16 @@ import os
 
 import numpy as np
 from gymnasium import spaces
-from pybullet_utils.bullet_client import BulletClient
+from pybullet_utils import bullet_client
 
 
 class PoleHandler:
     """PoleHandler."""
 
-    def __init__(self, p: BulletClient):
+    def __init__(self):
         """__init__.
 
-        Args:
-        ----
-            p (BulletClient): p
-
         """
-        self.p = p
-
         # the pole urdf
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.pole_obj_dir = os.path.join(file_dir, "../../models/pole.urdf")
@@ -34,14 +28,20 @@ class PoleHandler:
             dtype=np.float64,
         )
 
-    def reset(self, start_location: np.ndarray):
+    def reset(
+        self,
+        p: bullet_client.BulletClient,
+        start_location: np.ndarray,
+    ):
         """reset.
 
         Args:
-        ----
+            p (bullet_client.BulletClient): p
             start_location (np.ndarray): start_location
-
         """
+        # store the client
+        self.p = p
+
         # spawn in a pole and make it have enough friction
         self.Id = self.p.loadURDF(
             self.pole_obj_dir,
@@ -66,7 +66,7 @@ class PoleHandler:
             float:
 
         """
-        return self.leaningness
+        return self._leaningness
 
     def compute_state(
         self, rotation: np.ndarray, uav_lin_pos: np.ndarray, uav_lin_vel: np.ndarray

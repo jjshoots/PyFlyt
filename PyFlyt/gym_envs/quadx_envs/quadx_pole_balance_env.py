@@ -64,7 +64,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
             render_resolution=render_resolution,
         )
         # init the pole
-        self.pole = PoleHandler(self.env)
+        self.pole = PoleHandler()
 
         """GYMNASIUM STUFF"""
         # Define observation space
@@ -96,7 +96,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
             options,
             drone_options={"drone_model": "primitive_drone"},
         )
-        self.pole.reset(start_location=np.array([0.0, 0.0, 1.55]))
+        self.pole.reset(p=self.env, start_location=np.array([0.0, 0.0, 1.55]))
         super().end_reset(seed, options)
 
         return self.state, self.info

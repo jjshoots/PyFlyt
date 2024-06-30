@@ -85,7 +85,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         )
 
         # init the pole
-        self.pole = PoleHandler(self.env)
+        self.pole = PoleHandler()
         combined_plus_pole_space = spaces.Box(
             low=-np.inf,
             high=np.inf,
@@ -130,7 +130,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         )
 
         # spawn in a pole
-        self.pole.reset(start_location=np.array([0.0, 0.0, 1.55]))
+        self.pole.reset(p=self.env, start_location=np.array([0.0, 0.0, 1.55]))
 
         # init some other metadata
         self.waypoints.reset(self.env, self.np_random)
