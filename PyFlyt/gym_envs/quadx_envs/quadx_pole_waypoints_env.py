@@ -230,7 +230,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
             self.reward += 0.1 / self.distance_to_immediate
-            self.reward += 1.0 - self.pole.leaningness
+            self.reward += 0.5 * (1.0 - self.pole.leaningness)
 
         # target reached
         if self.waypoints.target_reached():
