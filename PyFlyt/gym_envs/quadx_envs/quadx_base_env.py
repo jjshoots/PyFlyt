@@ -75,24 +75,30 @@ class QuadXBaseEnv(gymnasium.Env):
         self.auxiliary_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(4,), dtype=np.float64
         )
-        angular_rate_limit = np.pi
+        xyz_limit = np.pi
         thrust_limit = 0.8
-        high = np.array(
-            [
-                angular_rate_limit,
-                angular_rate_limit,
-                angular_rate_limit,
-                thrust_limit,
-            ]
-        )
-        low = np.array(
-            [
-                -angular_rate_limit,
-                -angular_rate_limit,
-                -angular_rate_limit,
-                0.0,
-            ]
-        )
+        if flight_mode == -1:
+            high = np.ones((4,)) * +1.0
+            low = np.ones((4,)) * -1.0
+        else:
+            high = np.array(
+                [
+                    xyz_limit,
+                    xyz_limit,
+                    xyz_limit,
+                    thrust_limit,
+                ]
+            )
+            low = np.array(
+                [
+                    -xyz_limit,
+                    -xyz_limit,
+                    -xyz_limit,
+                    0.0,
+                ]
+            )
+
+
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         # the whole implicit state space = attitude + previous action + auxiliary information
