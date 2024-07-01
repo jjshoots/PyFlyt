@@ -80,7 +80,7 @@ class QuadXBaseEnv(gymnasium.Env):
         xyz_limit = np.pi
         thrust_limit = 0.8
         if flight_mode == -1:
-            high = np.ones((4,))
+            high = np.ones((4,)) * thrust_limit
             low = np.zeros((4,))
         else:
             high = np.array(
