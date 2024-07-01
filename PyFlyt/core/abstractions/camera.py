@@ -100,7 +100,7 @@ class Camera:
     def view_mat(self) -> np.ndarray:
         """Generates the view matrix for the camera depending on the current orientation and implicit parameters.
 
-        Returns
+        Returns:
         -------
             np.ndarray: view matrix.
 
@@ -161,7 +161,7 @@ class Camera:
     def capture_image(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Captures the 3 relevant images from the camera.
 
-        Returns
+        Returns:
         -------
             tuple[np.ndarray, np.ndarray, np.ndarray]: rgbaImg, depthImg, segImg
 

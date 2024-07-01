@@ -178,7 +178,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     def _compute_agent_states(self) -> None:
         """_compute_agent_states.
 
-        Returns
+        Returns:
         -------
             None:
 

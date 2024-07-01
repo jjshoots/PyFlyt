@@ -49,5 +49,8 @@ reportMissingImports = "none"
 ignore = ["D401", "D404", "D203", "D213"]
 select = ["E4", "E7", "E9", "F", "I", "D"]
 
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]

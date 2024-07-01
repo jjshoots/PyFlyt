@@ -38,7 +38,7 @@ class AviaryInitException(Exception):
     def __str__(self) -> str:
         """__str__.
 
-        Returns
+        Returns:
         -------
             str:
 
@@ -380,7 +380,7 @@ class Aviary(bullet_client.BulletClient):
 
         This function is not very optimized, if you want the state of a single drone, do `state(i)`.
 
-        Returns
+        Returns:
         -------
             np.ndarray: list of states
 
@@ -399,7 +399,7 @@ class Aviary(bullet_client.BulletClient):
 
         This function is not very optimized, if you want the aux state of a single drone, do `aux_state(i)`.
 
-        Returns
+        Returns:
         -------
             np.ndarray: list of auxiliary states
 

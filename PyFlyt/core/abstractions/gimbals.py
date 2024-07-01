@@ -123,7 +123,7 @@ class Gimbals:
     def get_states(self) -> np.ndarray:
         """Gets the current state of the components.
 
-        Returns
+        Returns:
         -------
             np.ndarray: a (2 * num_gimbals, ) array where every pair of values represents the current state of the gimbal
 

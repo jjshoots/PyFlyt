@@ -141,7 +141,7 @@ class Boosters:
         - (b0, b1, ..., bn) represent the remaining fuel ratio
         - (c0, c1, ..., cn) represent the current throttle state
 
-        Returns
+        Returns:
         -------
             np.ndarray: A (3 * num_boosters, ) array
 

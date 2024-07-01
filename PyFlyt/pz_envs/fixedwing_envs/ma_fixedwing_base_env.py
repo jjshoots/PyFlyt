@@ -134,7 +134,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
     def observation_space(self, agent: Any = None) -> Space:
         """observation_space.
 
-        Returns
+        Returns:
         -------
             Space:
 
@@ -144,7 +144,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
     def action_space(self, agent: Any = None) -> spaces.Box:
         """action_space.
 
-        Returns
+        Returns:
         -------
             spaces.Box:
 
