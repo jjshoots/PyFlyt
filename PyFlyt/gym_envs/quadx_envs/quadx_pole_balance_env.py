@@ -45,12 +45,12 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         Args:
         ----
             sparse_reward (bool): whether to use sparse rewards or not.
-            flight_mode (int): the flight mode of the UAV
+            flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
-            render_mode (None | Literal["human", "rgb_array"]): render_mode
+            render_mode (None | Literal["human", "rgb_array"]): render_mode.
             render_resolution (tuple[int, int]): render_resolution.
 
         """

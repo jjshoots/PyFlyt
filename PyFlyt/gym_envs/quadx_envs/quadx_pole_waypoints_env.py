@@ -41,7 +41,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         flight_dome_size: float = 10.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
-        agent_hz: int = 30,
+        agent_hz: int = 40,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
@@ -57,12 +57,11 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
-            render_mode (None | Literal["human", "rgb_array"]): render_mode
+            render_mode (None | Literal["human", "rgb_array"]): render_mode.
             render_resolution (tuple[int, int]): render_resolution.
 
         """
         super().__init__(
-            start_pos=np.array([[0.0, 0.0, 1.0]]),
             flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
@@ -161,10 +160,10 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         """
         # compute attitude of self
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
+        aux_state = super().compute_auxiliary()
         rotation = (
             np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
         )
-        aux_state = super().compute_auxiliary()
 
         # compute the pole's states
         (
@@ -220,18 +219,18 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
 
     def compute_term_trunc_reward(self) -> None:
-        """Computes the termination, trunction, and reward of the current timestep."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
-            self.reward += max(3.0 * self.waypoints.progress_to_next_target, 0.0)
+            self.reward += max(10.0 * self.waypoints.progress_to_next_target, 0.0)
             self.reward += 0.1 / self.waypoints.distance_to_next_target
-            self.reward += 0.2 * (1.0 - self.pole.leaningness)
+            self.reward += (1.0 - self.pole.leaningness)
 
         # target reached
         if self.waypoints.target_reached:
-            self.reward = 100.0
+            self.reward = 300.0
 
             # advance the targets
             self.waypoints.advance_targets()
