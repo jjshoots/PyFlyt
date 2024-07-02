@@ -135,7 +135,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         # init some other metadata
         self.waypoints.reset(self.env, self.np_random)
         self.info["num_targets_reached"] = 0
-        self.distance_to_immediate = np.inf
 
         super().end_reset()
 
@@ -214,11 +213,8 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
                 axis=-1,
             )
 
-        new_state["target_deltas"] = self.waypoints.distance_to_target(
+        new_state["target_deltas"] = self.waypoints.distance_to_targets(
             ang_pos, lin_pos, quaternion
-        )
-        self.distance_to_immediate = float(
-            np.linalg.norm(new_state["target_deltas"][0])
         )
 
         self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
@@ -229,18 +225,18 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
-            self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
-            self.reward += 0.1 / self.distance_to_immediate
+            self.reward += max(3.0 * self.waypoints.progress_to_next_target, 0.0)
+            self.reward += 0.1 / self.waypoints.distance_to_next_target
             self.reward += 0.2 * (1.0 - self.pole.leaningness)
 
         # target reached
-        if self.waypoints.target_reached():
+        if self.waypoints.target_reached:
             self.reward = 100.0
 
             # advance the targets
             self.waypoints.advance_targets()
 
             # update infos and dones
-            self.truncation |= self.waypoints.all_targets_reached()
-            self.info["env_complete"] = self.waypoints.all_targets_reached()
-            self.info["num_targets_reached"] = self.waypoints.num_targets_reached()
+            self.truncation |= self.waypoints.all_targets_reached
+            self.info["env_complete"] = self.waypoints.all_targets_reached
+            self.info["num_targets_reached"] = self.waypoints.num_targets_reached
