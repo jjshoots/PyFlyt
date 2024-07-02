@@ -39,7 +39,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         goal_reach_distance: float = 0.2,
         flight_mode: int = 0,
         flight_dome_size: float = 10.0,
-        max_duration_seconds: float = 60.0,
+        max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
@@ -210,7 +210,8 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
                     pole_bot_pos,
                     pole_top_vel,
                     pole_bot_vel,
-                ]
+                ],
+                axis=-1,
             )
 
         new_state["target_deltas"] = self.waypoints.distance_to_target(
