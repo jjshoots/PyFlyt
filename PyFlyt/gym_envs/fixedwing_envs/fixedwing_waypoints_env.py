@@ -177,7 +177,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_next_target, 0.0)
-            self.reward += 1.0 / self.waypoints.distance_to_next_target
+            self.reward += 0.05 / self.waypoints.distance_to_next_target
 
         # target reached
         if self.waypoints.target_reached:
