@@ -14,7 +14,7 @@ from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 class QuadXPoleWaypointsEnv(QuadXBaseEnv):
     """QuadX Pole Waypoints Environment.
 
-    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    Actions are direct motor PWM commands because any underlying controller introduces too much control latency.
     The target is to get to a set of `[x, y, z]` waypoints in space without dropping the pole.
 
     Args:
@@ -37,7 +37,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         num_targets: int = 4,
         goal_reach_distance: float = 0.2,
-        flight_mode: int = 0,
+        flight_mode: int = -1,
         flight_dome_size: float = 10.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",

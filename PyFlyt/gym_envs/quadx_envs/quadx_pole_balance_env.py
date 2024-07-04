@@ -13,7 +13,7 @@ from PyFlyt.gym_envs.utils.pole_handler import PoleHandler
 class QuadXPoleBalanceEnv(QuadXBaseEnv):
     """Simple Hover Environment with the additional goal of keeping a pole upright.
 
-    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    Actions are direct motor PWM commands because any underlying controller introduces too much control latency.
     The target is to not crash and not let the pole hit the ground for the longest time possible.
 
     Args:
@@ -32,7 +32,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
     def __init__(
         self,
         sparse_reward: bool = False,
-        flight_mode: int = 0,
+        flight_mode: int = -1,
         flight_dome_size: float = 3.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
