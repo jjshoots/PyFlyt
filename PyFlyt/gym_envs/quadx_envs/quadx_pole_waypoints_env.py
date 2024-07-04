@@ -125,7 +125,12 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
 
         """
         super().begin_reset(
-            seed, options, drone_options={"drone_model": "primitive_drone"}
+            seed,
+            options,
+            drone_options={
+                "drone_model": "primitive_drone",
+                "camera_position_offset": np.array([-3.0, 0.0, 1.0]),
+            },
         )
 
         # spawn in a pole
@@ -230,7 +235,7 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
 
         # target reached
         if self.waypoints.target_reached:
-            self.reward = 300.0
+            self.reward = 500.0
 
             # advance the targets
             self.waypoints.advance_targets()

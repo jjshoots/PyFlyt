@@ -94,7 +94,10 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         super().begin_reset(
             seed,
             options,
-            drone_options={"drone_model": "primitive_drone"},
+            drone_options={
+                "drone_model": "primitive_drone",
+                "camera_position_offset": np.array([-3.0, 0.0, 1.0]),
+            },
         )
         self.pole.reset(p=self.env, start_location=np.array([0.0, 0.0, 1.55]))
         super().end_reset(seed, options)
