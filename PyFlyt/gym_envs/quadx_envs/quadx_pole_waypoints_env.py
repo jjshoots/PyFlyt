@@ -14,7 +14,7 @@ from PyFlyt.gym_envs.utils.waypoint_handler import WaypointHandler
 class QuadXPoleWaypointsEnv(QuadXBaseEnv):
     """QuadX Pole Waypoints Environment.
 
-    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    Actions are direct motor PWM commands because any underlying controller introduces too much control latency.
     The target is to get to a set of `[x, y, z]` waypoints in space without dropping the pole.
 
     Args:
@@ -37,11 +37,11 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         num_targets: int = 4,
         goal_reach_distance: float = 0.2,
-        flight_mode: int = 0,
+        flight_mode: int = -1,
         flight_dome_size: float = 10.0,
-        max_duration_seconds: float = 60.0,
+        max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
-        agent_hz: int = 30,
+        agent_hz: int = 40,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
     ):
@@ -57,12 +57,11 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
-            render_mode (None | Literal["human", "rgb_array"]): render_mode
+            render_mode (None | Literal["human", "rgb_array"]): render_mode.
             render_resolution (tuple[int, int]): render_resolution.
 
         """
         super().__init__(
-            start_pos=np.array([[0.0, 0.0, 1.0]]),
             flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
@@ -126,7 +125,12 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
 
         """
         super().begin_reset(
-            seed, options, drone_options={"drone_model": "primitive_drone"}
+            seed,
+            options,
+            drone_options={
+                "drone_model": "primitive_drone",
+                "camera_position_offset": np.array([-3.0, 0.0, 1.0]),
+            },
         )
 
         # spawn in a pole
@@ -135,7 +139,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         # init some other metadata
         self.waypoints.reset(self.env, self.np_random)
         self.info["num_targets_reached"] = 0
-        self.distance_to_immediate = np.inf
 
         super().end_reset()
 
@@ -162,10 +165,10 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         """
         # compute attitude of self
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
+        aux_state = super().compute_auxiliary()
         rotation = (
             np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
         )
-        aux_state = super().compute_auxiliary()
 
         # compute the pole's states
         (
@@ -210,36 +213,34 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
                     pole_bot_pos,
                     pole_top_vel,
                     pole_bot_vel,
-                ]
+                ],
+                axis=-1,
             )
 
-        new_state["target_deltas"] = self.waypoints.distance_to_target(
+        new_state["target_deltas"] = self.waypoints.distance_to_targets(
             ang_pos, lin_pos, quaternion
-        )
-        self.distance_to_immediate = float(
-            np.linalg.norm(new_state["target_deltas"][0])
         )
 
         self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
 
     def compute_term_trunc_reward(self) -> None:
-        """Computes the termination, trunction, and reward of the current timestep."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
-            self.reward += max(3.0 * self.waypoints.progress_to_target(), 0.0)
-            self.reward += 0.1 / self.distance_to_immediate
-            self.reward -= self.pole.leaningness
+            self.reward += max(15.0 * self.waypoints.progress_to_next_target, 0.0)
+            self.reward += 0.5 / self.waypoints.distance_to_next_target
+            self.reward += (0.5 - self.pole.leaningness)
 
         # target reached
-        if self.waypoints.target_reached():
-            self.reward = 100.0
+        if self.waypoints.target_reached:
+            self.reward = 300.0
 
             # advance the targets
             self.waypoints.advance_targets()
 
             # update infos and dones
-            self.truncation |= self.waypoints.all_targets_reached()
-            self.info["env_complete"] = self.waypoints.all_targets_reached()
-            self.info["num_targets_reached"] = self.waypoints.num_targets_reached()
+            self.truncation |= self.waypoints.all_targets_reached
+            self.info["env_complete"] = self.waypoints.all_targets_reached
+            self.info["num_targets_reached"] = self.waypoints.num_targets_reached

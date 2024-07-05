@@ -32,6 +32,7 @@ class QuadX(DroneClass):
         use_gimbal: bool = False,
         camera_angle_degrees: int = 20,
         camera_FOV_degrees: int = 90,
+        camera_position_offset: np.ndarray = np.array([0.0, 0.0, 0.0]),
         camera_resolution: tuple[int, int] = (128, 128),
         camera_fps: None | int = None,
     ):
@@ -51,6 +52,7 @@ class QuadX(DroneClass):
             use_gimbal (bool): use_gimbal
             camera_angle_degrees (int): camera_angle_degrees
             camera_FOV_degrees (int): camera_FOV_degrees
+            camera_position_offset (np.ndarray): offset position of the camera
             camera_resolution (tuple[int, int]): camera_resolution
             camera_fps (None | int): camera_fps
 
@@ -205,6 +207,7 @@ class QuadX(DroneClass):
                 camera_FOV_degrees=camera_FOV_degrees,
                 camera_angle_degrees=camera_angle_degrees,
                 camera_resolution=camera_resolution,
+                camera_position_offset=camera_position_offset,
             )
 
         # compute camera fps parameters

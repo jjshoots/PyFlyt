@@ -64,8 +64,8 @@ class WaypointHandler:
             self.np_random = np_random
 
         # reset the error
-        self.new_distance = 0.0
-        self.old_distance = 0.0
+        self.new_distance = np.inf
+        self.old_distance = np.inf
 
         # we sample from polar coordinates to generate linear targets
         self.targets = np.zeros(shape=(self.num_targets, 3))
@@ -108,16 +108,26 @@ class WaypointHandler:
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
 
-    def distance_to_target(
+    @property
+    def distance_to_next_target(self) -> float:
+        """distance_to_next_target.
+
+        Returns:
+        ---
+            float:
+        """
+        return self.new_distance
+
+    def distance_to_targets(
         self,
         ang_pos: np.ndarray,
         lin_pos: np.ndarray,
         quaternion: np.ndarray,
     ):
-        """distance_to_target.
+        """distance_to_targets.
 
         Args:
-        ----
+        ---
             ang_pos (np.ndarray): ang_pos
             lin_pos (np.ndarray): lin_pos
             quaternion (np.ndarray): quaternion
@@ -149,10 +159,14 @@ class WaypointHandler:
 
         return target_deltas
 
-    def progress_to_target(self):
+    @property
+    def progress_to_next_target(self):
         """progress_to_target."""
+        if np.any(np.isinf(self.old_distance + self.new_distance)):
+            return 0.0
         return self.old_distance - self.new_distance
 
+    @property
     def target_reached(self):
         """target_reached."""
         if not self.new_distance < self.goal_reach_distance:
@@ -190,10 +204,12 @@ class WaypointHandler:
                     rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
                 )
 
+    @property
     def num_targets_reached(self):
         """num_targets_reached."""
         return self.num_targets - len(self.targets)
 
+    @property
     def all_targets_reached(self):
         """all_targets_reached."""
         return len(self.targets) == 0

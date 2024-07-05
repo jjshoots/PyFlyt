@@ -13,7 +13,7 @@ from PyFlyt.gym_envs.utils.pole_handler import PoleHandler
 class QuadXPoleBalanceEnv(QuadXBaseEnv):
     """Simple Hover Environment with the additional goal of keeping a pole upright.
 
-    Actions are vp, vq, vr, T, ie: angular rates and thrust.
+    Actions are direct motor PWM commands because any underlying controller introduces too much control latency.
     The target is to not crash and not let the pole hit the ground for the longest time possible.
 
     Args:
@@ -32,7 +32,7 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
     def __init__(
         self,
         sparse_reward: bool = False,
-        flight_mode: int = 0,
+        flight_mode: int = -1,
         flight_dome_size: float = 3.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
@@ -45,12 +45,12 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         Args:
         ----
             sparse_reward (bool): whether to use sparse rewards or not.
-            flight_mode (int): the flight mode of the UAV
+            flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
-            render_mode (None | Literal["human", "rgb_array"]): render_mode
+            render_mode (None | Literal["human", "rgb_array"]): render_mode.
             render_resolution (tuple[int, int]): render_resolution.
 
         """
@@ -94,7 +94,10 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         super().begin_reset(
             seed,
             options,
-            drone_options={"drone_model": "primitive_drone"},
+            drone_options={
+                "drone_model": "primitive_drone",
+                "camera_position_offset": np.array([-3.0, 0.0, 1.0]),
+            },
         )
         self.pole.reset(p=self.env, start_location=np.array([0.0, 0.0, 1.55]))
         super().end_reset(seed, options)

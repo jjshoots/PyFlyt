@@ -1,6 +1,6 @@
 # `PyFlyt/QuadX-Pole-Waypoints-v2`
 
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_waypoint.gif
+```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_pole_waypoint.gif
     :width: 50%
 ```
 

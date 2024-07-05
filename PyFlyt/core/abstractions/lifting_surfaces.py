@@ -47,7 +47,7 @@ class LiftingSurfaces:
     def get_states(self) -> np.ndarray:
         """Gets the current state of the components.
 
-        Returns
+        Returns:
         -------
             np.ndarray: a (num_surfaces, ) array representing the actuation state for each surface
 
@@ -254,7 +254,7 @@ class LiftingSurface:
     def get_states(self) -> float:
         """Gets the current state of the components.
 
-        Returns
+        Returns:
         -------
             float: the level of deflection of the surface.
 

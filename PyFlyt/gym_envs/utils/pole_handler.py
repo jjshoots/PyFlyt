@@ -61,7 +61,7 @@ class PoleHandler:
     def leaningness(self) -> float:
         """The lean of the pole, minimum of 0.0 and maximum of 1.0.
 
-        Returns
+        Returns:
         -------
             float:
 

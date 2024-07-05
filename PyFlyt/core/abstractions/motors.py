@@ -98,7 +98,7 @@ class Motors:
     def get_states(self) -> np.ndarray:
         """Gets the current state of the components.
 
-        Returns
+        Returns:
         -------
             np.ndarray: an (num_motors, ) array for the current throttle level of each motor
 

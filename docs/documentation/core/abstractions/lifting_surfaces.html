@@ -432,14 +432,12 @@ tau (float): actuation ramp time constant.</p>
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface.get_states" title="Link to this definition">#</a></dt>
 <dd><p>Gets the current state of the components.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>float</strong></p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>the level of deflection of the surface.</p>
-</dd>
-</dl>
+<section id="returns">
+<h4>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h4>
+<blockquote>
+<div><p>float: the level of deflection of the surface.</p>
+</div></blockquote>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -452,8 +450,8 @@ tau (float): actuation ramp time constant.</p>
 <div><p>cmd (float): normalized actuation in [-1, 1].</p>
 </div></blockquote>
 </section>
-<section id="returns">
-<h4>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h4>
+<section id="id2">
+<h4>Returns:<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
 <blockquote>
 <div><p>tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque</p>
 </div></blockquote>
@@ -470,8 +468,8 @@ tau (float): actuation ramp time constant.</p>
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface.state_update">
 <span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_velocity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface.state_update" title="Link to this definition">#</a></dt>
 <dd><p>Updates the local surface velocity of the lifting surface.</p>
-<section id="id2">
-<h4>Args:<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+<section id="id3">
+<h4>Args:<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
 <blockquote>
 <div><p>surface_velocity (np.ndarray): surface_velocity.</p>
 </div></blockquote>
@@ -496,14 +494,12 @@ Simply pass it a list of <cite>LiftingSurface</cite> objects.</p>
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurfaces.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurfaces.get_states" title="Link to this definition">#</a></dt>
 <dd><p>Gets the current state of the components.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>np.ndarray</strong></p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>a (num_surfaces, ) array representing the actuation state for each surface</p>
-</dd>
-</dl>
+<section id="returns">
+<h4>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h4>
+<blockquote>
+<div><p>np.ndarray: a (num_surfaces, ) array representing the actuation state for each surface</p>
+</div></blockquote>
+</section>
 </dd></dl>
 
 <dl class="py method">
