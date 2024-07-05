@@ -230,12 +230,12 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             self.reward += max(10.0 * self.waypoints.progress_to_next_target, 0.0)
-            self.reward += 0.4 / self.waypoints.distance_to_next_target
+            self.reward += 0.5 / self.waypoints.distance_to_next_target
             self.reward += (0.5 - self.pole.leaningness)
 
         # target reached
         if self.waypoints.target_reached:
-            self.reward = 500.0
+            self.reward = 300.0
 
             # advance the targets
             self.waypoints.advance_targets()
