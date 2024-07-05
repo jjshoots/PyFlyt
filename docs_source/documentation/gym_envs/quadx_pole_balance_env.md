@@ -1,6 +1,6 @@
 # `PyFlyt/QuadX-Pole-Balance-v2`
 
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/pole_balance.gif
+```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_pole_balance.gif
     :width: 50%
 ```
 
