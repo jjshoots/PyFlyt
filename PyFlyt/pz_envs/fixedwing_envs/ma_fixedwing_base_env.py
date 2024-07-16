@@ -191,14 +191,14 @@ class MAFixedwingBaseEnv(ParallelEnv):
         # options
         if isinstance(drone_options, Sequence):
             for i in range(len(drone_options)):
-                model = drone_options[i].get("drone_model") or "acrowing"
+                model = drone_options[i].get("drone_model") or "acrowing_green"
                 drone_options[i]["drone_model"] = model
         elif isinstance(drone_options, dict):
             drone_options["drone_model"] = (
-                drone_options.get("drone_model") or "acrowing"
+                drone_options.get("drone_model") or "acrowing_green"
             )
         else:
-            drone_options = dict(drone_model="acrowing")
+            drone_options = dict(drone_model="acrowing_green")
 
         # rebuild the environment
         self.aviary = Aviary(

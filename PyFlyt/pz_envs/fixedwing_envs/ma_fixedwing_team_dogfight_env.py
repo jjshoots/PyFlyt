@@ -35,6 +35,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
     def __init__(
         self,
         team_size: int = 2,
+        spawn_radius: float = 10.0,
         spawn_height: float = 15.0,
         damage_per_hit: float = 0.02,
         lethal_distance: float = 15.0,
@@ -50,6 +51,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
         Args:
             team_size (int): number of planes that comprises a team.
+            spawn_radius (float): agents are spawned in a circle pointing outwards, this value is the radius of that circle.
             spawn_height (float): how high to spawn the agents at the beginning of the simulation.
             damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
             lethal_distance (float): how close before weapons become effective.
@@ -64,8 +66,8 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         """
         # placeholder starting positions
         super().__init__(
-            start_pos=np.array([[10.0, 0.0, 10.0], [-10.0, 0.0, 10.0]]),
-            start_orn=np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),
+            start_pos=np.array([[0.0, 0.0, 0.0]] * 2 * team_size),
+            start_orn=np.array([[0.0, 0.0, 0.0]] * 2 * team_size),
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
             angle_representation="euler",
@@ -74,11 +76,15 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             render_mode=render_mode,
         )
 
+        self.team_size = team_size
+        self.spawn_radius = spawn_radius
         self.sparse_reward = sparse_reward
         self.damage_per_hit = damage_per_hit
         self.spawn_height = spawn_height
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
+        self.hit_colour = np.array([0.7, 0.7, 0.7, 0.2])
+        self.norm_colour = np.array([0.0, 0.0, 0.0, 0.2])
 
         # observation_space
         # combined (state + aux) + health + enemy state
@@ -100,25 +106,6 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         """
         return self._observation_space
 
-    def _get_start_pos_orn(self, seed: None | int) -> tuple[np.ndarray, np.ndarray]:
-        """_get_start_pos_orn.
-
-        Args:
-            seed (None | int): seed
-
-        Returns:
-            tuple[np.ndarray, np.ndarray]:
-
-        """
-        np_random = np.random.RandomState(seed=seed)
-        start_pos = np.zeros((2, 3))
-        while np.linalg.norm(start_pos[0] - start_pos[1]) < self.flight_dome_size * 0.2:
-            start_pos = (np_random.rand(2, 3) - 0.5) * self.flight_dome_size * 0.5
-            start_pos[:, -1] = self.spawn_height
-        start_orn = (np_random.rand(2, 3) - 0.5) * 2.0 * np.array([1.0, 1.0, 2 * np.pi])
-
-        return start_pos, start_orn
-
     def reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -132,33 +119,45 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             tuple[dict[str, Any], dict[str, Any]]:
 
         """
-        self.start_pos, self.start_orn = self._get_start_pos_orn(seed)
+
+        start_z_radian = np.pi / self.team_size * np.arange(self.team_size * 2)
+
+        # define the starting positions
+        self.start_pos = np.zeros((self.team_size * 2, 3))
+        self.start_pos[:, 0] = self.spawn_radius * np.cos(start_z_radian)
+        self.start_pos[:, 1] = self.spawn_radius * np.sin(start_z_radian)
+        self.start_pos[:, 2] = self.spawn_height
+
+        # define the starting orientations
+        self.start_orn = np.zeros((self.team_size * 2, 3))
+        self.start_orn[:, 2] = start_z_radian
 
         # define custom forward velocity
         _, start_vec = self.compute_rotation_forward(self.start_orn)
         start_vec *= 10.0
-        drone_options = [dict(), dict()]
+        drone_options = [dict() for _ in range(self.num_possible_agents)]
         for i in range(len(drone_options)):
             drone_options[i]["starting_velocity"] = start_vec[i]
+            drone_options[i]["drone_model"] = "acrowing_blue" if i < self.team_size else "acrowing_red"
 
         super().begin_reset(seed, options, drone_options=drone_options)
 
         # reset runtime parameters
-        self.health = np.ones(2, dtype=np.float64)
-        self.in_cone = np.zeros((2,), dtype=bool)
-        self.in_range = np.zeros((2,), dtype=bool)
-        self.chasing = np.zeros((2,), dtype=bool)
-        self.current_hits = np.zeros((2), dtype=bool)
-        self.current_angles = np.zeros(2, dtype=np.float64)
-        self.current_offsets = np.zeros(2, dtype=np.float64)
-        self.current_distance = np.zeros(2, dtype=np.float64)
-        self.previous_hits = np.zeros((2), dtype=bool)
-        self.previous_angles = np.zeros(2, dtype=np.float64)
-        self.previous_offsets = np.zeros(2, dtype=np.float64)
-        self.previous_distance = np.zeros(2, dtype=np.float64)
-        self.observations = np.zeros((2, *self.observation_space(0).shape))
+        self.health = np.ones(self.num_possible_agents, dtype=np.float64)
+        self.in_cone = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.in_range = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.chasing = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.current_hits = np.zeros((self.num_possible_agents), dtype=bool)
+        self.current_angles = np.zeros(self.num_possible_agents, dtype=np.float64)
+        self.current_offsets = np.zeros(self.num_possible_agents, dtype=np.float64)
+        self.current_distance = np.zeros(self.num_possible_agents, dtype=np.float64)
+        self.previous_hits = np.zeros((self.num_possible_agents), dtype=bool)
+        self.previous_angles = np.zeros(self.num_possible_agents, dtype=np.float64)
+        self.previous_offsets = np.zeros(self.num_possible_agents, dtype=np.float64)
+        self.previous_distance = np.zeros(self.num_possible_agents, dtype=np.float64)
+        self.observations = np.zeros((self.num_possible_agents, *self.observation_space(0).shape))
         self.last_obs_time = -1.0
-        self.rewards = np.zeros((2,), dtype=np.float64)
+        self.rewards = np.zeros((self.num_possible_agents,), dtype=np.float64)
         self.last_rew_time = -1.0
 
         super().end_reset(seed, options)
@@ -180,84 +179,80 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # get the states of both drones
         self.attitudes = np.stack(self.aviary.all_states, axis=0)
 
-        """COMPUTE HITS"""
-        # get the rotation matrices and forward vectors
-        # offset the position to be on top of the main wing
-        rotation, forward_vecs = self.compute_rotation_forward(self.attitudes[:, 1])
-        self.attitudes[:, -1] = self.attitudes[:, -1] - (
-            forward_vecs * 0.35
-        )  # pyright: ignore[reportGeneralTypeIssues]
+        # """COMPUTE HITS"""
+        # # get the rotation matrices and forward vectors
+        # # offset the position to be on top of the main wing
+        # rotation, forward_vecs = self.compute_rotation_forward(self.attitudes[:, 1])
+        # self.attitudes[:, -1] = self.attitudes[:, -1] - (
+        #     forward_vecs * 0.35
+        # )  # pyright: ignore[reportGeneralTypeIssues]
 
-        # compute the vectors of each drone to each drone
-        separation = (
-            self.attitudes[::-1, -1] - self.attitudes[:, -1]
-        )  # pyright: ignore[reportGeneralTypeIssues]
-        self.previous_distance = self.current_distance.copy()
-        self.current_distance = np.linalg.norm(separation[0])
+        # # compute the vectors of each drone to each drone
+        # separation = (
+        #     self.attitudes[::-1, -1] - self.attitudes[:, -1]
+        # )  # pyright: ignore[reportGeneralTypeIssues]
+        # self.previous_distance = self.current_distance.copy()
+        # self.current_distance = np.linalg.norm(separation[0])
 
-        # compute engagement angles
-        self.previous_angles = self.current_angles.copy()
-        self.current_angles = np.arccos(
-            np.sum(separation * forward_vecs, axis=-1) / self.current_distance
-        )
+        # # compute engagement angles
+        # self.previous_angles = self.current_angles.copy()
+        # self.current_angles = np.arccos(
+        #     np.sum(separation * forward_vecs, axis=-1) / self.current_distance
+        # )
 
-        # compute engagement offsets
-        self.previous_offsets = self.current_offsets.copy()
-        self.current_offsets = np.linalg.norm(
-            np.cross(separation, forward_vecs), axis=-1
-        )
+        # # compute engagement offsets
+        # self.previous_offsets = self.current_offsets.copy()
+        # self.current_offsets = np.linalg.norm(
+        #     np.cross(separation, forward_vecs), axis=-1
+        # )
 
-        # whether we're lethal or chasing or have opponent in cone
-        self.in_cone = self.current_angles < self.lethal_angle
-        self.in_range = self.current_distance < self.lethal_distance
-        self.chasing = np.abs(self.current_angles) < (np.pi / 2.0)
+        # # whether we're lethal or chasing or have opponent in cone
+        # self.in_cone = self.current_angles < self.lethal_angle
+        # self.in_range = self.current_distance < self.lethal_distance
+        # self.chasing = np.abs(self.current_angles) < (np.pi / 2.0)
 
-        # compute whether anyone hit anyone
-        self.current_hits = self.in_cone & self.in_range & self.chasing
+        # # compute whether anyone hit anyone
+        # self.current_hits = self.in_cone & self.in_range & self.chasing
 
-        # update health based on hits
-        self.health -= self.damage_per_hit * self.current_hits[::-1]
+        # # update health based on hits
+        # self.health -= self.damage_per_hit * self.current_hits[::-1]
 
-        """COMPUTE THE STATE VECTOR"""
-        # form the opponent state matrix
-        opponent_attitudes = np.zeros_like(self.attitudes)
+        # """COMPUTE THE STATE VECTOR"""
+        # # form the opponent state matrix
+        # opponent_attitudes = np.zeros_like(self.attitudes)
 
-        # opponent angular rate is unchanged
-        opponent_attitudes[:, 0] = self.attitudes[::-1, 0]
+        # # opponent angular rate is unchanged
+        # opponent_attitudes[:, 0] = self.attitudes[::-1, 0]
 
-        # opponent angular position is relative to ours
-        opponent_attitudes[:, 1] = (
-            self.attitudes[::-1, 1] - self.attitudes[:, 1]
-        )  # pyright: ignore[reportGeneralTypeIssues]
+        # # opponent angular position is relative to ours
+        # opponent_attitudes[:, 1] = (
+        #     self.attitudes[::-1, 1] - self.attitudes[:, 1]
+        # )  # pyright: ignore[reportGeneralTypeIssues]
 
-        # opponent velocity is relative to ours in our body frame
-        ground_velocities: np.ndarray = (
-            rotation @ np.expand_dims(self.attitudes[:, -2], axis=-1)
-        ).reshape(2, 3)
-        opponent_velocities = (
-            np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
-        ).reshape(2, 3)
-        opponent_attitudes[:, 2] = (
-            opponent_velocities - self.attitudes[:, 2]
-        )  # pyright: ignore[reportGeneralTypeIssues]
+        # # opponent velocity is relative to ours in our body frame
+        # ground_velocities: np.ndarray = (
+        #     rotation @ np.expand_dims(self.attitudes[:, -2], axis=-1)
+        # ).reshape(2, 3)
+        # opponent_velocities = (
+        #     np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
+        # ).reshape(2, 3)
+        # opponent_attitudes[:, 2] = (
+        #     opponent_velocities - self.attitudes[:, 2]
+        # )  # pyright: ignore[reportGeneralTypeIssues]
 
-        # opponent position is relative to ours in our body frame
-        opponent_attitudes[:, 3] = (
-            np.expand_dims(separation, axis=1) @ rotation
-        ).reshape(2, 3)
+        # # opponent position is relative to ours in our body frame
+        # opponent_attitudes[:, 3] = (
+        #     np.expand_dims(separation, axis=1) @ rotation
+        # ).reshape(2, 3)
 
-        # flatten the attitude and opponent attitude, expand dim of health
-        flat_attitude = self.attitudes.reshape(2, -1)
-        flat_opponent_attitude = opponent_attitudes.reshape(2, -1)
-        health = np.expand_dims(self.health, axis=-1)
+        # # flatten the attitude and opponent attitude, expand dim of health
+        # flat_attitude = self.attitudes.reshape(2, -1)
+        # flat_opponent_attitude = opponent_attitudes.reshape(2, -1)
+        # health = np.expand_dims(self.health, axis=-1)
 
         # form the state vector
         self.observations = np.concatenate(
             [
-                flat_attitude,
-                health,
-                flat_opponent_attitude,
-                health[::-1],
                 self.past_actions,
             ],
             axis=-1,
@@ -400,13 +395,11 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # colour the gunsights conditionally
         if self.render_mode and not np.all(self.previous_hits == self.current_hits):
             self.previous_hits = self.current_hits.copy()
-            hit_colour = np.array([1.0, 0.0, 0.0, 0.2])
-            norm_colour = np.array([0.0, 0.0, 0.0, 0.2])
             for i in range(2):
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
-                    rgbaColor=(hit_colour if self.current_hits[i] else norm_colour),
+                    rgbaColor=(self.hit_colour if self.current_hits[i] else self.norm_colour),
                 )
 
         return returns

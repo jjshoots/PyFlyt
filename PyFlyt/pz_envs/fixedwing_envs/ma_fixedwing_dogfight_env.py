@@ -77,6 +77,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.spawn_height = spawn_height
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
+        self.hit_colour = np.array([1.0, 0.0, 0.0, 0.2])
+        self.norm_colour = np.array([0.0, 0.0, 0.0, 0.2])
 
         # observation_space
         # combined (state + aux) + health + enemy state
@@ -398,13 +400,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # colour the gunsights conditionally
         if self.render_mode and not np.all(self.previous_hits == self.current_hits):
             self.previous_hits = self.current_hits.copy()
-            hit_colour = np.array([1.0, 0.0, 0.0, 0.2])
-            norm_colour = np.array([0.0, 0.0, 0.0, 0.2])
             for i in range(2):
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
-                    rgbaColor=(hit_colour if self.current_hits[i] else norm_colour),
+                    rgbaColor=(self.hit_colour if self.current_hits[i] else self.norm_colour),
                 )
 
         return returns
