@@ -232,7 +232,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # opponent velocity is relative to ours in our body frame
         ground_velocities: np.ndarray = (
-            rotation @ self.attitudes[:, -2, None]
+            rotation @ np.expand_dims(self.attitudes[:, -2], axis=-1)
         ).reshape(2, 3)
         opponent_velocities = (
             np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
