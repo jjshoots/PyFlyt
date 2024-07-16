@@ -1,4 +1,5 @@
 """The Aviary class, the core of how PyFlyt handles UAVs in the PyBullet simulation environment."""
+
 from __future__ import annotations
 
 import time

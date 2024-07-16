@@ -1,4 +1,5 @@
 """A component to simulate an array of boosters on vehicle."""
+
 from __future__ import annotations
 
 import warnings

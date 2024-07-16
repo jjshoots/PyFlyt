@@ -1,4 +1,5 @@
 """Implements a custom brick with a booster attached."""
+
 from __future__ import annotations
 
 import os

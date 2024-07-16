@@ -1,4 +1,5 @@
 """A simple class implementing the PID algorithm that works on numpy arrays."""
+
 import numba as nb
 import numpy as np
 

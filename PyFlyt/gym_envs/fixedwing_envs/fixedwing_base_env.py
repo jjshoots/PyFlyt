@@ -1,4 +1,5 @@
 """Base PyFlyt Environment for the Fixedwing model using the Gymnasim API."""
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -295,7 +296,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         return self.state, self.reward, self.termination, self.truncation, self.info
 
     def render(self) -> np.ndarray:
-        """render."""
+        """Render."""
         check_numpy()
         if self.render_mode is None:
             raise ValueError(

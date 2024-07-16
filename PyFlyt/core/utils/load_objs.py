@@ -1,4 +1,5 @@
 """Convenience function to load an obj into the pybullet environment."""
+
 from __future__ import annotations
 
 import numpy as np

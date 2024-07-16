@@ -1,4 +1,5 @@
 """Spawns three different types of drones, then gets all their states."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary

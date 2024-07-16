@@ -1,4 +1,5 @@
 """A component to simulate an array of electric propeller motors on vehicle."""
+
 from __future__ import annotations
 
 import warnings

@@ -1,4 +1,5 @@
 """Base Multiagent QuadX Environment."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -179,7 +180,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         return self._action_space
 
     def close(self) -> None:
-        """close."""
+        """Close."""
         if hasattr(self, "aviary"):
             self.aviary.disconnect()
 

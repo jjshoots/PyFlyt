@@ -1,4 +1,5 @@
 """Implements a simple time invariant, stateless wind model."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary
