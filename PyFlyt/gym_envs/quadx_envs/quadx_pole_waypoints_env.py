@@ -19,7 +19,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
     The target is to get to a set of `[x, y, z]` waypoints in space without dropping the pole.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -49,7 +48,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -120,7 +118,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 

@@ -18,7 +18,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
     The target is a set of `[x, y, z]` targets in space
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -48,7 +47,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -109,7 +107,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 

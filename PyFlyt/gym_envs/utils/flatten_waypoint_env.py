@@ -16,7 +16,6 @@ class FlattenWaypointEnv(ObservationWrapper):
         """__init__.
 
         Args:
-        ----
             env (Env): a PyFlyt Waypoints environment.
             context_length: how many waypoints should be included in the flattened observation space.
 
@@ -44,7 +43,6 @@ class FlattenWaypointEnv(ObservationWrapper):
         """Flattens an observation from the super env.
 
         Args:
-        ----
             observation: a dictionary observation with an "attitude" and "target_deltas" keys.
 
         """

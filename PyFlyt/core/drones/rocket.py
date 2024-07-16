@@ -49,7 +49,6 @@ class Rocket(DroneClass):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -243,7 +242,6 @@ class Rocket(DroneClass):
             - 0: finlet x deflection, finlet y deflection, finlet yaw, ignition, throttle, booster gimbal axis 1, booster gimbal axis 2
 
         Args:
-        ----
             mode (int): flight mode
 
         """
@@ -253,7 +251,6 @@ class Rocket(DroneClass):
         """Runs through controllers.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """
@@ -338,7 +335,6 @@ class Rocket(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """

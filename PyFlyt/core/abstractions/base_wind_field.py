@@ -48,7 +48,6 @@ class WindFieldClass(ABC):
         """When given the time float and a position as an (n, 3) array, must return a (n, 3) array representing the local wind velocity.
 
         Args:
-        ----
             time (float): float representing the timestep of the simulation in seconds.
             position (np.ndarray): (n, 3) array representing a series of n positions to sample wind velocites.
 

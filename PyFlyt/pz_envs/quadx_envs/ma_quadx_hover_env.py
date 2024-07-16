@@ -17,7 +17,6 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     The target is for each agent to not crash for the longest time possible.
 
     Args:
-    ----
         start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
         start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
         sparse_reward (bool): whether to use sparse rewards or not.
@@ -54,7 +53,6 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
             start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
             sparse_reward (bool): whether to use sparse rewards or not.
@@ -90,11 +88,9 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """observation_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             spaces.Space:
 
         """
@@ -106,7 +102,6 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -125,11 +120,9 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """compute_observation_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             np.ndarray:
 
         """

@@ -20,7 +20,6 @@ class Camera:
     On image capture, the camera returns an RGBA image, a depth map, and a segmentation map with pixel values representing the IDs of objects in the environment.
 
     Args:
-    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         uav_id (int): ID of the drone.
         camera_id (int): integer representing the ID of the link that the camera is attached to.
@@ -50,7 +49,6 @@ class Camera:
         """Used for implementing camera modules.
 
         Args:
-        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             uav_id (int): ID of the drone.
             camera_id (int): integer representing the ID of the link that the camera is attached to.
@@ -102,7 +100,6 @@ class Camera:
         """Generates the view matrix for the camera depending on the current orientation and implicit parameters.
 
         Returns:
-        -------
             np.ndarray: view matrix.
 
         """
@@ -163,7 +160,6 @@ class Camera:
         """Captures the 3 relevant images from the camera.
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray, np.ndarray]: rgbaImg, depthImg, segImg
 
         """

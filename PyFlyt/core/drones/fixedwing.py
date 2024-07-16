@@ -37,7 +37,6 @@ class Fixedwing(DroneClass):
         """Creates a Fixedwing UAV and handles all relevant control and physics.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -212,7 +211,6 @@ class Fixedwing(DroneClass):
             - 0: Pitch, Roll, Yaw, Thrust
 
         Args:
-        ----
             mode (int): flight mode
 
         """
@@ -232,7 +230,6 @@ class Fixedwing(DroneClass):
         """Runs through controllers.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """
@@ -297,7 +294,6 @@ class Fixedwing(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """

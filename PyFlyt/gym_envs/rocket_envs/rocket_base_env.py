@@ -33,7 +33,6 @@ class RocketBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             drone_type (str): drone_type
@@ -137,7 +136,6 @@ class RocketBaseEnv(gymnasium.Env):
         """Resets the environment.
 
         Args:
-        ----
             seed: int
             options: None
 
@@ -283,7 +281,6 @@ class RocketBaseEnv(gymnasium.Env):
         """compute_base_term_trunc_reward.
 
         Args:
-        ----
             collision_ignore_mask (np.ndarray | list[int]): list of ids to ignore collisions between
 
         """
@@ -316,11 +313,9 @@ class RocketBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
-        ----
             action (np.ndarray): action
 
         Returns:
-        -------
             state, reward, termination, truncation, info
 
         """

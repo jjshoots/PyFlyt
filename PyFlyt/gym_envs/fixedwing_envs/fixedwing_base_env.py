@@ -33,7 +33,6 @@ class FixedwingBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -126,7 +125,6 @@ class FixedwingBaseEnv(gymnasium.Env):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -263,11 +261,9 @@ class FixedwingBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
-        ----
             action (np.ndarray): action
 
         Returns:
-        -------
             state, reward, termination, truncation, info
 
         """

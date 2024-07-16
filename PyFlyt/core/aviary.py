@@ -25,11 +25,9 @@ class AviaryInitException(Exception):
         """__init__.
 
         Args:
-        ----
             message (str): message
 
         Returns:
-        -------
             None:
 
         """
@@ -40,7 +38,6 @@ class AviaryInitException(Exception):
         """__str__.
 
         Returns:
-        -------
             str:
 
         """
@@ -54,7 +51,6 @@ class Aviary(bullet_client.BulletClient):
     It provides a common endpoint from where users may control drones or define tasks.
 
     Args:
-    ----
         start_pos (np.ndarray): an `(n, 3)` array for the starting X, Y, Z positions for each drone.
         start_orn (np.ndarray): an `(n, 3)` array for the starting orientations for each drone, in terms of Euler angles.
         drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
@@ -89,7 +85,6 @@ class Aviary(bullet_client.BulletClient):
         The Aviary also handles dealing with physics and control looprates, as well as automatic construction of several default UAVs and their corresponding cameras.
 
         Args:
-        ----
             start_pos (np.ndarray): an `(n, 3)` array for the starting X, Y, Z positions for each drone.
             start_orn (np.ndarray): an `(n, 3)` array for the starting orientations for each drone, in terms of Euler angles.
             drone_type (str | Sequence[str]): a _lowercase_ string representing what type of drone to spawn.
@@ -208,7 +203,6 @@ class Aviary(bullet_client.BulletClient):
         """Resets the simulation.
 
         Args:
-        ----
             seed (None | int): seed
 
         """
@@ -319,7 +313,6 @@ class Aviary(bullet_client.BulletClient):
         """For less complicated wind field models (time invariant models), this allows the registration of a normal function as a wind field model.
 
         Args:
-        ----
             wind_field (Callable): given the time float and a position as an (n, 3) array, must return a (n, 3) array representing the local wind velocity.
 
         """
@@ -337,11 +330,9 @@ class Aviary(bullet_client.BulletClient):
             - `state[3, :]` represents ground frame linear position
 
         Args:
-        ----
             index (DRONE_INDEX): index
 
         Returns:
-        -------
             np.ndarray: state
 
         """
@@ -357,11 +348,9 @@ class Aviary(bullet_client.BulletClient):
             - etc...
 
         Args:
-        ----
             index (DRONE_INDEX): index
 
         Returns:
-        -------
             np.ndarray: auxiliary state
 
         """
@@ -382,7 +371,6 @@ class Aviary(bullet_client.BulletClient):
         This function is not very optimized, if you want the state of a single drone, do `state(i)`.
 
         Returns:
-        -------
             np.ndarray: list of states
 
         """
@@ -401,7 +389,6 @@ class Aviary(bullet_client.BulletClient):
         This function is not very optimized, if you want the aux state of a single drone, do `aux_state(i)`.
 
         Returns:
-        -------
             np.ndarray: list of auxiliary states
 
         """
@@ -425,7 +412,6 @@ class Aviary(bullet_client.BulletClient):
         """Sets the arming state of each drone in the environment. Unarmed drones won't receive updates and will ragdoll.
 
         Args:
-        ----
             settings (int | bool | list[int | bool]): arm setting
 
         """
@@ -446,7 +432,6 @@ class Aviary(bullet_client.BulletClient):
         When this is a list of integers, sets a different flight mode for each drone depending on the list.
 
         Args:
-        ----
             flight_modes (int | list[int]): flight mode
 
         """
@@ -464,7 +449,6 @@ class Aviary(bullet_client.BulletClient):
         """Sets the setpoint of one drone in the environment.
 
         Args:
-        ----
             index (DRONE_INDEX): index
             setpoint (np.ndarray): setpoint
 
@@ -475,7 +459,6 @@ class Aviary(bullet_client.BulletClient):
         """Sets the setpoints of each drone in the environment.
 
         Args:
-        ----
             setpoints (np.ndarray): list of setpoints
 
         """

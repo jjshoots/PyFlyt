@@ -40,7 +40,6 @@ class QuadX(DroneClass):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -254,7 +253,6 @@ class QuadX(DroneClass):
             - T = thrust
 
         Args:
-        ----
             mode (int): flight mode
 
         """
@@ -383,7 +381,6 @@ class QuadX(DroneClass):
         """Registers a new controller for the UAV.
 
         Args:
-        ----
             controller_id (int): controller_id
             controller_constructor (type[ControlClass]): controller_constructor
             base_mode (int): base_mode
@@ -405,7 +402,6 @@ class QuadX(DroneClass):
         """Runs through controllers.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """
@@ -542,7 +538,6 @@ class QuadX(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """

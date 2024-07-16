@@ -34,7 +34,6 @@ class MAQuadXBaseEnv(ParallelEnv):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -155,11 +154,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """observation_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             Space:
 
         """
@@ -169,11 +166,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """action_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             spaces.Box:
 
         """
@@ -190,12 +185,10 @@ class MAQuadXBaseEnv(ParallelEnv):
         """reset.
 
         Args:
-        ----
             seed (None | int): seed
             options (None | dict[str, Any]): options
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, Any]]:
 
         """
@@ -210,13 +203,11 @@ class MAQuadXBaseEnv(ParallelEnv):
         """The first half of the reset function.
 
         Args:
-        ----
             seed (None | int): seed
             options (None | dict[str, Any]): options
             drone_options (None | dict[str, Any] | Sequence[dict[str, Any]]): drone_options
 
         Returns:
-        -------
             None:
 
         """
@@ -283,11 +274,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """compute_observation_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             Any:
 
         """
@@ -326,11 +315,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """compute_term_trunc_reward_info_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             Tuple[bool, bool, float, dict[str, Any]]:
 
         """
@@ -348,11 +335,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """step.
 
         Args:
-        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
 
         """

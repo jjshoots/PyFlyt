@@ -30,7 +30,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             assisted_flight (bool): assisted_flight
@@ -136,7 +135,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """observation_space.
 
         Returns:
-        -------
             Space:
 
         """
@@ -146,7 +144,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """action_space.
 
         Returns:
-        -------
             spaces.Box:
 
         """
@@ -163,12 +160,10 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """reset.
 
         Args:
-        ----
             seed (None | int): seed
             options (dict | None): options
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, Any]]:
 
         """
@@ -262,11 +257,9 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """compute_observation_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             Any:
 
         """
@@ -302,11 +295,9 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """compute_term_trunc_reward_info_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             Tuple[bool, bool, float, dict[str, Any]]:
 
         """
@@ -324,11 +315,9 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """step.
 
         Args:
-        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
 
         """

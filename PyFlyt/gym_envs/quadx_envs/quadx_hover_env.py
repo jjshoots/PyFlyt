@@ -16,7 +16,6 @@ class QuadXHoverEnv(QuadXBaseEnv):
     The target is to not crash for the longest time possible.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
@@ -42,7 +41,6 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             flight_mode (int): the flight mode of the UAV
             flight_dome_size (float): size of the allowable flying area.
@@ -75,7 +73,6 @@ class QuadXHoverEnv(QuadXBaseEnv):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 

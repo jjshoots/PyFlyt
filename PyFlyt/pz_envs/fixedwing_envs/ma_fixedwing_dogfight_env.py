@@ -14,7 +14,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     """Base Dogfighting Environment for the Acrowing model using the PettingZoo API.
 
     Args:
-    ----
         spawn_height (float): how high to spawn the agents at the beginning of the simulation.
         damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
         lethal_distance (float): how close before weapons become effective.
@@ -49,7 +48,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """__init__.
 
         Args:
-        ----
             spawn_height (float): how high to spawn the agents at the beginning of the simulation.
             damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
             lethal_distance (float): how close before weapons become effective.
@@ -92,11 +90,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """observation_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             spaces.Box:
 
         """
@@ -106,11 +102,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """_get_start_pos_orn.
 
         Args:
-        ----
             seed (None | int): seed
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray]:
 
         """
@@ -129,12 +123,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """reset.
 
         Args:
-        ----
             seed (None | int): seed
             options (dict[str, Any]): options
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, Any]]:
 
         """
@@ -180,7 +172,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """_compute_agent_states.
 
         Returns:
-        -------
             None:
 
         """
@@ -266,11 +257,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """compute_observation_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             np.ndarray:
 
         """
@@ -341,11 +330,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """Computes the rotation matrix and forward vector of an aircraft given its orientation.
 
         Args:
-        ----
             orn (np.ndarray): an [n, 3] array of each drone's orientation
 
         Returns:
-        -------
             np.ndarray: an [n, 3, 3] rotation matrix of each aircraft
             np.ndarray: an [n, 3] forward vector of each aircraft
 
@@ -388,11 +375,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """step.
 
         Args:
-        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
-        -------
             tuple[
                 dict[str, Any],
                 dict[str, float],

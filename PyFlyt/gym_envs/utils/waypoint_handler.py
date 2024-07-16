@@ -26,7 +26,6 @@ class WaypointHandler:
         """__init__.
 
         Args:
-        ----
             enable_render (bool): enable_render
             num_targets (int): num_targets
             use_yaw_targets (bool): use_yaw_targets
@@ -114,7 +113,6 @@ class WaypointHandler:
         """distance_to_next_target.
 
         Returns:
-        -------
             float:
         """
         return self.new_distance
