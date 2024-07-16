@@ -152,23 +152,47 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         drone_options = [dict() for _ in range(self.num_possible_agents)]
         for i in range(len(drone_options)):
             drone_options[i]["starting_velocity"] = start_vec[i]
-            drone_options[i]["drone_model"] = "acrowing_blue" if i < self.team_size else "acrowing_red"
+            drone_options[i]["drone_model"] = (
+                "acrowing_blue" if i < self.team_size else "acrowing_red"
+            )
 
         super().begin_reset(seed, options, drone_options=drone_options)
 
         # reset runtime parameters
         self.health = np.ones(self.num_possible_agents, dtype=np.float64)
-        self.in_cone = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=bool)
-        self.in_range = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=bool)
-        self.chasing = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=bool)
-        self.current_hits = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=bool)
-        self.current_angles = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
-        self.current_offsets = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
-        self.current_distances = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
-        self.previous_hits = np.zeros((self.num_possible_agents, (self.num_possible_agents)), dtype=bool)
-        self.previous_angles = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
-        self.previous_offsets = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
-        self.previous_distances = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
+        self.in_cone = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=bool
+        )
+        self.in_range = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=bool
+        )
+        self.chasing = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=bool
+        )
+        self.current_hits = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=bool
+        )
+        self.current_angles = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
+        self.current_offsets = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
+        self.current_distances = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
+        self.previous_hits = np.zeros(
+            (self.num_possible_agents, (self.num_possible_agents)), dtype=bool
+        )
+        self.previous_angles = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
+        self.previous_offsets = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
+        self.previous_distances = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
         self.last_obs_time = -1.0
         self.rewards = np.zeros((self.num_possible_agents,), dtype=np.float64)
         self.last_rew_time = -1.0
@@ -215,7 +239,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
         # compute engagement offsets
         self.previous_offsets = self.current_offsets.copy()
-        self.current_offsets = np.linalg.norm(np.cross(separation, forward_vecs), axis=-1)
+        self.current_offsets = np.linalg.norm(
+            np.cross(separation, forward_vecs), axis=-1
+        )
 
         # whether we're lethal or chasing or have opponent in cone
         self.in_cone = self.current_angles < self.lethal_angle
@@ -231,32 +257,40 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         """COMPUTE THE STATE VECTOR"""
         # form the opponent state matrix
         # this is a [n, n, 4, 3] matrix since each agent needs to attend to every other agent
-        self.opponent_attitudes = np.zeros((self.num_agents, *self.attitudes.shape), dtype=np.float64)
+        self.opponent_attitudes = np.zeros(
+            (self.num_agents, *self.attitudes.shape), dtype=np.float64
+        )
 
         # opponent angular rates are unchanged because already body frame
         self.opponent_attitudes[..., 0, :] = self.attitudes[:, 0, :]
 
         # opponent angular positions must convert to be relative to ours
-        self.opponent_attitudes[..., 1, :] = (self.attitudes[None, :, 1] - self.attitudes[:, None, 1])
+        self.opponent_attitudes[..., 1, :] = (
+            self.attitudes[None, :, 1] - self.attitudes[:, None, 1]
+        )
 
         # rotate all velocities to be ground frame, this is [n, 3]
         ground_velocities = (rotation @ self.attitudes[:, -2, :][..., None])[..., 0]
 
         # then find all opponent velocities relative to our body frame
         # this is [self, other, 3]
-        opponent_velocities = (ground_velocities[None, ..., None, :] @ rotation[:, None, ...])[..., 0, :]
+        opponent_velocities = (
+            ground_velocities[None, ..., None, :] @ rotation[:, None, ...]
+        )[..., 0, :]
 
         # opponent velocities should be relative to our current velocity
-        self.opponent_attitudes[:, 2] = (
+        self.opponent_attitudes[..., 2, :] = (
             opponent_velocities - self.attitudes[:, 2, :][None, ...]
         )
 
         # opponent position is relative to ours in our body frame
-        self.opponent_attitudes[:, 3] = separation @ rotation
+        self.opponent_attitudes[..., 3, :] = separation @ rotation
 
         # flatten the attitude and opponent attitude, expand dim of health
         flat_attitude = self.attitudes.reshape(self.num_agents, -1)
-        flat_opponent_attitude = self.opponent_attitudes.reshape(self.num_agents, self.num_agents, -1)
+        flat_opponent_attitude = self.opponent_attitudes.reshape(
+            self.num_agents, self.num_agents, -1
+        )
         health = np.expand_dims(self.health, axis=-1)
 
         # form the state vector
@@ -372,7 +406,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
-                    rgbaColor=(self.hit_colour if self.current_hits[i] else self.nohit_color),
+                    rgbaColor=(
+                        self.hit_colour if self.current_hits[i] else self.nohit_color
+                    ),
                 )
 
         return returns

@@ -7,6 +7,7 @@ from typing import Any
 import numpy as np
 from gymnasium import spaces
 
+from PyFlyt.pz_envs.fixedwing_envs.dogfight_utils import compute_combat_state
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
@@ -144,18 +145,19 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         super().begin_reset(seed, options, drone_options=drone_options)
 
         # reset runtime parameters
+        self.opponent_attitudes = np.zeros((2, 2, 3), dtype=np.float64)
         self.health = np.ones(2, dtype=np.float64)
-        self.in_cone = np.zeros((2,), dtype=bool)
-        self.in_range = np.zeros((2,), dtype=bool)
-        self.chasing = np.zeros((2,), dtype=bool)
-        self.current_hits = np.zeros((2), dtype=bool)
+        self.opp_in_cone = np.zeros(2, dtype=bool)
+        self.opp_in_range = np.zeros(2, dtype=bool)
+        self.is_chasing = np.zeros(2, dtype=bool)
+        self.current_hits = np.zeros(2, dtype=bool)
         self.current_angles = np.zeros(2, dtype=np.float64)
         self.current_offsets = np.zeros(2, dtype=np.float64)
-        self.current_distance = np.zeros(2, dtype=np.float64)
-        self.previous_hits = np.zeros((2), dtype=bool)
+        self.current_distance = np.zeros((), dtype=np.float64)
+        self.previous_hits = np.zeros(2, dtype=bool)
         self.previous_angles = np.zeros(2, dtype=np.float64)
         self.previous_offsets = np.zeros(2, dtype=np.float64)
-        self.previous_distance = np.zeros(2, dtype=np.float64)
+        self.previous_distance = np.zeros((), dtype=np.float64)
         self.observations = np.zeros((2, *self.observation_space(0).shape))
         self.last_obs_time = -1.0
         self.rewards = np.zeros((2,), dtype=np.float64)
@@ -180,84 +182,53 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # get the states of both drones
         self.attitudes = np.stack(self.aviary.all_states, axis=0)
 
-        """COMPUTE HITS"""
-        # get the rotation matrices and forward vectors
-        # offset the position to be on top of the main wing
-        rotation, forward_vecs = self.compute_rotation_forward(self.attitudes[:, 1])
-        self.attitudes[:, -1] = self.attitudes[:, -1] - (
-            forward_vecs * 0.35
-        )  # pyright: ignore[reportGeneralTypeIssues]
-
-        # compute the vectors of each drone to each drone
-        separation = (
-            self.attitudes[::-1, -1] - self.attitudes[:, -1]
-        )  # pyright: ignore[reportGeneralTypeIssues]
+        # record some past statistics
+        self.previous_hits = self.current_hits.copy()
         self.previous_distance = self.current_distance.copy()
-        self.current_distance = np.linalg.norm(separation[0])
-
-        # compute engagement angles
         self.previous_angles = self.current_angles.copy()
-        self.current_angles = np.arccos(
-            np.sum(separation * forward_vecs, axis=-1) / self.current_distance
-        )
-
-        # compute engagement offsets
         self.previous_offsets = self.current_offsets.copy()
-        self.current_offsets = np.linalg.norm(
-            np.cross(separation, forward_vecs), axis=-1
+
+        # compute new states
+        (
+            in_cone,
+            in_range,
+            chasing,
+            current_hits,
+            current_distance,
+            current_angles,
+            current_offsets,
+            self.opponent_attitudes,
+        ) = compute_combat_state(
+            self.attitudes,
+            self.lethal_angle,
+            self.lethal_distance,
+            self.damage_per_hit,
         )
 
-        # whether we're lethal or chasing or have opponent in cone
-        self.in_cone = self.current_angles < self.lethal_angle
-        self.in_range = self.current_distance < self.lethal_distance
-        self.chasing = np.abs(self.current_angles) < (np.pi / 2.0)
+        # extract what we need
+        idx = np.arange(2)
+        self.opp_in_cone = in_cone[idx, idx[::-1]]
+        self.opp_in_range = in_range[idx, idx[::-1]]
+        self.is_chasing = chasing[idx, idx[::-1]]
+        self.current_hits = current_hits.sum(axis=0) > 0.0
+        self.current_distance = current_distance[0, 1]
+        self.current_angles = current_angles[idx, idx[::-1]]
+        self.current_offsets = current_offsets[idx, idx[::-1]]
 
         # compute whether anyone hit anyone
-        self.current_hits = self.in_cone & self.in_range & self.chasing
+        self.health -= self.damage_per_hit * self.current_hits
 
-        # update health based on hits
-        self.health -= self.damage_per_hit * self.current_hits[::-1]
-
-        """COMPUTE THE STATE VECTOR"""
-        # form the opponent state matrix
-        opponent_attitudes = np.zeros_like(self.attitudes)
-
-        # opponent angular rate is unchanged
-        opponent_attitudes[:, 0] = self.attitudes[::-1, 0]
-
-        # opponent angular position is relative to ours
-        opponent_attitudes[:, 1] = (
-            self.attitudes[::-1, 1] - self.attitudes[:, 1]
-        )  # pyright: ignore[reportGeneralTypeIssues]
-
-        # opponent velocity is relative to ours in our body frame
-        ground_velocities: np.ndarray = (
-            rotation @ np.expand_dims(self.attitudes[:, -2], axis=-1)
-        ).reshape(2, 3)
-        opponent_velocities = (
-            np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
-        ).reshape(2, 3)
-        opponent_attitudes[:, 2] = (
-            opponent_velocities - self.attitudes[:, 2]
-        )  # pyright: ignore[reportGeneralTypeIssues]
-
-        # opponent position is relative to ours in our body frame
-        opponent_attitudes[:, 3] = (
-            np.expand_dims(separation, axis=1) @ rotation
-        ).reshape(2, 3)
-
-        # flatten the attitude and opponent attitude, expand dim of health
+        # flatten the attitude and opponent attitude
         flat_attitude = self.attitudes.reshape(2, -1)
-        flat_opponent_attitude = opponent_attitudes.reshape(2, -1)
-        health = np.expand_dims(self.health, axis=-1)
+        flat_opponent_attitude = self.opponent_attitudes[idx, idx[::-1]].reshape(2, -1)
 
         # form the state vector
         self.observations = np.concatenate(
             [
                 flat_attitude,
-                health,
+                self.health[..., None],
                 flat_opponent_attitude,
-                health[::-1],
+                self.health[..., None][::-1],
                 self.past_actions,
             ],
             axis=-1,
@@ -293,17 +264,17 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                     a_min=0.0,
                     a_max=None,
                 )
-                * (~self.in_range & self.chasing)
+                * (~self.opp_in_range & self.is_chasing)
                 * 1.0
             )
 
             # reward for progressing to engagement
             self.rewards += (
-                (self.previous_angles - self.current_angles) * self.in_range * 10.0
+                (self.previous_angles - self.current_angles) * self.opp_in_range * 10.0
             )
 
             # reward for engaging the enemy
-            self.rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
+            self.rewards += 3.0 / (self.current_angles + 0.1) * self.opp_in_range
 
         # reward for hits
         self.rewards += 30.0 * self.current_hits
@@ -366,7 +337,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
-                    rgbaColor=(self.hit_colour if self.current_hits[i] else self.nohit_color),
+                    rgbaColor=(
+                        self.hit_colour if self.current_hits[i] else self.nohit_color
+                    ),
                 )
 
         return returns
