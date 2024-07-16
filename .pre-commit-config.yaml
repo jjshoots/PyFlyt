@@ -28,4 +28,3 @@ repos:
         additional_dependencies: ["pyright"]
         args:
           - --project=pyproject.toml
-          - --reportMissingImports=none
