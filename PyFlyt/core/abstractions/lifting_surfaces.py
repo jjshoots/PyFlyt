@@ -95,7 +95,7 @@ class LiftingSurfaces:
         # convert all to local velocities, depending on rotation matrix style
         if rotation_matrix.shape == (len(self.surfaces), 3, 3):
             surface_velocities = np.matmul(
-                rotation_matrix, np.expand_dims(surface_velocities, -1)
+                rotation_matrix, surface_velocities[..., None]
             ).squeeze(-1)
         elif rotation_matrix.shape == (3, 3):
             surface_velocities = np.matmul(rotation_matrix, surface_velocities.T).T

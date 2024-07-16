@@ -85,9 +85,9 @@ class Motors:
         # motor constants
         self.tau = tau
         self.max_rpm = max_rpm
-        self.thrust_coef = np.expand_dims(thrust_coef, axis=-1)
-        self.torque_coef = np.expand_dims(torque_coef, axis=-1)
-        self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
+        self.thrust_coef = thrust_coef[..., None]
+        self.torque_coef = torque_coef[..., None]
+        self.thrust_unit = thrust_unit[..., None]
         self.noise_ratio = noise_ratio
 
     def reset(self) -> None:
@@ -179,8 +179,7 @@ class Motors:
 
         """
         # throttle to rpm
-        rpm = throttle * max_rpm
-        rpm = np.expand_dims(rpm, axis=-1)
+        rpm = (throttle * max_rpm)[..., None]
 
         # handle rotation, `[..., 0]` is basically squeeze but numba friendly
         if rotation is not None:

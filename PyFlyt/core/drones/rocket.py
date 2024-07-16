@@ -261,7 +261,7 @@ class Rocket(DroneClass):
         # the default mode
         if self.mode == 0:
             # finlet mapping
-            finlet_cmd = self.finlet_map @ np.expand_dims(self.setpoint[:3], axis=-1)
+            finlet_cmd = self.finlet_map @ self.setpoint[:3][..., None]
             finlet_cmd = np.clip(finlet_cmd, -1.0, 1.0)
 
             # prepend the finlet mapping to the command itself

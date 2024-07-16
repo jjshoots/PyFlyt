@@ -232,7 +232,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # opponent velocity is relative to ours in our body frame
         ground_velocities: np.ndarray = (
-            rotation @ np.expand_dims(self.attitudes[:, -2], axis=-1)
+            rotation @ self.attitudes[:, -2, None]
         ).reshape(2, 3)
         opponent_velocities = (
             np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
@@ -334,44 +334,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         info["healths"] = self.health
 
         return term, trunc, reward, info
-
-    @staticmethod
-    def compute_rotation_forward(orn: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Computes the rotation matrix and forward vector of an aircraft given its orientation.
-
-        Args:
-            orn (np.ndarray): an [n, 3] array of each drone's orientation
-
-        Returns:
-            np.ndarray: an [n, 3, 3] rotation matrix of each aircraft
-            np.ndarray: an [n, 3] forward vector of each aircraft
-
-        """
-        c, s = np.cos(orn), np.sin(orn)
-        eye = np.stack([np.eye(3)] * orn.shape[0], axis=0)
-
-        rx = eye.copy()
-        rx[:, 1, 1] = c[..., 0]
-        rx[:, 1, 2] = -s[..., 0]
-        rx[:, 2, 1] = s[..., 0]
-        rx[:, 2, 2] = c[..., 0]
-        ry = eye.copy()
-        ry[:, 0, 0] = c[..., 1]
-        ry[:, 0, 2] = s[..., 1]
-        ry[:, 2, 0] = -s[..., 1]
-        ry[:, 2, 2] = c[..., 1]
-        rz = eye.copy()
-        rz[:, 0, 0] = c[..., 2]
-        rz[:, 0, 1] = -s[..., 2]
-        rz[:, 1, 0] = s[..., 2]
-        rz[:, 1, 1] = c[..., 2]
-
-        forward_vector = np.stack(
-            [c[..., 2] * c[..., 1], s[..., 2] * c[..., 1], -s[..., 1]], axis=-1
-        )
-
-        # order of operations for multiplication matters here
-        return rz @ ry @ rx, forward_vector
 
     def step(self, actions: dict[str, np.ndarray]) -> tuple[
         dict[str, Any],

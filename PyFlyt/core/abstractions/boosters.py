@@ -109,7 +109,7 @@ class Boosters:
         self.max_fuel_rate = max_fuel_rate
         self.max_inertia = max_inertia
         self.max_thrust = max_thrust
-        self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
+        self.thrust_unit = thrust_unit[..., None]
         self.reignitable = np.array(reignitable, dtype=bool)
         self.min_thrust = min_thrust
         self.ratio_min_throttle = self.min_thrust / self.max_thrust

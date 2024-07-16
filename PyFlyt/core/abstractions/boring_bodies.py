@@ -98,7 +98,7 @@ class BoringBodies:
         # rotate all velocities to be in body frame
         if rotation_matrix.shape == (len(self.body_ids), 3, 3):
             body_velocities = np.matmul(
-                rotation_matrix, np.expand_dims(body_velocities, -1)
+                rotation_matrix, body_velocities[..., None]
             ).squeeze(-1)
         elif rotation_matrix.shape == (3, 3):
             body_velocities = np.matmul(rotation_matrix, body_velocities.T).T

@@ -147,7 +147,7 @@ class WaypointHandler:
             # rollover yaw
             yaw_errors[yaw_errors > math.pi] -= 2.0 * math.pi
             yaw_errors[yaw_errors < -math.pi] += 2.0 * math.pi
-            yaw_errors = np.expand_dims(yaw_errors, axis=-1)
+            yaw_errors = yaw_errors[..., None]
 
             # add the yaw delta to the target deltas
             target_deltas = np.concatenate([target_deltas, yaw_errors], axis=-1)
