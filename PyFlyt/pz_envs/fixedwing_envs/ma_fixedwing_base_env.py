@@ -378,7 +378,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
 
         """
         c, s = np.cos(orn), np.sin(orn)
-        eye = np.stack([np.eye(3)] * orn.shape[0], axis=0)
+        eye = np.tile(np.eye(3), (orn.shape[0], 1, 1))
 
         rx = eye.copy()
         rx[:, 1, 1] = c[..., 0]
@@ -397,7 +397,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         rz[:, 1, 1] = c[..., 2]
 
         forward_vector = np.stack(
-            [c[..., 2] * c[..., 1], s[..., 2] * c[..., 1], -s[..., 1]], axis=-1
+            (c[..., 2] * c[..., 1], s[..., 2] * c[..., 1], -s[..., 1]), axis=-1
         )
 
         # order of operations for multiplication matters here
