@@ -78,7 +78,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
         self.hit_colour = np.array([1.0, 0.0, 0.0, 0.2])
-        self.norm_colour = np.array([0.0, 0.0, 0.0, 0.2])
+        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
 
         # observation_space
         # combined (state + aux) + health + enemy state
@@ -404,7 +404,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
-                    rgbaColor=(self.hit_colour if self.current_hits[i] else self.norm_colour),
+                    rgbaColor=(self.hit_colour if self.current_hits[i] else self.nohit_color),
                 )
 
         return returns
