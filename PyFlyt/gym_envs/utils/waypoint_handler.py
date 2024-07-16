@@ -114,7 +114,7 @@ class WaypointHandler:
         """distance_to_next_target.
 
         Returns:
-        ---
+        -------
             float:
         """
         return self.new_distance
