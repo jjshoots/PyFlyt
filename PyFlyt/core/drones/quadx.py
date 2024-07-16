@@ -213,8 +213,8 @@ class QuadX(DroneClass):
         # compute camera fps parameters
         if camera_fps:
             assert (
-                (physics_hz / camera_fps) % 1 == 0
-            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+                physics_hz / camera_fps
+            ) % 1 == 0, f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
             self.physics_camera_ratio = int(physics_hz / camera_fps)
         else:
             self.physics_camera_ratio = 1
@@ -419,8 +419,8 @@ class QuadX(DroneClass):
             custom_output = self.instanced_controllers[self.mode].step(
                 self.state, self.setpoint
             )
-            assert (
-                custom_output.shape == (4,)
+            assert custom_output.shape == (
+                4,
             ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
 
             # splice things out to be passed along

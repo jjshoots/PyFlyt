@@ -184,10 +184,14 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # get the rotation matrices and forward vectors
         # offset the position to be on top of the main wing
         rotation, forward_vecs = self.compute_rotation_forward(self.attitudes[:, 1])
-        self.attitudes[:, -1] = self.attitudes[:, -1] - (forward_vecs * 0.35)  # pyright: ignore[reportGeneralTypeIssues]
+        self.attitudes[:, -1] = self.attitudes[:, -1] - (
+            forward_vecs * 0.35
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
         # compute the vectors of each drone to each drone
-        separation = self.attitudes[::-1, -1] - self.attitudes[:, -1]  # pyright: ignore[reportGeneralTypeIssues]
+        separation = (
+            self.attitudes[::-1, -1] - self.attitudes[:, -1]
+        )  # pyright: ignore[reportGeneralTypeIssues]
         self.previous_distance = self.current_distance.copy()
         self.current_distance = np.linalg.norm(separation[0])
 
@@ -222,7 +226,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         opponent_attitudes[:, 0] = self.attitudes[::-1, 0]
 
         # opponent angular position is relative to ours
-        opponent_attitudes[:, 1] = self.attitudes[::-1, 1] - self.attitudes[:, 1]  # pyright: ignore[reportGeneralTypeIssues]
+        opponent_attitudes[:, 1] = (
+            self.attitudes[::-1, 1] - self.attitudes[:, 1]
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
         # opponent velocity is relative to ours in our body frame
         ground_velocities: np.ndarray = (
@@ -231,7 +237,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         opponent_velocities = (
             np.expand_dims(ground_velocities, axis=1)[::-1] @ rotation
         ).reshape(2, 3)
-        opponent_attitudes[:, 2] = opponent_velocities - self.attitudes[:, 2]  # pyright: ignore[reportGeneralTypeIssues]
+        opponent_attitudes[:, 2] = (
+            opponent_velocities - self.attitudes[:, 2]
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
         # opponent position is relative to ours in our body frame
         opponent_attitudes[:, 3] = (
@@ -365,9 +373,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # order of operations for multiplication matters here
         return rz @ ry @ rx, forward_vector
 
-    def step(
-        self, actions: dict[str, np.ndarray]
-    ) -> tuple[
+    def step(self, actions: dict[str, np.ndarray]) -> tuple[
         dict[str, Any],
         dict[str, float],
         dict[str, bool],

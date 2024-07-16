@@ -156,7 +156,6 @@ def test_custom_controller():
             """Step the controller here.
 
             Args:
-            ----
                 state (np.ndarray): Current state of the UAV
                 setpoint (np.ndarray): Desired setpoint
 
@@ -268,7 +267,6 @@ def test_simple_wind(model: str):
     """Tests the wind field functionality.
 
     Args:
-    ----
         model (str): model name
 
     """
@@ -304,7 +302,6 @@ def test_custom_wind(model: str):
     """Tests the wind field functionality.
 
     Args:
-    ----
         model (str): model name
 
     """

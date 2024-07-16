@@ -38,9 +38,3 @@ PyFlyt = [
 Repository = "https://github.com/jjshoots/PyFlyt"
 Documentation = "https://jjshoots.github.io/PyFlyt/documentation.html"
 "Bug Report" = "https://github.com/jjshoots/PyFlyt/issues"
-
-#######################################################################################
-# linters
-#######################################################################################
-[tool.ruff.lint.pydocstyle]
-convention = "google"

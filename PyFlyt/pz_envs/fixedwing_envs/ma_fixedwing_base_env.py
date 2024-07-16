@@ -303,9 +303,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def step(
-        self, actions: dict[str, np.ndarray]
-    ) -> tuple[
+    def step(self, actions: dict[str, np.ndarray]) -> tuple[
         dict[str, Any],
         dict[str, float],
         dict[str, bool],

@@ -169,7 +169,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
 
     def compute_term_trunc_reward(self) -> None:
-        """Computes the termination, trunction, and reward of the current timestep."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse

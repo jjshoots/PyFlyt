@@ -216,8 +216,8 @@ class Rocket(DroneClass):
         # compute camera fps parameters
         if camera_fps:
             assert (
-                (physics_hz / camera_fps) % 1 == 0
-            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+                physics_hz / camera_fps
+            ) % 1 == 0, f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
             self.physics_camera_ratio = int(physics_hz / camera_fps)
         else:
             self.physics_camera_ratio = 1

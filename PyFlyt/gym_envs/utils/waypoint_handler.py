@@ -126,7 +126,6 @@ class WaypointHandler:
         """distance_to_targets.
 
         Args:
-        ---
             ang_pos (np.ndarray): ang_pos
             lin_pos (np.ndarray): lin_pos
             quaternion (np.ndarray): quaternion

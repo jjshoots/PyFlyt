@@ -173,13 +173,10 @@ class Boosters:
             pwm <= 1.0
         ), f"{pwm=} has values out of bounds of 0.0 and 1.0."
         if rotation is not None:
-            assert (
-                rotation.shape
-                == (
-                    self.num_boosters,
-                    3,
-                    3,
-                )
+            assert rotation.shape == (
+                self.num_boosters,
+                3,
+                3,
             ), f"`rotation` should be of shape (num_boosters, 3, 3), got {rotation.shape}"
 
         # compute thrust mass inertia

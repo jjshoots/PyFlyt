@@ -21,7 +21,6 @@ class CustomController(ControlClass):
         """Step the controller here.
 
         Args:
-        ----
             state (np.ndarray): Current state of the UAV
             setpoint (np.ndarray): Desired setpoint
 

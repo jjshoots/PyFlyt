@@ -60,8 +60,8 @@ class LiftingSurfaces:
 
         """
         assert len(cmd.shape) == 1, f"`{cmd=}` must be 1D array."
-        assert (
-            cmd.shape[0] == len(self.surfaces)
+        assert cmd.shape[0] == len(
+            self.surfaces
         ), f"`{cmd=}` must have same number of elements as surfaces ({len(self.surfaces)})."
         assert np.all(cmd >= -1.0) and np.all(
             cmd <= 1.0
