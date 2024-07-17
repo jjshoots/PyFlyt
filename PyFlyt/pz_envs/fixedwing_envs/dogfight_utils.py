@@ -2,11 +2,9 @@
 
 import numpy as np
 
-from PyFlyt.core.utils.compile_helpers import jitter
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
-@jitter
 def compute_combat_state(
     uav_states: np.ndarray,
     lethal_angle: float,

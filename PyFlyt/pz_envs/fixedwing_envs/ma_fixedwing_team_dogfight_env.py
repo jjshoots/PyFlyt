@@ -30,7 +30,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
     metadata = {
         "render_modes": ["human"],
-        "name": "ma_quadx_hover",
+        "name": "ma_fixedwing_team_dogfight",
     }
 
     def __init__(
