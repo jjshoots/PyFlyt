@@ -128,7 +128,7 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """
         # get all the relevant things
         raw_state = self.compute_attitude_by_id(agent_id)
-        aux_state = self.compute_auxiliary_by_id(agent_id)
+        aux_state = self.aviary.aux_state(agent_id)
 
         # state breakdown
         ang_vel = raw_state[0]

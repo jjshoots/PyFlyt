@@ -241,10 +241,6 @@ class MAQuadXBaseEnv(ParallelEnv):
         for _ in range(10):
             self.aviary.step()
 
-    def compute_auxiliary_by_id(self, agent_id: int) -> np.ndarray:
-        """This returns the auxiliary state form the drone."""
-        return self.aviary.aux_state(agent_id)
-
     def compute_attitude_by_id(
         self, agent_id: int
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:

@@ -286,22 +286,36 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
         """Computes the termination, truncation, and reward of the current timestep."""
-        term, trunc, info = super().compute_base_term_trunc_info_by_id(agent_id)
-
-        # terminal if other agent is dead
-        term |= self.num_agents < 2
-
         # don't recompute if we've already done it
         if self.last_rew_time != self.aviary.elapsed_time:
             self.last_rew_time = self.aviary.elapsed_time
             self._compute_engagement_rewards()
 
+        # initialize
         reward = self.rewards[agent_id]
-        reward -= bool(info.get("out_of_bounds")) * 3000.0
-        reward -= bool(info.get("collision")) * 3000.0
+        term = self.num_agents < 2
+        trunc = self.step_count > self.max_steps
+        info = dict()
+
+        # collision
+        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
+            reward -= 3000.0
+            info["collision"] = True
+            term |= True
+
+        # exceed flight dome
+        if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
+            reward -= 3000.0
+            info["out_of_bounds"] = True
+            term |= True
+
+        # out of health
+        if self.healths[agent_id] <= 0.0:
+            reward -= 100.0
+            info["dead"] = True
+            term |= True
 
         # all the info things
-        info["wins"] = self.healths <= 0.0
         info["healths"] = self.healths
 
         return term, trunc, reward, info

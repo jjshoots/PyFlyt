@@ -225,35 +225,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         for _ in range(10):
             self.aviary.step()
 
-    def compute_auxiliary_by_id(self, agent_id: int) -> np.ndarray:
-        """This returns the auxiliary state form the drone."""
-        return self.aviary.aux_state(agent_id)
-
-    def compute_attitude_by_id(
-        self, agent_id: int
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """state.
-
-        This returns the base attitude for the drone.
-        - ang_vel (vector of 3 values)
-        - ang_pos (vector of 3 values)
-        - lin_vel (vector of 3 values)
-        - lin_pos (vector of 3 values)
-        - quaternion (vector of 4 values)
-        """
-        raw_state = self.aviary.state(agent_id)
-
-        # state breakdown
-        ang_vel = raw_state[0]
-        ang_pos = raw_state[1]
-        lin_vel = raw_state[2]
-        lin_pos = raw_state[3]
-
-        # quaternion angles
-        quaternion = p.getQuaternionFromEuler(ang_pos)
-
-        return ang_vel, ang_pos, lin_vel, lin_pos, quaternion
-
     def compute_observation_by_id(self, agent_id: int) -> Any:
         """compute_observation_by_id.
 
