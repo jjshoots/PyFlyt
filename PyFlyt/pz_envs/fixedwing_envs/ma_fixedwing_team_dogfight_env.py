@@ -159,7 +159,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         super().begin_reset(seed, options, drone_options=drone_options)
 
         # reset runtime parameters
-        self.opponent_attitudes = np.zeros((self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64)
+        self.opponent_attitudes = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
+        )
         self.health = np.ones(self.num_possible_agents, dtype=np.float64)
         self.in_cone = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=bool

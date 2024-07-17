@@ -367,7 +367,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         return observations, rewards, terminations, truncations, infos
 
     @staticmethod
-    @jitter
     def compute_rotation_forward(orn: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Computes the rotation matrix and forward vector of an aircraft given its orientation.
 
@@ -378,6 +377,35 @@ class MAFixedwingBaseEnv(ParallelEnv):
             np.ndarray: an [n, 3, 3] rotation matrix of each aircraft
             np.ndarray: an [n, 3] forward vector of each aircraft
 
+        """
+        # use the jitted component to generate all the memory intensive copies
+        rx, ry, rz, forward_vector = (
+            MAFixedwingBaseEnv._jitted_compute_unit_rotation_forward(orn)
+        )
+
+        # order of operations for multiplication matters here
+        return rz @ ry @ rx, forward_vector
+
+    @staticmethod
+    @jitter
+    def _jitted_compute_unit_rotation_forward(orn: np.ndarray) -> tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+    ]:
+        """Jitted unit to compute rotation matrices and forward vectors.
+
+        Args:
+            orn (np.ndarray): orn
+
+        Returns:
+            tuple[
+                    np.ndarray,
+                    np.ndarray,
+                    np.ndarray,
+                    np.ndarray,
+                ]:
         """
         # some general stuff
         c, s = np.cos(orn), np.sin(orn)
@@ -400,12 +428,10 @@ class MAFixedwingBaseEnv(ParallelEnv):
         rz[:, 0, 1] = -s[..., 2]
         rz[:, 1, 0] = s[..., 2]
         rz[:, 1, 1] = c[..., 2]
-        rotation = rz @ ry @ rx
 
         # compute forward vector
         forward_vector = np.stack(
             (c[..., 2] * c[..., 1], s[..., 2] * c[..., 1], -s[..., 1]), axis=-1
         )
 
-        # order of operations for multiplication matters here
-        return rotation, forward_vector
+        return rx, ry, rz, forward_vector
