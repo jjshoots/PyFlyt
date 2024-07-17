@@ -11,6 +11,7 @@ from gymnasium import Space, spaces
 from pettingzoo import ParallelEnv
 
 from PyFlyt.core import Aviary
+from PyFlyt.core.utils.compile_helpers import jitter
 
 
 class MAFixedwingBaseEnv(ParallelEnv):
@@ -366,6 +367,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         return observations, rewards, terminations, truncations, infos
 
     @staticmethod
+    @jitter
     def compute_rotation_forward(orn: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Computes the rotation matrix and forward vector of an aircraft given its orientation.
 
@@ -377,9 +379,12 @@ class MAFixedwingBaseEnv(ParallelEnv):
             np.ndarray: an [n, 3] forward vector of each aircraft
 
         """
+        # some general stuff
         c, s = np.cos(orn), np.sin(orn)
-        eye = np.tile(np.eye(3), (orn.shape[0], 1, 1))
+        eye = np.zeros((orn.shape[0], 3, 3), dtype=np.float64)
+        eye[:] = np.eye(3)
 
+        # create the rotation matrix
         rx = eye.copy()
         rx[:, 1, 1] = c[..., 0]
         rx[:, 1, 2] = -s[..., 0]
@@ -395,10 +400,12 @@ class MAFixedwingBaseEnv(ParallelEnv):
         rz[:, 0, 1] = -s[..., 2]
         rz[:, 1, 0] = s[..., 2]
         rz[:, 1, 1] = c[..., 2]
+        rotation = rz @ ry @ rx
 
+        # compute forward vector
         forward_vector = np.stack(
             (c[..., 2] * c[..., 1], s[..., 2] * c[..., 1], -s[..., 1]), axis=-1
         )
 
         # order of operations for multiplication matters here
-        return rz @ ry @ rx, forward_vector
+        return rotation, forward_vector
