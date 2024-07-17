@@ -237,30 +237,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def compute_base_term_trunc_info_by_id(
-        self, agent_id: int
-    ) -> tuple[bool, bool, dict[str, Any]]:
-        """compute_base_term_trunc_reward_by_id."""
-        # initialize
-        term = False
-        trunc = False
-        info = dict()
-
-        # exceed step count
-        trunc |= self.step_count > self.max_steps
-
-        # collision
-        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
-            info["collision"] = True
-            term |= True
-
-        # exceed flight dome
-        if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
-            info["out_of_bounds"] = True
-            term |= True
-
-        return term, trunc, info
-
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
