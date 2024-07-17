@@ -213,7 +213,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.current_hits = current_hits.sum(axis=0) > 0.0
         self.current_distance = current_distance[0, 1]
         self.current_angles = current_angles[idx, idx[::-1]]
-        self.current_offsets = current_offsets[idx, idx[::-1]]
+        self.current_offsets = current_offsets[idx[::-1], idx]
 
         # compute whether anyone hit anyone
         self.health -= self.damage_per_hit * self.current_hits

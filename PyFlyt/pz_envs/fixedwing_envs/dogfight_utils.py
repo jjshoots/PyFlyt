@@ -6,7 +6,7 @@ from PyFlyt.core.utils.compile_helpers import jitter
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
-@jitter
+# @jitter
 def compute_combat_state(
     uav_states: np.ndarray,
     lethal_angle: float,
@@ -70,7 +70,7 @@ def compute_combat_state(
     # compute engagement angles
     # WARNING: this has NaNs on the diagonal, watch for everything downstream
     current_angles = np.arccos(
-        np.sum(separation * forward_vecs, axis=-1) / current_distances
+        np.sum(separation * forward_vecs[:, None, :], axis=-1) / current_distances
     )
 
     # compute engagement offsets
