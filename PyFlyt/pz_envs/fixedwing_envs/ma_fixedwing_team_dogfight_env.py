@@ -35,7 +35,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
     def __init__(
         self,
-        team_size: int = 1,
+        team_size: int = 2,
         spawn_radius: float = 5.0,
         spawn_height: float = 15.0,
         damage_per_hit: float = 0.02,
@@ -302,12 +302,12 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
     def _compute_engagement_rewards(self) -> None:
         """_compute_engagement_rewards."""
         # reset rewards
-        self.rewards *= 0.0
+        rewards = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
 
         # sparse reward computation
         if not self.sparse_reward:
             # reward for closing the distance
-            self.rewards += (
+            rewards += (
                 np.clip(
                     self.previous_distances - self.current_distances,
                     a_min=0.0,
@@ -317,38 +317,57 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
                 * 1.0
             )
 
-            # reward for progressing to engagement
-            self.rewards += (
-                (self.previous_angles - self.current_angles) * self.in_range * 10.0
-            )
+            # reward for progressing to engagement, penalty for losing angles is less
+            # WARNING: NaN introduced here
+            delta_angles = self.previous_angles - self.current_angles
+            delta_angles[delta_angles > 0.0] *= 0.5
+            rewards += delta_angles * self.in_range * 10.0
 
             # reward for engaging the enemy
-            self.rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
+            # WARNING: NaN introduced here
+            rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
-        # reward for hits
-        self.rewards += 30.0 * self.current_hits
+        # reward for hits and being hit
+        rewards += (30.0 * self.current_hits) + (-20.0 * self.current_hits.T)
 
-        # penalty for being hit
-        # TODO: handle this shit
-        # self.rewards -= 20.0 * self.current_hits[::-1]
+        # remove the nans, and sum rewards along axes
+        np.fill_diagonal(rewards, 0.0)
+        self.rewards = rewards.sum(axis=1)
 
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
         """Computes the termination, truncation, and reward of the current timestep."""
-        term, trunc, info = super().compute_base_term_trunc_info_by_id(agent_id)
-
         # don't recompute if we've already done it
         if self.last_rew_time != self.aviary.elapsed_time:
             self.last_rew_time = self.aviary.elapsed_time
             self._compute_engagement_rewards()
 
+        # initialize
         reward = self.rewards[agent_id]
-        reward -= bool(info.get("out_of_bounds")) * 3000.0
-        reward -= bool(info.get("collision")) * 3000.0
+        term = self.num_agents < 2
+        trunc = self.step_count > self.max_steps
+        info = dict()
+
+        # collision
+        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
+            reward -= 3000.0
+            info["collision"] = True
+            term |= True
+
+        # exceed flight dome
+        if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
+            reward -= 3000.0
+            info["out_of_bounds"] = True
+            term |= True
+
+        # out of health
+        if self.healths[agent_id] <= 0.0:
+            reward -= 100.0
+            info["dead"] = True
+            term |= True
 
         # all the info things
-        info["wins"] = self.healths <= 0.0
         info["healths"] = self.healths
 
         return term, trunc, reward, info
