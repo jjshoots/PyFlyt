@@ -82,11 +82,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
 
         # observation_space
-        # combined (state + aux) + health + enemy state
+        # combined (state + aux) + health + enemy state + enemy health
         self._observation_space = spaces.Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.combined_space.shape[0] + 1 + 12,),
+            shape=(self.combined_space.shape[0] + 1 + 12 + 1,),
         )
 
     def observation_space(self, agent: Any = None) -> spaces.Box:
@@ -146,7 +146,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # reset runtime parameters
         self.opponent_attitudes = np.zeros((2, 4, 3), dtype=np.float64)
-        self.health = np.ones(2, dtype=np.float64)
+        self.healths = np.ones(2, dtype=np.float64)
         self.opp_in_cone = np.zeros(2, dtype=bool)
         self.opp_in_range = np.zeros(2, dtype=bool)
         self.is_chasing = np.zeros(2, dtype=bool)
@@ -158,7 +158,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.previous_angles = np.zeros(2, dtype=np.float64)
         self.previous_offsets = np.zeros(2, dtype=np.float64)
         self.previous_distance = np.zeros((), dtype=np.float64)
-        self.observations = np.zeros((2, *self.observation_space(0).shape))
         self.last_obs_time = -1.0
         self.rewards = np.zeros((2,), dtype=np.float64)
         self.last_rew_time = -1.0
@@ -216,7 +215,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.current_offsets = current_offsets[idx[::-1], idx]
 
         # compute whether anyone hit anyone
-        self.health -= self.damage_per_hit * self.current_hits
+        self.healths -= self.damage_per_hit * self.current_hits
 
         # flatten the attitude and opponent attitude
         flat_attitude = self.attitudes.reshape(2, -1)
@@ -226,9 +225,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.observations = np.concatenate(
             [
                 flat_attitude,
-                self.health[..., None],
+                self.aviary.all_aux_states,
+                self.healths[..., None],
                 flat_opponent_attitude,
-                self.health[..., None][::-1],
+                self.healths[..., None][::-1],
                 self.past_actions,
             ],
             axis=-1,
@@ -301,8 +301,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         reward -= bool(info.get("collision")) * 3000.0
 
         # all the info things
-        info["wins"] = self.health <= 0.0
-        info["healths"] = self.health
+        info["wins"] = self.healths <= 0.0
+        info["healths"] = self.healths
 
         return term, trunc, reward, info
 

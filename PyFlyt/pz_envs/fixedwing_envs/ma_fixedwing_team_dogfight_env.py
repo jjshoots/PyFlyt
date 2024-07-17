@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 from gymnasium import spaces
@@ -35,7 +35,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
     def __init__(
         self,
-        team_size: int = 2,
+        team_size: int = 1,
         spawn_radius: float = 5.0,
         spawn_height: float = 15.0,
         damage_per_hit: float = 0.02,
@@ -88,14 +88,27 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
 
         # observation_space
-        # combined (state + aux) + health + enemy state
-        self._observation_space = spaces.Box(
-            low=-np.inf,
-            high=np.inf,
-            shape=(self.combined_space.shape[0] + 1 + 12,),
+        self._observation_space = spaces.Dict(
+            {
+                # base + health
+                "self": spaces.Box(
+                    low=-np.inf,
+                    high=np.inf,
+                    shape=(self.combined_space.shape[0] + 1,),
+                ),
+                # watch n opponents attitude + health
+                "opponents": spaces.Sequence(
+                    space=spaces.Box(
+                        low=-np.inf,
+                        high=np.inf,
+                        shape=(12 + 1,),
+                    ),
+                    stack=True,
+                )
+            }
         )
 
-    def observation_space(self, agent: Any = None) -> spaces.Box:
+    def observation_space(self, agent: Any = None) -> spaces.Dict:
         """observation_space.
 
         Args:
@@ -128,6 +141,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # define the starting orientations
         start_orn = np.zeros((self.team_size * 2, 3))
         start_orn[:, 2] = start_z_radian
+        start_orn[:, 2] = 0.0
 
         return start_pos, start_orn
 
@@ -162,7 +176,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         self.opponent_attitudes = np.zeros(
             (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
         )
-        self.health = np.ones(self.num_possible_agents, dtype=np.float64)
+        self.healths = np.ones(self.num_possible_agents, dtype=np.float64)
         self.in_cone = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=bool
         )
@@ -242,7 +256,34 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             self.damage_per_hit,
         )
 
-    def compute_observation_by_id(self, agent_id: int) -> np.ndarray:
+        # compute whether anyone hit anyone
+        self.healths -= self.damage_per_hit * self.current_hits.sum(axis=0)
+
+        # flatten things
+        flat_attitudes = self.attitudes.reshape(self.num_agents, -1)
+        flat_healths = self.healths.reshape(self.num_agents, -1)
+        flat_opponent_attitudes = self.opponent_attitudes.reshape(self.num_agents, self.num_agents, -1)
+
+        # start stacking the observations
+        self.observations: list[dict[Literal["self", "opponents"], np.ndarray]] = [
+            {
+                # formulate the observation of self
+                "self": np.concatenate(
+                    (flat_attitudes[i], self.aviary.aux_state(i), flat_healths[i], self.past_actions[i]),
+                    axis=-1,
+                ),
+                # formulate the opponents status, select perspective, then delete self from that perspective
+                "opponents": np.concatenate(
+                    (
+                        np.delete(flat_opponent_attitudes[i], i, axis=0),
+                        np.delete(flat_healths, i, axis=0),
+                    ),
+                    axis=-1
+                )
+            } for i in range(self.num_possible_agents)
+        ]
+
+    def compute_observation_by_id(self, agent_id: int) -> dict[Literal["self", "opponents"], np.ndarray]:
         """compute_observation_by_id.
 
         Args:
@@ -307,8 +348,8 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         reward -= bool(info.get("collision")) * 3000.0
 
         # all the info things
-        info["wins"] = self.health <= 0.0
-        info["healths"] = self.health
+        info["wins"] = self.healths <= 0.0
+        info["healths"] = self.healths
 
         return term, trunc, reward, info
 

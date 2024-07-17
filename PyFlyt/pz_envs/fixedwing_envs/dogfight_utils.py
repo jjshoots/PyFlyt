@@ -67,9 +67,10 @@ def compute_combat_state(
 
     # compute engagement angles
     # WARNING: this has NaNs on the diagonal, watch for everything downstream
-    current_angles = np.arccos(
-        np.sum(separation * forward_vecs[:, None, :], axis=-1) / current_distances
-    )
+    with np.errstate(divide="ignore", invalid="ignore"):
+        current_angles = np.arccos(
+            np.sum(separation * forward_vecs[:, None, :], axis=-1) / current_distances
+        )
 
     # compute engagement offsets
     current_offsets = np.linalg.norm(np.cross(separation, forward_vecs), axis=-1)

@@ -73,7 +73,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
 
         # observation space
         self.auxiliary_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(5,), dtype=np.float64
+            low=-np.inf, high=np.inf, shape=(6,), dtype=np.float64
         )
         self.combined_space = spaces.Box(
             low=-np.inf,
