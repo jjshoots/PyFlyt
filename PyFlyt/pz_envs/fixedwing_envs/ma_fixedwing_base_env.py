@@ -6,7 +6,6 @@ from copy import deepcopy
 from typing import Any, Sequence
 
 import numpy as np
-import pybullet as p
 from gymnasium import Space, spaces
 from pettingzoo import ParallelEnv
 

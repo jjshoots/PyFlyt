@@ -1,5 +1,7 @@
 """Jitted utilities for dogfight environments."""
 
+from __future__ import annotations
+
 import numpy as np
 
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv

@@ -90,7 +90,17 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
                 np.zeros((team_size,)),
                 np.ones((team_size,)),
             ),
-            axis=-1
+            axis=-1,
+        )
+
+        # the mask for friendly fire
+        base_mask = np.zeros((team_size, team_size), dtype=bool)
+        self.friendly_fire_mask = np.concatenate(
+            (
+                np.concatenate((base_mask, ~base_mask), axis=0),
+                np.concatenate((~base_mask, base_mask), axis=0),
+            ),
+            axis=1,
         )
 
         # observation_space
@@ -110,7 +120,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
                         shape=(12 + 1 + 1,),
                     ),
                     stack=True,
-                )
+                ),
             }
         )
 
@@ -187,7 +197,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
         # attitudes and health of all drones
         self.healths = np.ones(self.num_possible_agents, dtype=np.float64)
-        self.attitudes = np.zeros((self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64)
+        self.attitudes = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
+        )
         self.other_attitudes = np.zeros(
             (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
         )
@@ -270,16 +282,25 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             self.damage_per_hit,
         )
 
+        # mask out friendly fire - we don't shoot our friends
+        self.current_hits &= self.friendly_fire_mask
+
         # compute whether anyone hit anyone
         self.healths -= self.damage_per_hit * self.current_hits.sum(axis=0)
 
-        # inactivate aircraft if they're dead, have heights close to the ground and have velocity less than 0.1
-        self.inactive = (self.healths <= 0.0) & (self.attitudes[:, -1, -1] < 2.0) & (np.linalg.norm(self.attitudes[:, -2, :]) < 0.1)
+        # deactivate aircraft if they're dead, have heights close to the ground and have velocity less than 0.1
+        self.inactive = (
+            (self.healths <= 0.0)
+            & (self.attitudes[:, -1, -1] < 2.0)
+            & (np.linalg.norm(self.attitudes[:, -2, :]) < 0.1)
+        )
 
         # flatten things
         flat_attitudes = self.attitudes.reshape(self.num_possible_agents, -1)
         flat_healths = self.healths.reshape(self.num_possible_agents, -1)
-        flat_other_attitudes = self.other_attitudes.reshape(self.num_possible_agents, self.num_possible_agents, -1)
+        flat_other_attitudes = self.other_attitudes.reshape(
+            self.num_possible_agents, self.num_possible_agents, -1
+        )
 
         # start stacking the observations
         self.observations: list[dict[Literal["self", "others"], np.ndarray]] = []
@@ -314,7 +335,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
                 }
             )
 
-    def compute_observation_by_id(self, agent_id: int) -> dict[Literal["self", "others"], np.ndarray]:
+    def compute_observation_by_id(
+        self, agent_id: int
+    ) -> dict[Literal["self", "others"], np.ndarray]:
         """compute_observation_by_id.
 
         Args:
@@ -333,7 +356,9 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
     def _compute_engagement_rewards(self) -> None:
         """_compute_engagement_rewards."""
         # reset rewards
-        rewards = np.zeros((self.num_possible_agents, self.num_possible_agents), dtype=np.float64)
+        rewards = np.zeros(
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+        )
 
         # sparse reward computation
         if not self.sparse_reward:
