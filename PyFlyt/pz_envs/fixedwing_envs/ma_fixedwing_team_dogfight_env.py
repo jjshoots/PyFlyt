@@ -77,6 +77,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             render_mode=render_mode,
         )
 
+        # some environment constants
         self.team_size = team_size
         self.spawn_radius = spawn_radius
         self.sparse_reward = sparse_reward
@@ -84,8 +85,13 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         self.spawn_height = spawn_height
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
-        self.hit_colour = np.array([0.7, 0.7, 0.7, 0.2])
-        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
+        self.team_flag = np.concatenate(
+            (
+                np.zeros((team_size,)),
+                np.ones((team_size,)),
+            ),
+            axis=-1
+        )
 
         # observation_space
         self._observation_space = spaces.Dict(
@@ -96,17 +102,21 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
                     high=np.inf,
                     shape=(self.combined_space.shape[0] + 1,),
                 ),
-                # watch n opponents attitude + health
-                "opponents": spaces.Sequence(
+                # watch n others attitude + health + team_mask
+                "others": spaces.Sequence(
                     space=spaces.Box(
                         low=-np.inf,
                         high=np.inf,
-                        shape=(12 + 1,),
+                        shape=(12 + 1 + 1,),
                     ),
                     stack=True,
                 )
             }
         )
+
+        # some rendering constants
+        self.hit_colour = np.array([0.7, 0.7, 0.7, 0.2])
+        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
 
     def observation_space(self, agent: Any = None) -> spaces.Dict:
         """observation_space.
@@ -172,11 +182,17 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
         super().begin_reset(seed, options, drone_options=drone_options)
 
-        # reset runtime parameters
-        self.opponent_attitudes = np.zeros(
+        # inactive is a flag for when an aircraft has hit the ground and has 0 velocity
+        self.inactive = np.zeros(self.num_possible_agents, dtype=bool)
+
+        # attitudes and health of all drones
+        self.healths = np.ones(self.num_possible_agents, dtype=np.float64)
+        self.attitudes = np.zeros((self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64)
+        self.other_attitudes = np.zeros(
             (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
         )
-        self.healths = np.ones(self.num_possible_agents, dtype=np.float64)
+
+        # engagement status
         self.in_cone = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=bool
         )
@@ -186,6 +202,8 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         self.chasing = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=bool
         )
+
+        # engagement state
         self.current_hits = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=bool
         )
@@ -198,21 +216,17 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         self.current_distances = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
         )
-        self.previous_hits = np.zeros(
-            (self.num_possible_agents, (self.num_possible_agents)), dtype=bool
-        )
-        self.previous_angles = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
-        )
-        self.previous_offsets = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
-        )
-        self.previous_distances = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
-        )
+
+        # past engagement state
+        self.previous_hits = self.current_hits.copy()
+        self.previous_angles = self.current_angles.copy()
+        self.previous_offsets = self.current_offsets.copy()
+        self.previous_distances = self.current_distances.copy()
+
+        # some trackers for updating the environment
         self.last_obs_time = -1.0
-        self.rewards = np.zeros((self.num_possible_agents,), dtype=np.float64)
         self.last_rew_time = -1.0
+        self.rewards = np.zeros((self.num_possible_agents,), dtype=np.float64)
 
         super().end_reset(seed, options)
 
@@ -248,7 +262,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             self.current_distances,
             self.current_angles,
             self.current_offsets,
-            self.opponent_attitudes,
+            self.other_attitudes,
         ) = compute_combat_state(
             self.attitudes,
             self.lethal_angle,
@@ -259,31 +273,48 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # compute whether anyone hit anyone
         self.healths -= self.damage_per_hit * self.current_hits.sum(axis=0)
 
+        # inactivate aircraft if they're dead, have heights close to the ground and have velocity less than 0.1
+        self.inactive = (self.healths <= 0.0) & (self.attitudes[:, -1, -1] < 2.0) & (np.linalg.norm(self.attitudes[:, -2, :]) < 0.1)
+
         # flatten things
-        flat_attitudes = self.attitudes.reshape(self.num_agents, -1)
-        flat_healths = self.healths.reshape(self.num_agents, -1)
-        flat_opponent_attitudes = self.opponent_attitudes.reshape(self.num_agents, self.num_agents, -1)
+        flat_attitudes = self.attitudes.reshape(self.num_possible_agents, -1)
+        flat_healths = self.healths.reshape(self.num_possible_agents, -1)
+        flat_other_attitudes = self.other_attitudes.reshape(self.num_possible_agents, self.num_possible_agents, -1)
 
         # start stacking the observations
-        self.observations: list[dict[Literal["self", "opponents"], np.ndarray]] = [
-            {
-                # formulate the observation of self
-                "self": np.concatenate(
-                    (flat_attitudes[i], self.aviary.aux_state(i), flat_healths[i], self.past_actions[i]),
-                    axis=-1,
-                ),
-                # formulate the opponents status, select perspective, then delete self from that perspective
-                "opponents": np.concatenate(
-                    (
-                        np.delete(flat_opponent_attitudes[i], i, axis=0),
-                        np.delete(flat_healths, i, axis=0),
-                    ),
-                    axis=-1
-                )
-            } for i in range(self.num_possible_agents)
-        ]
+        self.observations: list[dict[Literal["self", "others"], np.ndarray]] = []
+        for i in range(self.num_possible_agents):
+            # flag for still active aircraft since we want to eliminate redundant observations
+            relevant = np.ones(self.num_possible_agents, dtype=bool)
+            relevant[i] = False
+            relevant &= ~self.inactive
 
-    def compute_observation_by_id(self, agent_id: int) -> dict[Literal["self", "opponents"], np.ndarray]:
+            # build the observation
+            self.observations.append(
+                {
+                    # formulate the observation of self
+                    "self": np.concatenate(
+                        (
+                            flat_attitudes[i],
+                            self.aviary.aux_state(i),
+                            flat_healths[i],
+                            self.past_actions[i],
+                        ),
+                        axis=-1,
+                    ),
+                    # formulate the others status: select perspective, then pick out if active
+                    "others": np.concatenate(
+                        (
+                            flat_other_attitudes[i][relevant, ...],
+                            flat_healths[relevant, ...],
+                            (self.team_flag[relevant, None] == self.team_flag[i]),
+                        ),
+                        axis=-1,
+                    ),
+                }
+            )
+
+    def compute_observation_by_id(self, agent_id: int) -> dict[Literal["self", "others"], np.ndarray]:
         """compute_observation_by_id.
 
         Args:
