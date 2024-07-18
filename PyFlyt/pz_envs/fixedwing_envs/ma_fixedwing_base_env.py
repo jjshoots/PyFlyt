@@ -21,7 +21,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),
         start_orn: np.ndarray = np.array([[0.0, 0.0, 0.0]]),
         assisted_flight: bool = True,
-        flight_dome_size: float = 150.0,
+        flight_dome_size: float = 300.0,
         max_duration_seconds: float = 60.0,
         angle_representation: str = "euler",
         agent_hz: int = 30,

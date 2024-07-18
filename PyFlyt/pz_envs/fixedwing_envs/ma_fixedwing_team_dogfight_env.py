@@ -156,12 +156,11 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         start_pos = np.zeros((self.team_size * 2, 3))
         start_pos[:, 0] = self.spawn_radius * np.cos(start_z_radian)
         start_pos[:, 1] = self.spawn_radius * np.sin(start_z_radian)
-        start_pos[:, 2] = self.spawn_height
+        start_pos[:, 2] = self.spawn_height + np.random.randint(10)
 
         # define the starting orientations
         start_orn = np.zeros((self.team_size * 2, 3))
         start_orn[:, 2] = start_z_radian
-        start_orn[:, 2] = 0.0
 
         return start_pos, start_orn
 
@@ -428,32 +427,30 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
         # out of health
         if self.healths[agent_id] <= 0.0:
-            reward -= 100.0
             info["dead"] = True
             term |= True
 
         # collision
         if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
             self.healths[agent_id] = 0.0
-            reward -= 3000.0
+            reward = -3000.0
             info["collision"] = True
             term |= True
 
         # exceed flight dome
         if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
             self.healths[agent_id] = 0.0
-            reward -= 3000.0
+            reward = -3000.0
             info["out_of_bounds"] = True
             term |= True
 
         # all opponents deactivated
-        if np.all(self.inactive[~self.team_flag[agent_id]]):
-            reward += 200.0
+        if np.all(self.healths[self.team_flag != self.team_flag[agent_id]] <= 0.0):
+            reward = 1000.0
             info["team_win"] = True
             term |= True
 
-        # all the info things
-        info["healths"] = self.healths
+        info["health"] = self.healths[agent_id]
 
         return term, trunc, reward, info
 
