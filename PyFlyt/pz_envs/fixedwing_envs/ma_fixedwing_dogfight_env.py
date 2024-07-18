@@ -43,6 +43,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         lethal_angle_radians: float = 0.1,
         assisted_flight: bool = True,
         sparse_reward: bool = False,
+        flatten_observation: bool = True,
         flight_dome_size: float = 150.0,
         max_duration_seconds: float = 60.0,
         agent_hz: int = 30,
@@ -59,6 +60,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             lethal_angle_radians (float): the width of the cone of fire.
             assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
             sparse_reward (bool): whether to use sparse rewards or not.
+            flatten_observation (bool): if False, this returns a Dict style observation.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
             agent_hz (int): looprate of the agent to environment interaction.
@@ -81,6 +83,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.team_size = team_size
         self.spawn_radius = spawn_radius
         self.sparse_reward = sparse_reward
+        self.flatten_observation = flatten_observation
         self.damage_per_hit = damage_per_hit
         self.spawn_height = spawn_height
         self.lethal_distance = lethal_distance
@@ -110,25 +113,33 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 "self": spaces.Box(
                     low=-np.inf,
                     high=np.inf,
-                    shape=(self.combined_space.shape[0] + 1,),
+                    shape=(self_space_shape := (self.combined_space.shape[0] + 1),),
                 ),
-                # watch n others attitude + health + team_mask
+                # attitude + health + team_mask
                 "others": spaces.Sequence(
                     space=spaces.Box(
                         low=-np.inf,
                         high=np.inf,
-                        shape=(12 + 1 + 1,),
+                        shape=(others_space_shape := (12 + 1 + 1),),
                     ),
                     stack=True,
                 ),
             }
         )
 
+        # if flatten observation, then it's just a big box
+        if flatten_observation:
+            self._observation_space = spaces.Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=(self_space_shape + (2 * team_size - 1) * others_space_shape,),
+            )
+
         # some rendering constants
         self.hit_colour = np.array([0.7, 0.7, 0.7, 0.2])
         self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
 
-    def observation_space(self, agent: Any = None) -> spaces.Dict:
+    def observation_space(self, agent: Any = None) -> spaces.Dict | spaces.Box:
         """observation_space.
 
         Args:
@@ -341,7 +352,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
     def compute_observation_by_id(
         self, agent_id: int
-    ) -> dict[Literal["self", "others"], np.ndarray]:
+    ) -> dict[Literal["self", "others"], np.ndarray] | np.ndarray:
         """compute_observation_by_id.
 
         Args:
@@ -355,7 +366,27 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         if self.last_obs_time != self.aviary.elapsed_time:
             self.last_obs_time = self.aviary.elapsed_time
             self._compute_observation()
-        return self.observations[agent_id]
+
+        if not self.flatten_observation:
+            return self.observations[agent_id]
+        else:
+            flat_observation = np.concatenate(
+                (
+                    self.observations[agent_id]["self"],
+                    self.observations[agent_id]["others"].flatten(),
+                ),
+                axis=-1,
+            )
+            flat_observation = np.concatenate(
+                (
+                    flat_observation,
+                    np.zeros(
+                        self._observation_space.shape[0]  # pyright: ignore[reportOptionalSubscript] # fmt: skip
+                        - flat_observation.shape[0],
+                    ),
+                )
+            )
+            return flat_observation
 
     def _compute_engagement_rewards(self) -> None:
         """_compute_engagement_rewards.
