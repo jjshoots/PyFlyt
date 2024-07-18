@@ -87,8 +87,8 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         self.lethal_angle = lethal_angle_radians
         self.team_flag = np.concatenate(
             (
-                np.zeros((team_size,)),
-                np.ones((team_size,)),
+                np.zeros((team_size,), dtype=bool),
+                np.ones((team_size,), dtype=bool),
             ),
             axis=-1,
         )
@@ -238,7 +238,11 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # some trackers for updating the environment
         self.last_obs_time = -1.0
         self.last_rew_time = -1.0
-        self.rewards = np.zeros((self.num_possible_agents,), dtype=np.float64)
+
+        # reward for engagements
+        self.engagement_rewards = np.zeros(
+            (self.num_possible_agents,), dtype=np.float64
+        )
 
         super().end_reset(seed, options)
 
@@ -249,8 +253,8 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         infos = {ag: dict() for ag in self.agents}
         return observations, infos
 
-    def _compute_agent_states(self) -> None:
-        """_compute_agent_states.
+    def _compute_observation(self) -> None:
+        """_compute_observation.
 
         Returns:
             None:
@@ -287,6 +291,7 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
 
         # compute whether anyone hit anyone
         self.healths -= self.damage_per_hit * self.current_hits.sum(axis=0)
+        self.healths = np.clip(self.healths, a_min=0.0, a_max=None)
 
         # deactivate aircraft if they're dead, have heights close to the ground and have velocity less than 0.1
         self.inactive = (
@@ -350,11 +355,17 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
         # don't recompute if we've already done it
         if self.last_obs_time != self.aviary.elapsed_time:
             self.last_obs_time = self.aviary.elapsed_time
-            self._compute_agent_states()
+            self._compute_observation()
         return self.observations[agent_id]
 
     def _compute_engagement_rewards(self) -> None:
-        """_compute_engagement_rewards."""
+        """_compute_engagement_rewards.
+
+        Args:
+
+        Returns:
+            None:
+        """
         # reset rewards
         rewards = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
@@ -384,11 +395,21 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
         # reward for hits and being hit
-        rewards += (30.0 * self.current_hits) + (-20.0 * self.current_hits.T)
+        hits_rewards = (20.0 * self.current_hits) + (-14.0 * self.current_hits.T)
+        rewards += 1.0 * hits_rewards
 
         # remove the nans, and sum rewards along axes
         np.fill_diagonal(rewards, 0.0)
-        self.rewards = rewards.sum(axis=1)
+        self.engagement_rewards = rewards.sum(axis=1)
+
+        # team-based rewards
+        # reward for your friends hitting enemies, and penalty otherwise
+        self.engagement_rewards[self.team_flag] += (
+            0.5 * (hits_rewards * self.team_flag[:, None]).sum()
+        )
+        self.engagement_rewards[~self.team_flag] += (
+            0.5 * (hits_rewards * ~self.team_flag[:, None]).sum()
+        )
 
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
@@ -400,27 +421,35 @@ class MAFixedwingTeamDogfightEnv(MAFixedwingBaseEnv):
             self._compute_engagement_rewards()
 
         # initialize
-        reward = self.rewards[agent_id]
-        term = self.num_agents < 2
+        reward = self.engagement_rewards[agent_id]
+        term = False
         trunc = self.step_count > self.max_steps
         info = dict()
 
+        # out of health
+        if self.healths[agent_id] <= 0.0:
+            reward -= 100.0
+            info["dead"] = True
+            term |= True
+
         # collision
         if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
+            self.healths[agent_id] = 0.0
             reward -= 3000.0
             info["collision"] = True
             term |= True
 
         # exceed flight dome
         if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
+            self.healths[agent_id] = 0.0
             reward -= 3000.0
             info["out_of_bounds"] = True
             term |= True
 
-        # out of health
-        if self.healths[agent_id] <= 0.0:
-            reward -= 100.0
-            info["dead"] = True
+        # all opponents deactivated
+        if np.all(self.inactive[~self.team_flag[agent_id]]):
+            reward += 200.0
+            info["team_win"] = True
             term |= True
 
         # all the info things

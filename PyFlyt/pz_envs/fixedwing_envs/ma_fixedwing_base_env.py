@@ -270,9 +270,11 @@ class MAFixedwingBaseEnv(ParallelEnv):
         self.past_actions = deepcopy(self.current_actions)
 
         # set the new actions and send to aviary
-        self.current_actions *= 0.0
+        # this automatically sets terminated agent actions to 0
+        self.current_actions = np.zeros_like(self.current_actions)
         for k, v in actions.items():
-            self.current_actions[self.agent_name_mapping[k]] = v
+            if k in self.agents:
+                self.current_actions[self.agent_name_mapping[k]] = v
         self.aviary.set_all_setpoints(self.current_actions)
 
         # observation and rewards dictionary
