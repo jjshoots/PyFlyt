@@ -36,15 +36,15 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     def __init__(
         self,
         team_size: int = 2,
-        spawn_radius: float = 5.0,
-        spawn_height: float = 15.0,
+        spawn_radius: float = 10.0,
+        spawn_height: float = 20.0,
         damage_per_hit: float = 0.02,
         lethal_distance: float = 15.0,
         lethal_angle_radians: float = 0.1,
         assisted_flight: bool = True,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
-        flight_dome_size: float = 150.0,
+        flight_dome_size: float = 500.0,
         max_duration_seconds: float = 60.0,
         agent_hz: int = 30,
         render_mode: None | str = None,
@@ -114,6 +114,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                     low=-np.inf,
                     high=np.inf,
                     shape=(self_space_shape := (self.combined_space.shape[0] + 1),),
+                    dtype=np.float64,
                 ),
                 # attitude + health + team_mask
                 "others": spaces.Sequence(
@@ -121,6 +122,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                         low=-np.inf,
                         high=np.inf,
                         shape=(others_space_shape := (12 + 1 + 1),),
+                        dtype=np.float64,
                     ),
                     stack=True,
                 ),
@@ -133,6 +135,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 low=-np.inf,
                 high=np.inf,
                 shape=(self_space_shape + (2 * team_size - 1) * others_space_shape,),
+                dtype=np.float64,
             )
 
         # some rendering constants
@@ -151,7 +154,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """
         return self._observation_space
 
-    def _get_start_pos_orn(self) -> tuple[np.ndarray, np.ndarray]:
+    def _get_start_pos_orn(self, seed: None | int) -> tuple[np.ndarray, np.ndarray]:
         """_get_start_pos_orn.
 
         Args:
@@ -161,17 +164,25 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             tuple[np.ndarray, np.ndarray]:
 
         """
+        # seed the RNG
+        np_random = np.random.RandomState(seed=seed)
+
+        # start out pointing in outward directions equally spaced
         start_z_radian = np.pi / self.team_size * np.arange(self.team_size * 2)
 
         # define the starting positions
-        start_pos = np.zeros((self.team_size * 2, 3))
+        start_pos = np.zeros((self.num_possible_agents, 3))
         start_pos[:, 0] = self.spawn_radius * np.cos(start_z_radian)
         start_pos[:, 1] = self.spawn_radius * np.sin(start_z_radian)
-        start_pos[:, 2] = self.spawn_height + np.random.randint(10)
+        start_pos[:, 2] = (
+            self.spawn_height + np_random.random(self.num_possible_agents) * 10.0
+        )
 
         # define the starting orientations
         start_orn = np.zeros((self.team_size * 2, 3))
-        start_orn[:, 2] = start_z_radian
+        start_orn[:, 2] = (
+            start_z_radian + np_random.random(self.num_possible_agents) * np.pi / 8.0
+        )
 
         return start_pos, start_orn
 
@@ -188,7 +199,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             tuple[dict[str, Any], dict[str, Any]]:
 
         """
-        self.start_pos, self.start_orn = self._get_start_pos_orn()
+        self.start_pos, self.start_orn = self._get_start_pos_orn(seed)
 
         # define custom forward velocity
         _, start_vec = self.compute_rotation_forward(self.start_orn)
@@ -206,12 +217,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.inactive = np.zeros(self.num_possible_agents, dtype=bool)
 
         # attitudes and health of all drones
-        self.healths = np.ones(self.num_possible_agents, dtype=np.float64)
+        self.healths = np.ones(self.num_possible_agents, dtype=np.float32)
         self.attitudes = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
+            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float32
         )
         self.other_attitudes = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float64
+            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float32
         )
 
         # engagement status
@@ -230,13 +241,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             (self.num_possible_agents, self.num_possible_agents), dtype=bool
         )
         self.current_angles = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
         self.current_offsets = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
         self.current_distances = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
 
         # past engagement state
@@ -251,7 +262,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # reward for engagements
         self.engagement_rewards = np.zeros(
-            (self.num_possible_agents,), dtype=np.float64
+            (self.num_possible_agents,), dtype=np.float32
         )
 
         super().end_reset(seed, options)
@@ -398,7 +409,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """
         # reset rewards
         rewards = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents), dtype=np.float64
+            (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
 
         # sparse reward computation

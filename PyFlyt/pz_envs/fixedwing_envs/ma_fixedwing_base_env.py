@@ -208,6 +208,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
             render=bool(self.render_mode),
             drone_options=drone_options,
             seed=seed,
+            world_scale=5.0,
         )
 
     def end_reset(
