@@ -581,6 +581,12 @@ This is valid.</p>
 Similarly, when we do <code class="docutils literal notranslate"><span class="pre">looprate[1:]</span> <span class="pre">/</span> <span class="pre">looprate[:-1]</span></code>, we get <code class="docutils literal notranslate"><span class="pre">[1.25,</span> <span class="pre">3]</span></code>, which is <strong>not</strong> all integers.
 This is <strong>invalid</strong>.</p>
 </section>
+<section id="camera-fps">
+<h4>Camera FPS<a class="headerlink" href="#camera-fps" title="Link to this heading">#</a></h4>
+<p>When using onboard cameras on each UAV, by default, the camera FPS will equal the control looprate.
+However, this results in the camera capture component consuming a significant amount of overhead, see <a class="reference external" href="https://github.com/jjshoots/PyFlyt/pull/43">this github issue</a>.
+To alleviate this problem, it is recommended to set <code class="docutils literal notranslate"><span class="pre">camera_fps</span></code> when setting <code class="docutils literal notranslate"><span class="pre">use_camera=True</span></code> for each UAV to something like 30 or 40.</p>
+</section>
 </section>
 </section>
 <section id="class-description">
@@ -856,6 +862,7 @@ When this is a list of integers, sets a different flight mode for each drone dep
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#looprates">Looprates</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#single-drone-physics-stepping">Single Drone Physics Stepping</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-drone-physics-stepping">Multi Drone Physics Stepping</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#camera-fps">Camera FPS</a></li>
 </ul>
 </li>
 </ul>
