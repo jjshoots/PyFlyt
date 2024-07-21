@@ -345,6 +345,7 @@ class MAQuadXBaseEnv(ParallelEnv):
             self.update_states()
 
             # update reward, term, trunc, for each agent
+            # TODO: make it so this doesn't have to be computed every aviary step
             for ag in self.agents:
                 ag_id = self.agent_name_mapping[ag]
 
@@ -355,7 +356,7 @@ class MAQuadXBaseEnv(ParallelEnv):
                 terminations[ag] |= term
                 truncations[ag] |= trunc
                 rewards[ag] += rew
-                infos[ag] = {**infos[ag], **info}
+                infos[ag].update(info)
 
                 # compute observations
                 observations[ag] = self.compute_observation_by_id(ag_id)
