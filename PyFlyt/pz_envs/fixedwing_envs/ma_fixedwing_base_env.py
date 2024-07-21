@@ -16,6 +16,8 @@ from PyFlyt.core.utils.compile_helpers import jitter
 class MAFixedwingBaseEnv(ParallelEnv):
     """Base Dogfighting Environment for the Aggressor model using custom environment API."""
 
+    metadata = dict(render_modes="human")
+
     def __init__(
         self,
         start_pos: np.ndarray = np.array([[0.0, 0.0, 1.0]]),

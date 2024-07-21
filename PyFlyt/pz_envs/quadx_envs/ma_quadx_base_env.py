@@ -16,6 +16,8 @@ from PyFlyt.core import Aviary
 class MAQuadXBaseEnv(ParallelEnv):
     """MAQuadXBaseEnv."""
 
+    metadata = dict(render_modes="human")
+
     def __init__(
         self,
         start_pos: np.ndarray = np.array(
