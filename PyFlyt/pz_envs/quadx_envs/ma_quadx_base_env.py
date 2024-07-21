@@ -242,6 +242,19 @@ class MAQuadXBaseEnv(ParallelEnv):
         # wait for env to stabilize
         for _ in range(10):
             self.aviary.step()
+        self.update_states()
+
+    def update_states(self) -> None:
+        """Helper method to be called once after the internal aviary has stepped.
+
+        Args:
+            agent_id (int): agent_id
+
+        Returns:
+            Any:
+
+        """
+        pass
 
     def compute_attitude_by_id(
         self, agent_id: int
@@ -329,6 +342,7 @@ class MAQuadXBaseEnv(ParallelEnv):
         # step enough times for one RL step
         for _ in range(self.env_step_ratio):
             self.aviary.step()
+            self.update_states()
 
             # update reward, term, trunc, for each agent
             for ag in self.agents:

@@ -274,6 +274,17 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         infos = {ag: dict() for ag in self.agents}
         return observations, infos
 
+    def update_states(self) -> None:
+        """Updates all states and rewards after the aviary has stepped.
+
+        Args:
+
+        Returns:
+            None:
+        """
+        self._compute_observation()
+        self._compute_engagement_rewards()
+
     def _compute_observation(self) -> None:
         """_compute_observation.
 
@@ -361,44 +372,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 }
             )
 
-    def compute_observation_by_id(
-        self, agent_id: int
-    ) -> dict[Literal["self", "others"], np.ndarray] | np.ndarray:
-        """compute_observation_by_id.
-
-        Args:
-            agent_id (int): agent_id
-
-        Returns:
-            np.ndarray:
-
-        """
-        # don't recompute if we've already done it
-        if self.last_obs_time != self.aviary.elapsed_time:
-            self.last_obs_time = self.aviary.elapsed_time
-            self._compute_observation()
-
-        if not self.flatten_observation:
-            return self.observations[agent_id]
-        else:
-            flat_observation = np.concatenate(
-                (
-                    self.observations[agent_id]["self"],
-                    self.observations[agent_id]["others"].flatten(),
-                ),
-                axis=-1,
-            )
-            flat_observation = np.concatenate(
-                (
-                    flat_observation,
-                    np.zeros(
-                        self._observation_space.shape[0]  # pyright: ignore[reportOptionalSubscript] # fmt: skip
-                        - flat_observation.shape[0],
-                    ),
-                )
-            )
-            return flat_observation
-
     def _compute_engagement_rewards(self) -> None:
         """_compute_engagement_rewards.
 
@@ -452,15 +425,43 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             0.5 * (hits_rewards * ~self.team_flag[:, None]).sum()
         )
 
+    def compute_observation_by_id(
+        self, agent_id: int
+    ) -> dict[Literal["self", "others"], np.ndarray] | np.ndarray:
+        """compute_observation_by_id.
+
+        Args:
+            agent_id (int): agent_id
+
+        Returns:
+            np.ndarray:
+
+        """
+        if not self.flatten_observation:
+            return self.observations[agent_id]
+        else:
+            flat_observation = np.concatenate(
+                (
+                    self.observations[agent_id]["self"],
+                    self.observations[agent_id]["others"].flatten(),
+                ),
+                axis=-1,
+            )
+            flat_observation = np.concatenate(
+                (
+                    flat_observation,
+                    np.zeros(
+                        self._observation_space.shape[0]  # pyright: ignore[reportOptionalSubscript] # fmt: skip
+                        - flat_observation.shape[0],
+                    ),
+                )
+            )
+            return flat_observation
+
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
         """Computes the termination, truncation, and reward of the current timestep."""
-        # don't recompute if we've already done it
-        if self.last_rew_time != self.aviary.elapsed_time:
-            self.last_rew_time = self.aviary.elapsed_time
-            self._compute_engagement_rewards()
-
         # initialize
         reward = self.engagement_rewards[agent_id]
         term = False
