@@ -314,7 +314,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
             for agent in self.agents
             if not (terminations[agent] or truncations[agent])
         ]
-
         return observations, rewards, terminations, truncations, infos
 
     @staticmethod
