@@ -456,7 +456,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # collision, override reward, not add
         collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
         self.accumulated_terminations |= collisions
-        self.accumulated_rewards[collisions] = -3000.0
+        self.accumulated_rewards[collisions] = -1000.0
         self.healths[collisions] = 0.0
 
         # exceed flight dome, override reward, not add
@@ -471,7 +471,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             > self.flight_dome_size
         )
         self.accumulated_terminations |= out_of_bounds
-        self.accumulated_rewards[out_of_bounds] = -3000.0
+        self.accumulated_rewards[out_of_bounds] = -1000.0
         self.healths[out_of_bounds] = 0.0
 
         # all opponents deactivated, override reward, not add
@@ -482,7 +482,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 self.healths[self.team_flag != team] <= 0.0
             )
         self.accumulated_terminations |= team_wins
-        self.accumulated_rewards[team_wins] = 1000.0
+        self.accumulated_rewards[team_wins] = 200.0
 
         # splice out infos
         for (
