@@ -265,6 +265,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             (self.num_possible_agents,), dtype=np.float32
         )
 
+        # some tracking statistics
+        self.received_hits = np.zeros((self.num_possible_agents,), dtype=np.int32)
+
         super().end_reset(seed, options)
 
         observations = {
@@ -322,7 +325,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.current_hits &= self.friendly_fire_mask
 
         # compute whether anyone hit anyone
-        self.healths -= self.damage_per_hit * self.current_hits.sum(axis=0)
+        received_hits_per_agent = self.current_hits.sum(axis=0)
+        self.received_hits += received_hits_per_agent
+        self.healths -= self.damage_per_hit * received_hits_per_agent
         self.healths = np.clip(self.healths, a_min=0.0, a_max=None)
 
         # deactivate aircraft if they're dead, have heights close to the ground and have velocity less than 0.1
@@ -494,6 +499,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             term |= True
 
         info["health"] = self.healths[agent_id]
+        info["received_hits"] = self.received_hits[agent_id]
 
         return term, trunc, reward, info
 
