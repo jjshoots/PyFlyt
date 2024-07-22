@@ -139,8 +139,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
 
         # some rendering constants
-        self.hit_colour = np.array([0.7, 0.7, 0.7, 0.2])
-        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.2])
+        self.hit_colour = np.array([1.0, 0.0, 0.0, 0.2])
+        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.05])
 
     def observation_space(self, agent: Any = None) -> spaces.Dict | spaces.Box:
         """observation_space.
@@ -411,12 +411,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             # reward for progressing to engagement, penalty for losing angles is less
             # WARNING: NaN introduced here
             delta_angles = self.previous_angles - self.current_angles
-            delta_angles[delta_angles > 0.0] *= 0.4
-            engagement_rewards += delta_angles * self.in_range * 10.0
+            delta_angles[delta_angles > 0.0] *= 0.8
+            engagement_rewards += delta_angles * self.in_range * 7.0
 
             # reward for engaging the enemy
             # WARNING: NaN introduced here
-            engagement_rewards += 2.5 / (self.current_angles + 0.1) * self.in_range
+            engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
         # reward for hits and being hit
         hits_rewards = (15.0 * self.current_hits) + (-8.0 * self.current_hits.T)
@@ -589,14 +589,16 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         returns = super().step(actions=actions)
 
         # colour the gunsights conditionally
-        if self.render_mode and not np.all(self.previous_hits == self.current_hits):
-            self.previous_hits = self.current_hits.copy()
-            for i in range(2):
+        if self.render_mode and np.any(self.previous_hits != self.current_hits):
+            previous_shooting = self.previous_hits.sum(axis=0) > 0
+            current_shooting = self.current_hits.sum(axis=0) > 0
+            gunsights_to_update = np.nonzero(previous_shooting != current_shooting)
+            for i in gunsights_to_update:
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
                     rgbaColor=(
-                        self.hit_colour if self.current_hits[i] else self.nohit_color
+                        self.hit_colour if current_shooting else self.nohit_color
                     ),
                 )
 

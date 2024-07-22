@@ -3,7 +3,7 @@
 <robot name="acrowing">
 
   <material name="clear">
-    <color rgba="0.0 0.0 0.0 0.2"/>
+    <color rgba="0.0 0.0 0.0 0.05"/>
   </material>
   <material name="blue">
     <color rgba="0.0 0.0 1.0 1.0"/>
