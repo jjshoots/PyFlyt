@@ -97,11 +97,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
 
         # the mask for friendly fire
-        base_mask = np.zeros((team_size, team_size), dtype=bool)
+        base_mask = np.ones((team_size, team_size), dtype=bool)
         self.friendly_fire_mask = np.concatenate(
             (
-                np.concatenate((base_mask, ~base_mask), axis=0),
                 np.concatenate((~base_mask, base_mask), axis=0),
+                np.concatenate((base_mask, ~base_mask), axis=0),
             ),
             axis=1,
         )
