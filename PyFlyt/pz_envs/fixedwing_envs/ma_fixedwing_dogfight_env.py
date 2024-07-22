@@ -513,10 +513,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             if team_win:
                 info.update({"team_win": True})
 
-        print(self.accumulated_infos)
-        print(self.accumulated_truncations)
-        print(self.accumulated_terminations)
-
     def pop_obs_by_id(
         self, agent_id: int
     ) -> dict[Literal["self", "others"], np.ndarray] | np.ndarray:
