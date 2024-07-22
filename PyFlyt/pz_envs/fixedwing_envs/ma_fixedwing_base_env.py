@@ -240,8 +240,11 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         pass
 
-    def compute_observation_by_id(self, agent_id: int) -> Any:
-        """compute_observation_by_id.
+    def pop_obs_by_id(self, agent_id: int) -> Any:
+        """Pops an observation at the `agent_id`.
+
+        This will be called once per agent per RL step
+        Feel free to reset values for the called `agent_id`.
 
         Args:
             agent_id (int): agent_id
@@ -252,10 +255,13 @@ class MAFixedwingBaseEnv(ParallelEnv):
         """
         raise NotImplementedError
 
-    def compute_term_trunc_reward_info_by_id(
+    def pop_term_trunc_rew_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
-        """compute_term_trunc_reward_info_by_id.
+        """Pops a term, trunc, reward, info at the `agent_id`.
+
+        This will be called once per agent per RL step
+        Feel free to reset values for the called `agent_id`.
 
         Args:
             agent_id (int): agent_id
@@ -293,43 +299,34 @@ class MAFixedwingBaseEnv(ParallelEnv):
                 self.current_actions[self.agent_name_mapping[k]] = v
         self.aviary.set_all_setpoints(self.current_actions)
 
-        # observation and rewards dictionary
-        observations = dict()
-        terminations = {k: False for k in self.agents}
-        truncations = {k: False for k in self.agents}
-        rewards = {k: 0.0 for k in self.agents}
-        infos = {k: dict() for k in self.agents}
-
         # step enough times for one RL step
         for _ in range(self.env_step_ratio):
             self.aviary.step()
             self.update_states()
 
-            # update reward, term, trunc, for each agent
-            # TODO: make it so this doesn't have to be computed every aviary step
-            for ag in self.agents:
-                ag_id = self.agent_name_mapping[ag]
+        # observation and rewards dictionary
+        obs = dict()
+        term = dict()
+        trunc = dict()
+        rew = dict()
+        infos = dict()
 
-                # compute term trunc reward
-                term, trunc, rew, info = self.compute_term_trunc_reward_info_by_id(
-                    ag_id
-                )
-                terminations[ag] |= term
-                truncations[ag] |= trunc
-                rewards[ag] += rew
-                infos[ag].update(info)
+        # update reward, term, trunc, for each agent
+        for ag in self.agents:
+            ag_id = self.agent_name_mapping[ag]
 
-                # compute observations
-                observations[ag] = self.compute_observation_by_id(ag_id)
+            # compute observations reward term trunc info
+            obs[ag] = self.pop_obs_by_id(ag_id)
+            rew[ag], term[ag], trunc[ag], infos[ag] = (
+                self.pop_term_trunc_rew_info_by_id(ag_id)
+            )
 
         # increment step count and cull dead agents for the next round
         self.step_count += 1
         self.agents = [
-            agent
-            for agent in self.agents
-            if not (terminations[agent] or truncations[agent])
+            agent for agent in self.agents if not (term[agent] or trunc[agent])
         ]
-        return observations, rewards, terminations, truncations, infos
+        return obs, rew, term, trunc, infos
 
     @staticmethod
     def compute_rotation_forward(orn: np.ndarray) -> tuple[np.ndarray, np.ndarray]:

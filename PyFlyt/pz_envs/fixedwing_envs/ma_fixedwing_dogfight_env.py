@@ -203,7 +203,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # define custom forward velocity
         _, start_vec = self.compute_rotation_forward(self.start_orn)
-        start_vec *= 10.0
+        start_vec *= 15.0
         drone_options = [dict() for _ in range(self.num_possible_agents)]
         for i in range(len(drone_options)):
             drone_options[i]["starting_velocity"] = start_vec[i]
@@ -212,6 +212,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
 
         super().begin_reset(seed, options, drone_options=drone_options)
+
+        # store all drone ids
+        self.drone_ids = np.array([drone.Id for drone in self.aviary.drones])
 
         # inactive is a flag for when an aircraft has hit the ground and has 0 velocity
         self.inactive = np.zeros(self.num_possible_agents, dtype=bool)
@@ -256,23 +259,24 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.previous_offsets = self.current_offsets.copy()
         self.previous_distances = self.current_distances.copy()
 
-        # some trackers for updating the environment
-        self.last_obs_time = -1.0
-        self.last_rew_time = -1.0
-
-        # reward for engagements
-        self.engagement_rewards = np.zeros(
+        # accumulation for rew, term, trunc, info
+        self.accumulated_rewards = np.zeros(
             (self.num_possible_agents,), dtype=np.float32
         )
+        self.accumulated_terminations = np.zeros(
+            (self.num_possible_agents,), dtype=bool
+        )
+        self.accumulated_truncations = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.accumulated_infos = [dict() for _ in range(self.num_possible_agents)]
 
         # some tracking statistics
         self.received_hits = np.zeros((self.num_possible_agents,), dtype=np.int32)
 
         super().end_reset(seed, options)
 
+        # initialize the observations and infos
         observations = {
-            ag: self.compute_observation_by_id(self.agent_name_mapping[ag])
-            for ag in self.agents
+            ag: self.pop_obs_by_id(self.agent_name_mapping[ag]) for ag in self.agents
         }
         infos = {ag: dict() for ag in self.agents}
         return observations, infos
@@ -286,7 +290,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             None:
         """
         self._compute_observation()
-        self._compute_engagement_rewards()
+        self._compute_term_trunc_rew_info()
 
     def _compute_observation(self) -> None:
         """_compute_observation.
@@ -377,23 +381,24 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 }
             )
 
-    def _compute_engagement_rewards(self) -> None:
+    def _compute_engagement_rewards(self) -> np.ndarray:
         """_compute_engagement_rewards.
 
         Args:
 
         Returns:
-            None:
+            np.ndarray: [n, ] array of rewards for engagement.
+
         """
-        # reset rewards
-        rewards = np.zeros(
+        # init engagement rewards
+        engagement_rewards = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
 
         # sparse reward computation
         if not self.sparse_reward:
             # reward for closing the distance
-            rewards += (
+            engagement_rewards += (
                 np.clip(
                     self.previous_distances - self.current_distances,
                     a_min=0.0,
@@ -407,33 +412,108 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             # WARNING: NaN introduced here
             delta_angles = self.previous_angles - self.current_angles
             delta_angles[delta_angles > 0.0] *= 0.5
-            rewards += delta_angles * self.in_range * 10.0
+            engagement_rewards += delta_angles * self.in_range * 10.0
 
             # reward for engaging the enemy
             # WARNING: NaN introduced here
-            rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
+            engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
         # reward for hits and being hit
         hits_rewards = (20.0 * self.current_hits) + (-14.0 * self.current_hits.T)
-        rewards += 1.0 * hits_rewards
+        engagement_rewards += 1.0 * hits_rewards
 
         # remove the nans, and sum rewards along axes
-        np.fill_diagonal(rewards, 0.0)
-        self.engagement_rewards = rewards.sum(axis=1)
+        np.fill_diagonal(engagement_rewards, 0.0)
+        engagement_rewards = engagement_rewards.sum(axis=1)
 
         # team-based rewards
         # reward for your friends hitting enemies, and penalty otherwise
-        self.engagement_rewards[self.team_flag] += (
+        engagement_rewards[self.team_flag] += (
             0.5 * (hits_rewards * self.team_flag[:, None]).sum()
         )
-        self.engagement_rewards[~self.team_flag] += (
+        engagement_rewards[~self.team_flag] += (
             0.5 * (hits_rewards * ~self.team_flag[:, None]).sum()
         )
 
-    def compute_observation_by_id(
+        return engagement_rewards
+
+    def _compute_term_trunc_rew_info(self) -> None:
+        """_compute_term_trunc_rew_info.
+
+        Args:
+
+        Returns:
+            None:
+        """
+        # accumulate engagement rewards and handle truncation
+        self.accumulated_rewards += self._compute_engagement_rewards()
+        self.accumulated_truncations |= self.step_count > self.max_steps
+
+        # out of health
+        zero_healths = self.healths <= 0.0
+        self.accumulated_terminations |= zero_healths
+
+        # collision, override reward, not add
+        collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
+        self.accumulated_terminations |= collisions
+        self.accumulated_rewards[collisions] = -3000.0
+
+        # exceed flight dome, override reward, not add
+        out_of_bounds = (
+            np.linalg.norm(
+                np.stack(
+                    [s[-1] for s in self.aviary.all_states],
+                    axis=0,
+                ),
+                axis=-1,
+            )
+            > self.flight_dome_size
+        )
+        self.accumulated_terminations |= out_of_bounds
+        self.accumulated_rewards[out_of_bounds] = -3000.0
+
+        # zero out healths of terminated agents, do this before deciding wins
+        self.healths[self.accumulated_terminations] = 0.0
+
+        # all opponents deactivated, override reward, not add
+        # this is hardcoded to have 2 teams by default
+        team_wins = np.zeros_like(self.team_flag, dtype=bool)
+        for team in [True, False]:
+            team_wins[self.team_flag == team] = (
+                self.healths[self.team_flag != team] <= 0.0
+            )
+        self.accumulated_terminations |= team_wins
+        self.accumulated_rewards[team_wins] = 1000.0
+
+        # splice out infos
+        for (
+            info,
+            health,
+            received_hits,
+            no_hp,
+            coll,
+            oob,
+        ) in zip(
+            self.accumulated_infos,
+            self.healths,
+            self.received_hits,
+            zero_healths,
+            collisions,
+            out_of_bounds,
+        ):
+            info.update({"health": health})
+            info.update({"received_hits": received_hits})
+            if no_hp:
+                info.update({"dead": True})
+            if coll:
+                info.update({"collision": True})
+            if oob:
+                info.update({"out_of_bounds": True})
+
+    def pop_obs_by_id(
         self, agent_id: int
     ) -> dict[Literal["self", "others"], np.ndarray] | np.ndarray:
-        """compute_observation_by_id.
+        """pop_obs_by_id.
 
         Args:
             agent_id (int): agent_id
@@ -463,45 +543,23 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
             return flat_observation
 
-    def compute_term_trunc_reward_info_by_id(
+    def pop_term_trunc_rew_info_by_id(
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
-        """Computes the termination, truncation, and reward of the current timestep."""
-        # initialize
-        reward = self.engagement_rewards[agent_id]
-        term = False
-        trunc = self.step_count > self.max_steps
-        info = dict()
+        """Pops the termination, truncation, and reward of the current timestep."""
+        reward = self.accumulated_rewards[agent_id]
+        info = self.accumulated_infos[agent_id]
 
-        # out of health
-        if self.healths[agent_id] <= 0.0:
-            info["dead"] = True
-            term |= True
+        # reset reward and info since this is a pop operation
+        self.accumulated_rewards[agent_id] = 0.0
+        self.accumulated_infos[agent_id] = dict()
 
-        # collision
-        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
-            self.healths[agent_id] = 0.0
-            reward = -3000.0
-            info["collision"] = True
-            term |= True
-
-        # exceed flight dome
-        if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
-            self.healths[agent_id] = 0.0
-            reward = -3000.0
-            info["out_of_bounds"] = True
-            term |= True
-
-        # all opponents deactivated
-        if np.all(self.healths[self.team_flag != self.team_flag[agent_id]] <= 0.0):
-            reward = 1000.0
-            info["team_win"] = True
-            term |= True
-
-        info["health"] = self.healths[agent_id]
-        info["received_hits"] = self.received_hits[agent_id]
-
-        return term, trunc, reward, info
+        return (
+            self.accumulated_terminations[agent_id],
+            self.accumulated_truncations[agent_id],
+            reward,
+            info,
+        )
 
     def step(self, actions: dict[str, np.ndarray]) -> tuple[
         dict[str, Any],
