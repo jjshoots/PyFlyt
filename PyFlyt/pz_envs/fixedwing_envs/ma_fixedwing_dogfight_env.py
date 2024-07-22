@@ -419,7 +419,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
         # reward for hits and being hit
-        hits_rewards = (20.0 * self.current_hits) + (-14.0 * self.current_hits.T)
+        hits_rewards = (16.0 * self.current_hits) + (-8.0 * self.current_hits.T)
         engagement_rewards += 1.0 * hits_rewards
 
         # remove the nans, and sum rewards along axes
