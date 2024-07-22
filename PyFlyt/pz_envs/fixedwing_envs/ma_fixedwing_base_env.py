@@ -317,7 +317,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
 
             # compute observations reward term trunc info
             obs[ag] = self.pop_obs_by_id(ag_id)
-            rew[ag], term[ag], trunc[ag], infos[ag] = (
+            term[ag], trunc[ag], rew[ag], infos[ag] = (
                 self.pop_term_trunc_rew_info_by_id(ag_id)
             )
 

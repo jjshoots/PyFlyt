@@ -332,13 +332,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         received_hits_per_agent = self.current_hits.sum(axis=0)
         self.received_hits += received_hits_per_agent
         self.healths -= self.damage_per_hit * received_hits_per_agent
-        self.healths = np.clip(self.healths, a_min=0.0, a_max=None)
+        self.healths[self.healths < 0.0] = 0.0
 
         # deactivate aircraft if they're dead, have heights close to the ground and have velocity less than 0.1
         self.inactive = (
             (self.healths <= 0.0)
             & (self.attitudes[:, -1, -1] < 2.0)
-            & (np.linalg.norm(self.attitudes[:, -2, :]) < 0.1)
+            & (np.linalg.norm(self.attitudes[:, -2, :], axis=-1) < 0.1)
         )
 
         # flatten things
@@ -457,6 +457,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
         self.accumulated_terminations |= collisions
         self.accumulated_rewards[collisions] = -3000.0
+        self.healths[collisions] = 0.0
 
         # exceed flight dome, override reward, not add
         out_of_bounds = (
@@ -471,9 +472,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
         self.accumulated_terminations |= out_of_bounds
         self.accumulated_rewards[out_of_bounds] = -3000.0
-
-        # zero out healths of terminated agents, do this before deciding wins
-        self.healths[self.accumulated_terminations] = 0.0
+        self.healths[out_of_bounds] = 0.0
 
         # all opponents deactivated, override reward, not add
         # this is hardcoded to have 2 teams by default
@@ -493,6 +492,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             no_hp,
             coll,
             oob,
+            team_win,
         ) in zip(
             self.accumulated_infos,
             self.healths,
@@ -500,6 +500,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             zero_healths,
             collisions,
             out_of_bounds,
+            team_wins,
         ):
             info.update({"health": health})
             info.update({"received_hits": received_hits})
@@ -509,6 +510,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 info.update({"collision": True})
             if oob:
                 info.update({"out_of_bounds": True})
+            if team_win:
+                info.update({"team_win": True})
+
+        print(self.accumulated_infos)
+        print(self.accumulated_truncations)
+        print(self.accumulated_terminations)
 
     def pop_obs_by_id(
         self, agent_id: int
