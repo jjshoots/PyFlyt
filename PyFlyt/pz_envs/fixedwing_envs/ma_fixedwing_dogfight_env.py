@@ -412,14 +412,14 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             # WARNING: NaN introduced here
             delta_angles = self.previous_angles - self.current_angles
             delta_angles[delta_angles > 0.0] *= 0.8
-            engagement_rewards += delta_angles * self.in_range * 4.0
+            engagement_rewards += delta_angles * self.in_range * 7.0
 
             # reward for engaging the enemy
             # WARNING: NaN introduced here
-            engagement_rewards += 1.5 / (self.current_angles + 0.1) * self.in_range
+            engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
         # reward for hits and being hit
-        hits_rewards = (12.0 * self.current_hits) + (-6.0 * self.current_hits.T)
+        hits_rewards = (15.0 * self.current_hits) + (-8.0 * self.current_hits.T)
         engagement_rewards += 1.0 * hits_rewards
 
         # remove the nans, and sum rewards along axes
@@ -483,7 +483,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 self.healths[self.team_flag != team] <= 0.0
             ) & np.any(self.healths[self.team_flag == team] > 0.0)
         self.accumulated_terminations |= team_wins
-        self.accumulated_rewards[team_wins] = 500.0
+        self.accumulated_rewards[team_wins] = 200.0
 
         # splice out infos
         for (
