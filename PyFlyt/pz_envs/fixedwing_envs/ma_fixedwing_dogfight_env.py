@@ -481,7 +481,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         for team in [True, False]:
             team_wins[self.team_flag == team] = (
                 self.healths[self.team_flag != team] <= 0.0
-            ) & np.any(self.healths[self.team_flag] > 0.0)
+            ) & np.any(self.healths[self.team_flag == team] > 0.0)
         self.accumulated_terminations |= team_wins
         self.accumulated_rewards[team_wins] = 500.0
 
