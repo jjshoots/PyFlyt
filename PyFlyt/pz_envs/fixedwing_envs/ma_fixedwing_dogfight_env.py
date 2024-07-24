@@ -272,6 +272,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # some tracking statistics
         self.received_hits = np.zeros((self.num_possible_agents,), dtype=np.int32)
 
+        # for rendering
+        self.current_render_hits = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.previous_render_hits = np.zeros((self.num_possible_agents,), dtype=bool)
+
         super().end_reset(seed, options)
 
         # initialize the observations and infos
@@ -590,16 +594,19 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         returns = super().step(actions=actions)
 
         # colour the gunsights conditionally
-        if self.render_mode and np.any(self.previous_hits != self.current_hits):
-            previous_shooting = self.previous_hits.sum(axis=0) > 0
-            current_shooting = self.current_hits.sum(axis=0) > 0
-            gunsights_to_update = np.nonzero(previous_shooting != current_shooting)
-            for i in gunsights_to_update:
+        if self.render_mode:
+            self.previous_render_hits = self.current_render_hits.copy()
+            self.current_render_hits = self.current_hits.sum(axis=1) > 0
+            for i in np.nonzero(
+                self.current_render_hits != self.previous_render_hits,
+            )[0]:
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
                     rgbaColor=(
-                        self.hit_colour if current_shooting else self.nohit_color
+                        self.hit_colour
+                        if self.current_render_hits[i]
+                        else self.nohit_color
                     ),
                 )
 
