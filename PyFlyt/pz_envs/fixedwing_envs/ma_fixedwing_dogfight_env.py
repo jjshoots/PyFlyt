@@ -46,7 +46,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         flatten_observation: bool = True,
         flight_dome_size: float = 500.0,
         max_duration_seconds: float = 60.0,
-        agent_hz: int = 30,
+        agent_hz: int = 40,
         render_mode: None | str = None,
     ):
         """__init__.
