@@ -416,14 +416,14 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             # WARNING: NaN introduced here
             delta_angles = self.previous_angles - self.current_angles
             delta_angles[delta_angles > 0.0] *= 0.8
-            engagement_rewards += delta_angles * self.in_range * 7.0
+            engagement_rewards += delta_angles * self.in_range * 5.0
 
             # reward for engaging the enemy
             # WARNING: NaN introduced here
-            engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
+            engagement_rewards += 2.0 / (self.current_angles + 0.1) * self.in_range
 
         # reward for hits and being hit
-        hits_rewards = (15.0 * self.current_hits) + (-8.0 * self.current_hits.T)
+        hits_rewards = (10.0 * self.current_hits) + (-5.0 * self.current_hits.T)
         engagement_rewards += 1.0 * hits_rewards
 
         # remove the nans, and sum rewards along axes
