@@ -284,7 +284,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                         rgbaColor=(
                             np.array([1.0, 0.0, 0.0, 1.0])
                             if self.team_flag[agent_id]
-                            else np.array([0.0, 0.0, 0.0, 1.0])
+                            else np.array([0.0, 0.0, 1.0, 1.0])
                         ),
                     )
 
