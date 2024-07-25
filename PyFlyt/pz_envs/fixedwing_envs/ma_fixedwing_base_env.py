@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Sequence
+from typing import Any, Literal, Sequence
 
 import numpy as np
 from gymnasium import Space, spaces
@@ -25,7 +25,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
         assisted_flight: bool = True,
         flight_dome_size: float = 300.0,
         max_duration_seconds: float = 60.0,
-        angle_representation: str = "euler",
+        angle_representation: Literal["euler", "quaternion"] = "euler",
         agent_hz: int = 30,
         render_mode: None | str = None,
     ):
