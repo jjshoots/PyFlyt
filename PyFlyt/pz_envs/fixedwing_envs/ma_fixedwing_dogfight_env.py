@@ -7,6 +7,7 @@ from typing import Any, Literal
 import numpy as np
 from gymnasium import spaces
 
+from PyFlyt.pz_envs.fixedwing_envs.dogfight_utils import compute_combat_state
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
@@ -308,12 +309,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self._compute_observation()
         self._compute_term_trunc_rew_info()
 
-    @staticmethod
-    def _compute_combat_state(
-        uav_states: np.ndarray,
-        lethal_angle: float,
-        lethal_distance: float,
-    ) -> tuple[
+    def _compute_combat_state(self) -> tuple[
         np.ndarray,
         np.ndarray,
         np.ndarray,
@@ -323,12 +319,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         np.ndarray,
         np.ndarray,
     ]:
-        """_compute_combat_state.
+        """compute_combat_state.
 
         Args:
-            uav_states (np.ndarray): uav_states
-            lethal_angle (float): lethal_angle
-            lethal_distance (float): lethal_distance
 
         Returns:
             tuple[
@@ -356,13 +349,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # get the rotation matrices and forward vectors
         # attitudes returns the position of the aircraft nose, shift it to the center of the body
-        rotation, forward_vecs = MAFixedwingBaseEnv.compute_rotation_forward(
-            uav_states[:, 1]
-        )
-        uav_states[:, -1, :] = uav_states[:, -1, :] - (forward_vecs * 0.35)
+        rotation, forward_vecs = self.compute_rotation_forward(self.attitudes[:, 1])
+        self.attitudes[:, -1, :] = self.attitudes[:, -1, :] - (forward_vecs * 0.35)
 
         # separation here is a [self, other, 3] array of pointwise distance vectors
-        separation = uav_states[None, :, -1, :] - uav_states[:, None, -1, :]
+        separation = self.attitudes[None, :, -1, :] - self.attitudes[:, None, -1, :]
 
         # compute the vectors of each drone to each drone
         current_distances = np.linalg.norm(separation, axis=-1)
@@ -379,8 +370,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         current_offsets = np.linalg.norm(np.cross(separation, forward_vecs), axis=-1)
 
         # whether we're lethal or chasing or have opponent in cone
-        in_cone = current_angles < lethal_angle
-        in_range = current_distances < lethal_distance
+        in_cone = current_angles < self.lethal_angle
+        in_range = current_distances < self.lethal_distance
         chasing = np.abs(current_angles) < (np.pi / 2.0)
 
         # compute whether anyone hit anyone
@@ -393,17 +384,19 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # form the opponent state matrix
         # this is a [n, n, 4, 3] matrix since each agent needs to attend to every other agent
         opponent_attitudes = np.zeros(
-            (uav_states.shape[0], *uav_states.shape), dtype=np.float64
+            (self.attitudes.shape[0], *self.attitudes.shape), dtype=np.float64
         )
 
         # opponent angular rates are unchanged because already body frame
-        opponent_attitudes[..., 0, :] = uav_states[:, 0, :]
+        opponent_attitudes[..., 0, :] = self.attitudes[:, 0, :]
 
         # opponent angular positions must convert to be relative to ours
-        opponent_attitudes[..., 1, :] = uav_states[None, :, 1] - uav_states[:, None, 1]
+        opponent_attitudes[..., 1, :] = (
+            self.attitudes[None, :, 1] - self.attitudes[:, None, 1]
+        )
 
         # rotate all velocities to be ground frame, this is [n, 3]
-        ground_velocities = (rotation @ uav_states[:, -2, :][..., None])[..., 0]
+        ground_velocities = (rotation @ self.attitudes[:, -2, :][..., None])[..., 0]
 
         # then find all opponent velocities relative to our body frame
         # this is [self, other, 3]
@@ -413,7 +406,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # opponent velocities should be relative to our current velocity
         opponent_attitudes[..., 2, :] = (
-            opponent_velocities - uav_states[:, 2, :][:, None, ...]
+            opponent_velocities - self.attitudes[:, 2, :][:, None, ...]
         )
 
         # opponent position is relative to ours in our body frame
@@ -456,7 +449,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             self.current_angles,
             self.current_offsets,
             self.other_attitudes,
-        ) = self._compute_combat_state(
+        ) = compute_combat_state(
             self.attitudes,
             self.lethal_angle,
             self.lethal_distance,

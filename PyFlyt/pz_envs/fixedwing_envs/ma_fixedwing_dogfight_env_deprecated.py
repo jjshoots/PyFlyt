@@ -7,7 +7,6 @@ from typing import Any
 import numpy as np
 from gymnasium import spaces
 
-from PyFlyt.pz_envs.fixedwing_envs.dogfight_utils import compute_combat_state
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
@@ -171,6 +170,120 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         infos = {ag: dict() for ag in self.agents}
         return observations, infos
 
+    def _compute_combat_state(self) -> tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+    ]:
+        """compute_combat_state.
+
+        Args:
+
+        Returns:
+            tuple[
+            np.ndarray,
+            np.ndarray,
+            np.ndarray,
+            np.ndarray,
+            np.ndarray,
+            np.ndarray,
+            np.ndarray,
+            np.ndarray,
+        ]:
+            - in_cone: an [n, n] array indicating which agents have which agents in the lethal cone.
+            - in_range: an [n, n] array indicating which agents have which agents in range.
+            - chasing: an [n, n] array indicating which are in pursuit of which agents.
+            - current_hits: an [n, n] array indicating agent has shot which agent.
+            - current_distances: an [n, n] array of distances between each agent and every other agent.
+            - current_angles: an [n, n] array of engagement angles between each agent and every other agent.
+            - current_offsets: an [n, n] array of engagement offsets between each agent and every other agent.
+            - opponent_attitudes: an [n, n, 4, 3] of each agents states relative to self.
+        """
+        ############################################################################################
+        # COMPUTE HITS
+        ############################################################################################
+
+        # get the rotation matrices and forward vectors
+        # attitudes returns the position of the aircraft nose, shift it to the center of the body
+        rotation, forward_vecs = self.compute_rotation_forward(self.attitudes[:, 1])
+        self.attitudes[:, -1, :] = self.attitudes[:, -1, :] - (forward_vecs * 0.35)
+
+        # separation here is a [self, other, 3] array of pointwise distance vectors
+        separation = self.attitudes[None, :, -1, :] - self.attitudes[:, None, -1, :]
+
+        # compute the vectors of each drone to each drone
+        current_distances = np.linalg.norm(separation, axis=-1)
+
+        # compute engagement angles
+        # WARNING: this has NaNs on the diagonal, watch for everything downstream
+        with np.errstate(divide="ignore", invalid="ignore"):
+            current_angles = np.arccos(
+                np.sum(separation * forward_vecs[:, None, :], axis=-1)
+                / current_distances
+            )
+
+        # compute engagement offsets
+        current_offsets = np.linalg.norm(np.cross(separation, forward_vecs), axis=-1)
+
+        # whether we're lethal or chasing or have opponent in cone
+        in_cone = current_angles < self.lethal_angle
+        in_range = current_distances < self.lethal_distance
+        chasing = np.abs(current_angles) < (np.pi / 2.0)
+
+        # compute whether anyone hit anyone
+        current_hits = in_cone & in_range & chasing
+
+        ############################################################################################
+        # COMPUTE STATES
+        ############################################################################################
+
+        # form the opponent state matrix
+        # this is a [n, n, 4, 3] matrix since each agent needs to attend to every other agent
+        opponent_attitudes = np.zeros(
+            (self.attitudes.shape[0], *self.attitudes.shape), dtype=np.float64
+        )
+
+        # opponent angular rates are unchanged because already body frame
+        opponent_attitudes[..., 0, :] = self.attitudes[:, 0, :]
+
+        # opponent angular positions must convert to be relative to ours
+        opponent_attitudes[..., 1, :] = (
+            self.attitudes[None, :, 1] - self.attitudes[:, None, 1]
+        )
+
+        # rotate all velocities to be ground frame, this is [n, 3]
+        ground_velocities = (rotation @ self.attitudes[:, -2, :][..., None])[..., 0]
+
+        # then find all opponent velocities relative to our body frame
+        # this is [self, other, 3]
+        opponent_velocities = (
+            ground_velocities[None, ..., None, :] @ rotation[:, None, ...]
+        )[..., 0, :]
+
+        # opponent velocities should be relative to our current velocity
+        opponent_attitudes[..., 2, :] = (
+            opponent_velocities - self.attitudes[:, 2, :][:, None, ...]
+        )
+
+        # opponent position is relative to ours in our body frame
+        opponent_attitudes[..., 3, :] = separation @ rotation
+
+        return (
+            in_cone,
+            in_range,
+            chasing,
+            current_hits,
+            current_distances,
+            current_angles,
+            current_offsets,
+            opponent_attitudes,
+        )
+
     def _compute_agent_states(self) -> None:
         """_compute_agent_states.
 
@@ -197,12 +310,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             current_angles,
             current_offsets,
             self.opponent_attitudes,
-        ) = compute_combat_state(
-            self.attitudes,
-            self.lethal_angle,
-            self.lethal_distance,
-            self.damage_per_hit,
-        )
+        ) = self._compute_combat_state()
 
         # extract what we need
         idx = np.arange(2)
