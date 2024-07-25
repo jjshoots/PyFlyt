@@ -543,7 +543,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             # WARNING: NaN introduced here
             engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
 
-        # reward for hits and being hit
+        # reward for hits and being hit, more reward for hits so the agents are less self preserving
         hits_rewards = (12.0 * self.current_hits) + (-8.0 * self.current_hits.T)
         engagement_rewards += 1.0 * hits_rewards
 
