@@ -39,7 +39,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         spawn_radius: float = 10.0,
         spawn_height: float = 20.0,
         damage_per_hit: float = 0.02,
-        lethal_distance: float = 15.0,
+        lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.1,
         assisted_flight: bool = True,
         sparse_reward: bool = False,
@@ -140,7 +140,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # some rendering constants
         self.hit_colour = np.array([1.0, 0.0, 0.0, 0.2])
-        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.05])
+        self.nohit_color = np.array([0.0, 0.0, 0.0, 0.025])
 
     def observation_space(self, agent: Any = None) -> spaces.Dict | spaces.Box:
         """observation_space.
@@ -202,14 +202,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.start_pos, self.start_orn = self._get_start_pos_orn(seed)
 
         # define custom forward velocity
-        _, start_vec = self.compute_rotation_forward(self.start_orn)
-        start_vec *= 15.0
+        _, start_velocity = self.compute_rotation_forward(self.start_orn)
+        start_velocity *= 20.0
         drone_options = [dict() for _ in range(self.num_possible_agents)]
-        for i in range(len(drone_options)):
-            drone_options[i]["starting_velocity"] = start_vec[i]
-            drone_options[i]["drone_model"] = (
-                "acrowing_blue" if i < self.team_size else "acrowing_red"
-            )
+        for agent_id in range(len(drone_options)):
+            drone_options[agent_id]["starting_velocity"] = start_velocity[agent_id]
+            drone_options[agent_id]["drone_model"] = "acrowing"
 
         super().begin_reset(seed, options, drone_options=drone_options)
 
@@ -275,6 +273,21 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # for rendering
         self.current_render_hits = np.zeros((self.num_possible_agents,), dtype=bool)
         self.previous_render_hits = np.zeros((self.num_possible_agents,), dtype=bool)
+
+        # if we're rendering, set the colors of the wingtips and tail components
+        if self.render_mode:
+            for agent_id in range(self.num_possible_agents):
+                # wingtips and tail component IDs
+                for component_id in [1, 2, 3, 4]:
+                    self.aviary.changeVisualShape(
+                        self.aviary.drones[agent_id].Id,
+                        component_id,
+                        rgbaColor=(
+                            np.array([1.0, 0.0, 0.0, 1.0])
+                            if self.team_flag[agent_id]
+                            else np.array([0.0, 0.0, 0.0, 1.0])
+                        ),
+                    )
 
         super().end_reset(seed, options)
 
