@@ -7,7 +7,6 @@ from typing import Any, Literal
 import numpy as np
 from gymnasium import spaces
 
-from PyFlyt.pz_envs.fixedwing_envs.dogfight_utils import compute_combat_state
 from PyFlyt.pz_envs.fixedwing_envs.ma_fixedwing_base_env import MAFixedwingBaseEnv
 
 
@@ -449,11 +448,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             self.current_angles,
             self.current_offsets,
             self.other_attitudes,
-        ) = compute_combat_state(
-            self.attitudes,
-            self.lethal_angle,
-            self.lethal_distance,
-        )
+        ) = self._compute_combat_state()
 
         # mask out friendly fire - we don't shoot our friends
         self.current_hits &= self.friendly_fire_mask
