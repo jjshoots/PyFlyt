@@ -37,7 +37,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         team_size: int = 2,
         spawn_radius: float = 10.0,
         spawn_height: float = 20.0,
-        damage_per_hit: float = 0.02,
+        damage_per_hit: float = 0.01,
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
         assisted_flight: bool = True,
