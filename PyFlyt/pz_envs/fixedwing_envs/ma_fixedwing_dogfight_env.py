@@ -40,7 +40,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         damage_per_hit: float = 0.01,
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
-        assisted_flight: bool = True,
+        assisted_flight: bool = False,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
         flight_dome_size: float = 500.0,
