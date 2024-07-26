@@ -552,12 +552,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
 
             # reward for being in the enemy's line of fire
-            engagement_rewards -= 0.25 * (
+            engagement_rewards -= 0.1 * (
                 self.in_range.T * self.chasing.T * self.friendly_fire_mask
             )
 
         # reward for hits and being hit, more reward for hits so the agents are less self preserving
-        hits_rewards = (12.0 * self.current_hits) + (-8.0 * self.current_hits.T)
+        hits_rewards = (15.0 * self.current_hits) + (-8.0 * self.current_hits.T)
         engagement_rewards += 1.0 * hits_rewards
 
         # remove the nans, and sum rewards along axes
