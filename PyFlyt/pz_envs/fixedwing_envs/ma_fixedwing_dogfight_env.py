@@ -271,7 +271,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # for rendering
         self.current_render_hits = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.current_render_deads = np.zeros((self.num_possible_agents,), dtype=bool)
         self.previous_render_hits = np.zeros((self.num_possible_agents,), dtype=bool)
+        self.previous_render_deads = np.zeros((self.num_possible_agents,), dtype=bool)
 
         # if we're rendering, set the colors of the wingtips and tail components
         if self.render_mode:
@@ -727,8 +729,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         """
         returns = super().step(actions=actions)
 
-        # colour the gunsights conditionally
         if self.render_mode:
+            # colour the gunsights conditionally
             self.previous_render_hits = self.current_render_hits.copy()
             self.current_render_hits = self.current_hits.sum(axis=1) > 0
             for i in np.nonzero(
@@ -743,5 +745,21 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                         else self.nohit_color
                     ),
                 )
+
+            # blacken dead agents
+            self.previous_render_deads = self.current_render_deads.copy()
+            self.current_render_deads = self.healths <= 0.0
+            for i in np.nonzero(
+                self.current_render_deads != self.previous_render_deads,
+            )[0]:
+                for component_id in range(8):
+                    self.aviary.changeVisualShape(
+                        self.aviary.drones[i].Id,
+                        component_id,
+                        rgbaColor=(
+                            np.array([0.0, 0.0, 0.0, 1.0])
+                        ),
+                    )
+
 
         return returns
