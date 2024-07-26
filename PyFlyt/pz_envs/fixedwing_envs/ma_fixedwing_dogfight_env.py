@@ -746,13 +746,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                     ),
                 )
 
-            # blacken dead agents
+            # blacken dead agents and make gunsight clear
             self.previous_render_deads = self.current_render_deads.copy()
             self.current_render_deads = self.healths <= 0.0
             for i in np.nonzero(
                 self.current_render_deads != self.previous_render_deads,
             )[0]:
-                for component_id in range(8):
+                for component_id in range(7):
                     self.aviary.changeVisualShape(
                         self.aviary.drones[i].Id,
                         component_id,
@@ -760,6 +760,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                             np.array([0.0, 0.0, 0.0, 1.0])
                         ),
                     )
+                self.aviary.changeVisualShape(
+                    self.aviary.drones[i].Id,
+                    7,
+                    rgbaColor=(
+                        np.array([0.0, 0.0, 0.0, 0.0])
+                    ),
+                )
 
 
         return returns
