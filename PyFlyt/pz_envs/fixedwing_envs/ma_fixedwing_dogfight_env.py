@@ -516,6 +516,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         """
         # init engagement rewards
+        # this is a [self, other] array for `self` engaging `other`
+        # the transpose of this is `other` engaging `self`
         engagement_rewards = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
@@ -524,24 +526,35 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         if not self.sparse_reward:
             # reward for closing the distance
             engagement_rewards += (
+                1.0 *
                 np.clip(
                     self.previous_distances - self.current_distances,
                     a_min=0.0,
                     a_max=None,
                 )
-                * (~self.in_range & self.chasing)
-                * 1.0
+                * (~self.in_range & self.chasing & self.friendly_fire_mask)
             )
 
             # reward for progressing to engagement, penalty for losing angles is less
             # WARNING: NaN introduced here
             delta_angles = self.previous_angles - self.current_angles
             delta_angles[delta_angles > 0.0] *= 0.8
-            engagement_rewards += delta_angles * self.in_range * 7.0
+            engagement_rewards += (
+                7.0 * delta_angles * (self.in_range * self.friendly_fire_mask)
+            )
 
             # reward for engaging the enemy
             # WARNING: NaN introduced here
-            engagement_rewards += 3.0 / (self.current_angles + 0.1) * self.in_range
+            engagement_rewards += (
+                2.0
+                / (self.current_angles + 0.1)
+                * (self.in_range * self.friendly_fire_mask)
+            )
+
+            # reward for being in the enemy's line of fire
+            engagement_rewards -= 0.25 * (
+                self.in_range.T * self.chasing.T * self.friendly_fire_mask
+            )
 
         # reward for hits and being hit, more reward for hits so the agents are less self preserving
         hits_rewards = (12.0 * self.current_hits) + (-8.0 * self.current_hits.T)
