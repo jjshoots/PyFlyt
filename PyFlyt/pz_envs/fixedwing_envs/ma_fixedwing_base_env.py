@@ -184,23 +184,22 @@ class MAFixedwingBaseEnv(ParallelEnv):
         self.step_count = 0
         self.agents = self.possible_agents[:]
 
-        # need to handle Nones
-        if options is None:
-            options = dict()
+        # handle drone options
         if drone_options is None:
-            drone_options = dict()
-
-        # options
-        if isinstance(drone_options, Sequence):
-            for i in range(len(drone_options)):
-                model = drone_options[i].get("drone_model") or "acrowing_green"
-                drone_options[i]["drone_model"] = model
+            drone_options = [dict() for _ in range(self.num_possible_agents)]
         elif isinstance(drone_options, dict):
-            drone_options["drone_model"] = (
-                drone_options.get("drone_model") or "acrowing_green"
+            drone_options = [drone_options for _ in range(self.num_possible_agents)]
+
+        # set the model name
+        for i in range(len(drone_options)):
+            drone_options[i]["drone_model"] = (
+                drone_options[i].get("drone_model") or "acrowing"
             )
-        else:
-            drone_options = dict(drone_model="acrowing_green")
+
+        # if render, use onboard camera for the first aircraft
+        if self.render_mode:
+            drone_options[0]["use_camera"] = True
+            drone_options[0]["camera_fps"] = int(120 / self.env_step_ratio)
 
         # rebuild the environment
         self.aviary = Aviary(

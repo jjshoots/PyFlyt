@@ -206,7 +206,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         drone_options = [dict() for _ in range(self.num_possible_agents)]
         for agent_id in range(len(drone_options)):
             drone_options[agent_id]["starting_velocity"] = start_velocity[agent_id]
-            drone_options[agent_id]["drone_model"] = "acrowing"
 
         super().begin_reset(seed, options, drone_options=drone_options)
 
@@ -528,8 +527,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         if not self.sparse_reward:
             # reward for closing the distance
             engagement_rewards += (
-                1.0 *
-                np.clip(
+                1.0
+                * np.clip(
                     self.previous_distances - self.current_distances,
                     a_min=0.0,
                     a_max=None,
@@ -756,17 +755,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                     self.aviary.changeVisualShape(
                         self.aviary.drones[i].Id,
                         component_id,
-                        rgbaColor=(
-                            np.array([0.0, 0.0, 0.0, 1.0])
-                        ),
+                        rgbaColor=(np.array([0.0, 0.0, 0.0, 1.0])),
                     )
                 self.aviary.changeVisualShape(
                     self.aviary.drones[i].Id,
                     7,
-                    rgbaColor=(
-                        np.array([0.0, 0.0, 0.0, 0.0])
-                    ),
+                    rgbaColor=(np.array([0.0, 0.0, 0.0, 0.0])),
                 )
-
 
         return returns
