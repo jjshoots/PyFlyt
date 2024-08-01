@@ -19,6 +19,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         lethal_distance (float): how close before weapons become effective.
         lethal_angle_radians (float): the width of the cone of fire.
         assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
+        aggressiveness (float): a value between 0 and 1 controlling how greedy the reward function is. Lower values lead to greedier policies.
+        cooperativeness (float): a value between 0 and 1 controlling how cooperative with each other the reward function is.
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
@@ -41,6 +43,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
         assisted_flight: bool = False,
+        aggressiveness: float = 0.5,
+        cooperativeness: float = 0.5,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
         flight_dome_size: float = 500.0,
@@ -58,6 +62,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             lethal_distance (float): how close before weapons become effective.
             lethal_angle_radians (float): the width of the cone of fire.
             assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
+            aggressiveness (float): a value between 0 and 1 controlling how greedy the reward function is.
+            cooperativeness (float): a value between 0 and 1 controlling how cooperative with each other the reward function is.
             sparse_reward (bool): whether to use sparse rewards or not.
             flatten_observation (bool): if False, this returns a Dict style observation.
             flight_dome_size (float): size of the allowable flying area.
@@ -87,6 +93,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.spawn_height = spawn_height
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
+        self.aggressiveness = aggressiveness
+        self.cooperativeness = cooperativeness
         self.team_flag = np.concatenate(
             (
                 np.zeros((team_size,), dtype=bool),
@@ -523,43 +531,44 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
 
+        # fmt: off
         # sparse reward computation
         if not self.sparse_reward:
             # reward for closing the distance
+            delta_distance = (
+                (self.previous_distances - self.current_distances)
+                * (~self.in_range & self.chasing & self.friendly_fire_mask)
+            )  # positive good, symmetric matrix (before masking) in range [-inf, inf]
             engagement_rewards += (
                 1.0
-                * np.clip(
-                    self.previous_distances - self.current_distances,
-                    a_min=0.0,
-                    a_max=None,
-                )
-                * (~self.in_range & self.chasing & self.friendly_fire_mask)
+                * (delta_distance - (self.aggressiveness * delta_distance.T))
             )
 
             # reward for progressing to engagement, penalty for losing angles is less
             # WARNING: NaN introduced here
-            delta_angles = self.previous_angles - self.current_angles
-            delta_angles[delta_angles > 0.0] *= 0.8
-            engagement_rewards += (
-                7.0 * delta_angles * (self.in_range * self.friendly_fire_mask)
-            )
+            # positive good, asymmetric matrix (before masking) in range [-inf, inf]
+            delta_angles = (
+                (self.previous_angles - self.current_angles)
+                * (self.in_range & self.friendly_fire_mask)
+            )  # positive is good
+            delta_angles[delta_angles < 0.0] *= self.aggressiveness
+            engagement_rewards += 1.0 * delta_angles
 
-            # reward for engaging the enemy
+            # reward for engaging the enemy, penalty for being engaged
             # WARNING: NaN introduced here
+            inverse_abs_angles = (
+                (1.0 / (self.current_angles + 0.1))
+                * (self.friendly_fire_mask & self.in_range & self.chasing)
+            )  # positive good, asymmetric matrix (before masking) in range [0, inf]
             engagement_rewards += (
                 2.0
-                / (self.current_angles + 0.1)
-                * (self.in_range * self.friendly_fire_mask)
+                * (inverse_abs_angles - (1.0 - self.aggressiveness) * inverse_abs_angles.T)
             )
 
-            # reward for being in the enemy's line of fire
-            engagement_rewards -= 0.1 * (
-                self.in_range.T * self.chasing.T * self.friendly_fire_mask
-            )
-
-        # reward for hits and being hit, more reward for hits so the agents are less self preserving
-        hits_rewards = (15.0 * self.current_hits) + (-8.0 * self.current_hits.T)
-        engagement_rewards += 1.0 * hits_rewards
+        # reward for hits, penalty for being hit
+        engagement_rewards += 10.0 * (
+            self.current_hits - (1.0 - self.aggressiveness) * self.current_hits.T
+        )
 
         # remove the nans, and sum rewards along axes
         np.fill_diagonal(engagement_rewards, 0.0)
@@ -569,11 +578,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # reward for your friends hitting enemies, and penalty otherwise
         # we get 0.5x what our teammates receive
         engagement_rewards[self.team_flag] += (
-            0.5 * (hits_rewards * self.team_flag[:, None]).sum()
+            self.cooperativeness * (self.current_hits * self.team_flag[:, None]).sum()
         )
         engagement_rewards[~self.team_flag] += (
-            0.5 * (hits_rewards * ~self.team_flag[:, None]).sum()
+            self.cooperativeness * (self.current_hits * ~self.team_flag[:, None]).sum()
         )
+        # fmt: on
 
         return engagement_rewards
 
