@@ -1,5 +1,5 @@
 motor_params:
-  total_thrust: 32
+  total_thrust: 23 # aircraft total mass is 2.35, this gives is 1:1 T:W almost
   thrust_coef: 3.16e-10
   torque_coef: 7.94e-12
   noise_ratio: 0.02
@@ -13,7 +13,7 @@ main_wing_params:
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: -2 # 2D dCl_dalpha X-intercept
   alpha_stall_P_base: 16 # Positive stall AoA
-  alpha_stall_N_base: -12 # Positive stall AoA
+  alpha_stall_N_base: -10 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
   deflection_limit: 15
   tau: 0.05
@@ -25,10 +25,10 @@ left_wing_flapped_params:
   flap_to_chord: 0.3 # 30% of chord
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: -2 # 2D dCl_dalpha X-intercept
-  alpha_stall_P_base: 21 # Positive stall AoA
+  alpha_stall_P_base: 16 # Positive stall AoA
   alpha_stall_N_base: -12 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 45 # Control surface deflection limit in degrees
+  deflection_limit: 40 # Control surface deflection limit in degrees
   tau: 0.05
 
 right_wing_flapped_params:
@@ -38,34 +38,34 @@ right_wing_flapped_params:
   flap_to_chord: 0.3 # 30% of chord
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: -2 # 2D dCl_dalpha X-intercept
-  alpha_stall_P_base: 21 # Positive stall AoA
+  alpha_stall_P_base: 16 # Positive stall AoA
   alpha_stall_N_base: -12 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 45 # Control surface deflection limit in degrees
+  deflection_limit: 40 # Control surface deflection limit in degrees
   tau: 0.05
 
 horizontal_tail_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 0.8
-  flap_to_chord: 0.6 # 30% of chord
+  flap_to_chord: 0.4 # 40% of chord
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: 0 # 2D dCl_dalpha X-intercept
-  alpha_stall_P_base: 12 # Positive stall AoA
-  alpha_stall_N_base: -12 # Positive stall AoA
+  alpha_stall_P_base: 11 # Positive stall AoA
+  alpha_stall_N_base: -11 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 35 # Control surface deflection limit in degrees
+  deflection_limit: 30 # Control surface deflection limit in degrees
   tau: 0.05
 
 vertical_tail_params:
   Cl_alpha_2D: 6.283 # Average value for a 2D aerofoil
   chord: 0.4 # meters
   span: 0.4
-  flap_to_chord: 0.5 # 30% of chord
+  flap_to_chord: 0.4 # 30% of chord
   eta: 0.65 # Correction factor for viscosity effects (An average obtained from pg 112)
   alpha_0_base: 0 # 2D dCl_dalpha X-intercept
-  alpha_stall_P_base: 12 # Positive stall AoA
-  alpha_stall_N_base: -12 # Positive stall AoA
+  alpha_stall_P_base: 11 # Positive stall AoA
+  alpha_stall_N_base: -11 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 45 # Control surface deflection limit in degrees
+  deflection_limit: 35 # Control surface deflection limit in degrees
   tau: 0.05
