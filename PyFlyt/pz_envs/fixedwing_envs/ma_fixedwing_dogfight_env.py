@@ -43,7 +43,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
         assisted_flight: bool = False,
-        aggressiveness: float = 0.5,
+        aggressiveness: float = 0.3,
         cooperativeness: float = 0.5,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
@@ -541,7 +541,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )  # positive good, symmetric matrix (before masking) in range [-inf, inf]
             engagement_rewards += (
                 1.0
-                * (delta_distance - (self.aggressiveness * delta_distance.T))
+                * (delta_distance - (1.0 - self.aggressiveness) * delta_distance.T)
             )
 
             # reward for progressing to engagement, penalty for losing angles is less
