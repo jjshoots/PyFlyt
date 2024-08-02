@@ -527,7 +527,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # init engagement rewards
         # this is a [self, other] array for `self` engaging `other`
         # the transpose of this is `other` engaging `self`
-        engagement_rewards = np.zeros(
+        # we start of with a negative penalty for "idling"
+        engagement_rewards = -0.3 * np.ones(
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
 
@@ -549,7 +550,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 * (self.in_range & self.friendly_fire_mask)
             )  # positive is good
             delta_angles[delta_angles < 0.0] *= self.aggressiveness
-            engagement_rewards += 7.0 * delta_angles
+            engagement_rewards += 10.0 * delta_angles
 
             # reward for engaging the enemy, penalty for being engaged
             # WARNING: NaN introduced here
@@ -563,7 +564,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
 
         # reward for hits, penalty for being hit
-        engagement_rewards += 15.0 * (
+        engagement_rewards += 20.0 * (
             self.current_hits - (1.0 - self.aggressiveness) * self.current_hits.T
         )
 
