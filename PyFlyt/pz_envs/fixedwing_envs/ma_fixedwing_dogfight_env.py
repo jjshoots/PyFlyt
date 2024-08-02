@@ -539,10 +539,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 (self.previous_distances - self.current_distances)
                 * (~self.in_range & self.chasing & self.friendly_fire_mask)
             )  # positive good, symmetric matrix (before masking) in range [-inf, inf]
-            engagement_rewards += (
-                1.0
-                * (delta_distance - (1.0 - self.aggressiveness) * delta_distance.T)
-            )
+            engagement_rewards += 1.0 * delta_distance
 
             # reward for progressing to engagement, penalty for losing angles is less
             # WARNING: NaN introduced here
