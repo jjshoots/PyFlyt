@@ -549,7 +549,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 * (self.in_range & self.friendly_fire_mask)
             )  # positive is good
             delta_angles[delta_angles < 0.0] *= self.aggressiveness
-            engagement_rewards += 1.0 * delta_angles
+            engagement_rewards += 7.0 * delta_angles
 
             # reward for engaging the enemy, penalty for being engaged
             # WARNING: NaN introduced here
@@ -563,7 +563,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
 
         # reward for hits, penalty for being hit
-        engagement_rewards += 10.0 * (
+        engagement_rewards += 15.0 * (
             self.current_hits - (1.0 - self.aggressiveness) * self.current_hits.T
         )
 
