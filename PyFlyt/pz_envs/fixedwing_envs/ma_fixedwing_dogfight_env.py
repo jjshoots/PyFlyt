@@ -43,7 +43,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
         assisted_flight: bool = True,
-        aggressiveness: float = 0.3,
+        aggressiveness: float = 0.8,
         cooperativeness: float = 0.5,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
@@ -527,8 +527,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # init engagement rewards
         # this is a [self, other] array for `self` engaging `other`
         # the transpose of this is `other` engaging `self`
-        # we start of with a negative penalty for "idling"
-        engagement_rewards = -0.3 * np.ones(
+        engagement_rewards = np.zeros(
             (self.num_possible_agents, self.num_possible_agents), dtype=np.float32
         )
 
@@ -537,7 +536,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         if not self.sparse_reward:
             # reward for closing the distance
             delta_distance = (
-                (self.previous_distances - self.current_distances)
+                np.clip(
+                    self.previous_distances - self.current_distances,
+                    a_min=0.0,
+                    a_max=None,
+                )
                 * (~self.in_range & self.chasing & self.friendly_fire_mask)
             )  # positive good, symmetric matrix (before masking) in range [-inf, inf]
             engagement_rewards += 1.0 * delta_distance
@@ -604,7 +607,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # collision, override reward, not add
         collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
         self.accumulated_terminations |= collisions
-        self.accumulated_rewards[collisions] = -1500.0
+        self.accumulated_rewards[collisions] = -3000.0
         self.healths[collisions] = 0.0
 
         # exceed flight dome, override reward, not add
@@ -619,7 +622,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             > self.flight_dome_size
         )
         self.accumulated_terminations |= out_of_bounds
-        self.accumulated_rewards[out_of_bounds] = -1500.0
+        self.accumulated_rewards[out_of_bounds] = -3000.0
         self.healths[out_of_bounds] = 0.0
 
         # all opponents deactivated, override reward, not add
