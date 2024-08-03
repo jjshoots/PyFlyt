@@ -11,12 +11,12 @@ from pettingzoo import ParallelEnv
 from pettingzoo.test import parallel_api_test
 from pettingzoo.test.seed_test import check_environment_deterministic_parallel
 
-from PyFlyt.pz_envs import MAFixedwingDogfightEnv, MAQuadXHoverEnv
+from PyFlyt.pz_envs import MAFixedwingDogfightEnvV2, MAQuadXHoverEnvV2
 
 _QUADX_HOVER_ENVS = []
 for env_class, angle_representation, sparse_reward in itertools.product(
     [
-        MAQuadXHoverEnv,
+        MAQuadXHoverEnvV2,
     ],
     ["euler", "quaternion"],
     [True, False],
@@ -39,7 +39,7 @@ for (
     sparse_reward,
     flatten_observation,
 ) in itertools.product(
-    [MAFixedwingDogfightEnv],
+    [MAFixedwingDogfightEnvV2],
     [1, 2, 3],
     [True, False],
     [True, False],

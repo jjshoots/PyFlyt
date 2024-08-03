@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Any, Sequence
 
 import numpy as np
@@ -324,7 +323,7 @@ class MAQuadXBaseEnv(ParallelEnv):
 
         """
         # copy over the past actions
-        self.past_actions = deepcopy(self.current_actions)
+        self.past_actions = self.current_actions.copy()
 
         # set the new actions and send to aviary
         self.current_actions *= 0.0

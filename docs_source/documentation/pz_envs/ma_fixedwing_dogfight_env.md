@@ -1,4 +1,4 @@
-# `MAFixedwingDogfightEnv`
+# `MAFixedwingDogfightEnvV2`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/fixedwing_dogfight.gif
     :width: 50%
@@ -11,9 +11,9 @@ This is a reinforcement learning environment for training AI agents to perform a
 ## Usage
 
 ```python
-from PyFlyt.pz_envs import MAFixedwingDogfightEnv
+from PyFlyt.pz_envs import MAFixedwingDogfightEnvV2
 
-env = MAFixedwingDogfightEnv(render_mode="human")
+env = MAFixedwingDogfightEnvV2(render_mode="human")
 observations, infos = env.reset()
 
 while env.agents:

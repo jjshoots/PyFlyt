@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Any, Literal, Sequence
 
 import numpy as np
@@ -287,7 +286,7 @@ class MAFixedwingBaseEnv(ParallelEnv):
 
         """
         # copy over the past actions
-        self.past_actions = deepcopy(self.current_actions)
+        self.past_actions = self.current_actions.copy()
 
         # set the new actions and send to aviary
         # this automatically sets terminated agent actions to 0
@@ -296,10 +295,10 @@ class MAFixedwingBaseEnv(ParallelEnv):
             if k in self.agents:
                 self.current_actions[self.agent_name_mapping[k]] = v
 
-        # pass things to the aviary, but clip actions
-        passed_actions = self.current_actions
-        passed_actions[..., -1] = (passed_actions[..., -1] / 2.0) + 0.5
-        self.aviary.set_all_setpoints(self.current_actions)
+        # pass things to the aviary, but clip throttle
+        aviary_action = self.current_actions.copy()
+        aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
+        self.aviary.set_all_setpoints(aviary_action)
 
         # step enough times for one RL step
         for _ in range(self.env_step_ratio):

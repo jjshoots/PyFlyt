@@ -1,4 +1,4 @@
-# `PyFlyt/QuadX-Hover-v2`
+# `PyFlyt/QuadX-Hover-v3`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif
     :width: 50%
