@@ -69,7 +69,6 @@ class MAFixedwingBaseEnv(ParallelEnv):
         # action space
         high = np.ones(4 if assisted_flight else 6)
         low = high * -1.0
-        low[-1] = 0.0
         self._action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         # observation space
@@ -296,6 +295,10 @@ class MAFixedwingBaseEnv(ParallelEnv):
         for k, v in actions.items():
             if k in self.agents:
                 self.current_actions[self.agent_name_mapping[k]] = v
+
+        # pass things to the aviary, but clip actions
+        passed_actions = self.current_actions
+        passed_actions[..., -1] = (passed_actions[..., -1] / 2.0) + 0.5
         self.aviary.set_all_setpoints(self.current_actions)
 
         # step enough times for one RL step
