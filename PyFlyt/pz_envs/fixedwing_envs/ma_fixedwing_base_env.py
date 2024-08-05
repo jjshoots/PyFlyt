@@ -210,6 +210,14 @@ class MAFixedwingBaseEnv(ParallelEnv):
             world_scale=5.0,
         )
 
+        # reset the camera position to a sane place
+        self.aviary.resetDebugVisualizerCamera(
+            cameraDistance=50,
+            cameraYaw=30,
+            cameraPitch=-30,
+            cameraTargetPosition=[0, 0, 1],
+        )
+
     def end_reset(
         self, seed: None | int = None, options: None | dict[str, Any] = dict()
     ) -> None:
