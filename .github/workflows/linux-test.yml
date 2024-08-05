@@ -28,7 +28,7 @@ jobs:
           pip install .[dev]
       - name: Release Test
         run: |
-          xvfb-run -s "-screen 0 1024x768x24" pytest tests/*.py -vvv
+          xvfb-run -s "-screen 0 1024x768x24" pytest --cov tests/*.py -vvv
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
