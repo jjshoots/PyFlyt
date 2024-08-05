@@ -1,6 +1,6 @@
 # PyFlyt - UAV Flight Simulator for Reinforcement Learning Research
 
-[![PyPI - Version](https://img.shields.io/pypi/v/panda-gym.svg?logo=pypi&logoColor=FFE873)](https://img.shields.io/pypi/v/PyFlyt)
+[![PyPI - Version](https://img.shields.io/pypi/v/PyFlyt.svg?logo=pypi&logoColor=FFE873)](https://img.shields.io/pypi/v/PyFlyt)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![total downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=total&units=international_system&left_color=grey&right_color=green&left_text=total%20downloads)](https://pepy.tech/project/pyflyt)
 [![weekly downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=week&units=international_system&left_color=grey&right_color=green&left_text=weekly%20downloads)](https://pepy.tech/project/pyflyt)
