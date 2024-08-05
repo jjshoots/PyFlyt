@@ -6,7 +6,7 @@ motor_params:
   tau: 0.01
 
 main_wing_params:
-  Cl_alpha_2D: 3.142 # Half of average value for a 2D aerofoil
+  Cl_alpha_2D: 2.0 # Half of average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 1.6
   flap_to_chord: 0.1 # 10% of chord
@@ -19,7 +19,7 @@ main_wing_params:
   tau: 0.05
 
 left_wing_flapped_params:
-  Cl_alpha_2D: 3.142 # Half of average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Half of average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 0.3
   flap_to_chord: 0.3 # 30% of chord
@@ -32,7 +32,7 @@ left_wing_flapped_params:
   tau: 0.05
 
 right_wing_flapped_params:
-  Cl_alpha_2D: 3.142 # Half of average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Half of average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 0.3
   flap_to_chord: 0.3 # 30% of chord
@@ -45,7 +45,7 @@ right_wing_flapped_params:
   tau: 0.05
 
 horizontal_tail_params:
-  Cl_alpha_2D: 3.142 # Half of average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Half of average value for a 2D aerofoil
   chord: 0.3 # meters
   span: 0.8
   flap_to_chord: 0.5 # 40% of chord
@@ -58,7 +58,7 @@ horizontal_tail_params:
   tau: 0.05
 
 vertical_tail_params:
-  Cl_alpha_2D: 3.142 # Half of average value for a 2D aerofoil
+  Cl_alpha_2D: 6.283 # Half of average value for a 2D aerofoil
   chord: 0.4 # meters
   span: 0.4
   flap_to_chord: 0.4 # 40% of chord
