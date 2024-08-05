@@ -21,7 +21,13 @@ keywords = ["Reinforcement Learning", "UAVs", "drones", "Quadcopter", "AI", "RL"
 license = { file="./LICENSE.txt" }
 
 [project.optional-dependencies]
-dev = ["pytest", "pre-commit", "matplotlib"]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "codecov",
+  "pre-commit",
+  "matplotlib",
+]
 
 [tool.setuptools]
 include-package-data = true
