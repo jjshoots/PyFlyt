@@ -114,30 +114,33 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         )
 
         # observation_space
-        self._observation_space = spaces.Dict(
-            {
-                # base + health
-                "self": spaces.Box(
-                    low=-np.inf,
-                    high=np.inf,
-                    shape=(self_space_shape := (self.combined_space.shape[0] + 1),),
-                    dtype=np.float64,
-                ),
-                # attitude + health + team_mask
-                "others": spaces.Sequence(
-                    space=spaces.Box(
+        self_space_shape = (self.combined_space.shape[0] + 1,)
+        others_space_shape = (12 + 1 + 1,)
+        if not flatten_observation:
+            self._observation_space = spaces.Dict(
+                {
+                    # base + health
+                    "self": spaces.Box(
                         low=-np.inf,
                         high=np.inf,
-                        shape=(others_space_shape := (12 + 1 + 1),),
+                        shape=self_space_shape,
                         dtype=np.float64,
                     ),
-                    stack=True,
-                ),
-            }
-        )
+                    # attitude + health + team_mask
+                    "others": spaces.Sequence(
+                        space=spaces.Box(
+                            low=-np.inf,
+                            high=np.inf,
+                            shape=others_space_shape,
+                            dtype=np.float64,
+                        ),
+                        stack=True,
+                    ),
+                }
+            )
 
         # if flatten observation, then it's just a big box
-        if flatten_observation:
+        else:
             self._observation_space = spaces.Box(
                 low=-np.inf,
                 high=np.inf,
