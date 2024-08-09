@@ -397,10 +397,23 @@ document.write(`
 <h2>Model Description<a class="headerlink" href="#model-description" title="Link to this heading">#</a></h2>
 <p>Small tube-and-wing fixed wing UAV with a single motor (~2.5 Kg).</p>
 </section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading">#</a></h2>
+<p>Two different models of the QuadX drone are provided.
+This option can be selected through the <code class="docutils literal notranslate"><span class="pre">drone_model</span></code> parameter.
+The available models are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fixedwing</span></code> (default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">acrowing</span></code></p>
+<ul>
+<li><p>A more aggressive aircraft with higher thrust:weight ratio, bigger flight and control surfaces, and a trailing edge flap.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 <section id="control-mode">
 <h2>Control Mode<a class="headerlink" href="#control-mode" title="Link to this heading">#</a></h2>
-<p>Only one control mode is provided.
-Setpoints are mapped directly to <code class="docutils literal notranslate"><span class="pre">[pitch,</span> <span class="pre">roll,</span> <span class="pre">yaw,</span> <span class="pre">thrust]</span></code> actuator commands.</p>
+<p>Two modes are available and documented <a class="reference external" href="https://taijunjet.com/PyFlyt/documentation/core/drones/fixedwing.html#PyFlyt.core.drones.Fixedwing.set_mode">below</a>.</p>
 </section>
 <section id="class-description">
 <h2>Class Description<a class="headerlink" href="#class-description" title="Link to this heading">#</a></h2>
@@ -501,6 +514,7 @@ Setpoints are mapped directly to <code class="docutils literal notranslate"><spa
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-description">Model Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#variants">Variants</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#control-mode">Control Mode</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-description">Class Description</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.core.drones.Fixedwing"><code class="docutils literal notranslate"><span class="pre">Fixedwing</span></code></a><ul class="visible nav section-nav flex-column">
