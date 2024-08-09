@@ -11,12 +11,14 @@ Comes with Gymnasium and PettingZoo environments built in!
 
 <p align="center">
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/pyflyt_cover_photo.png?raw=true" width="650px"/>
-</p>
-<p align="center">
-    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" height="150px"/>
-    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_dogfight.gif?raw=true" height="150px"/>
-    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_pole_waypoint.gif?raw=true" height="150px"/>
-    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" height="150px"/>
+    <p align="center">
+        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" height="150px"/>
+        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_dogfight.gif?raw=true" height="150px"/>
+    </p>
+    <p align="center">
+        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_pole_waypoint.gif?raw=true" height="150px"/>
+        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" height="150px"/>
+    </p>
 </p>
 
 #### [View the documentation here!](https://jjshoots.github.io/PyFlyt/documentation.html)
