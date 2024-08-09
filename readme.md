@@ -1,24 +1,9 @@
-# PyFlyt - UAV Flight Simulator for Reinforcement Learning Research
-
-[![PyPI - Version](https://img.shields.io/pypi/v/PyFlyt.svg?logo=pypi&logoColor=FFE873)](https://img.shields.io/pypi/v/PyFlyt)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![codecov](https://codecov.io/github/jjshoots/PyFlyt/graph/badge.svg?token=4RP08UIPIF)](https://codecov.io/github/jjshoots/PyFlyt)
-[![total downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=total&units=international_system&left_color=grey&right_color=green&left_text=total%20downloads)](https://pepy.tech/project/pyflyt)
-[![weekly downloads](https://static.pepy.tech/personalized-badge/pyflyt?period=week&units=international_system&left_color=grey&right_color=green&left_text=weekly%20downloads)](https://pepy.tech/project/pyflyt)
-
+# PyFlyt - UAV Flight Simulator for Reinforcement Learning
 
 Comes with Gymnasium and PettingZoo environments built in!
 
 <p align="center">
-    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/pyflyt_cover_photo.png?raw=true" width="650px"/>
-    <p align="center">
-        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" height="150px"/>
-        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_dogfight.gif?raw=true" height="150px"/>
-    </p>
-    <p align="center">
-        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_pole_waypoint.gif?raw=true" height="150px"/>
-        <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" height="150px"/>
-    </p>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/pyflyt_cover_photo.png?raw=true" width="600"/>
 </p>
 
 #### [View the documentation here!](https://jjshoots.github.io/PyFlyt/documentation.html)
@@ -88,3 +73,14 @@ If you use our work in your research and would like to cite it, please use the f
   year={2023}
 }
 ```
+
+## Gallery
+
+<p align="center">
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_waypoint.gif?raw=true" height="250px"/>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/fixedwing_dogfight.gif?raw=true" height="250px"/>
+</p>
+<p align="center">
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_pole_waypoint.gif?raw=true" height="250px"/>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" height="250px"/>
+</p>
