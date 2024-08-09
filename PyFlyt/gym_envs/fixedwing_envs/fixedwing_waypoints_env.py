@@ -1,4 +1,5 @@
 """Fixedwing Waypoints Environment."""
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -17,7 +18,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
     The target is a set of `[x, y, z]` targets in space
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -47,7 +47,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
@@ -108,7 +107,6 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -171,7 +169,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
 
     def compute_term_trunc_reward(self) -> None:
-        """Computes the termination, trunction, and reward of the current timestep."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse

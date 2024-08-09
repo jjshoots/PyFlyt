@@ -1,4 +1,5 @@
 """QuadX Pole Balance Environment."""
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -17,7 +18,6 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
     The target is to not crash and not let the pole hit the ground for the longest time possible.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_mode (int): the flight mode of the UAV
         flight_dome_size (float): size of the allowable flying area.
@@ -43,7 +43,6 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
@@ -86,7 +85,6 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 

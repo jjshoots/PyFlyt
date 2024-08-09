@@ -1,4 +1,5 @@
 """Implementation of a 1:10 scale SpaceX Rocket UAV."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -48,7 +49,6 @@ class Rocket(DroneClass):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -216,8 +216,8 @@ class Rocket(DroneClass):
         # compute camera fps parameters
         if camera_fps:
             assert (
-                (physics_hz / camera_fps) % 1 == 0
-            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+                physics_hz / camera_fps
+            ) % 1 == 0, f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
             self.physics_camera_ratio = int(physics_hz / camera_fps)
         else:
             self.physics_camera_ratio = 1
@@ -242,7 +242,6 @@ class Rocket(DroneClass):
             - 0: finlet x deflection, finlet y deflection, finlet yaw, ignition, throttle, booster gimbal axis 1, booster gimbal axis 2
 
         Args:
-        ----
             mode (int): flight mode
 
         """
@@ -252,7 +251,6 @@ class Rocket(DroneClass):
         """Runs through controllers.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """
@@ -263,7 +261,7 @@ class Rocket(DroneClass):
         # the default mode
         if self.mode == 0:
             # finlet mapping
-            finlet_cmd = self.finlet_map @ np.expand_dims(self.setpoint[:3], axis=-1)
+            finlet_cmd = self.finlet_map @ self.setpoint[:3][..., None]
             finlet_cmd = np.clip(finlet_cmd, -1.0, 1.0)
 
             # prepend the finlet mapping to the command itself
@@ -337,7 +335,6 @@ class Rocket(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """

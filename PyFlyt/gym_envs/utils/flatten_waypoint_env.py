@@ -1,4 +1,5 @@
 """Wrapper class for flattening the waypoint envs to use homogeneous observation spaces."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -15,7 +16,6 @@ class FlattenWaypointEnv(ObservationWrapper):
         """__init__.
 
         Args:
-        ----
             env (Env): a PyFlyt Waypoints environment.
             context_length: how many waypoints should be included in the flattened observation space.
 
@@ -43,15 +43,20 @@ class FlattenWaypointEnv(ObservationWrapper):
         """Flattens an observation from the super env.
 
         Args:
-        ----
             observation: a dictionary observation with an "attitude" and "target_deltas" keys.
 
         """
-        num_targets = min(self.context_length, observation["target_deltas"].shape[0])  # pyright: ignore[reportGeneralTypeIssues]
+        num_targets = min(
+            self.context_length, observation["target_deltas"].shape[0]
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
         targets = np.zeros((self.context_length, self.target_shape))
-        targets[:num_targets] = observation["target_deltas"][:num_targets]  # pyright: ignore[reportGeneralTypeIssues]
+        targets[:num_targets] = observation["target_deltas"][
+            :num_targets
+        ]  # pyright: ignore[reportGeneralTypeIssues]
 
-        new_obs = np.concatenate([observation["attitude"], *targets])  # pyright: ignore[reportGeneralTypeIssues]
+        new_obs = np.concatenate(
+            [observation["attitude"], *targets]
+        )  # pyright: ignore[reportGeneralTypeIssues]
 
         return new_obs

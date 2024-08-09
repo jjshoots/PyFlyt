@@ -1,4 +1,5 @@
 """Implement a controller that only wants the drone to be at x=1, y=1, z=1, while constantly spinning at yawrate=0.5, building off mode 6."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary
@@ -20,7 +21,6 @@ class CustomController(ControlClass):
         """Step the controller here.
 
         Args:
-        ----
             state (np.ndarray): Current state of the UAV
             setpoint (np.ndarray): Desired setpoint
 

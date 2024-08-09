@@ -34,7 +34,6 @@ class PoleHandler:
         """reset.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p
             start_location (np.ndarray): start_location
 
@@ -62,7 +61,6 @@ class PoleHandler:
         """The lean of the pole, minimum of 0.0 and maximum of 1.0.
 
         Returns:
-        -------
             float:
 
         """
@@ -74,13 +72,11 @@ class PoleHandler:
         """compute_state.
 
         Args:
-        ----
             rotation (np.ndarray): rotation
             uav_lin_pos (np.ndarray): uav_lin_pos
             uav_lin_vel (np.ndarray): uav_lin_vel
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray, np.ndarray]: top_pos, top_vel, bot_pos, bot_vel
 
         """

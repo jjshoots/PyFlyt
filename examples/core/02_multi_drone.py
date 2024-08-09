@@ -1,4 +1,5 @@
 """Spawns three drones, then sets all drones to have different control looprates."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary

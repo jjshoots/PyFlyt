@@ -1,4 +1,5 @@
 """Implements a custom stateful wind model."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary
@@ -15,7 +16,6 @@ class MyWindField(WindFieldClass):
         """__init__.
 
         Args:
-        ----
             my_parameter: supports an arbitrary number of parameters
             np_random (None | np.random.RandomState): np random state
 
@@ -27,7 +27,6 @@ class MyWindField(WindFieldClass):
         """__call__.
 
         Args:
-        ----
             time (float): time
             position (np.ndarray): position as an (n, 3) array
 

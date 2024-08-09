@@ -1,4 +1,5 @@
 """Rocket Landing Environment."""
+
 from __future__ import annotations
 
 import os
@@ -18,7 +19,6 @@ class RocketLandingEnv(RocketBaseEnv):
     The goal is to land the rocket on the landing pad.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         ceiling (float): the absolute ceiling of the flying area.
         max_displacement (float): the maximum horizontal distance the rocket can go.
@@ -44,7 +44,6 @@ class RocketLandingEnv(RocketBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             ceiling (float): the absolute ceiling of the flying area.
             max_displacement (float): the maximum horizontal distance the rocket can go.
@@ -93,7 +92,6 @@ class RocketLandingEnv(RocketBaseEnv):
         """Resets the environment.
 
         Args:
-        ----
             seed: int
             options: None
 

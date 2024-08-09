@@ -3,10 +3,10 @@
 <robot name="acrowing">
 
   <material name="clear">
-    <color rgba="0.0 0.0 0.0 0.2"/>
+    <color rgba="0.0 0.0 0.0 0.025"/>
   </material>
-  <material name="red">
-    <color rgba="1.0 0.0 0.0 1.0"/>
+  <material name="grey">
+    <color rgba="0.5 0.5 0.5 1.0"/>
   </material>
   <material name="white">
     <color rgba="0.8 0.8 0.8 1.0"/>
@@ -54,7 +54,7 @@
       <geometry>
         <box size="0.3 0.8 0.05"/>
       </geometry>
-      <material name="red"/>
+      <material name="grey"/>
     </visual>
   </link>
   <joint name="horizontal_tail_joint" type="fixed">
@@ -80,7 +80,7 @@
       <geometry>
         <box size="0.4 0.05 0.4"/>
       </geometry>
-      <material name="red"/>
+      <material name="grey"/>
     </visual>
   </link>
   <joint name="vertical_tail_joint" type="fixed">
@@ -106,7 +106,7 @@
       <geometry>
         <box size="0.31 0.3 0.06"/>
       </geometry>
-      <material name="red"/>
+      <material name="grey"/>
     </visual>
   </link>
   <joint name="ail_left_joint" type="fixed">
@@ -132,7 +132,7 @@
       <geometry>
         <box size="0.31 0.3 0.06"/>
       </geometry>
-      <material name="red"/>
+      <material name="grey"/>
     </visual>
   </link>
   <joint name="ail_right_joint" type="fixed">
@@ -201,13 +201,13 @@
     </inertial>
     <visual>
       <geometry>
-        <cylinder radius="0.3" length="15.0"/>
+        <cylinder radius="0.15" length="20.0"/>
       </geometry>
       <material name="clear"/>
     </visual>
   </link>
   <joint name="gunsight_joint" type="fixed">
-    <origin rpy="0 1.571 0" xyz="7.5 0 0"/>
+    <origin rpy="0 1.571 0" xyz="10.0 0 0"/>
     <parent link="base_link"/>
     <child link="gunsight_link"/>
   </joint>

@@ -1,4 +1,5 @@
 """QuadX Waypoints Environment."""
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -17,7 +18,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
     The target is a set of `[x, y, z, (optional) yaw]` waypoints in space.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
@@ -51,7 +51,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
@@ -114,7 +113,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -177,7 +175,7 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         self.state: dict[Literal["attitude", "target_deltas"], np.ndarray] = new_state
 
     def compute_term_trunc_reward(self) -> None:
-        """Computes the termination, trunction, and reward of the current timestep."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse

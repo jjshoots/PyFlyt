@@ -1,4 +1,5 @@
 """Common checks."""
+
 import warnings
 from typing import Callable
 

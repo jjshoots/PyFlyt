@@ -1,4 +1,5 @@
 """Defines a basic controller class to inherit from when building custom controllers."""
+
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -17,7 +18,6 @@ class ControlClass(ABC):
         """Step the controller.
 
         Args:
-        ----
             state (np.ndarray): state
             setpoint (np.ndarray): setpoint
 

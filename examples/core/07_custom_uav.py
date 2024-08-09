@@ -1,4 +1,5 @@
 """Implements a custom UAV in the Aviary."""
+
 import numpy as np
 from custom_uavs.rocket_brick import RocketBrick
 

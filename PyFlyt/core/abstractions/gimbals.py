@@ -1,4 +1,5 @@
 """A component to simulate an array of gimbals on vehicle."""
+
 from __future__ import annotations
 
 import warnings
@@ -16,7 +17,6 @@ class Gimbals:
     Each gimbal can rotate about two arbitrary axis that may not be orthogonal to each other.
 
     Args:
-    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -40,7 +40,6 @@ class Gimbals:
         """Used for simulating an array of gimbals.
 
         Args:
-        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -124,7 +123,6 @@ class Gimbals:
         """Gets the current state of the components.
 
         Returns:
-        -------
             np.ndarray: a (2 * num_gimbals, ) array where every pair of values represents the current state of the gimbal
 
         """
@@ -148,11 +146,9 @@ class Gimbals:
         """Returns a rotation vector after the gimbal rotation.
 
         Args:
-        ----
             gimbal_command (np.ndarray): (num_gimbals, 2) array of floats between [-1, 1].
 
         Returns:
-        -------
             rotation_vector (np.ndarray): (num_gimbals, 3, 3) rotation matrices for all gimbals.
 
         """
@@ -191,7 +187,6 @@ class Gimbals:
         """Compute the rotation matrix given the gimbal action values.
 
         Args:
-        ----
             gimbal_angles (np.ndarray): gimbal_angles
             w1 (np.ndarray): w1 from self
             w2 (np.ndarray): w2 from self
@@ -199,7 +194,6 @@ class Gimbals:
             w2_squared (np.ndarray): w2_squared from self
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray]:
 
         """

@@ -1,4 +1,5 @@
 """Spawn a duck object above the drone."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary, loadOBJ, obj_collision, obj_visual

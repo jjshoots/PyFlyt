@@ -1,4 +1,5 @@
 """Spawn a single drone, then command it to go to two setpoints consecutively, and plots the xyz output."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
