@@ -38,7 +38,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         goal_reach_distance: float = 0.2,
         flight_mode: int = 0,
-        flight_dome_size: float = 5.0,
+        flight_dome_size: float = 10.0,
         max_duration_seconds: float = 10.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
@@ -86,6 +86,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
+        
+        self.ball_was_above_last = False
+        self.ball_above_drone = False
 
 
     def add_ball_and_string(self) -> None:
@@ -95,6 +98,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.pendulum_id = self.env.loadURDF(
             targ_obj_dir,
             basePosition=self.env.state(0)[-1] - np.array([0,0,0.3]),
+            baseOrientation=np.array([np.random.rand(), np.random.rand(), 0., 1.0]),
             useFixedBase=False,
             globalScaling=1.0,
         )
@@ -203,11 +207,12 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     def get_ball_state(self) -> np.ndarray:
         """Get the state of the ball in the environment."""
         ball_pos = self.env.getBasePositionAndOrientation(self.pendulum_id)[0]
-        drone_pos = self.env.state(0)[-1] + np.array([0,0,0.1]) # target slightly above
-        ball_rel_to_drone = ball_pos - drone_pos
-        self.ball_drone_dist = np.linalg.norm(ball_rel_to_drone)
-        self.ball_above_drone = ball_rel_to_drone[2] > 0. 
-        return np.array(ball_rel_to_drone)
+        drone_pos = self.env.state(0)[-1]
+        self.ball_rel_to_drone = ball_pos - drone_pos
+        self.ball_drone_dist = np.linalg.norm(self.ball_rel_to_drone)
+        self.ball_was_above_last = self.ball_above_drone
+        self.ball_above_drone = self.ball_rel_to_drone[2] > 0.
+        return np.array(self.ball_rel_to_drone)
 
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, trunction, and reward of the current timestep."""
@@ -215,9 +220,14 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
-            self.reward += 0.1 / self.ball_drone_dist
-            if not self.ball_above_drone:
-                self.reward *= 0.1
+            if self.ball_above_drone:
+                self.reward += -1 * np.log(self.ball_drone_dist)
+            #else:
+                # small penalty proportional to the distance
+                #self.reward += np.log(1. - np.abs(self.ball_rel_to_drone[2]))
+        
+            if self.ball_was_above_last and not self.ball_above_drone:
+                self.termination = True
 
         # target reached
         if self.ball_drone_dist < self.goal_reach_distance:
