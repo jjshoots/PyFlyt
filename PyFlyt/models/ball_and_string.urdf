@@ -5,7 +5,7 @@
   <link name="ball">
     <visual>
       <geometry>
-        <sphere radius="0.1"/>
+        <sphere radius="0.05"/>
       </geometry>
       <material name="black">
         <color rgba="0.0 0.0 0.0 1.0"/>
@@ -13,7 +13,7 @@
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.1"/>
+        <sphere radius="0.05"/>
       </geometry>
     </collision>
     <inertial>

@@ -36,9 +36,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     def __init__(
         self,
         sparse_reward: bool = False,
-        goal_reach_distance: float = 0.2,
+        goal_reach_distance: float = 0.3,
         flight_mode: int = 0,
-        flight_dome_size: float = 10.0,
+        flight_dome_size: float = 5.0,
         max_duration_seconds: float = 10.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
@@ -98,7 +98,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.pendulum_id = self.env.loadURDF(
             targ_obj_dir,
             basePosition=self.env.state(0)[-1] - np.array([0,0,0.3]),
-            baseOrientation=np.array([np.random.rand(), np.random.rand(), 0., 1.0]),
+            baseOrientation=np.array([(np.random.rand()*2)-1., (np.random.rand()*2)-1., (np.random.rand()*2)-1., 1.0]),
             useFixedBase=False,
             globalScaling=1.0,
         )
@@ -220,6 +220,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
+            # small reward [-1, 0] for staying close to origin
+            self.reward -= 1 *(np.linalg.norm(self.start_pos - self.env.state(0)[-1]) / self.flight_dome_size)
             if self.ball_above_drone:
                 self.reward += -1 * np.log(self.ball_drone_dist)
             #else:
