@@ -208,8 +208,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_lin_vel, _ = self.env.getBaseVelocity(self.pendulum_id)
 
         # compute ball state relative to self
-        ball_lin_pos = ball_lin_pos - lin_pos
-        ball_lin_vel = np.matmul(rotation, ball_lin_vel)
+        ball_rel_lin_pos = np.matmul(rotation, ball_lin_pos - lin_pos)
+        ball_rel_lin_vel = np.matmul(rotation, ball_lin_vel)
 
         # compute some stateful parameters
         self.ball_drone_abs_dist = np.linalg.norm(ball_lin_pos)
@@ -217,7 +217,14 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.ball_is_above = ball_lin_pos[2] > 0.0
 
         # concat the attitude and ball state
-        self.state = np.concatenate([attitude, ball_lin_pos, ball_lin_vel], axis=0)
+        self.state = np.concatenate(
+            [
+                attitude,
+                ball_rel_lin_pos,
+                ball_rel_lin_vel,
+            ],
+            axis=0,
+        )
 
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, trunction, and reward of the current timestep."""
@@ -231,12 +238,17 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 / self.flight_dome_size
             ) + 0.5
 
+            # penalty [0, 2] for excessive angles
+            self.reward -= (
+                np.linalg.norm(self.env.state(0)[1][:2]) ** 2
+            )
+
             if self.ball_is_above:
                 # reward [0.38, 2] for bringing the ball close to self
                 self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
             else:
-                # reward [0.0, 0.4] for swinging the ball out
-                self.reward += self.ball_drone_hor_dist
+                # reward [0.0, 0.2] for swinging the ball out
+                self.reward += 0.5 * self.ball_drone_hor_dist
 
         # success
         if self.ball_is_above and (self.ball_drone_abs_dist < self.goal_reach_distance):
