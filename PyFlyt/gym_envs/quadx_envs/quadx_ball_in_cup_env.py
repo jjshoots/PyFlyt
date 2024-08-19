@@ -233,15 +233,16 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             # small reward [-0.5, 0.5] for staying close to origin
-            self.reward += (
-                np.linalg.norm(self.start_pos - self.env.state(0)[-1])
-                / self.flight_dome_size
-            ) + 0.5
-
-            # penalty [0, 2] for excessive angles
-            self.reward -= (
-                np.linalg.norm(self.env.state(0)[1][:2]) ** 2
+            self.reward += 0.5 * (
+                (
+                    np.linalg.norm(self.start_pos - self.env.state(0)[-1])
+                    / self.flight_dome_size
+                )
+                + 0.5
             )
+
+            # penalty [0, 0.7] for excessive angles
+            self.reward -= 0.5 * (np.linalg.norm(self.env.state(0)[1][:2]))
 
             if self.ball_is_above:
                 # reward [0.38, 2] for bringing the ball close to self
