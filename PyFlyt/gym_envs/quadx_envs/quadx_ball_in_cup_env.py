@@ -245,5 +245,3 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # update infos and dones
             self.termination = True
             self.info["env_complete"] = True
-
-        print(self.reward)
