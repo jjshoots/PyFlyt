@@ -97,9 +97,10 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # randomly angle the ball
             baseOrientation=np.array(
                 [
-                    (self.np_random.random() * 2.0) - 1.0,
-                    (self.np_random.random() * 2.0) - 1.0,
-                    (self.np_random.random() * 2.0) - 1.0,
+                    # (self.np_random.random() * 2.0) - 1.0,
+                    0.0,
+                    0.0,
+                    0.0,
                     1.0,
                 ]
             ),
@@ -211,7 +212,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_lin_vel = np.matmul(rotation, ball_lin_vel)
 
         # compute some stateful parameters
-        self.ball_drone_dist = np.linalg.norm(ball_lin_pos)
+        self.ball_drone_abs_dist = np.linalg.norm(ball_lin_pos)
+        self.ball_drone_hor_dist = np.linalg.norm(ball_lin_pos[:2])
         self.ball_is_above = ball_lin_pos[2] > 0.0
 
         # concat the attitude and ball state
@@ -223,18 +225,25 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
-            # small reward [-1, 0] for staying close to origin
-            self.reward -= 1 * (
+            # small reward [-0.5, 0.5] for staying close to origin
+            self.reward += (
                 np.linalg.norm(self.start_pos - self.env.state(0)[-1])
                 / self.flight_dome_size
-            )
+            ) + 0.5
+
             if self.ball_is_above:
-                self.reward -= np.log(self.ball_drone_dist + 1e-2)
+                # reward [0.38, 2] for bringing the ball close to self
+                self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
+            else:
+                # reward [0.0, 0.4] for swinging the ball out
+                self.reward += self.ball_drone_hor_dist
 
         # success
-        if self.ball_is_above and (self.ball_drone_dist < self.goal_reach_distance):
+        if self.ball_is_above and (self.ball_drone_abs_dist < self.goal_reach_distance):
             self.reward = 300.0
 
             # update infos and dones
             self.termination = True
             self.info["env_complete"] = True
+
+        print(self.reward)
