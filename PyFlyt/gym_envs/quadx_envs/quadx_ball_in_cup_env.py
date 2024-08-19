@@ -1,7 +1,7 @@
 """QuadX Ball-in-Cup Environment."""
 from __future__ import annotations
-import os
 
+import os
 from typing import Any, Literal
 
 import numpy as np
@@ -14,15 +14,12 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     """QuadX Ball-in-Cup Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The target is a set of `[x, y, z, (optional) yaw]` waypoints in space.
+    The goal is to swing up the pendulum to be above the UAV.
 
     Args:
     ----
         sparse_reward (bool): whether to use sparse rewards or not.
-        num_targets (int): number of waypoints in the environment.
-        use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
         goal_reach_distance (float): distance to the waypoints for it to be considered reached.
-        goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
         flight_mode (int): the flight mode of the UAV.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
@@ -50,10 +47,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         Args:
         ----
             sparse_reward (bool): whether to use sparse rewards or not.
-            num_targets (int): number of waypoints in the environment.
-            use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
             goal_reach_distance (float): distance to the waypoints for it to be considered reached.
-            goal_reach_angle (float): angle in radians to the waypoints for it to be considered reached, only in effect if `use_yaw_targets` is used.
             flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
@@ -74,31 +68,41 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             render_resolution=render_resolution,
         )
 
-        self.goal_reach_distance = goal_reach_distance
+        self.ball_was_above = False
+        self.ball_is_above = False
 
         # Define observation space
         self.observation_space = spaces.Box(
-                        low=-np.inf,
-                        high=np.inf,
-                        shape=(3 + self.combined_space.shape[0],),
-                        dtype=np.float64,
-                    )
+            low=-np.inf,
+            high=np.inf,
+            shape=(self.combined_space.shape[0] + 6,),
+            dtype=np.float64,
+        )
 
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
-        
-        self.ball_was_above_last = False
-        self.ball_above_drone = False
-
+        self.goal_reach_distance = goal_reach_distance
+        file_dir = os.path.dirname(os.path.realpath(__file__))
+        self.pendulum_filepath = os.path.join(
+            file_dir, "./../../models/ball_and_string.urdf"
+        )
 
     def add_ball_and_string(self) -> None:
+        """Spawns in the ball and string."""
         # spawn in the pendulum
-        file_dir = os.path.dirname(os.path.realpath(__file__))
-        targ_obj_dir = os.path.join(file_dir, "./../../models/ball_and_string.urdf")
         self.pendulum_id = self.env.loadURDF(
-            targ_obj_dir,
-            basePosition=self.env.state(0)[-1] - np.array([0,0,0.3]),
-            baseOrientation=np.array([(np.random.rand()*2)-1., (np.random.rand()*2)-1., (np.random.rand()*2)-1., 1.0]),
+            self.pendulum_filepath,
+            # permanently attach the ball to the drone at a distance of 0.3
+            basePosition=self.env.state(0)[-1] - np.array([0, 0, 0.3]),
+            # randomly angle the ball
+            baseOrientation=np.array(
+                [
+                    (self.np_random.random() * 2.0) - 1.0,
+                    (self.np_random.random() * 2.0) - 1.0,
+                    (self.np_random.random() * 2.0) - 1.0,
+                    1.0,
+                ]
+            ),
             useFixedBase=False,
             globalScaling=1.0,
         )
@@ -107,15 +111,16 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.env.register_all_new_bodies()
 
         # create a constraint between the base of the pendulum object and the drone
+        _zeros = np.zeros((3,), dtype=np.float32)
         self.env.createConstraint(
-            self.env.drones[0].Id,
-            -1,
-            self.pendulum_id,
-            0,
-            self.env.JOINT_POINT2POINT,
-            np.array([0.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, 0.0]),
+            parentBodyUniqueId=self.env.drones[0].Id,
+            parentLinkIndex=-1,
+            childBodyUniqueId=self.pendulum_id,
+            childLinkIndex=0,
+            jointType=self.env.JOINT_POINT2POINT,
+            jointAxis=_zeros,
+            parentFramePosition=_zeros,
+            childFramePosition=_zeros,
         )
 
         # disable motor on the prismatic joint
@@ -128,7 +133,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
     def reset(
         self, *, seed: None | int = None, options: None | dict[str, Any] = dict()
-    ) -> tuple[dict[Literal["attitude", "target_deltas"], np.ndarray], dict]:
+    ) -> tuple[np.ndarray, dict]:
         """Resets the environment.
 
         Args:
@@ -154,24 +159,24 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     def compute_state(self) -> None:
         """Computes the state of the current timestep.
 
-        This returns the observation as well as the distances to target.
-        - "attitude" (Box)
-        ----- ang_vel (vector of 3 values)
-        ----- ang_pos (vector of 3/4 values)
-        ----- lin_vel (vector of 3 values)
-        ----- lin_pos (vector of 3 values)
-        ----- previous_action (vector of 4 values)
-        ----- auxiliary information (vector of 4 values)
-        - "target_deltas" (Sequence)
-        ----- list of body_frame distances to target (vector of 3/4 values)
+        This returns the current vehicle attitude as well as the state of the ball.
+        - ang_vel (vector of 3 values)
+        - ang_pos (vector of 3/4 values)
+        - lin_vel (vector of 3 values)
+        - lin_pos (vector of 3 values)
+        - previous_action (vector of 4 values)
+        - auxiliary information (vector of 4 values)
+        - ball state (vector of 3 values)
         """
         ang_vel, ang_pos, lin_vel, lin_pos, quaternion = super().compute_attitude()
+        rotation = (
+            np.array(self.env.getMatrixFromQuaternion(quaternion)).reshape(3, 3).T
+        )
         aux_state = super().compute_auxiliary()
 
         # combine everything
-        new_state: dict[Literal["attitude", "ball"], np.ndarray] = dict()
         if self.angle_representation == 0:
-            new_state["attitude"] = np.concatenate(
+            attitude = np.concatenate(
                 [
                     ang_vel,
                     ang_pos,
@@ -183,7 +188,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 axis=-1,
             )
         elif self.angle_representation == 1:
-            new_state["attitude"] = np.concatenate(
+            attitude = np.concatenate(
                 [
                     ang_vel,
                     quaternion,
@@ -194,25 +199,23 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 ],
                 axis=-1,
             )
+        else:
+            raise NotImplementedError
 
-        new_state["ball"] = self.get_ball_state()
+        # compute ball state
+        ball_lin_pos, _ = self.env.getBasePositionAndOrientation(self.pendulum_id)
+        ball_lin_vel, _ = self.env.getBaseVelocity(self.pendulum_id)
 
-        self.state: dict[Literal["attitude", "ball"], np.ndarray] = new_state
+        # compute ball state relative to self
+        ball_lin_pos = ball_lin_pos - lin_pos
+        ball_lin_vel = np.matmul(rotation, ball_lin_vel)
+
+        # compute some stateful parameters
+        self.ball_drone_dist = np.linalg.norm(ball_lin_pos)
+        self.ball_is_above = ball_lin_pos[2] > 0.0
 
         # concat the attitude and ball state
-        self.state: np.array = np.concatenate(
-            [new_state["attitude"], new_state["ball"]], axis=0
-        )
-
-    def get_ball_state(self) -> np.ndarray:
-        """Get the state of the ball in the environment."""
-        ball_pos = self.env.getBasePositionAndOrientation(self.pendulum_id)[0]
-        drone_pos = self.env.state(0)[-1]
-        self.ball_rel_to_drone = ball_pos - drone_pos
-        self.ball_drone_dist = np.linalg.norm(self.ball_rel_to_drone)
-        self.ball_was_above_last = self.ball_above_drone
-        self.ball_above_drone = self.ball_rel_to_drone[2] > 0.
-        return np.array(self.ball_rel_to_drone)
+        self.state = np.concatenate([attitude, ball_lin_pos, ball_lin_vel], axis=0)
 
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, trunction, and reward of the current timestep."""
@@ -221,32 +224,17 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             # small reward [-1, 0] for staying close to origin
-            self.reward -= 1 *(np.linalg.norm(self.start_pos - self.env.state(0)[-1]) / self.flight_dome_size)
-            if self.ball_above_drone:
-                self.reward += -1 * np.log(self.ball_drone_dist)
-            #else:
-                # small penalty proportional to the distance
-                #self.reward += np.log(1. - np.abs(self.ball_rel_to_drone[2]))
-        
-            if self.ball_was_above_last and not self.ball_above_drone:
-                self.termination = True
+            self.reward -= 1 * (
+                np.linalg.norm(self.start_pos - self.env.state(0)[-1])
+                / self.flight_dome_size
+            )
+            if self.ball_is_above:
+                self.reward -= np.log(self.ball_drone_dist + 1e-2)
 
-        # target reached
-        if self.ball_drone_dist < self.goal_reach_distance:
-            self.reward = 100.0
+        # success
+        if self.ball_is_above and (self.ball_drone_dist < self.goal_reach_distance):
+            self.reward = 300.0
 
             # update infos and dones
-            self.truncation = True
+            self.termination = True
             self.info["env_complete"] = True
-
-
-
-if __name__ == "__main__":
-    env = QuadXBallInCupEnv(render_mode="human")
-    env.reset()
-    for i in range(1000):
-        obs, rew, done, _, _ = env.step(np.array([0.0, 0, 0, 0.53]))
-        env.render()
-        if done:
-            break
-    env.close()
