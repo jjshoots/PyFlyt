@@ -36,7 +36,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         goal_reach_distance: float = 0.3,
         flight_mode: int = 0,
         flight_dome_size: float = 5.0,
-        max_duration_seconds: float = 10.0,
+        max_duration_seconds: float = 30.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
