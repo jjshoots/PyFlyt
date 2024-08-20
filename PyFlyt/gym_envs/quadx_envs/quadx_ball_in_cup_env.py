@@ -212,9 +212,10 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_rel_lin_vel = np.matmul(rotation, ball_lin_vel)
 
         # compute some stateful parameters
+        self.ball_is_above = ball_lin_pos[2] > 0.0
+        self.ball_upwards_vel = ball_rel_lin_vel[2]
         self.ball_drone_abs_dist = np.linalg.norm(ball_lin_pos)
         self.ball_drone_hor_dist = np.linalg.norm(ball_lin_pos[:2])
-        self.ball_is_above = ball_lin_pos[2] > 0.0
 
         # concat the attitude and ball state
         self.state = np.concatenate(
@@ -241,14 +242,14 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 + 0.5
             )
 
-            # penalty [0, 0.7] for excessive angles
-            self.reward -= 0.5 * (np.linalg.norm(self.env.state(0)[1][:2]))
-
             if self.ball_is_above:
-                # reward [0.38, 2] for bringing the ball close to self
-                self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
+                # reward [0.38, 2](before scale) for bringing the ball close to self
+                self.reward -= 2.0 * np.log(self.ball_drone_abs_dist + 1e-2)
             else:
-                # reward [0.0, 0.2] for swinging the ball out
+                # reward for ball upwards velocity
+                # reward [0, 0.4](before scale) for ball having sideways component
+                # combined, these should encourage swinging behaviour
+                self.reward += 0.5 * self.ball_upwards_vel
                 self.reward += 0.5 * self.ball_drone_hor_dist
 
         # success
