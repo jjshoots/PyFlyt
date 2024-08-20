@@ -249,7 +249,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 # reward for ball upwards velocity
                 # reward [0, 0.4] for ball having sideways component
                 # combined, these should encourage swinging behaviour
-                self.reward += self.ball_upwards_vel
+                self.reward += 3.0 * self.ball_upwards_vel
                 self.reward += self.ball_drone_hor_dist
 
         # success
