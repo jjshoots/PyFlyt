@@ -247,10 +247,10 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 self.reward -= 2.0 * np.log(self.ball_drone_abs_dist + 1e-2)
             else:
                 # reward for ball upwards velocity
-                # reward [0, 0.4](before scale) for ball having sideways component
+                # reward [0, 0.4] for ball having sideways component
                 # combined, these should encourage swinging behaviour
-                self.reward += 0.5 * self.ball_upwards_vel
-                self.reward += 0.5 * self.ball_drone_hor_dist
+                self.reward += self.ball_upwards_vel
+                self.reward += self.ball_drone_hor_dist
 
         # success
         if self.ball_is_above and (self.ball_drone_abs_dist < self.goal_reach_distance):
