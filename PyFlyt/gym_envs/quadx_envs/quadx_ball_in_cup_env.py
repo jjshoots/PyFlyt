@@ -211,10 +211,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_rel_lin_vel = np.matmul(rotation, ball_lin_vel)
 
         # compute some stateful parameters
-        self.ball_is_above = ball_lin_pos[2] > 0.0
-        self.ball_upwards_vel = ball_rel_lin_vel[2]
+        self.ball_rel_height = ball_lin_pos[2] - lin_pos[2]
         self.ball_drone_abs_dist = np.linalg.norm(ball_lin_pos)
-        self.ball_drone_hor_dist = np.linalg.norm(ball_lin_pos[:2])
 
         # concat the attitude and ball state
         self.state = np.concatenate(
@@ -241,20 +239,27 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 + 0.5
             )
 
-            if self.ball_is_above:
+            if self.ball_rel_height > 0.0:
                 # reward [0.38, 2](before scale) for bringing the ball close to self
-                self.reward -= 2.0 * np.log(self.ball_drone_abs_dist + 1e-2)
+                self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
             else:
-                # reward for ball upwards velocity
-                # reward [0, 0.4] for ball having sideways component
+                # penalty (because ball_rel_height < 0) when ball below drone
                 # combined, these should encourage swinging behaviour
-                self.reward += 3.0 * self.ball_upwards_vel
-                self.reward += self.ball_drone_hor_dist
+                self.reward += self.ball_rel_height
 
-        # success
-        if self.ball_is_above and (self.ball_drone_abs_dist < self.goal_reach_distance):
+        if self.ball_drone_abs_dist > self.goal_reach_distance:
+            return
+
+        if self.ball_rel_height < 0.0:
+            # success
             self.reward = 300.0
-
-            # update infos and dones
             self.termination = True
             self.info["env_complete"] = True
+            return
+
+        elif self.env.contact_array[self.pendulum_id, self.env.drones[0].Id]:
+            # ball hitting self is bad
+            self.reward = -100.0
+            self.termination = True
+            self.info["self_collision"] = True
+            return
