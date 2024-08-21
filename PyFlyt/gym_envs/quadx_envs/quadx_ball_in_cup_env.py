@@ -97,10 +97,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # randomly angle the ball
             baseOrientation=np.array(
                 [
-                    # (self.np_random.random() * 2.0) - 1.0,
-                    0.0,
-                    0.0,
-                    0.0,
+                    (self.np_random.random() * 2.0) - 1.0,
+                    (self.np_random.random() * 2.0) - 1.0,
+                    (self.np_random.random() * 2.0) - 1.0,
                     1.0,
                 ]
             ),
