@@ -43,9 +43,9 @@
     <parent link="ball"/>
     <child link="anchor"/>
     <!-- default string length -->
-    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <origin xyz="0 0 0.5" rpy="0 0 0"/>
     <!-- maximum string length -->
-    <limit lower="0.0" upper="0.4" effort="0.0"/>
+    <limit lower="0.0" upper="1.0" effort="0.0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
