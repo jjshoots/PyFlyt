@@ -247,18 +247,19 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 # combined, these should encourage swinging behaviour
                 self.reward += self.ball_rel_height
 
+        # skip all following checks when ball is still far
         if self.ball_drone_abs_dist > self.goal_reach_distance:
             return
 
-        if self.ball_rel_height < 0.0:
-            # success
+        # success
+        if self.ball_rel_height > 0.0:
             self.reward = 300.0
             self.termination = True
             self.info["env_complete"] = True
             return
 
-        elif self.env.contact_array[self.pendulum_id, self.env.drones[0].Id]:
-            # ball hitting self is bad
+        # ball hitting self is bad
+        if self.env.contact_array[self.pendulum_id, self.env.drones[0].Id]:
             self.reward = -100.0
             self.termination = True
             self.info["self_collision"] = True
