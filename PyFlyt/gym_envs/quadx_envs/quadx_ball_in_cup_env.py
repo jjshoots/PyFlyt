@@ -226,10 +226,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, trunction, and reward of the current timestep."""
-        super().compute_base_term_trunc_reward(
-            collision_penalty=-1000.0,
-            out_of_bounds_penalty=-1000.0,
-        )
+        super().compute_base_term_trunc_reward()
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
@@ -237,9 +234,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 # reward [0.38, 2](before scale) for bringing the ball close to self
                 self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
             else:
-                # penalty (because ball_rel_height < 0) when ball below drone
+                # penalty when ball below drone
                 # combined, these should encourage swinging behaviour
-                self.reward += self.ball_rel_height
+                self.reward -= 2.0 * ((self.ball_rel_height) ** 2)
 
         # skip all following checks when ball is still far
         if self.ball_drone_abs_dist > self.goal_reach_distance:
