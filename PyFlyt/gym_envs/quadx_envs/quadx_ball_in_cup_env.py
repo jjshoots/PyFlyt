@@ -35,7 +35,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         goal_reach_distance: float = 0.2,
         flight_mode: int = -1,
-        flight_dome_size: float = 5.0,
+        flight_dome_size: float = 10.0,
         max_duration_seconds: float = 30.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
@@ -58,7 +58,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         """
         super().__init__(
-            start_pos=np.array([[0.0, 0.0, 2.0]]),
+            start_pos=np.array([[0.0, 0.0, 3.0]]),
             flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
@@ -230,15 +230,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
-            # small reward [-0.3, 0.3] for staying close to origin
-            self.reward += 0.3 * (
-                (
-                    np.linalg.norm(self.start_pos - self.env.state(0)[-1])
-                    / self.flight_dome_size
-                )
-                + 0.5
-            )
-
             if self.ball_rel_height > 0.0:
                 # reward [0.38, 2](before scale) for bringing the ball close to self
                 self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
