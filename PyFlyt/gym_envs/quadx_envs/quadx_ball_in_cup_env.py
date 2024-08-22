@@ -232,11 +232,11 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             if self.ball_rel_height > 0.0:
                 # reward [0.38, 2](before scale) for bringing the ball close to self
-                self.reward -= np.log(self.ball_drone_abs_dist + 1e-2)
+                self.reward -= 1.0 / (self.ball_drone_abs_dist + 1e-2)
             else:
                 # penalty when ball below drone
                 # combined, these should encourage swinging behaviour
-                self.reward -= 2.0 * ((self.ball_rel_height) ** 2)
+                self.reward += self.ball_rel_height
 
         # skip all following checks when ball is still far
         if self.ball_drone_abs_dist > self.goal_reach_distance:
