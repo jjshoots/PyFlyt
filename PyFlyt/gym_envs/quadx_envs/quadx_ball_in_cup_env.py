@@ -36,7 +36,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         goal_reach_distance: float = 0.2,
         flight_mode: int = -1,
         flight_dome_size: float = 10.0,
-        max_duration_seconds: float = 30.0,
+        max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
@@ -58,7 +58,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         """
         super().__init__(
-            start_pos=np.array([[0.0, 0.0, 3.0]]),
+            start_pos=np.array([[0.0, 0.0, 4.0]]),
             flight_mode=flight_mode,
             flight_dome_size=flight_dome_size,
             max_duration_seconds=max_duration_seconds,
@@ -97,9 +97,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # randomly angle the ball
             baseOrientation=np.array(
                 [
-                    (self.np_random.random() * 1.0) - 0.5,
-                    (self.np_random.random() * 1.0) - 0.5,
-                    (self.np_random.random() * 1.0) - 0.5,
+                    (self.np_random.random() * 2.0) - 1.0,
+                    (self.np_random.random() * 2.0) - 1.0,
+                    (self.np_random.random() * 2.0) - 1.0,
                     1.0,
                 ]
             ),
