@@ -250,33 +250,21 @@ class QuadXBaseEnv(gymnasium.Env):
         """compute_term_trunc_reward."""
         raise NotImplementedError
 
-    def compute_base_term_trunc_reward(
-        self,
-        collision_penalty: float = -100.0,
-        out_of_bounds_penalty: float = -100.0,
-    ) -> None:
-        """compute_base_term_trunc_reward.
-
-        Args:
-            collision_penalty (float): collision_penalty
-            out_of_bounds_penalty (float): out_of_bounds_penalty
-
-        Returns:
-            None:
-        """
+    def compute_base_term_trunc_reward(self) -> None:
+        """compute_base_term_trunc_reward."""
         # exceed step count
         if self.step_count > self.max_steps:
             self.truncation |= True
 
         # if anything hits the floor, basically game over
         if np.any(self.env.contact_array[self.env.planeId]):
-            self.reward = collision_penalty
+            self.reward = -100.0
             self.info["collision"] = True
             self.termination |= True
 
         # exceed flight dome
         if np.linalg.norm(self.env.state(0)[-1]) > self.flight_dome_size:
-            self.reward = out_of_bounds_penalty
+            self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination |= True
 
