@@ -226,7 +226,10 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, trunction, and reward of the current timestep."""
-        super().compute_base_term_trunc_reward()
+        super().compute_base_term_trunc_reward(
+            collision_penalty=-1000.0,
+            out_of_bounds_penalty=-1000.0,
+        )
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
@@ -251,7 +254,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         # ball hitting self is bad
         if self.env.contact_array[self.pendulum_id, self.env.drones[0].Id]:
-            self.reward = -100.0
+            self.reward = -300.0
             self.termination = True
             self.info["self_collision"] = True
             return
