@@ -235,8 +235,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             self.reward -= 0.02 * np.linalg.norm(self.env.state(0)[2]) ** 2
 
             if self.ball_rel_height > 0.0:
-                # reward [0.38, 2](before scale) for bringing the ball close to self
-                self.reward += 1.0 / (self.ball_drone_abs_dist + 1e-2)
+                # reward [1, 6](before scale) for bringing the ball close to self
+                self.reward += 3.0 / (self.ball_drone_abs_dist + 1e-2)
             else:
                 # penalty when ball below drone
                 self.reward += self.ball_rel_height
