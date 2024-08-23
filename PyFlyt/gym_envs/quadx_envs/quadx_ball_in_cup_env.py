@@ -211,8 +211,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_rel_lin_vel = np.matmul(rotation, ball_lin_vel)
 
         # compute some stateful parameters
-        self.ball_rel_height = ball_lin_pos[2] - lin_pos[2]
-        self.ball_drone_abs_dist = np.linalg.norm(ball_lin_pos)
+        ball_drone_dist = ball_lin_pos - lin_pos
+        self.ball_rel_height = ball_drone_dist[2]
+        self.ball_drone_abs_dist = np.linalg.norm(ball_drone_dist)
 
         # concat the attitude and ball state
         self.state = np.concatenate(
