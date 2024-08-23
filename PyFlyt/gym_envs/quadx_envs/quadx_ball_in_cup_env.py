@@ -230,9 +230,12 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
+            # reward for staying alive
+            self.reward += 0.1
+
             # penalty for aggressive maneuvres
-            self.reward -= 0.02 * np.linalg.norm(self.env.state(0)[0]) ** 2
-            self.reward -= 0.02 * np.linalg.norm(self.env.state(0)[2]) ** 2
+            self.reward -= 0.01 * np.linalg.norm(self.env.state(0)[0]) ** 2
+            self.reward -= 0.01 * np.linalg.norm(self.env.state(0)[2]) ** 2
 
             if self.ball_rel_height > 0.0:
                 # reward [1, 6](before scale) for bringing the ball close to self
