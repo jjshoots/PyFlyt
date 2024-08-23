@@ -34,7 +34,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self,
         sparse_reward: bool = False,
         goal_reach_distance: float = 0.2,
-        flight_mode: int = -1,
+        flight_mode: int = 0,
         flight_dome_size: float = 10.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
@@ -231,8 +231,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             # penalty for aggressive maneuvres
-            self.reward -= 0.2 * np.linalg.norm(self.env.state(0)[0] ** 2)
-            self.reward -= 0.2 * np.linalg.norm(self.env.state(0)[2] ** 2)
+            self.reward -= 0.02 * np.linalg.norm(self.env.state(0)[0]) ** 2
+            self.reward -= 0.02 * np.linalg.norm(self.env.state(0)[2]) ** 2
 
             if self.ball_rel_height > 0.0:
                 # reward [0.38, 2](before scale) for bringing the ball close to self
