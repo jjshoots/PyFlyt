@@ -228,9 +228,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         """Computes the termination, trunction, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
-        # bonus for just staying alive
-        self.reward += 1.0
-
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             if self.ball_rel_height > 0.0:
