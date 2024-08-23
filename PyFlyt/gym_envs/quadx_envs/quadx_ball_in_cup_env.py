@@ -238,7 +238,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 self.reward += 1.0 / (self.ball_drone_abs_dist + 1e-2)
             else:
                 # penalty when ball below drone
-                # combined, these should encourage swinging behaviour
                 self.reward += self.ball_rel_height
 
         # skip all following checks when ball is still far
