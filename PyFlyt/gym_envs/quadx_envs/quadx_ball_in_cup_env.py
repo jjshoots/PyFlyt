@@ -235,10 +235,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             self.reward += 0.1
 
             # penalty for aggressive maneuvres, and try to stay close to origin
-            self.reward -= 0.01 * np.linalg.norm(self.env.state(0)[0]) ** 2
-            self.reward -= 0.01 * np.linalg.norm(self.env.state(0)[1]) ** 2
-            self.reward -= 0.01 * np.linalg.norm(self.env.state(0)[2]) ** 2
-            self.reward -= 0.01 * np.linalg.norm(self.env.state(0)[3]) ** 2
+            self.reward -= 0.01 * np.linalg.norm(np.asarray(self.env.state), axis=-1) ** 2
 
             if self.ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
