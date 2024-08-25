@@ -71,9 +71,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             render_resolution=render_resolution,
         )
 
-        self.ball_was_above = False
-        self.ball_is_above = False
-
         # Define observation space
         self.observation_space = spaces.Box(
             low=-np.inf,
@@ -257,7 +254,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
             if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
-                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-6)
+                self.reward -= 3.0 * np.log(0.45 * ball_rel_abs_dist + 1e-3)
             else:
                 # penalty when ball below drone
                 self.reward += ball_rel_height
@@ -284,4 +281,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # if it's up, but we're not at the winning criteria yet,
             # reward for approaching goal position
             if not self.sparse_reward:
-                self.reward += 1.0 * (self.drone_state_prev_error[-1] - self.drone_state_error[-1])
+                self.reward += 1.0 * (
+                    self.drone_state_prev_error[-1] - self.drone_state_error[-1]
+                )
