@@ -19,7 +19,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     Args:
     ----
         sparse_reward (bool): whether to use sparse rewards or not.
-        goal_reach_distance (float): distance to the waypoints for it to be considered reached.
+        goal_reach_distance (float): minimum distance from the ending position that the UAV must reach for success.
+        goal_reach_velocity (float): maximum velocity that the UAV must maintain at the ending position for success.
         flight_mode (int): the flight mode of the UAV.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
@@ -34,8 +35,9 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self,
         sparse_reward: bool = False,
         goal_reach_distance: float = 0.2,
-        flight_mode: int = 0,
-        flight_dome_size: float = 10.0,
+        goal_reach_velocity: float = 0.2,
+        flight_mode: int = -1,
+        flight_dome_size: float = 30.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 30,
@@ -47,7 +49,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         Args:
         ----
             sparse_reward (bool): whether to use sparse rewards or not.
-            goal_reach_distance (float): distance to the waypoints for it to be considered reached.
+            goal_reach_distance (float): minimum distance from the ending position that the UAV must reach for success.
+            goal_reach_velocity (float): maximum velocity that the UAV must maintain at the ending position for success.
             flight_mode (int): the flight mode of the UAV.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
@@ -82,6 +85,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         """ ENVIRONMENT CONSTANTS """
         self.sparse_reward = sparse_reward
         self.goal_reach_distance = goal_reach_distance
+        self.goal_reach_velocity = goal_reach_velocity
         file_dir = os.path.dirname(os.path.realpath(__file__))
         self.pendulum_filepath = os.path.join(
             file_dir, "./../../models/ball_and_string.urdf"
@@ -203,24 +207,19 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             raise NotImplementedError
 
         # compute ball state
-        ball_lin_pos, _ = self.env.getBasePositionAndOrientation(self.pendulum_id)
-        ball_lin_vel, _ = self.env.getBaseVelocity(self.pendulum_id)
+        self.ball_lin_pos, _ = self.env.getBasePositionAndOrientation(self.pendulum_id)
+        self.ball_lin_vel, _ = self.env.getBaseVelocity(self.pendulum_id)
 
         # compute ball state relative to self
-        ball_rel_lin_pos = np.matmul(rotation, ball_lin_pos - lin_pos)
-        ball_rel_lin_vel = np.matmul(rotation, ball_lin_vel)
-
-        # compute some stateful parameters
-        ball_drone_dist = ball_lin_pos - lin_pos
-        self.ball_rel_height = ball_drone_dist[2]
-        self.ball_drone_abs_dist = np.linalg.norm(ball_drone_dist)
+        self.ball_rel_lin_pos = np.matmul(rotation, self.ball_lin_pos - lin_pos)
+        self.ball_rel_lin_vel = np.matmul(rotation, self.ball_lin_vel)
 
         # concat the attitude and ball state
         self.state = np.concatenate(
             [
                 attitude,
-                ball_rel_lin_pos,
-                ball_rel_lin_vel,
+                self.ball_rel_lin_pos,
+                self.ball_rel_lin_vel,
             ],
             axis=0,
         )
@@ -229,41 +228,56 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         """Computes the termination, trunction, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
+        # compute some parameters of the drone
+        # drone_state: [4, 3]
+        # drone_state_error: [4,]
+        drone_state = self.env.state(0)
+        drone_state_error = drone_state.copy()
+        drone_state_error[-1] -= np.array([0.0, 0.0, 1.0])
+        drone_state_error = np.linalg.norm(drone_state, axis=-1) ** 2
+        drone_state_prev_error = drone_state_error.copy()
+
+        # compute some parameters of the ball
+        # lin_pos: [3,], height: [1,], abs_dist: [1,]
+        ball_rel_lin_pos = self.ball_lin_pos - self.env.state(0)[-1]
+        ball_rel_height = ball_rel_lin_pos[2]
+        ball_rel_abs_dist = np.linalg.norm(ball_rel_lin_pos)
+
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             # reward for staying alive
-            self.reward += 0.1
+            self.reward += 0.2
 
             # penalty for aggressive maneuvres, and try to stay close to origin
-            self.reward -= 0.01 * np.sum(
-                np.linalg.norm(
-                    np.asarray(self.env.state(0)),
-                    axis=-1,
-                ) ** 2
-            )
+            self.reward -= 0.01 * np.sum(drone_state_error)
 
-            if self.ball_rel_height > 0.0:
+            if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
-                self.reward -= 4.0 * np.log(0.45 * self.ball_drone_abs_dist + 1e-6)
-                # self.reward += 3.0 / (self.ball_drone_abs_dist + 1e-2)
+                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-6)
             else:
                 # penalty when ball below drone
-                self.reward += self.ball_rel_height
+                self.reward += ball_rel_height
 
-        # skip all following checks when ball is still far
-        if self.ball_drone_abs_dist > self.goal_reach_distance:
-            return
-
-        # success
-        if self.ball_rel_height > 0.0:
-            self.reward = 300.0
-            self.termination = True
-            self.info["env_complete"] = True
-            return
-
-        # ball hitting self is bad
+        # when the ball hit the drone, either success or failure
         if self.env.contact_array[self.pendulum_id, self.env.drones[0].Id]:
-            self.reward = -300.0
-            self.termination = True
-            self.info["self_collision"] = True
-            return
+            # hitting self is bad
+            if ball_rel_height < 0.0:
+                self.reward = -300.0
+                self.termination = True
+                self.info["self_collision"] = True
+                return
+
+            # if the ball is above us, we need to check the success criteria
+            if (
+                drone_state_error[-1] < self.goal_reach_distance
+                and drone_state_error[-2] < self.goal_reach_velocity
+            ):
+                self.reward = 300.0
+                self.termination = True
+                self.info["env_complete"] = True
+                return
+
+            # if it's up, but we're not at the winning criteria yet
+            # reward for being close to goal position
+            if not self.sparse_reward:
+                self.reward += 3.0 * (drone_state_prev_error[-1] - drone_state_error[-1])
