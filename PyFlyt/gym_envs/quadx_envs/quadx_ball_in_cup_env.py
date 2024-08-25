@@ -14,7 +14,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     """QuadX Ball-in-Cup Environment.
 
     Actions are vp, vq, vr, T, ie: angular rates and thrust.
-    The goal is to swing up the pendulum to be above the UAV.
+    The goal is to swing up a suspended ball onto the drone, and then bring it to the starting position.
 
     Args:
     ----
