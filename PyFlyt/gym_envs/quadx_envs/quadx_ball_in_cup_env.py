@@ -36,7 +36,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         sparse_reward: bool = False,
         goal_reach_distance: float = 0.2,
         goal_reach_velocity: float = 0.2,
-        flight_mode: int = -1,
+        flight_mode: int = 0,
         flight_dome_size: float = 30.0,
         max_duration_seconds: float = 20.0,
         angle_representation: Literal["euler", "quaternion"] = "quaternion",
@@ -154,10 +154,16 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             camera_FOV_degrees=140,
         )
         super().begin_reset(seed, drone_options=options)
+
+        # add the ball
         self.add_ball_and_string()
+
+        # stateful params with history for the ball
+        self.drone_state_error = np.zeros((4,), dtype=np.float32)
+        self.drone_state_prev_error = np.zeros((4,), dtype=np.float32)
+
         super().end_reset()
         self.compute_state()
-
         return self.state, self.info
 
     def compute_state(self) -> None:
@@ -214,6 +220,13 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.ball_rel_lin_pos = np.matmul(rotation, self.ball_lin_pos - lin_pos)
         self.ball_rel_lin_vel = np.matmul(rotation, self.ball_lin_vel)
 
+        # drone_state: [4, 3]
+        # drone_state_error: [4,]
+        self.drone_state_prev_error = self.drone_state_error.copy()
+        self.drone_state_error = self.env.state(0).copy()
+        self.drone_state_error[-1] -= np.array([0.0, 0.0, 1.0])
+        self.drone_state_error = np.linalg.norm(self.drone_state_error, axis=-1) ** 2
+
         # concat the attitude and ball state
         self.state = np.concatenate(
             [
@@ -228,15 +241,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         """Computes the termination, trunction, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
-        # compute some parameters of the drone
-        # drone_state: [4, 3]
-        # drone_state_error: [4,]
-        drone_state = self.env.state(0)
-        drone_state_error = drone_state.copy()
-        drone_state_error[-1] -= np.array([0.0, 0.0, 1.0])
-        drone_state_error = np.linalg.norm(drone_state, axis=-1) ** 2
-        drone_state_prev_error = drone_state_error.copy()
-
         # compute some parameters of the ball
         # lin_pos: [3,], height: [1,], abs_dist: [1,]
         ball_rel_lin_pos = self.ball_lin_pos - self.env.state(0)[-1]
@@ -249,7 +253,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             self.reward += 0.2
 
             # penalty for aggressive maneuvres, and try to stay close to origin
-            self.reward -= 0.01 * np.sum(drone_state_error)
+            self.reward -= 0.01 * np.sum(self.drone_state_error)
 
             if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
@@ -262,22 +266,22 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         if self.env.contact_array[self.pendulum_id, self.env.drones[0].Id]:
             # hitting self is bad
             if ball_rel_height < 0.0:
-                self.reward = -300.0
+                self.reward = -500.0
                 self.termination = True
                 self.info["self_collision"] = True
                 return
 
             # if the ball is above us, we need to check the success criteria
             if (
-                drone_state_error[-1] < self.goal_reach_distance
-                and drone_state_error[-2] < self.goal_reach_velocity
+                self.drone_state_error[-1] < self.goal_reach_distance
+                and self.drone_state_error[-2] < self.goal_reach_velocity
             ):
-                self.reward = 300.0
+                self.reward = 500.0
                 self.termination = True
                 self.info["env_complete"] = True
                 return
 
-            # if it's up, but we're not at the winning criteria yet
-            # reward for being close to goal position
+            # if it's up, but we're not at the winning criteria yet,
+            # reward for approaching goal position
             if not self.sparse_reward:
-                self.reward += 3.0 * (drone_state_prev_error[-1] - drone_state_error[-1])
+                self.reward += 1.0 * (self.drone_state_prev_error[-1] - self.drone_state_error[-1])
