@@ -98,7 +98,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             self.cup_filepath,
             basePosition=self.env.state(0)[-1] + np.array([0.0, 0.0, 0.035]),
             baseOrientation=np.array([0.0, 0.0, 0.0, 1.0]),
-            useFixedBase=True,
+            useFixedBase=False,
             globalScaling=1.0,
         )
         # spawn in the pendulum
