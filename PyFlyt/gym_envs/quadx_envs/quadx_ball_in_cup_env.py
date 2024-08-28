@@ -87,9 +87,20 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.pendulum_filepath = os.path.join(
             file_dir, "./../../models/ball_and_string.urdf"
         )
+        self.cup_filepath = os.path.join(
+            file_dir, "./../../models/cup.urdf"
+        )
 
-    def add_ball_and_string(self) -> None:
-        """Spawns in the ball and string."""
+    def add_ball_and_string_and_cup(self) -> None:
+        """Spawns in the ball and string and cup."""
+        # spawn in the cup
+        self.cup_id = self.env.loadURDF(
+            self.cup_filepath,
+            basePosition=self.env.state(0)[-1] + np.array([0.0, 0.0, 0.035]),
+            baseOrientation=np.array([0.0, 0.0, 0.0, 1.0]),
+            useFixedBase=True,
+            globalScaling=1.0,
+        )
         # spawn in the pendulum
         self.pendulum_id = self.env.loadURDF(
             self.pendulum_filepath,
@@ -111,8 +122,19 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         # register all new bodies with Aviary
         self.env.register_all_new_bodies()
 
-        # create a constraint between the base of the pendulum object and the drone
+        # create a constraint between the base of the cup object and the drone
         _zeros = np.zeros((3,), dtype=np.float32)
+        self.env.createConstraint(
+            parentBodyUniqueId=self.env.drones[0].Id,
+            parentLinkIndex=-1,
+            childBodyUniqueId=self.cup_id,
+            childLinkIndex=-1,
+            jointType=self.env.JOINT_FIXED,
+            jointAxis=_zeros,
+            parentFramePosition=_zeros,
+            childFramePosition=np.array([0.0, 0.0, -0.035]),
+        )
+        # create a constraint between the base of the pendulum object and the drone
         self.env.createConstraint(
             parentBodyUniqueId=self.env.drones[0].Id,
             parentLinkIndex=-1,
@@ -153,7 +175,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         super().begin_reset(seed, drone_options=options)
 
         # add the ball
-        self.add_ball_and_string()
+        self.add_ball_and_string_and_cup()
 
         # stateful params with history for the ball
         self.drone_state_error = np.zeros((4,), dtype=np.float32)
@@ -247,7 +269,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             # reward for staying alive
-            self.reward += 0.2
+            self.reward += 0.4
 
             # penalty for aggressive maneuvres, and try to stay close to origin
             self.reward -= 0.01 * np.sum(self.drone_state_error)
