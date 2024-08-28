@@ -87,9 +87,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         self.pendulum_filepath = os.path.join(
             file_dir, "./../../models/ball_and_string.urdf"
         )
-        self.cup_filepath = os.path.join(
-            file_dir, "./../../models/cup.urdf"
-        )
+        self.cup_filepath = os.path.join(file_dir, "./../../models/cup.urdf")
 
     def add_ball_and_string_and_cup(self) -> None:
         """Spawns in the ball and string and cup."""
