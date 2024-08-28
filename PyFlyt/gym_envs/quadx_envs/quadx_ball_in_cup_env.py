@@ -271,9 +271,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # reward for staying alive
             self.reward += 0.4
 
-            # penalty for aggressive maneuvres, and try to stay close to origin
-            self.reward -= 0.01 * np.sum(self.drone_state_error)
-
             if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
                 self.reward -= 3.0 * np.log(0.45 * ball_rel_abs_dist + 1e-3)
