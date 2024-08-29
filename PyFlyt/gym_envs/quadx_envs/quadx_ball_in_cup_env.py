@@ -34,8 +34,8 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     def __init__(
         self,
         sparse_reward: bool = False,
-        goal_reach_distance: float = 0.2,
-        goal_reach_velocity: float = 0.2,
+        goal_reach_distance: float = 1.0,
+        goal_reach_velocity: float = 1.0,
         flight_mode: int = 0,
         flight_dome_size: float = 30.0,
         max_duration_seconds: float = 20.0,
@@ -275,7 +275,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
             if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
-                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-3)
+                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-1)
             else:
                 # penalty when ball below drone
                 self.reward += ball_rel_height
@@ -302,6 +302,10 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # if it's up, but we're not at the winning criteria yet,
             # reward for approaching goal position
             if not self.sparse_reward:
-                self.reward += 1.0 * (
+                self.reward += 10.0 * (
                     self.drone_state_prev_error[-1] - self.drone_state_error[-1]
                 )
+                self.reward -= 5.0 * np.linalg.norm(self.env.state(0)[-2])
+
+                # drop the ball-close-to-self reward to encourage going to the goal
+                self.reward -= 3.0
