@@ -16,7 +16,7 @@
   <link name="left_wall">
     <collision>
       <geometry>
-        <box size="0.01 0.15 0.1"/>
+        <box size="0.01 0.2 0.1"/>
       </geometry>
     </collision>
     <inertial>
@@ -25,7 +25,7 @@
   	</inertial>
     <visual>
       <geometry>
-        <box size="0.01 0.15 0.1"/>
+        <box size="0.01 0.2 0.1"/>
       </geometry>
       <material name="red">
         <color rgba="1.0 0.0 0.0 1.0"/>
@@ -35,13 +35,13 @@
   <joint name="base_to_left" type="fixed">
     <parent link="base_link"/>
     <child link="left_wall"/>
-    <origin xyz="0.075 0.0 0.05"/>
+    <origin xyz="0.1 0.0 0.05"/>
   </joint>
 
   <link name="right_wall">
     <collision>
       <geometry>
-        <box size="0.01 0.15 0.1"/>
+        <box size="0.01 0.2 0.1"/>
       </geometry>
     </collision>
     <inertial>
@@ -50,7 +50,7 @@
   	</inertial>
     <visual>
       <geometry>
-        <box size="0.01 0.15 0.1"/>
+        <box size="0.01 0.2 0.1"/>
       </geometry>
       <material name="red">
         <color rgba="1.0 0.0 0.0 1.0"/>
@@ -60,13 +60,13 @@
   <joint name="base_to_right" type="fixed">
     <parent link="base_link"/>
     <child link="right_wall"/>
-    <origin xyz="-0.075 0.0 0.05"/>
+    <origin xyz="-0.1 0.0 0.05"/>
   </joint>
 
   <link name="front_wall">
     <collision>
       <geometry>
-        <box size="0.15 0.01 0.1"/>
+        <box size="0.2 0.01 0.1"/>
       </geometry>
     </collision>
     <inertial>
@@ -75,7 +75,7 @@
   	</inertial>
     <visual>
       <geometry>
-        <box size="0.15 0.01 0.1"/>
+        <box size="0.2 0.01 0.1"/>
       </geometry>
       <material name="red">
         <color rgba="1.0 0.0 0.0 1.0"/>
@@ -85,13 +85,13 @@
   <joint name="base_to_front" type="fixed">
     <parent link="base_link"/>
     <child link="front_wall"/>
-    <origin xyz="0.0 -0.075 0.05"/>
+    <origin xyz="0.0 -0.1 0.05"/>
   </joint>
 
   <link name="back_wall">
     <collision>
       <geometry>
-        <box size="0.15 0.01 0.1"/>
+        <box size="0.2 0.01 0.1"/>
       </geometry>
     </collision>
     <inertial>
@@ -100,7 +100,7 @@
   	</inertial>
     <visual>
       <geometry>
-        <box size="0.15 0.01 0.1"/>
+        <box size="0.2 0.01 0.1"/>
       </geometry>
       <material name="red">
         <color rgba="1.0 0.0 0.0 1.0"/>
@@ -110,6 +110,6 @@
   <joint name="base_to_back" type="fixed">
     <parent link="base_link"/>
     <child link="back_wall"/>
-    <origin xyz="0.0 0.075 0.05"/>
+    <origin xyz="0.0 0.1 0.05"/>
   </joint>
 </robot>

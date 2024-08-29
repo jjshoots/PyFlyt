@@ -264,14 +264,18 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_rel_height = ball_rel_lin_pos[2]
         ball_rel_abs_dist = np.linalg.norm(ball_rel_lin_pos)
 
+
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             # reward for staying alive
             self.reward += 0.4
 
+            # penalty for aggressive maneuvres, and try to stay close to origin
+            self.reward -= 0.01 * np.sum(self.drone_state_error)
+
             if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
-                self.reward -= 3.0 * np.log(0.45 * ball_rel_abs_dist + 1e-3)
+                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-3)
             else:
                 # penalty when ball below drone
                 self.reward += ball_rel_height
