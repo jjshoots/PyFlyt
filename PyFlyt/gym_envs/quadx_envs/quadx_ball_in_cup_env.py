@@ -294,7 +294,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 self.drone_state_error[-1] < self.goal_reach_distance
                 and self.drone_state_error[-2] < self.goal_reach_velocity
             ):
-                self.reward = 500.0
+                self.reward = 1500.0
                 self.termination = True
                 self.info["env_complete"] = True
                 return
@@ -302,10 +302,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
             # if it's up, but we're not at the winning criteria yet,
             # reward for approaching goal position
             if not self.sparse_reward:
-                self.reward += 10.0 * (
+                self.reward += 20.0 * (
                     self.drone_state_prev_error[-1] - self.drone_state_error[-1]
                 )
-                self.reward -= 5.0 * np.linalg.norm(self.env.state(0)[-2])
-
-                # drop the ball-close-to-self reward to encourage going to the goal
-                self.reward -= 3.0
+                self.reward += 10.0 / (self.drone_state_error[-1] + 0.1)
