@@ -294,7 +294,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 self.drone_state_error[-1] < self.goal_reach_distance
                 and self.drone_state_error[-2] < self.goal_reach_velocity
             ):
-                self.reward = 1500.0
+                self.reward = 10000.0
                 self.termination = True
                 self.info["env_complete"] = True
                 return
