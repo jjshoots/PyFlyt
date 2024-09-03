@@ -275,7 +275,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
 
             if ball_rel_height > 0.0:
                 # reward for bringing the ball close to self
-                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-2)
+                self.reward -= 4.0 * np.log(0.45 * ball_rel_abs_dist + 1e-3)
             else:
                 # penalty when ball below drone
                 self.reward += ball_rel_height
@@ -295,6 +295,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 and self.drone_state_error[-2] < self.goal_reach_velocity
             ):
                 # hack: use truncation here, otherwise we need a HUGE reward to end
+                self.reward += 1000.0
                 self.truncation = True
                 self.info["env_complete"] = True
                 return
@@ -306,4 +307,3 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                     self.drone_state_prev_error[-1] - self.drone_state_error[-1]
                 )
                 self.reward += 5.0 / (self.drone_state_error[-1] + 0.1)
-                self.reward -= 1.0 * self.drone_state_error[-2]
