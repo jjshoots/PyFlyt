@@ -294,15 +294,15 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                 self.drone_state_error[-1] < self.goal_reach_distance
                 and self.drone_state_error[-2] < self.goal_reach_velocity
             ):
-                self.reward = 10000.0
-                self.termination = True
+                # hack: use truncation here, otherwise we need a HUGE reward to end
+                self.truncation = True
                 self.info["env_complete"] = True
                 return
 
             # if it's up, but we're not at the winning criteria yet,
             # reward for approaching goal position
             if not self.sparse_reward:
-                self.reward += 20.0 * (
+                self.reward += 50.0 * (
                     self.drone_state_prev_error[-1] - self.drone_state_error[-1]
                 )
-                self.reward += 10.0 / (self.drone_state_error[-1] + 0.1)
+                self.reward += 5.0 / (self.drone_state_error[-1] + 0.1)
