@@ -306,3 +306,4 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
                     self.drone_state_prev_error[-1] - self.drone_state_error[-1]
                 )
                 self.reward += 5.0 / (self.drone_state_error[-1] + 0.1)
+                self.reward -= 1.0 * self.drone_state_error[-2]
