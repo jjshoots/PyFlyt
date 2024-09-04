@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>PyFlyt/QuadX-Hover-v3 &#8212; PyFlyt</title>
+    <title>PyFlyt/QuadX-Ball-In-Cup-v2 &#8212; PyFlyt</title>
   
   
   
@@ -38,11 +38,11 @@
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/gym_envs/quadx_hover_env';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'documentation/gym_envs/quadx_ball_in_cup_env';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="PyFlyt/QuadX-Pole-Balance-v3" href="quadx_pole_balance_env.html" />
-    <link rel="prev" title="Gymnasium Environments" href="../gym_envs.html" />
+    <link rel="next" title="PyFlyt/Fixedwing-Waypoints-v3" href="fixedwing_waypoints_env.html" />
+    <link rel="prev" title="PyFlyt/QuadX-Pole-Waypoints-v3" href="quadx_pole_waypoints_env.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -313,11 +313,11 @@ document.write(`
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../gym_envs.html">Gymnasium Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v3</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quadx_ball_in_cup_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v3</span></code></a></li>
 </ul>
@@ -387,22 +387,23 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="pyflyt-quadx-hover-v3">
-<h1><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code><a class="headerlink" href="#pyflyt-quadx-hover-v3" title="Link to this heading">#</a></h1>
+  <section id="pyflyt-quadx-ball-in-cup-v2">
+<h1><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code><a class="headerlink" href="#pyflyt-quadx-ball-in-cup-v2" title="Link to this heading">#</a></h1>
 <figure class="align-default">
-<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif" style="width: 50%;" />
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_ball_in_cup.gif"><img alt="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_ball_in_cup.gif" src="https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_ball_in_cup.gif" style="width: 50%;" />
 </a>
 </figure>
 <section id="task-description">
 <h2>Task Description<a class="headerlink" href="#task-description" title="Link to this heading">#</a></h2>
-<p>The goal of this environment is to hover a quadrotor drone for as long as possible.</p>
+<p>The goal is to swing up a suspended ball onto the drone, and then bring it to the starting position.</p>
+<p>This environment was introduced and contributed by GitHub user <a class="reference external" href="https://github.com/jjshoots/PyFlyt/pull/58">defrag-bambino</a>.</p>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span>
 <span class="kn">import</span> <span class="nn">PyFlyt.gym_envs</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/QuadX-Hover-v2&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;PyFlyt/QuadX-Ball-In-Cup-v3&quot;</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s2">&quot;human&quot;</span><span class="p">)</span>
 
 <span class="n">term</span><span class="p">,</span> <span class="n">trunc</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 <span class="n">obs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -414,16 +415,18 @@ document.write(`
 <section id="environment-options">
 <h2>Environment Options<a class="headerlink" href="#environment-options" title="Link to this heading">#</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.gym_envs.quadx_envs.quadx_hover_env.</span></span><span class="sig-name descname"><span class="pre">QuadXHoverEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_dome_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_representation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'euler'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'quaternion'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quaternion'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'human'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rgb_array'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(480,</span> <span class="pre">480)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv" title="Link to this definition">#</a></dt>
-<dd><p>Simple Hover Environment.</p>
+<dt class="sig sig-object py" id="PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env.QuadXBallInCupEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env.</span></span><span class="sig-name descname"><span class="pre">QuadXBallInCupEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sparse_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_reach_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_reach_velocity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flight_dome_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_representation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'euler'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'quaternion'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'quaternion'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_hz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'human'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rgb_array'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(480,</span> <span class="pre">480)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env.QuadXBallInCupEnv" title="Link to this definition">#</a></dt>
+<dd><p>QuadX Ball-in-Cup Environment.</p>
 <p>Actions are vp, vq, vr, T, ie: angular rates and thrust.
-The target is to not crash for the longest time possible.</p>
+The goal is to swing up a suspended ball onto the drone, and then bring it to the starting position.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sparse_reward</strong> (<em>bool</em>) – whether to use sparse rewards or not.</p></li>
-<li><p><strong>flight_mode</strong> (<em>int</em>) – the flight mode of the UAV</p></li>
+<li><p><strong>goal_reach_distance</strong> (<em>float</em>) – minimum distance from the ending position that the UAV must reach for success.</p></li>
+<li><p><strong>goal_reach_velocity</strong> (<em>float</em>) – maximum velocity that the UAV must maintain at the ending position for success.</p></li>
+<li><p><strong>flight_mode</strong> (<em>int</em>) – the flight mode of the UAV.</p></li>
 <li><p><strong>flight_dome_size</strong> (<em>float</em>) – size of the allowable flying area.</p></li>
 <li><p><strong>max_duration_seconds</strong> (<em>float</em>) – maximum simulation time of the environment.</p></li>
 <li><p><strong>angle_representation</strong> (<em>Literal</em><em>[</em><em>&quot;euler&quot;</em><em>, </em><em>&quot;quaternion&quot;</em><em>]</em>) – can be “euler” or “quaternion”.</p></li>
@@ -463,7 +466,7 @@ The target is to not crash for the longest time possible.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-description">Task Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-options">Environment Options</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.gym_envs.quadx_envs.quadx_hover_env.QuadXHoverEnv"><code class="docutils literal notranslate"><span class="pre">QuadXHoverEnv</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env.QuadXBallInCupEnv"><code class="docutils literal notranslate"><span class="pre">QuadXBallInCupEnv</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -472,7 +475,7 @@ The target is to not crash for the longest time possible.</p>
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../_sources/documentation/gym_envs/quadx_hover_env.md.txt">
+    <a href="../../_sources/documentation/gym_envs/quadx_ball_in_cup_env.md.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

@@ -25,6 +25,10 @@ register(
     id="PyFlyt/QuadX-Pole-Waypoints-v3",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_pole_waypoints_env:QuadXPoleWaypointsEnv",
 )
+register(
+    id="PyFlyt/QuadX-Ball-In-Cup-v3",
+    entry_point="PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env:QuadXBallInCupEnv",
+)
 
 # Fixedwing Envs
 register(
