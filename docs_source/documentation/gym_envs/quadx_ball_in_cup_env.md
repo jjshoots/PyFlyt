@@ -1,6 +1,6 @@
 # `PyFlyt/QuadX-Ball-In-Cup-v2`
 
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_pole_balance.gif
+```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_ball_in_cup.gif
     :width: 50%
 ```
 
