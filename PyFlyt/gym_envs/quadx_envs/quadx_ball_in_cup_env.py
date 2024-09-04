@@ -1,4 +1,5 @@
 """QuadX Ball-in-Cup Environment."""
+
 from __future__ import annotations
 
 import os
@@ -255,7 +256,7 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         )
 
     def compute_term_trunc_reward(self) -> None:
-        """Computes the termination, trunction, and reward of the current timestep."""
+        """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
         # compute some parameters of the ball
@@ -263,7 +264,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_rel_lin_pos = self.ball_lin_pos - self.env.state(0)[-1]
         ball_rel_height = ball_rel_lin_pos[2]
         ball_rel_abs_dist = np.linalg.norm(ball_rel_lin_pos)
-
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
