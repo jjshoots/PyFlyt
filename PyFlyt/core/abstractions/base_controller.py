@@ -1,4 +1,5 @@
 """Defines a basic controller class to inherit from when building custom controllers."""
+
 from abc import ABC, abstractmethod
 
 import numpy as np

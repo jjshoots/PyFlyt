@@ -1,4 +1,5 @@
 """Spawn a single drone and get its camera image."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 

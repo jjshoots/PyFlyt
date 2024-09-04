@@ -1,4 +1,5 @@
 """A component to simulate lifting surfaces vehicle."""
+
 from __future__ import annotations
 
 import warnings

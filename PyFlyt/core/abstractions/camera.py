@@ -1,4 +1,5 @@
 """A component to simulate a camera on a vehicle."""
+
 from __future__ import annotations
 
 import math

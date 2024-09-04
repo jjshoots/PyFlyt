@@ -1,4 +1,5 @@
 """Handler for Waypoints in the environments."""
+
 from __future__ import annotations
 
 import math

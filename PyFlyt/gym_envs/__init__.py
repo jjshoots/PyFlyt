@@ -1,4 +1,5 @@
 """Registers PyFlyt environments into Gymnasium."""
+
 from gymnasium.envs.registration import register
 
 from PyFlyt.gym_envs.utils.flatten_waypoint_env import FlattenWaypointEnv

@@ -1,4 +1,5 @@
 """A component to simulate bodies moving through the air."""
+
 from __future__ import annotations
 
 from typing import Sequence

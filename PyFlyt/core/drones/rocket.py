@@ -1,4 +1,5 @@
 """Implementation of a 1:10 scale SpaceX Rocket UAV."""
+
 from __future__ import annotations
 
 import numpy as np

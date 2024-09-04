@@ -1,4 +1,5 @@
 """Implementation of a CrazyFlie 2.x UAV."""
+
 from __future__ import annotations
 
 import math

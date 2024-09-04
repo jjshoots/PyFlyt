@@ -1,4 +1,5 @@
 """Implements a custom stateful wind model."""
+
 import numpy as np
 
 from PyFlyt.core import Aviary

@@ -1,4 +1,5 @@
 """Base PyFlyt Environment for the Rocket model using the Gymnasim API."""
+
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -348,7 +349,7 @@ class RocketBaseEnv(gymnasium.Env):
         return self.state, self.reward, self.termination, self.truncation, self.info
 
     def render(self):
-        """render."""
+        """Render."""
         check_numpy()
         if self.render_mode is None:
             raise ValueError(
