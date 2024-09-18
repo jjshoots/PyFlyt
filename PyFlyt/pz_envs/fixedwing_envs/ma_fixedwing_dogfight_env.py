@@ -23,6 +23,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         cooperativeness (float): a value between 0 and 1 controlling how cooperative with each other the reward function is.
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_dome_size (float): size of the allowable flying area.
+        soft_flight_dome_size (float): size of flying area before a penalty is incurred.
+        soft_floor (float): flight floor before a penalty is incurred.
         max_duration_seconds (float): maximum simulation time of the environment.
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None
@@ -47,7 +49,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         cooperativeness: float = 0.5,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
-        flight_dome_size: float = 500.0,
+        flight_dome_size: float = 800.0,
+        soft_flight_dome_size: float = 500.0,
+        soft_floor: float = 10.0,
         max_duration_seconds: float = 60.0,
         agent_hz: int = 30,
         render_mode: None | str = None,
@@ -67,6 +71,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             sparse_reward (bool): whether to use sparse rewards or not.
             flatten_observation (bool): if False, this returns a Dict style observation.
             flight_dome_size (float): size of the allowable flying area.
+            soft_flight_dome_size (float): size of flying area before a penalty is incurred.
+            soft_floor (float): flight floor before a flight penalty is incurred.
             max_duration_seconds (float): maximum simulation time of the environment.
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None
@@ -91,6 +97,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.flatten_observation = flatten_observation
         self.damage_per_hit = damage_per_hit
         self.spawn_height = spawn_height
+        self.soft_floor = soft_floor
+        self.soft_flight_dome_size = soft_flight_dome_size
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
         self.aggressiveness = aggressiveness
@@ -597,6 +605,14 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         Returns:
             None:
         """
+        # compute some stuff about the current position
+        all_positions = np.stack([s[-1] for s in self.aviary.all_states], axis=0)
+        distance_from_origin = np.linalg.norm(all_positions, axis=-1)
+
+        # soft boundary penalties
+        self.accumulated_rewards[all_positions[:, -1] < self.soft_floor] -= 10.0
+        self.accumulated_rewards[distance_from_origin > self.soft_flight_dome_size] -= 10.0
+
         # accumulate engagement rewards and handle truncation
         self.accumulated_rewards += self._compute_engagement_rewards()
         self.accumulated_truncations |= self.step_count > self.max_steps
@@ -608,22 +624,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # collision, override reward, not add
         collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
         self.accumulated_terminations |= collisions
-        self.accumulated_rewards[collisions] = -1500.0
+        self.accumulated_rewards[collisions] = -1000.0
         self.healths[collisions] = 0.0
 
         # exceed flight dome, override reward, not add
-        out_of_bounds = (
-            np.linalg.norm(
-                np.stack(
-                    [s[-1] for s in self.aviary.all_states],
-                    axis=0,
-                ),
-                axis=-1,
-            )
-            > self.flight_dome_size
-        )
+        out_of_bounds = distance_from_origin > self.flight_dome_size
         self.accumulated_terminations |= out_of_bounds
-        self.accumulated_rewards[out_of_bounds] = -1500.0
+        self.accumulated_rewards[out_of_bounds] = -1000.0
         self.healths[out_of_bounds] = 0.0
 
         # all opponents deactivated, override reward, not add
