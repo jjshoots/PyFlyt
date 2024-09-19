@@ -631,14 +631,15 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
             # reward for being too close to anyone, minus diagonal to ignore self
             boundary_rewards -= np.sum(
-                2.0
+                5.0
                 * (
-                    (self.current_distances < 10.0)
+                    (self.current_distances < 5.0)
                     - np.eye(self.current_distances.shape[0])
                 )
                 * (10.0 - self.current_distances),
                 axis=-1,
             )
+            print(boundary_rewards)
 
         return boundary_rewards
 
