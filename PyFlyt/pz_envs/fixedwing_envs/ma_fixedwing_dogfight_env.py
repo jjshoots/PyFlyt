@@ -656,7 +656,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.accumulated_truncations |= self.step_count > self.max_steps
 
         # out of health
-        zero_healths = self.healths <= 0.0
+        zero_healths = self.healths <= 1e-3
         self.accumulated_terminations |= zero_healths
 
         # collision, override reward, not add
