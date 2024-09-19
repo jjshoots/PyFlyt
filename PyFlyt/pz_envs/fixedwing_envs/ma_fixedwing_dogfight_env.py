@@ -621,7 +621,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # soft boundary penalties
         self.accumulated_rewards[all_positions[:, -1] < self.soft_floor] -= 10.0
-        self.accumulated_rewards[distance_from_origin > self.soft_flight_dome_size] -= 10.0
+        self.accumulated_rewards[
+            distance_from_origin > self.soft_flight_dome_size
+        ] -= 10.0
 
         # accumulate engagement rewards and handle truncation
         self.accumulated_rewards += self._compute_engagement_rewards()
