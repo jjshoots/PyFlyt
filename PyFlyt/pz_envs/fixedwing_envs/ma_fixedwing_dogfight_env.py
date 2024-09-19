@@ -583,7 +583,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
             # reward for being too close to anyone, minus one to ignore self
             too_close = delta_distance < self.too_close_distance
-            engagement_rewards -= (np.sum(too_close, dim=-1) - 1) * 20.0
+            engagement_rewards -= (np.sum(too_close, axis=-1) - 1) * 20.0
 
         # reward for hits, penalty for being hit
         engagement_rewards += 20.0 * (
