@@ -639,7 +639,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 * (10.0 - self.current_distances),
                 axis=-1,
             )
-            print(boundary_rewards)
 
         return boundary_rewards
 
