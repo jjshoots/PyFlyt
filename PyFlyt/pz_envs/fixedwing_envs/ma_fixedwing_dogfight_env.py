@@ -625,7 +625,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             # too close to out of bounds
             boundary_rewards -= (
                 2.0
-                * (self.distances_from_origin > 0.5 * self.flight_dome_size)
+                * (self.distances_from_origin > (0.5 * self.flight_dome_size))
                 * (self.distances_from_origin - (0.5 * self.flight_dome_size))
             )
 
