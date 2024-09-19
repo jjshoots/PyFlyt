@@ -26,8 +26,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         cooperativeness (float): a value between 0 and 1 controlling how cooperative with each other the reward function is.
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_dome_size (float): size of the allowable flying area.
-        soft_flight_dome_size (float): size of flying area before a penalty is incurred.
-        soft_floor (float): flight floor before a penalty is incurred.
         max_duration_seconds (float): maximum simulation time of the environment.
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None
@@ -47,15 +45,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         damage_per_hit: float = 0.01,
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
-        too_close_distance: float = 3.0,
         assisted_flight: bool = True,
-        aggressiveness: float = 0.5,
+        aggressiveness: float = 0.8,
         cooperativeness: float = 0.5,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
         flight_dome_size: float = 800.0,
-        soft_flight_dome_size: float = 500.0,
-        soft_floor: float = 10.0,
         max_duration_seconds: float = 60.0,
         agent_hz: int = 30,
         render_mode: None | str = None,
@@ -76,8 +71,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             sparse_reward (bool): whether to use sparse rewards or not.
             flatten_observation (bool): if False, this returns a Dict style observation.
             flight_dome_size (float): size of the allowable flying area.
-            soft_flight_dome_size (float): size of flying area before a penalty is incurred.
-            soft_floor (float): flight floor before a flight penalty is incurred.
             max_duration_seconds (float): maximum simulation time of the environment.
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None
@@ -102,11 +95,8 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.flatten_observation = flatten_observation
         self.damage_per_hit = damage_per_hit
         self.spawn_height = spawn_height
-        self.soft_floor = soft_floor
-        self.soft_flight_dome_size = soft_flight_dome_size
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
-        self.too_close_distance = too_close_distance
         self.aggressiveness = aggressiveness
         self.cooperativeness = cooperativeness
         self.team_flag = np.concatenate(
@@ -240,9 +230,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # attitudes and health of all drones
         self.healths = np.ones(self.num_possible_agents, dtype=np.float32)
-        self.attitudes = np.zeros(
-            (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float32
-        )
+        self.attitudes = np.zeros((self.num_possible_agents, 4, 3), dtype=np.float32)
         self.other_attitudes = np.zeros(
             (self.num_possible_agents, self.num_possible_agents, 4, 3), dtype=np.float32
         )
@@ -277,6 +265,11 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.previous_angles = self.current_angles.copy()
         self.previous_offsets = self.current_offsets.copy()
         self.previous_distances = self.current_distances.copy()
+
+        # distance from the origin
+        self.distances_from_origin = np.zeros(
+            (self.num_possible_agents,), dtype=np.float32
+        )
 
         # accumulation for rew, term, trunc, info
         self.accumulated_rewards = np.zeros(
@@ -341,6 +334,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         np.ndarray,
         np.ndarray,
         np.ndarray,
+        np.ndarray,
     ]:
         """compute_combat_state.
 
@@ -348,6 +342,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         Returns:
             tuple[
+            np.ndarray,
             np.ndarray,
             np.ndarray,
             np.ndarray,
@@ -365,6 +360,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             - current_angles: an [n, n] array of engagement angles between each agent and every other agent.
             - current_offsets: an [n, n] array of engagement offsets between each agent and every other agent.
             - opponent_attitudes: an [n, n, 4, 3] of each agents states relative to self.
+            - distances_from_origin: an [n] array for the distances of each agent from the origin of the world.
         """
         ############################################################################################
         # COMPUTE HITS
@@ -435,6 +431,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # opponent position is relative to ours in our body frame
         opponent_attitudes[..., 3, :] = separation @ rotation
 
+        # compute distances from origin
+        distances_from_origin = np.linalg.norm(self.attitudes[:, -1, :], axis=-1)
+
         return (
             in_cone,
             in_range,
@@ -444,6 +443,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             current_angles,
             current_offsets,
             opponent_attitudes,
+            distances_from_origin,
         )
 
     def _compute_observation(self) -> None:
@@ -472,6 +472,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             self.current_angles,
             self.current_offsets,
             self.other_attitudes,
+            self.distances_from_origin,
         ) = self._compute_combat_state()
 
         # mask out friendly fire - we don't shoot our friends
@@ -581,10 +582,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 * (inverse_abs_angles - (1.0 - self.aggressiveness) * inverse_abs_angles.T)
             )
 
-            # reward for being too close to anyone, minus one to ignore self
-            too_close = self.current_distances < self.too_close_distance
-            engagement_rewards -= (np.sum(too_close, axis=-1) - 1) * 20.0
-
         # reward for hits, penalty for being hit
         engagement_rewards += 20.0 * (
             self.current_hits - (1.0 - self.aggressiveness) * self.current_hits.T
@@ -607,6 +604,44 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         return engagement_rewards
 
+    def _compute_boundary_rewards(self) -> np.ndarray:
+        """_compute_boundary_rewards.
+
+        Args:
+
+        Returns:
+            None:
+        """
+        boundary_rewards = np.zeros((self.num_possible_agents,), dtype=np.float32)
+
+        if not self.sparse_reward:
+            # too close to floor
+            boundary_rewards -= (
+                5.0
+                * (self.attitudes[:, -1, -1] < 10.0)
+                * (10.0 - self.attitudes[:, -1, -1])
+            )
+
+            # too close to out of bounds
+            boundary_rewards -= (
+                2.0
+                * (self.distances_from_origin > 0.5 * self.flight_dome_size)
+                * (self.distances_from_origin - (0.5 * self.flight_dome_size))
+            )
+
+            # reward for being too close to anyone, minus diagonal to ignore self
+            boundary_rewards -= np.sum(
+                2.0
+                * (
+                    (self.current_distances < 10.0)
+                    - np.eye(self.current_distances.shape[0])
+                )
+                * (10.0 - self.current_distances),
+                axis=-1,
+            )
+
+        return boundary_rewards
+
     def _compute_term_trunc_rew_info(self) -> None:
         """_compute_term_trunc_rew_info.
 
@@ -615,18 +650,9 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         Returns:
             None:
         """
-        # compute some stuff about the current position
-        all_positions = np.stack([s[-1] for s in self.aviary.all_states], axis=0)
-        distance_from_origin = np.linalg.norm(all_positions, axis=-1)
-
-        # soft boundary penalties
-        self.accumulated_rewards[all_positions[:, -1] < self.soft_floor] -= 10.0
-        self.accumulated_rewards[
-            distance_from_origin > self.soft_flight_dome_size
-        ] -= 10.0
-
         # accumulate engagement rewards and handle truncation
         self.accumulated_rewards += self._compute_engagement_rewards()
+        self.accumulated_rewards += self._compute_boundary_rewards()
         self.accumulated_truncations |= self.step_count > self.max_steps
 
         # out of health
@@ -636,13 +662,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # collision, override reward, not add
         collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
         self.accumulated_terminations |= collisions
-        self.accumulated_rewards[collisions] = -1000.0
+        self.accumulated_rewards[collisions] = -500.0
         self.healths[collisions] = 0.0
 
         # exceed flight dome, override reward, not add
-        out_of_bounds = distance_from_origin > self.flight_dome_size
+        out_of_bounds = self.distances_from_origin > self.flight_dome_size
         self.accumulated_terminations |= out_of_bounds
-        self.accumulated_rewards[out_of_bounds] = -1000.0
+        self.accumulated_rewards[out_of_bounds] = -500.0
         self.healths[out_of_bounds] = 0.0
 
         # all opponents deactivated, override reward, not add
