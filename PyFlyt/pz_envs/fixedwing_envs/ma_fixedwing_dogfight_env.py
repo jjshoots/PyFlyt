@@ -640,7 +640,6 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 axis=-1,
             )
 
-        print(boundary_rewards)
         return boundary_rewards
 
     def _compute_term_trunc_rew_info(self) -> None:
