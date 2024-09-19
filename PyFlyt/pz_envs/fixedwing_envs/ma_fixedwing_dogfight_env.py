@@ -559,7 +559,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 )
                 * (~self.in_range & self.chasing & self.friendly_fire_mask)
             )  # positive good, symmetric matrix (before masking) in range [-inf, inf]
-            engagement_rewards += 2.0 * delta_distance
+            engagement_rewards += 3.0 * delta_distance
 
             # reward for progressing to engagement, penalty for losing angles is less
             # WARNING: NaN introduced here
@@ -569,7 +569,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 * (self.in_range & self.friendly_fire_mask)
             )  # positive is good
             delta_angles[delta_angles < 0.0] *= self.aggressiveness
-            engagement_rewards += 20.0 * delta_angles
+            engagement_rewards += 30.0 * delta_angles
 
             # reward for engaging the enemy, penalty for being engaged
             # WARNING: NaN introduced here
@@ -583,7 +583,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             )
 
         # reward for hits, penalty for being hit
-        engagement_rewards += 15.0 * (
+        engagement_rewards += 20.0 * (
             self.current_hits - (1.0 - self.aggressiveness) * self.current_hits.T
         )
 
@@ -631,7 +631,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
             # reward for being too close to anyone, minus diagonal to ignore self
             boundary_rewards -= np.sum(
-                3.0
+                4.0
                 * (
                     (self.current_distances < 5.0)
                     - np.eye(self.current_distances.shape[0])
