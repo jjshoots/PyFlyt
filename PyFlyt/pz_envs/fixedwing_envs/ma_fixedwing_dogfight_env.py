@@ -14,10 +14,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     """Team Dogfighting Environment for the Acrowing model using the PettingZoo API.
 
     Args:
+        team_size (int): number of planes that comprises a team.
+        spawn_radius (float): agents are spawned in a circle pointing outwards, this value is the radius of that circle.
         spawn_height (float): how high to spawn the agents at the beginning of the simulation.
         damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
         lethal_distance (float): how close before weapons become effective.
         lethal_angle_radians (float): the width of the cone of fire.
+        too_close_distance(float): the minimum distance that a drone must maintain from another drone before a penalty is incurred.
         assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
         aggressiveness (float): a value between 0 and 1 controlling how greedy the reward function is. Lower values lead to greedier policies.
         cooperativeness (float): a value between 0 and 1 controlling how cooperative with each other the reward function is.
@@ -44,6 +47,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         damage_per_hit: float = 0.01,
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
+        too_close_distance: float = 3.0,
         assisted_flight: bool = True,
         aggressiveness: float = 0.5,
         cooperativeness: float = 0.5,
@@ -65,6 +69,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
             damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
             lethal_distance (float): how close before weapons become effective.
             lethal_angle_radians (float): the width of the cone of fire.
+            too_close_distance(float): the minimum distance that a drone must maintain from another drone before a penalty is incurred.
             assisted_flight (bool): whether to use high level commands (RPYT) instead of full actuator commands.
             aggressiveness (float): a value between 0 and 1 controlling how greedy the reward function is.
             cooperativeness (float): a value between 0 and 1 controlling how cooperative with each other the reward function is.
@@ -101,6 +106,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         self.soft_flight_dome_size = soft_flight_dome_size
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
+        self.too_close_distance = too_close_distance
         self.aggressiveness = aggressiveness
         self.cooperativeness = cooperativeness
         self.team_flag = np.concatenate(
@@ -574,6 +580,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 2.0
                 * (inverse_abs_angles - (1.0 - self.aggressiveness) * inverse_abs_angles.T)
             )
+
+            # reward for being too close to anyone, minus one to ignore self
+            too_close = delta_distance < self.too_close_distance
+            engagement_rewards -= (np.sum(too_close, dim=-1) - 1) * 20.0
 
         # reward for hits, penalty for being hit
         engagement_rewards += 20.0 * (
