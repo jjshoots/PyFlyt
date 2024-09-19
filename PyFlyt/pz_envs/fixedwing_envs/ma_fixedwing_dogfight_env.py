@@ -615,18 +615,16 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         boundary_rewards = np.zeros((self.num_possible_agents,), dtype=np.float32)
 
         if not self.sparse_reward:
-            # too close to floor
-            boundary_rewards -= (
-                3.0
-                * (self.attitudes[:, -1, -1] < 10.0)
-                * (10.0 - self.attitudes[:, -1, -1])
+            # too close to floor, add reward to encourage being above flight floor
+            boundary_rewards += (
+                2.0
+                * (self.attitudes[:, -1, -1] > 10.0)
             )
 
-            # too close to out of bounds
-            boundary_rewards -= (
-                0.02
-                * (self.distances_from_origin > (0.75 * self.flight_dome_size))
-                * (self.distances_from_origin - (0.75 * self.flight_dome_size))
+            # too close to out of bounds, add reward to encourage being near center
+            boundary_rewards += (
+                2.0
+                * (self.distances_from_origin < (0.75 * self.flight_dome_size))
             )
 
             # reward for being too close to anyone, minus diagonal to ignore self
