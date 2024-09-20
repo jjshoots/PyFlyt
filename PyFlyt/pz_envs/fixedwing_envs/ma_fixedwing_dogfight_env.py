@@ -46,7 +46,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
         assisted_flight: bool = True,
-        aggressiveness: float = 0.8,
+        aggressiveness: float = 0.5,
         cooperativeness: float = 0.5,
         sparse_reward: bool = False,
         flatten_observation: bool = True,
@@ -629,7 +629,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
             # reward for being too close to anyone, minus diagonal to ignore self
             boundary_rewards -= np.sum(
-                5.0
+                10.0
                 * (
                     (self.current_distances < 5.0)
                     - np.eye(self.current_distances.shape[0])
@@ -660,13 +660,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # collision, override reward, not add
         collisions = self.aviary.contact_array[self.drone_ids].sum(axis=-1) > 0
         self.accumulated_terminations |= collisions
-        self.accumulated_rewards[collisions] = -500.0
+        self.accumulated_rewards[collisions] = -1000.0
         self.healths[collisions] = 0.0
 
         # exceed flight dome, override reward, not add
         out_of_bounds = self.distances_from_origin > self.flight_dome_size
         self.accumulated_terminations |= out_of_bounds
-        self.accumulated_rewards[out_of_bounds] = -500.0
+        self.accumulated_rewards[out_of_bounds] = -1000.0
         self.healths[out_of_bounds] = 0.0
 
         # all opponents deactivated, override reward, not add
