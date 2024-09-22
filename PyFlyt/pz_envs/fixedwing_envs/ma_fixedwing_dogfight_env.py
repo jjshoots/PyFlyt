@@ -15,8 +15,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
     Args:
         team_size (int): number of planes that comprises a team.
-        spawn_radius (float): agents are spawned in a circle pointing outwards, this value is the radius of that circle.
-        spawn_height (float): how high to spawn the agents at the beginning of the simulation.
+        spawn_min_radius (float): agents are spawned in a circle pointing outwards, this value is the min radius of that circle.
+        spawn_max_radius (float): agents are spawned in a circle pointing outwards, this value is the maxradius of that circle.
+        spawn_min_height (float): minimum height to spawn the agents at the beginning of the simulation.
+        spawn_max_height (float): maximum height to spawn the agents at the beginning of the simulation.
         damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
         lethal_distance (float): how close before weapons become effective.
         lethal_angle_radians (float): the width of the cone of fire.
@@ -40,8 +42,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
     def __init__(
         self,
         team_size: int = 2,
-        spawn_radius: float = 10.0,
-        spawn_height: float = 20.0,
+        spawn_min_radius: float = 10.0,
+        spawn_max_radius: float = 50.0,
+        spawn_min_height: float = 20.0,
+        spawn_max_height: float = 50.0,
         damage_per_hit: float = 0.003,
         lethal_distance: float = 20.0,
         lethal_angle_radians: float = 0.07,
@@ -59,8 +63,10 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         Args:
             team_size (int): number of planes that comprises a team.
-            spawn_radius (float): agents are spawned in a circle pointing outwards, this value is the radius of that circle.
-            spawn_height (float): how high to spawn the agents at the beginning of the simulation.
+            spawn_min_radius (float): agents are spawned in a circle pointing outwards, this value is the min radius of that circle.
+            spawn_max_radius (float): agents are spawned in a circle pointing outwards, this value is the maxradius of that circle.
+            spawn_min_height (float): minimum height to spawn the agents at the beginning of the simulation.
+            spawn_max_height (float): maximum height to spawn the agents at the beginning of the simulation.
             damage_per_hit (float): how much damage per hit per physics step, each agent starts with a health of 1.0.
             lethal_distance (float): how close before weapons become effective.
             lethal_angle_radians (float): the width of the cone of fire.
@@ -90,11 +96,13 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         # some environment constants
         self.team_size = team_size
-        self.spawn_radius = spawn_radius
+        self.spawn_min_radius = spawn_min_radius
+        self.spawn_max_radius = spawn_max_radius
+        self.spawn_min_height = spawn_min_height
+        self.spawn_max_height = spawn_max_height
         self.sparse_reward = sparse_reward
         self.flatten_observation = flatten_observation
         self.damage_per_hit = damage_per_hit
-        self.spawn_height = spawn_height
         self.lethal_distance = lethal_distance
         self.lethal_angle = lethal_angle_radians
         self.aggressiveness = aggressiveness
@@ -180,20 +188,30 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         np_random = np.random.RandomState(seed=seed)
 
         # start out pointing in outward directions equally spaced
-        start_z_radian = np.pi / self.team_size * np.arange(self.team_size * 2)
+        start_radian = np.pi / self.team_size * np.arange(
+            self.team_size * 2
+        ) + np.random.uniform(0.0, 2 * np.pi)
+        start_radius = np_random.uniform(
+            low=self.spawn_min_radius,
+            high=self.spawn_max_radius,
+            size=(self.team_size * 2,),
+        )
+        start_height = np_random.uniform(
+            low=self.spawn_min_radius,
+            high=self.spawn_max_radius,
+            size=(self.team_size * 2,),
+        )
 
         # define the starting positions
         start_pos = np.zeros((self.num_possible_agents, 3))
-        start_pos[:, 0] = self.spawn_radius * np.cos(start_z_radian)
-        start_pos[:, 1] = self.spawn_radius * np.sin(start_z_radian)
-        start_pos[:, 2] = (
-            self.spawn_height + np_random.random(self.num_possible_agents) * 10.0
-        )
+        start_pos[:, 0] = start_radius * np.cos(start_radian)
+        start_pos[:, 1] = start_radius * np.sin(start_radian)
+        start_pos[:, 2] = start_height
 
         # define the starting orientations
         start_orn = np.zeros((self.team_size * 2, 3))
         start_orn[:, 2] = (
-            start_z_radian + np_random.random(self.num_possible_agents) * np.pi / 8.0
+            start_radian + np_random.random(self.num_possible_agents) * np.pi / 8.0
         )
 
         return start_pos, start_orn
