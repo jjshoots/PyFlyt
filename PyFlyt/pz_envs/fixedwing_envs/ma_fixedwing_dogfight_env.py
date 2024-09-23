@@ -190,7 +190,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
         # start out pointing in outward directions equally spaced
         start_radian = np.pi / self.team_size * np.arange(
             self.team_size * 2
-        ) + np.random.uniform(0.0, 2 * np.pi)
+        ) + np_random.uniform(0.0, 2 * np.pi)
         start_radius = np_random.uniform(
             low=self.spawn_min_radius,
             high=self.spawn_max_radius,
