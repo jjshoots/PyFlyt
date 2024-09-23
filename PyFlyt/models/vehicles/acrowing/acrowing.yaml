@@ -28,7 +28,7 @@ left_wing_flapped_params:
   alpha_stall_P_base: 16 # Positive stall AoA
   alpha_stall_N_base: -12 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 45 # Control surface deflection limit in degrees
+  deflection_limit: 30 # Control surface deflection limit in degrees
   tau: 0.05
 
 right_wing_flapped_params:
@@ -41,7 +41,7 @@ right_wing_flapped_params:
   alpha_stall_P_base: 16 # Positive stall AoA
   alpha_stall_N_base: -12 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 45 # Control surface deflection limit in degrees
+  deflection_limit: 30 # Control surface deflection limit in degrees
   tau: 0.05
 
 horizontal_tail_params:
@@ -54,7 +54,7 @@ horizontal_tail_params:
   alpha_stall_P_base: 11 # Positive stall AoA
   alpha_stall_N_base: -11 # Positive stall AoA
   Cd_0: 0.01 # Skin friction coefficient
-  deflection_limit: 30 # Control surface deflection limit in degrees
+  deflection_limit: 20 # Control surface deflection limit in degrees
   tau: 0.05
 
 vertical_tail_params:
