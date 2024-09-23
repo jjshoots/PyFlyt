@@ -18,7 +18,6 @@ class Motors:
     The maximum RPM can be easily computed using `max_rpm = max_thrust / thrust_coef`.
 
     Args:
-    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -50,7 +49,6 @@ class Motors:
         """Used for simulating an array of motors.
 
         Args:
-        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -87,9 +85,9 @@ class Motors:
         # motor constants
         self.tau = tau
         self.max_rpm = max_rpm
-        self.thrust_coef = np.expand_dims(thrust_coef, axis=-1)
-        self.torque_coef = np.expand_dims(torque_coef, axis=-1)
-        self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
+        self.thrust_coef = thrust_coef[..., None]
+        self.torque_coef = torque_coef[..., None]
+        self.thrust_unit = thrust_unit[..., None]
         self.noise_ratio = noise_ratio
 
     def reset(self) -> None:
@@ -100,7 +98,6 @@ class Motors:
         """Gets the current state of the components.
 
         Returns:
-        -------
             np.ndarray: an (num_motors, ) array for the current throttle level of each motor
 
         """
@@ -116,7 +113,6 @@ class Motors:
         """Converts motor PWM values to forces, this motor allows negative thrust.
 
         Args:
-        ----
             pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1.
             rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
 
@@ -171,7 +167,6 @@ class Motors:
         """Computes the thrusts and torques for the array of motors.
 
         Args:
-        ----
             rotation (None | np.ndarray): rotation
             throttle (np.ndarray): throttle from self
             max_rpm (np.ndarray): max_rpm from self
@@ -180,13 +175,11 @@ class Motors:
             torque_coef (np.ndarray): torque_coef from self
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray]:
 
         """
         # throttle to rpm
-        rpm = throttle * max_rpm
-        rpm = np.expand_dims(rpm, axis=-1)
+        rpm = (throttle * max_rpm)[..., None]
 
         # handle rotation, `[..., 0]` is basically squeeze but numba friendly
         if rotation is not None:

@@ -19,7 +19,6 @@ class DroneClass(ABC):
     Each drone inheriting from this class must have several attributes and methods implemented before they can be considered usable.
 
     Args:
-    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         start_pos (np.ndarray): an `(3,)` array for the starting X, Y, Z position for the drone.
         start_orn (np.ndarray): an `(3,)` array for the starting X, Y, Z orientation for the drone.
@@ -83,7 +82,6 @@ class DroneClass(ABC):
         """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class.
 
         Args:
-        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             start_pos (np.ndarray): an `(3,)` array for the starting X, Y, Z position for the drone.
             start_orn (np.ndarray): an `(3,)` array for the starting X, Y, Z orientation for the drone.
@@ -269,7 +267,6 @@ class DroneClass(ABC):
         """Default register_controller.
 
         Args:
-        ----
             controller_id (int): ID to bind to this controller
             controller_constructor (type[ControlClass]): A class pointer to the controller implementation, must be subclass of `ControlClass`.
             base_mode (int): Whether this controller uses outputs of an underlying controller as setpoints.

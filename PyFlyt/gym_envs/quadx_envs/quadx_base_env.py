@@ -33,7 +33,6 @@ class QuadXBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -138,12 +137,10 @@ class QuadXBaseEnv(gymnasium.Env):
         """reset.
 
         Args:
-        ----
             seed (None | int): seed
             options (dict[str, Any]): options
 
         Returns:
-        -------
             tuple[Any, dict[str, Any]]:
 
         """
@@ -273,11 +270,9 @@ class QuadXBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
-        ----
             action (np.ndarray): action
 
         Returns:
-        -------
             state, reward, termination, truncation, info
 
         """

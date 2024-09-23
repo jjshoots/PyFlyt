@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Any, Sequence
 
 import numpy as np
@@ -15,6 +14,8 @@ from PyFlyt.core import Aviary
 
 class MAQuadXBaseEnv(ParallelEnv):
     """MAQuadXBaseEnv."""
+
+    metadata = dict(render_modes="human")
 
     def __init__(
         self,
@@ -34,7 +35,6 @@ class MAQuadXBaseEnv(ParallelEnv):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -155,11 +155,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """observation_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             Space:
 
         """
@@ -169,11 +167,9 @@ class MAQuadXBaseEnv(ParallelEnv):
         """action_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             spaces.Box:
 
         """
@@ -190,12 +186,10 @@ class MAQuadXBaseEnv(ParallelEnv):
         """reset.
 
         Args:
-        ----
             seed (None | int): seed
             options (None | dict[str, Any]): options
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, Any]]:
 
         """
@@ -210,13 +204,11 @@ class MAQuadXBaseEnv(ParallelEnv):
         """The first half of the reset function.
 
         Args:
-        ----
             seed (None | int): seed
             options (None | dict[str, Any]): options
             drone_options (None | dict[str, Any] | Sequence[dict[str, Any]]): drone_options
 
         Returns:
-        -------
             None:
 
         """
@@ -249,10 +241,19 @@ class MAQuadXBaseEnv(ParallelEnv):
         # wait for env to stabilize
         for _ in range(10):
             self.aviary.step()
+        self.update_states()
 
-    def compute_auxiliary_by_id(self, agent_id: int) -> np.ndarray:
-        """This returns the auxiliary state form the drone."""
-        return self.aviary.aux_state(agent_id)
+    def update_states(self) -> None:
+        """Helper method to be called once after the internal aviary has stepped.
+
+        Args:
+            agent_id (int): agent_id
+
+        Returns:
+            Any:
+
+        """
+        pass
 
     def compute_attitude_by_id(
         self, agent_id: int
@@ -283,42 +284,13 @@ class MAQuadXBaseEnv(ParallelEnv):
         """compute_observation_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             Any:
 
         """
         raise NotImplementedError
-
-    def compute_base_term_trunc_reward_info_by_id(
-        self, agent_id: int
-    ) -> tuple[bool, bool, float, dict[str, Any]]:
-        """compute_base_term_trunc_reward_by_id."""
-        # initialize
-        term = False
-        trunc = False
-        reward = 0.0
-        info = dict()
-
-        # exceed step count
-        trunc |= self.step_count > self.max_steps
-
-        # collision
-        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
-            reward -= 100.0
-            info["collision"] = True
-            term |= True
-
-        # exceed flight dome
-        if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
-            reward -= 100.0
-            info["out_of_bounds"] = True
-            term |= True
-
-        return term, trunc, reward, info
 
     def compute_term_trunc_reward_info_by_id(
         self, agent_id: int
@@ -326,19 +298,15 @@ class MAQuadXBaseEnv(ParallelEnv):
         """compute_term_trunc_reward_info_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             Tuple[bool, bool, float, dict[str, Any]]:
 
         """
         raise NotImplementedError
 
-    def step(
-        self, actions: dict[str, np.ndarray]
-    ) -> tuple[
+    def step(self, actions: dict[str, np.ndarray]) -> tuple[
         dict[str, Any],
         dict[str, float],
         dict[str, bool],
@@ -348,16 +316,14 @@ class MAQuadXBaseEnv(ParallelEnv):
         """step.
 
         Args:
-        ----
             actions (dict[str, np.ndarray]): actions
 
         Returns:
-        -------
             tuple[dict[str, Any], dict[str, float], dict[str, bool], dict[str, bool], dict[str, dict[str, Any]]]:
 
         """
         # copy over the past actions
-        self.past_actions = deepcopy(self.current_actions)
+        self.past_actions = self.current_actions.copy()
 
         # set the new actions and send to aviary
         self.current_actions *= 0.0
@@ -375,8 +341,10 @@ class MAQuadXBaseEnv(ParallelEnv):
         # step enough times for one RL step
         for _ in range(self.env_step_ratio):
             self.aviary.step()
+            self.update_states()
 
             # update reward, term, trunc, for each agent
+            # TODO: make it so this doesn't have to be computed every aviary step
             for ag in self.agents:
                 ag_id = self.agent_name_mapping[ag]
 
@@ -387,7 +355,7 @@ class MAQuadXBaseEnv(ParallelEnv):
                 terminations[ag] |= term
                 truncations[ag] |= trunc
                 rewards[ag] += rew
-                infos[ag] = {**infos[ag], **info}
+                infos[ag].update(info)
 
                 # compute observations
                 observations[ag] = self.compute_observation_by_id(ag_id)

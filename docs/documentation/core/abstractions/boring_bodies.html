@@ -314,18 +314,18 @@ document.write(`
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../gym_envs.html">Gymnasium Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_ball_in_cup_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v3</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../pz_envs.html">PettingZoo Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnvV2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnvV2</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -424,17 +424,19 @@ The drag on the body itself is then computed using the familiar drag equation:</
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">BoringBodies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drag_coefs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_areas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies" title="Link to this definition">#</a></dt>
 <dd><p>Vectorized implementation of a series of plain bodies affected by aerodynamics.</p>
 <p>The <cite>BoringBodies</cite> component is used to represent a normal body moving through the air.</p>
-<section id="args">
-<h3>Args:<a class="headerlink" href="#args" title="Link to this heading">#</a></h3>
-<blockquote>
-<div><p>p (bullet_client.BulletClient): PyBullet physics client ID.
-physics_period (float): physics period of the simulation.
-np_random (np.random.RandomState): random number generator of the simulation.
-uav_id (int): ID of the drone.
-body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
-drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.
-normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced XYZ directions.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>body_ids</strong> (<em>np.ndarray</em><em> | </em><em>Sequence</em><em>[</em><em>int</em><em>]</em>) – (n,) array of IDs for the links representing the bodies.</p></li>
+<li><p><strong>drag_coefs</strong> (<em>np.ndarray</em>) – (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.</p></li>
+<li><p><strong>normal_areas</strong> (<em>np.ndarray</em>) – (n, 3) array of frontal areas in the link-referenced XYZ directions.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.get_states" title="Link to this definition">#</a></dt>
@@ -457,15 +459,13 @@ normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced 
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.BoringBodies.state_update">
 <span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.BoringBodies.state_update" title="Link to this definition">#</a></dt>
 <dd><p>Updates the local surface velocity of the boring body.</p>
-<section id="id1">
-<h4>Args:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>rotation_matrix (np.ndarray): (3, 3) rotation_matrix of the main body</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rotation_matrix</strong> (<em>np.ndarray</em>) – (3, 3) rotation_matrix of the main body</p>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
 </dd></dl>
 
 </section>
@@ -550,7 +550,7 @@ normal_areas (np.ndarray): (n, 3) array of frontal areas in the link-referenced 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.4.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
   </p>
 </div>

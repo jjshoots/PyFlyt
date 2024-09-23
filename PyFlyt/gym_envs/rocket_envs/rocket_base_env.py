@@ -33,7 +33,6 @@ class RocketBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             drone_type (str): drone_type
@@ -137,7 +136,6 @@ class RocketBaseEnv(gymnasium.Env):
         """Resets the environment.
 
         Args:
-        ----
             seed: int
             options: None
 
@@ -185,12 +183,10 @@ class RocketBaseEnv(gymnasium.Env):
             spawn_range = self.max_displacement * 0.1
             start_xy = self.np_random.uniform(-spawn_range, spawn_range, size=(2,))
             start_z = self.np_random.uniform(self.ceiling * 0.8, self.ceiling * 0.9)
-            self.start_pos = np.expand_dims(np.array([*start_xy, start_z]), axis=0)
+            self.start_pos = np.array([*start_xy, start_z])[None, ...]
 
             # random rotation + make kind of upright
-            rotation = self.np_random.uniform(-0.3, 0.3, size=(3,))
-            rotation = np.expand_dims(rotation, axis=0)
-            self.start_orn = rotation
+            self.start_orn = self.np_random.uniform(-0.3, 0.3, size=(3,))[None, ...]
 
         # camera handling
         drone_options["use_camera"] = drone_options.get("use_camera", False) or bool(
@@ -283,7 +279,6 @@ class RocketBaseEnv(gymnasium.Env):
         """compute_base_term_trunc_reward.
 
         Args:
-        ----
             collision_ignore_mask (np.ndarray | list[int]): list of ids to ignore collisions between
 
         """
@@ -316,11 +311,9 @@ class RocketBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
-        ----
             action (np.ndarray): action
 
         Returns:
-        -------
             state, reward, termination, truncation, info
 
         """

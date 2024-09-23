@@ -16,9 +16,9 @@ from PyFlyt.gym_envs import FlattenWaypointEnv
 _WAYPOINT_ENV_CONFIGS = []
 for env_name, angle_representation, sparse_reward in itertools.product(
     [
-        "PyFlyt/QuadX-Waypoints-v2",
-        "PyFlyt/QuadX-Pole-Waypoints-v2",
-        "PyFlyt/Fixedwing-Waypoints-v2",
+        "PyFlyt/QuadX-Waypoints-v3",
+        "PyFlyt/QuadX-Pole-Waypoints-v3",
+        "PyFlyt/Fixedwing-Waypoints-v3",
     ],
     ["euler", "quaternion"],
     [True, False],
@@ -37,10 +37,10 @@ for env_name, angle_representation, sparse_reward in itertools.product(
 _NORMAL_ENV_CONFIGS = []
 for env_name, angle_representation, sparse_reward in itertools.product(
     [
-        "PyFlyt/QuadX-Hover-v2",
-        "PyFlyt/QuadX-Pole-Balance-v2",
-        "PyFlyt/QuadX-Ball-In-Cup-v2",
-        "PyFlyt/Rocket-Landing-v2",
+        "PyFlyt/QuadX-Hover-v3",
+        "PyFlyt/QuadX-Pole-Balance-v3",
+        "PyFlyt/QuadX-Ball-In-Cup-v3",
+        "PyFlyt/Rocket-Landing-v3",
     ],
     ["euler", "quaternion"],
     [True, False],

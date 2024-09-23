@@ -34,7 +34,6 @@ class RocketBrick(DroneClass):
         """Creates a UAV a brick acting as a lifting surface with a rocket attached.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p.
             start_pos (np.ndarray): start_pos.
             start_orn (np.ndarray): start_orn.
@@ -124,8 +123,8 @@ class RocketBrick(DroneClass):
         # compute camera fps parameters
         if camera_fps:
             assert (
-                (physics_hz / camera_fps) % 1 == 0
-            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+                physics_hz / camera_fps
+            ) % 1 == 0, f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
             self.physics_camera_ratio = int(physics_hz / camera_fps)
         else:
             self.physics_camera_ratio = 1
@@ -148,7 +147,6 @@ class RocketBrick(DroneClass):
         """Runs through controllers.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """
@@ -204,7 +202,6 @@ class RocketBrick(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """

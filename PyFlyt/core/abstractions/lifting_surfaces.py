@@ -17,7 +17,6 @@ class LiftingSurfaces:
     Simply pass it a list of `LiftingSurface` objects.
 
     Args:
-    ----
         lifting_surfaces (list[LiftingSurface]): a list of `LiftingSurface` objects.
 
     """
@@ -26,7 +25,6 @@ class LiftingSurfaces:
         """__init__.
 
         Args:
-        ----
             lifting_surfaces (list[LiftingSurface]): a list of `LiftingSurface` objects.
 
         """
@@ -49,7 +47,6 @@ class LiftingSurfaces:
         """Gets the current state of the components.
 
         Returns:
-        -------
             np.ndarray: a (num_surfaces, ) array representing the actuation state for each surface
 
         """
@@ -59,13 +56,12 @@ class LiftingSurfaces:
         """Converts actuation commands into forces on the lifting surfaces.
 
         Args:
-        ----
             cmd (np.ndarray): the full command array, command mapping is handled through `command_id` and `command_sign` on each surface, normalized in [-1, 1].
 
         """
         assert len(cmd.shape) == 1, f"`{cmd=}` must be 1D array."
-        assert (
-            cmd.shape[0] == len(self.surfaces)
+        assert cmd.shape[0] == len(
+            self.surfaces
         ), f"`{cmd=}` must have same number of elements as surfaces ({len(self.surfaces)})."
         assert np.all(cmd >= -1.0) and np.all(
             cmd <= 1.0
@@ -78,7 +74,6 @@ class LiftingSurfaces:
         """Updates all local surface velocities of the lifting surface, place under `update_state`.
 
         Args:
-        ----
             rotation_matrix (np.ndarray): (3, 3) OR (num_surfaces, 3, 3) array rotation_matrix
 
         """
@@ -100,7 +95,7 @@ class LiftingSurfaces:
         # convert all to local velocities, depending on rotation matrix style
         if rotation_matrix.shape == (len(self.surfaces), 3, 3):
             surface_velocities = np.matmul(
-                rotation_matrix, np.expand_dims(surface_velocities, -1)
+                rotation_matrix, surface_velocities[..., None]
             ).squeeze(-1)
         elif rotation_matrix.shape == (3, 3):
             surface_velocities = np.matmul(rotation_matrix, surface_velocities.T).T
@@ -121,7 +116,6 @@ class LiftingSurface:
     The `Lifting Surface` component is used to simulate a single lifting surface based on "Real-time modeling of agile fixed-wing uav aerodynamics, Khan et. al.".
 
     Args:
-    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -167,7 +161,6 @@ class LiftingSurface:
         """Used for simulating a single lifting surface.
 
         Args:
-        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -256,7 +249,6 @@ class LiftingSurface:
         """Gets the current state of the components.
 
         Returns:
-        -------
             float: the level of deflection of the surface.
 
         """
@@ -266,7 +258,6 @@ class LiftingSurface:
         """Updates the local surface velocity of the lifting surface.
 
         Args:
-        ----
             surface_velocity (np.ndarray): surface_velocity.
 
         """
@@ -276,11 +267,9 @@ class LiftingSurface:
         """Converts a commanded actuation state into forces on the lifting surface.
 
         Args:
-        ----
             cmd (float): normalized actuation in [-1, 1].
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque
 
         """
@@ -342,13 +331,11 @@ class LiftingSurface:
         """Computes the angle of attack (alpha) as well as the freestream speed.
 
         Args:
-        ----
             local_surface_velocity (np.ndarray): local_surface_velocity from self
             lift_unit (np.ndarray): lift_unit from self
             drag_unit (np.ndarray): drag_unit from self
 
         Returns:
-        -------
             tuple[float, float]:
 
         """
@@ -378,7 +365,6 @@ class LiftingSurface:
         """Computes the relevant aerodynamic data depending on the current state of the lifting surface.
 
         Args:
-        ----
             alpha (float): alpha
             aspect (float): aspect from self
             flap_to_chord (float): flap_to_chord from self
@@ -393,7 +379,6 @@ class LiftingSurface:
             Cd_0 (float): Cd_0 from self
 
         Returns:
-        -------
             tuple[float, float, float]:
 
         """
@@ -480,7 +465,6 @@ class LiftingSurface:
         """Compute the force and torque vectors on the surface.
 
         Args:
-        ----
             alpha (float): alpha
             freestream_speed (float): freestream_speed
             Cl (float): Cl
@@ -494,7 +478,6 @@ class LiftingSurface:
             torque_unit (np.ndarray): torque_unit from self
 
         Returns:
-        -------
             tuple[np.ndarray, np.ndarray]:
 
         """

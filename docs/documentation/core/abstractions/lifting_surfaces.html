@@ -313,18 +313,18 @@ document.write(`
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../gym_envs.html">Gymnasium Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_ball_in_cup_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v3</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../pz_envs.html">PettingZoo Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnvV2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnvV2</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -407,56 +407,59 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.</span></span><span class="sig-name descname"><span class="pre">LiftingSurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BulletClient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">physics_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_random</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RandomState</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uav_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lifting_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cl_alpha_2D</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flap_to_chord</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_0_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_stall_P_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_stall_N_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cd_0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deflection_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface" title="Link to this definition">#</a></dt>
 <dd><p>Used to represent a single lifting surface.</p>
 <p>The <cite>Lifting Surface</cite> component is used to simulate a single lifting surface based on “Real-time modeling of agile fixed-wing uav aerodynamics, Khan et. al.”.</p>
-<section id="args">
-<h3>Args:<a class="headerlink" href="#args" title="Link to this heading">#</a></h3>
-<blockquote>
-<div><p>p (bullet_client.BulletClient): PyBullet physics client ID.
-physics_period (float): physics period of the simulation.
-np_random (np.random.RandomState): random number generator of the simulation.
-uav_id (int): ID of the drone.
-surface_id (int): an integer for the link ID for this lifting surface.
-lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
-forward_unit (np.ndarray): (3,) unit vector representing the direction of travel.
-Cl_alpha_2D (float): lift coefficient slope under a no-stall condition.
-chord (float): chord of the lifting surface.
-span (float): span of the lifting surface.
-flap_to_chord (float): ratio of the wing that is an actuated flap, can be in [0, 1].
-eta (float): correction factor for viscosity effects, usually 0.65.
-alpha_0_base (float): zero lift angle-of-attack.
-alpha_stall_P_base (float): positive stall angle in degrees.
-alpha_stall_N_base (float): negative stall angle in degrees.
-Cd_0 (float): drag coefficient at zero angle-of-attack.
-deflection_limit (float): maximum deflection limit of the actuated flap in degrees.
-tau (float): actuation ramp time constant.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>surface_id</strong> (<em>int</em>) – an integer for the link ID for this lifting surface.</p></li>
+<li><p><strong>lifting_unit</strong> (<em>np.ndarray</em>) – (3,) unit vector representing the direction of lift.</p></li>
+<li><p><strong>forward_unit</strong> (<em>np.ndarray</em>) – (3,) unit vector representing the direction of travel.</p></li>
+<li><p><strong>Cl_alpha_2D</strong> (<em>float</em>) – lift coefficient slope under a no-stall condition.</p></li>
+<li><p><strong>chord</strong> (<em>float</em>) – chord of the lifting surface.</p></li>
+<li><p><strong>span</strong> (<em>float</em>) – span of the lifting surface.</p></li>
+<li><p><strong>flap_to_chord</strong> (<em>float</em>) – ratio of the wing that is an actuated flap, can be in [0, 1].</p></li>
+<li><p><strong>eta</strong> (<em>float</em>) – correction factor for viscosity effects, usually 0.65.</p></li>
+<li><p><strong>alpha_0_base</strong> (<em>float</em>) – zero lift angle-of-attack.</p></li>
+<li><p><strong>alpha_stall_P_base</strong> (<em>float</em>) – positive stall angle in degrees.</p></li>
+<li><p><strong>alpha_stall_N_base</strong> (<em>float</em>) – negative stall angle in degrees.</p></li>
+<li><p><strong>Cd_0</strong> (<em>float</em>) – drag coefficient at zero angle-of-attack.</p></li>
+<li><p><strong>deflection_limit</strong> (<em>float</em>) – maximum deflection limit of the actuated flap in degrees.</p></li>
+<li><p><strong>tau</strong> (<em>float</em>) – actuation ramp time constant.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface.get_states" title="Link to this definition">#</a></dt>
 <dd><p>Gets the current state of the components.</p>
-<section id="returns">
-<h4>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>float: the level of deflection of the surface.</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the level of deflection of the surface.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface.physics_update">
 <span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface.physics_update" title="Link to this definition">#</a></dt>
 <dd><p>Converts a commanded actuation state into forces on the lifting surface.</p>
-<section id="id1">
-<h4>Args:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>cmd (float): normalized actuation in [-1, 1].</p>
-</div></blockquote>
-</section>
-<section id="id2">
-<h4>Returns:<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>tuple[np.ndarray, np.ndarray]: vec3 force, vec3 torque</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>float</em>) – normalized actuation in [-1, 1].</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>vec3 force, vec3 torque</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[np.ndarray, np.ndarray]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -469,15 +472,13 @@ tau (float): actuation ramp time constant.</p>
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurface.state_update">
 <span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_velocity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurface.state_update" title="Link to this definition">#</a></dt>
 <dd><p>Updates the local surface velocity of the lifting surface.</p>
-<section id="id3">
-<h4>Args:<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>surface_velocity (np.ndarray): surface_velocity.</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>surface_velocity</strong> (<em>np.ndarray</em>) – surface_velocity.</p>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
 </dd></dl>
 
 <dl class="py class">
@@ -486,33 +487,34 @@ tau (float): actuation ramp time constant.</p>
 <dd><p>Handler for multiple lifting surfaces.</p>
 <p>This is a convenience class for handling multiple lifting surfaces as a single object.
 Simply pass it a list of <cite>LiftingSurface</cite> objects.</p>
-<section id="args">
-<h3>Args:<a class="headerlink" href="#args" title="Link to this heading">#</a></h3>
-<blockquote>
-<div><p>lifting_surfaces (list[LiftingSurface]): a list of <cite>LiftingSurface</cite> objects.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lifting_surfaces</strong> (<em>list</em><em>[</em><a class="reference internal" href="#PyFlyt.core.abstractions.LiftingSurface" title="PyFlyt.core.abstractions.LiftingSurface"><em>LiftingSurface</em></a><em>]</em>) – a list of <cite>LiftingSurface</cite> objects.</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurfaces.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurfaces.get_states" title="Link to this definition">#</a></dt>
 <dd><p>Gets the current state of the components.</p>
-<section id="returns">
-<h4>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>np.ndarray: a (num_surfaces, ) array representing the actuation state for each surface</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a (num_surfaces, ) array representing the actuation state for each surface</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurfaces.physics_update">
 <span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurfaces.physics_update" title="Link to this definition">#</a></dt>
 <dd><p>Converts actuation commands into forces on the lifting surfaces.</p>
-<section id="id1">
-<h4>Args:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>cmd (np.ndarray): the full command array, command mapping is handled through <cite>command_id</cite> and <cite>command_sign</cite> on each surface, normalized in [-1, 1].</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>np.ndarray</em>) – the full command array, command mapping is handled through <cite>command_id</cite> and <cite>command_sign</cite> on each surface, normalized in [-1, 1].</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -525,15 +527,13 @@ Simply pass it a list of <cite>LiftingSurface</cite> objects.</p>
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.LiftingSurfaces.state_update">
 <span class="sig-name descname"><span class="pre">state_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rotation_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PyFlyt.core.abstractions.LiftingSurfaces.state_update" title="Link to this definition">#</a></dt>
 <dd><p>Updates all local surface velocities of the lifting surface, place under <cite>update_state</cite>.</p>
-<section id="id2">
-<h4>Args:<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>rotation_matrix (np.ndarray): (3, 3) OR (num_surfaces, 3, 3) array rotation_matrix</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rotation_matrix</strong> (<em>np.ndarray</em>) – (3, 3) OR (num_surfaces, 3, 3) array rotation_matrix</p>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
 </dd></dl>
 
 </section>
@@ -626,7 +626,7 @@ Simply pass it a list of <cite>LiftingSurface</cite> objects.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.4.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
   </p>
 </div>

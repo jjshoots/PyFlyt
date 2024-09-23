@@ -313,18 +313,18 @@ document.write(`
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../gym_envs.html">Gymnasium Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_ball_in_cup_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v3</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../pz_envs.html">PettingZoo Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnvV2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnvV2</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -419,44 +419,49 @@ Conveniently, the <code class="docutils literal notranslate"><span class="pre">G
 <p>The <cite>Motors</cite> component is used to simulate a series of brushless motor driven propellers at arbitrary locations of the drone.
 Counter rotating motors (producing reversed torque) can be represented using negative <cite>torque_coef</cite> values.
 The maximum RPM can be easily computed using <cite>max_rpm = max_thrust / thrust_coef</cite>.</p>
-<section id="args">
-<h3>Args:<a class="headerlink" href="#args" title="Link to this heading">#</a></h3>
-<blockquote>
-<div><p>p (bullet_client.BulletClient): PyBullet physics client ID.
-physics_period (float): physics period of the simulation.
-np_random (np.random.RandomState): random number generator of the simulation.
-uav_id (int): ID of the drone.
-motor_ids (list[int]): a (n,) list of integers representing the link IDs for n motors.
-tau (np.ndarray): an (n,) of floats array representing the ramp time constant of each motor.
-max_rpm (np.ndarray): an (n,) array of floats representing the maximum RPM of each motor.
-thrust_coef (np.ndarray): an (n,) array of floats representing all motor thrust coefficients.
-torque_coef (np.ndarray): an (n,) array of floats representing all motor torque coefficients, uses right hand rotation rule around the <cite>thrust_unit</cite> axis.
-thrust_unit (np.ndarray): an (n, 3) array of floats representing n unit vectors along with the thrust of each motor acts.
-noise_ratio (np.ndarray): an (n,) array of floats representing the ratio amount of noise fluctuation present in each motor.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>physics_period</strong> (<em>float</em>) – physics period of the simulation.</p></li>
+<li><p><strong>np_random</strong> (<em>np.random.RandomState</em>) – random number generator of the simulation.</p></li>
+<li><p><strong>uav_id</strong> (<em>int</em>) – ID of the drone.</p></li>
+<li><p><strong>motor_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – a (n,) list of integers representing the link IDs for n motors.</p></li>
+<li><p><strong>tau</strong> (<em>np.ndarray</em>) – an (n,) of floats array representing the ramp time constant of each motor.</p></li>
+<li><p><strong>max_rpm</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing the maximum RPM of each motor.</p></li>
+<li><p><strong>thrust_coef</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing all motor thrust coefficients.</p></li>
+<li><p><strong>torque_coef</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing all motor torque coefficients, uses right hand rotation rule around the <cite>thrust_unit</cite> axis.</p></li>
+<li><p><strong>thrust_unit</strong> (<em>np.ndarray</em>) – an (n, 3) array of floats representing n unit vectors along with the thrust of each motor acts.</p></li>
+<li><p><strong>noise_ratio</strong> (<em>np.ndarray</em>) – an (n,) array of floats representing the ratio amount of noise fluctuation present in each motor.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.get_states">
 <span class="sig-name descname"><span class="pre">get_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.get_states" title="Link to this definition">#</a></dt>
 <dd><p>Gets the current state of the components.</p>
-<section id="returns">
-<h4>Returns:<a class="headerlink" href="#returns" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>np.ndarray: an (num_motors, ) array for the current throttle level of each motor</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>an (num_motors, ) array for the current throttle level of each motor</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.motors.Motors.physics_update">
 <span class="sig-name descname"><span class="pre">physics_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pwm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.motors.Motors.physics_update" title="Link to this definition">#</a></dt>
 <dd><p>Converts motor PWM values to forces, this motor allows negative thrust.</p>
-<section id="id1">
-<h4>Args:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>pwm (np.ndarray): [num_motors, ] array defining the pwm values of each motor from -1 to 1.
-rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each booster’s thrust axis around, this is readily obtained from the <cite>gimbals</cite> component.</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pwm</strong> (<em>np.ndarray</em>) – [num_motors, ] array defining the pwm values of each motor from -1 to 1.</p></li>
+<li><p><strong>rotation</strong> (<em>np.ndarray</em>) – (num_motors, 3, 3) rotation matrices to rotate each booster’s thrust axis around, this is readily obtained from the <cite>gimbals</cite> component.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -471,7 +476,6 @@ rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each boost
 <dd><p>This does not need to be called for motors.</p>
 </dd></dl>
 
-</section>
 </dd></dl>
 
 </section>
@@ -556,7 +560,7 @@ rotation (np.ndarray): (num_motors, 3, 3) rotation matrices to rotate each boost
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.4.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
   </p>
 </div>

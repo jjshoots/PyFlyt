@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 from gymnasium import spaces
@@ -17,14 +17,13 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
     The target is for each agent to not crash for the longest time possible.
 
     Args:
-    ----
         start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
         start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
         sparse_reward (bool): whether to use sparse rewards or not.
         flight_mode (int): the flight mode of all UAVs.
         flight_dome_size (float): size of the allowable flying area.
         max_duration_seconds (float): maximum simulation time of the environment.
-        angle_representation (str): can be "euler" or "quaternion".
+        angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
         agent_hz (int): looprate of the agent to environment interaction.
         render_mode (None | str): can be "human" or None.
 
@@ -47,21 +46,20 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         flight_mode: int = 0,
         flight_dome_size: float = 10.0,
         max_duration_seconds: float = 30.0,
-        angle_representation: str = "quaternion",
+        angle_representation: Literal["euler", "quaternion"] = "quaternion",
         agent_hz: int = 40,
         render_mode: None | str = None,
     ):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): an (num_drones x 3) numpy array specifying the starting positions of each agent.
             start_orn (np.ndarray): an (num_drones x 3) numpy array specifying the starting orientations of each agent.
             sparse_reward (bool): whether to use sparse rewards or not.
             flight_mode (int): the flight mode of all UAVs.
             flight_dome_size (float): size of the allowable flying area.
             max_duration_seconds (float): maximum simulation time of the environment.
-            angle_representation (str): can be "euler" or "quaternion".
+            angle_representation (Literal["euler", "quaternion"]): can be "euler" or "quaternion".
             agent_hz (int): looprate of the agent to environment interaction.
             render_mode (None | str): can be "human" or None.
 
@@ -90,11 +88,9 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """observation_space.
 
         Args:
-        ----
             agent (Any): agent
 
         Returns:
-        -------
             spaces.Space:
 
         """
@@ -106,7 +102,6 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -125,17 +120,15 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         """compute_observation_by_id.
 
         Args:
-        ----
             agent_id (int): agent_id
 
         Returns:
-        -------
             np.ndarray:
 
         """
         # get all the relevant things
         raw_state = self.compute_attitude_by_id(agent_id)
-        aux_state = self.compute_auxiliary_by_id(agent_id)
+        aux_state = self.aviary.aux_state(agent_id)
 
         # state breakdown
         ang_vel = raw_state[0]
@@ -178,10 +171,25 @@ class MAQuadXHoverEnv(MAQuadXBaseEnv):
         self, agent_id: int
     ) -> tuple[bool, bool, float, dict[str, Any]]:
         """Computes the termination, truncation, and reward of the current timestep."""
-        term, trunc, reward, info = super().compute_base_term_trunc_reward_info_by_id(
-            agent_id
-        )
+        # initialize
+        reward = 0.0
+        term = False
+        trunc = self.step_count > self.max_steps
+        info = dict()
 
+        # collision
+        if np.any(self.aviary.contact_array[self.aviary.drones[agent_id].Id]):
+            reward -= 100.0
+            info["collision"] = True
+            term |= True
+
+        # exceed flight dome
+        if np.linalg.norm(self.aviary.state(agent_id)[-1]) > self.flight_dome_size:
+            reward -= 100.0
+            info["out_of_bounds"] = True
+            term |= True
+
+        # reward
         if not self.sparse_reward:
             # distance from 0, 0, 1 hover point
             linear_distance = np.linalg.norm(

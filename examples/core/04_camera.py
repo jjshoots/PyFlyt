@@ -15,7 +15,15 @@ env = Aviary(
     start_orn=start_orn,
     render=True,
     drone_type="quadx",
-    drone_options=dict(use_camera=True),
+    drone_options=dict(
+        use_camera=True,
+        camera_angle=30,
+        camera_FOV_degrees=110,
+        camera_fps=30,
+        # by default, camera_fps=control_hz,
+        # but this makes the simulation slow,
+        # see https://github.com/jjshoots/PyFlyt/pull/43
+    ),
 )
 
 # set to velocity control

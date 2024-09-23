@@ -209,6 +209,12 @@ In the second sample, when arranged in ascending order, this list is `looprates 
 Similarly, when we do `looprate[1:] / looprate[:-1]`, we get `[1.25, 3]`, which is __not__ all integers.
 This is __invalid__.
 
+#### Camera FPS
+
+When using onboard cameras on each UAV, by default, the camera FPS will equal the control looprate.
+However, this results in the camera capture component consuming a significant amount of overhead, see [this github issue](https://github.com/jjshoots/PyFlyt/pull/43).
+To alleviate this problem, it is recommended to set `camera_fps` when setting `use_camera=True` for each UAV to something like 30 or 40.
+
 ## Class Description
 
 ```{eval-rst}

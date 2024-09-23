@@ -17,7 +17,6 @@ class Boosters:
     Additionally, some boosters, typically of the solid fuel variety, cannot be extinguished and reignited, a property we call reignitability.
 
     Args:
-    ----
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
         np_random (np.random.RandomState): random number generator of the simulation.
@@ -57,7 +56,6 @@ class Boosters:
         """Used for simulating an array of boosters.
 
         Args:
-        ----
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
             np_random (np.random.RandomState): random number generator of the simulation.
@@ -111,7 +109,7 @@ class Boosters:
         self.max_fuel_rate = max_fuel_rate
         self.max_inertia = max_inertia
         self.max_thrust = max_thrust
-        self.thrust_unit = np.expand_dims(thrust_unit, axis=-1)
+        self.thrust_unit = thrust_unit[..., None]
         self.reignitable = np.array(reignitable, dtype=bool)
         self.min_thrust = min_thrust
         self.ratio_min_throttle = self.min_thrust / self.max_thrust
@@ -123,7 +121,6 @@ class Boosters:
         """Reset the boosters.
 
         Args:
-        ----
             starting_fuel_ratio (float | np.ndarray): ratio amount of fuel that the booster is reset to.
 
         """
@@ -143,7 +140,6 @@ class Boosters:
         - (c0, c1, ..., cn) represent the current throttle state
 
         Returns:
-        -------
             np.ndarray: A (3 * num_boosters, ) array
 
         """
@@ -165,7 +161,6 @@ class Boosters:
         """Converts booster settings into forces on the booster and inertia change on fuel tank.
 
         Args:
-        ----
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
             pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
             rotation (np.ndarray): (num_boosters, 3, 3) rotation matrices to rotate each booster's thrust axis around, this is readily obtained from the `gimbals` component.
@@ -178,13 +173,10 @@ class Boosters:
             pwm <= 1.0
         ), f"{pwm=} has values out of bounds of 0.0 and 1.0."
         if rotation is not None:
-            assert (
-                rotation.shape
-                == (
-                    self.num_boosters,
-                    3,
-                    3,
-                )
+            assert rotation.shape == (
+                self.num_boosters,
+                3,
+                3,
             ), f"`rotation` should be of shape (num_boosters, 3, 3), got {rotation.shape}"
 
         # compute thrust mass inertia
@@ -225,7 +217,6 @@ class Boosters:
         """_compute_thrust_mass_inertia.
 
         Args:
-        ----
             ignition (np.ndarray): (num_boosters,) array of booleans for engine on or off.
             pwm (np.ndarray): (num_boosters,) array of floats between [0, 1] for min or max thrust.
 

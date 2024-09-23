@@ -33,7 +33,6 @@ class FixedwingBaseEnv(gymnasium.Env):
         """__init__.
 
         Args:
-        ----
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
             flight_mode (int): flight_mode
@@ -76,24 +75,8 @@ class FixedwingBaseEnv(gymnasium.Env):
         self.auxiliary_space = spaces.Box(
             low=-np.inf, high=np.inf, shape=(6,), dtype=np.float64
         )
-        control_surface_limit = 1.0
-        thrust_limit = 1.0
-        high = np.array(
-            [
-                control_surface_limit,
-                control_surface_limit,
-                control_surface_limit,
-                thrust_limit,
-            ]
-        )
-        low = np.array(
-            [
-                -control_surface_limit,
-                -control_surface_limit,
-                -control_surface_limit,
-                0.0,
-            ]
-        )
+        high = np.ones((4,), dtype=np.float64)
+        low = -high
         self.action_space = spaces.Box(low=low, high=high, dtype=np.float64)
 
         # the whole implicit state space = attitude + previous action + auxiliary information
@@ -126,7 +109,6 @@ class FixedwingBaseEnv(gymnasium.Env):
         """reset.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -263,20 +245,20 @@ class FixedwingBaseEnv(gymnasium.Env):
         """Steps the environment.
 
         Args:
-        ----
             action (np.ndarray): action
 
         Returns:
-        -------
             state, reward, termination, truncation, info
 
         """
-        # unsqueeze the action to be usable in aviary
-        self.action = action.copy()
-
-        # reset the reward and set the action
+        # reset the reward
         self.reward = -0.1
-        self.env.set_setpoint(0, action)
+
+        # pass the action, but clip the throttle
+        self.action = action.copy()
+        aviary_action = action.copy()
+        aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
+        self.env.set_setpoint(0, aviary_action)
 
         # step through env, the internal env updates a few steps before the outer env
         for _ in range(self.env_step_ratio):

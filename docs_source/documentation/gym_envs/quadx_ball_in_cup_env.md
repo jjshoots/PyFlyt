@@ -16,7 +16,7 @@ This environment was introduced and contributed by GitHub user [defrag-bambino](
 import gymnasium
 import PyFlyt.gym_envs
 
-env = gymnasium.make("PyFlyt/QuadX-Ball-In-Cup-v2", render_mode="human")
+env = gymnasium.make("PyFlyt/QuadX-Ball-In-Cup-v3", render_mode="human")
 
 term, trunc = False, False
 obs, _ = env.reset()

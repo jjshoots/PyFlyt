@@ -18,7 +18,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
     The goal is to swing up a suspended ball onto the drone, and then bring it to the starting position.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         goal_reach_distance (float): minimum distance from the ending position that the UAV must reach for success.
         goal_reach_velocity (float): maximum velocity that the UAV must maintain at the ending position for success.
@@ -48,7 +47,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             goal_reach_distance (float): minimum distance from the ending position that the UAV must reach for success.
             goal_reach_velocity (float): maximum velocity that the UAV must maintain at the ending position for success.
@@ -159,7 +157,6 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 

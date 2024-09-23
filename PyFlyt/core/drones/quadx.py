@@ -40,7 +40,6 @@ class QuadX(DroneClass):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
         Args:
-        ----
             p (bullet_client.BulletClient): p
             start_pos (np.ndarray): start_pos
             start_orn (np.ndarray): start_orn
@@ -214,8 +213,8 @@ class QuadX(DroneClass):
         # compute camera fps parameters
         if camera_fps:
             assert (
-                (physics_hz / camera_fps) % 1 == 0
-            ), f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
+                physics_hz / camera_fps
+            ) % 1 == 0, f"Expected `camera_fps` to roundly divide `physics_hz`, got {camera_fps=} and {physics_hz=}."
             self.physics_camera_ratio = int(physics_hz / camera_fps)
         else:
             self.physics_camera_ratio = 1
@@ -254,7 +253,6 @@ class QuadX(DroneClass):
             - T = thrust
 
         Args:
-        ----
             mode (int): flight mode
 
         """
@@ -383,7 +381,6 @@ class QuadX(DroneClass):
         """Registers a new controller for the UAV.
 
         Args:
-        ----
             controller_id (int): controller_id
             controller_constructor (type[ControlClass]): controller_constructor
             base_mode (int): base_mode
@@ -405,7 +402,6 @@ class QuadX(DroneClass):
         """Runs through controllers.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """
@@ -423,8 +419,8 @@ class QuadX(DroneClass):
             custom_output = self.instanced_controllers[self.mode].step(
                 self.state, self.setpoint
             )
-            assert (
-                custom_output.shape == (4,)
+            assert custom_output.shape == (
+                4,
             ), f"custom controller outputting wrong shape, expected (4, ) but got {custom_output.shape}."
 
             # splice things out to be passed along
@@ -542,7 +538,6 @@ class QuadX(DroneClass):
         """Updates things only at the end of `Aviary.step()`.
 
         Args:
-        ----
             physics_step (int): the current physics step
 
         """

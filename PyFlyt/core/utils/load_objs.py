@@ -19,7 +19,6 @@ def loadOBJ(
     """Loads an object into the environment.
 
     Args:
-    ----
         env (Aviary): env
         fileName (str): fileName
         visualId (int): visualId
@@ -57,7 +56,6 @@ def obj_visual(
     """Loads an object visual model.
 
     Args:
-    ----
         env (Aviary): env
         fileName (str): fileName
         meshScale (list[float] | np.ndarray): meshScale
@@ -81,7 +79,6 @@ def obj_collision(
     """Loads an object collision model.
 
     Args:
-    ----
         env (Aviary): env
         fileName (str): fileName
         meshScale (list[float] | np.ndarray): meshScale

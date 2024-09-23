@@ -26,7 +26,6 @@ class WaypointHandler:
         """__init__.
 
         Args:
-        ----
             enable_render (bool): enable_render
             num_targets (int): num_targets
             use_yaw_targets (bool): use_yaw_targets
@@ -114,7 +113,6 @@ class WaypointHandler:
         """distance_to_next_target.
 
         Returns:
-        ---
             float:
         """
         return self.new_distance
@@ -128,7 +126,6 @@ class WaypointHandler:
         """distance_to_targets.
 
         Args:
-        ---
             ang_pos (np.ndarray): ang_pos
             lin_pos (np.ndarray): lin_pos
             quaternion (np.ndarray): quaternion
@@ -150,7 +147,7 @@ class WaypointHandler:
             # rollover yaw
             yaw_errors[yaw_errors > math.pi] -= 2.0 * math.pi
             yaw_errors[yaw_errors < -math.pi] += 2.0 * math.pi
-            yaw_errors = np.expand_dims(yaw_errors, axis=-1)
+            yaw_errors = yaw_errors[..., None]
 
             # add the yaw delta to the target deltas
             target_deltas = np.concatenate([target_deltas, yaw_errors], axis=-1)

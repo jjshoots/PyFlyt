@@ -18,7 +18,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
     The target is a set of `[x, y, z, (optional) yaw]` waypoints in space.
 
     Args:
-    ----
         sparse_reward (bool): whether to use sparse rewards or not.
         num_targets (int): number of waypoints in the environment.
         use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
@@ -52,7 +51,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             sparse_reward (bool): whether to use sparse rewards or not.
             num_targets (int): number of waypoints in the environment.
             use_yaw_targets (bool): whether to match yaw targets before a waypoint is considered reached.
@@ -115,7 +113,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 

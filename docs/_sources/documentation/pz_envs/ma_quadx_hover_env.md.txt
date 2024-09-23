@@ -1,4 +1,4 @@
-# `MAQuadXHoverEnv`
+# `MAQuadXHoverEnvV2`
 
 ```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/quadx_hover.gif
     :width: 50%
@@ -11,9 +11,9 @@ The goal of this environment is for all agents to hover at their starting positi
 ## Usage
 
 ```python
-from PyFlyt.pz_envs import MAQuadXHoverEnv
+from PyFlyt.pz_envs import MAQuadXHoverEnvV2
 
-env = MAQuadXHoverEnv(render_mode="human")
+env = MAQuadXHoverEnvV2(render_mode="human")
 observations, infos = env.reset()
 
 while env.agents:

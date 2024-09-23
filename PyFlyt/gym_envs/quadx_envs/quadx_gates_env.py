@@ -24,7 +24,6 @@ class QuadXGatesEnv(QuadXBaseEnv):
     Reward is -(distance from waypoint + angle error) for each timestep, and -100.0 for hitting the ground.
 
     Args:
-    ----
         flight_mode (int): the flight mode of the UAV
         num_targets (int): num_targets
         goal_reach_distance (float): goal_reach_distance
@@ -60,7 +59,6 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """__init__.
 
         Args:
-        ----
             flight_mode (int): the flight mode of the UAV
             num_targets (int): num_targets
             goal_reach_distance (float): goal_reach_distance
@@ -123,7 +121,6 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """Resets the environment.
 
         Args:
-        ----
             seed: seed to pass to the base environment.
             options: None
 
@@ -207,7 +204,6 @@ class QuadXGatesEnv(QuadXBaseEnv):
         """Colours the gates that are done.
 
         Args:
-        ----
             gate (int): body ID of the gate
 
         """

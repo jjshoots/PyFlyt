@@ -313,18 +313,18 @@ document.write(`
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../gym_envs.html">Gymnasium Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Hover-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_balance_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Balance-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_pole_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Pole-Waypoints-v3</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../gym_envs/quadx_ball_in_cup_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/QuadX-Ball-In-Cup-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v2</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/fixedwing_waypoints_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Fixedwing-Waypoints-v3</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gym_envs/rocket_landing_env.html"><code class="docutils literal notranslate"><span class="pre">PyFlyt/Rocket-Landing-v3</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../pz_envs.html">PettingZoo Environments</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnv</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_quadx_hover_env.html"><code class="docutils literal notranslate"><span class="pre">MAQuadXHoverEnvV2</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pz_envs/ma_fixedwing_dogfight_env.html"><code class="docutils literal notranslate"><span class="pre">MAFixedwingDogfightEnvV2</span></code></a></li>
 </ul>
 </details></li>
 </ul>
@@ -406,18 +406,20 @@ document.write(`
 <dd><p>The <cite>DroneClass</cite> is an abstract class that all drones should inherit from.</p>
 <p>It serves as a template class for interfacing with the <cite>Aviary</cite>.
 Each drone inheriting from this class must have several attributes and methods implemented before they can be considered usable.</p>
-<section id="args">
-<h3>Args:<a class="headerlink" href="#args" title="Link to this heading">#</a></h3>
-<blockquote>
-<div><p>p (bullet_client.BulletClient): PyBullet physics client ID.
-start_pos (np.ndarray): an <cite>(3,)</cite> array for the starting X, Y, Z position for the drone.
-start_orn (np.ndarray): an <cite>(3,)</cite> array for the starting X, Y, Z orientation for the drone.
-control_hz (int): an integer representing the control looprate of the drone.
-physics_hz (int): an integer representing the physics looprate of the <cite>Aviary</cite>.
-drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
-model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
-np_random (None | np.random.RandomState = None): random number generator of the simulation.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>bullet_client.BulletClient</em>) – PyBullet physics client ID.</p></li>
+<li><p><strong>start_pos</strong> (<em>np.ndarray</em>) – an <cite>(3,)</cite> array for the starting X, Y, Z position for the drone.</p></li>
+<li><p><strong>start_orn</strong> (<em>np.ndarray</em>) – an <cite>(3,)</cite> array for the starting X, Y, Z orientation for the drone.</p></li>
+<li><p><strong>control_hz</strong> (<em>int</em>) – an integer representing the control looprate of the drone.</p></li>
+<li><p><strong>physics_hz</strong> (<em>int</em>) – an integer representing the physics looprate of the <cite>Aviary</cite>.</p></li>
+<li><p><strong>drone_model</strong> (<em>str</em>) – name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.</p></li>
+<li><p><strong>model_dir</strong> (<em>None</em><em> | </em><em>str = None</em>) – directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.</p></li>
+<li><p><strong>np_random</strong> (<em>None</em><em> | </em><em>np.random.RandomState = None</em>) – random number generator of the simulation.</p></li>
+</ul>
+</dd>
+</dl>
 <dl>
 <dt>Example Implementation:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="bp">self</span><span class="p">,</span>
@@ -459,7 +461,6 @@ np_random (None | np.random.RandomState = None): random number generator of the 
 </div>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <section id="default-attributes">
@@ -715,14 +716,15 @@ Mode 0 - [Roll, Pitch, Yaw, Thrust]</p>
 <dt class="sig sig-object py" id="PyFlyt.core.abstractions.DroneClass.register_controller">
 <span class="sig-prename descclassname"><span class="pre">PyFlyt.core.abstractions.DroneClass.</span></span><span class="sig-name descname"><span class="pre">register_controller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller_constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">ControlClass</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#PyFlyt.core.abstractions.DroneClass.register_controller" title="Link to this definition">#</a></dt>
 <dd><p>Default register_controller.</p>
-<section id="args">
-<h4>Args:<a class="headerlink" href="#args" title="Link to this heading">#</a></h4>
-<blockquote>
-<div><p>controller_id (int): ID to bind to this controller
-controller_constructor (type[ControlClass]): A class pointer to the controller implementation, must be subclass of <cite>ControlClass</cite>.
-base_mode (int): Whether this controller uses outputs of an underlying controller as setpoints.</p>
-</div></blockquote>
-</section>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>controller_id</strong> (<em>int</em>) – ID to bind to this controller</p></li>
+<li><p><strong>controller_constructor</strong> (<em>type</em><em>[</em><em>ControlClass</em><em>]</em>) – A class pointer to the controller implementation, must be subclass of <cite>ControlClass</cite>.</p></li>
+<li><p><strong>base_mode</strong> (<em>int</em>) – Whether this controller uses outputs of an underlying controller as setpoints.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -843,7 +845,7 @@ base_mode (int): Whether this controller uses outputs of an underlying controlle
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.4.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
   </p>
 </div>

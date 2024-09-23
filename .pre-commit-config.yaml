@@ -1,18 +1,60 @@
----
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+exclude: "^docs/"
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-ast
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: detect-private-key
+      - id: debug-statements
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
       - id: codespell
-        args:
-          - --ignore-words-list=null
-        exclude: docs/
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.3
+        args: ['--skip=^docs/']
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
     hooks:
-      - id: ruff
-        args: [ --fix ]
-      - id: ruff-format
+      - id: flake8
+        args:
+          - '--per-file-ignores=*/__init__.py:F401'
+          - --max-complexity=30
+          - --max-line-length=456
+          - --show-source
+          - --statistics
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.16.0
+    hooks:
+      - id: pyupgrade
+        args: ["--py38-plus"]
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args:
+        - "--profile=black"
+  - repo: https://github.com/python/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --source
+          - --explain
+          - --convention=google
+        additional_dependencies: ["tomli"]
   - repo: local
     hooks:
       - id: pyright
@@ -21,6 +63,6 @@ repos:
         language: node
         pass_filenames: false
         types: [python]
-        additional_dependencies: ["pyright"]
+        additional_dependencies: ["pyright@1.1.347"]
         args:
           - --project=pyproject.toml
