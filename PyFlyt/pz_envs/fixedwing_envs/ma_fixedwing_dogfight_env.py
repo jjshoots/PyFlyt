@@ -577,7 +577,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 )
                 * (~self.in_range & self.chasing & self.friendly_fire_mask)
             )  # positive good, symmetric matrix (before masking) in range [-inf, inf]
-            engagement_rewards += 3.0 * delta_distance
+            engagement_rewards += 4.0 * delta_distance
 
             # reward for progressing to engagement, penalty for losing angles is less
             # WARNING: NaN introduced here
@@ -596,7 +596,7 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
                 * (self.friendly_fire_mask & self.in_range & self.chasing)
             )  # positive good, asymmetric matrix (before masking) in range [0, inf]
             engagement_rewards += (
-                2.0
+                3.0
                 * (inverse_abs_angles - (1.0 - self.aggressiveness) * inverse_abs_angles.T)
             )
 
@@ -634,18 +634,12 @@ class MAFixedwingDogfightEnv(MAFixedwingBaseEnv):
 
         if not self.sparse_reward:
             # too close to floor, add reward to encourage being above flight floor
-            boundary_rewards += (
-                2.0
-                * (self.attitudes[:, -1, -1] > 10.0)
-            )
+            boundary_rewards += np.tanh(0.1 * self.attitudes[:, -1, -1] - 1.0)
 
-            # too close to out of bounds, add reward to encourage being near center
-            boundary_rewards += (
-                2.0
-                * (self.distances_from_origin < (0.75 * self.flight_dome_size))
-            )
+            # too close to out of bounds, add penalty to avoid OOB
+            boundary_rewards -= np.tanh(0.0025 * self.distances_from_origin - 1.0)
 
-            # reward for being too close to anyone, minus diagonal to ignore self
+            # penalty for being too close to anyone, minus diagonal to ignore self
             boundary_rewards -= np.sum(
                 10.0
                 * (
