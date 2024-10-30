@@ -88,7 +88,6 @@ def test_check_env(env_config):
         if warning_message.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
             raise Error(f"Unexpected warning: {warning_message.message}")
 
-
     env.close()
 
 
