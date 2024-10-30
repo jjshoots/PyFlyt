@@ -23,7 +23,7 @@ class RocketBrick(DroneClass):
         physics_hz: int = 240,
         drone_model: str = "rocket_brick",
         model_dir: None | str = os.path.dirname(os.path.realpath(__file__)),
-        np_random: None | np.random.RandomState = None,
+        np_random: None | np.random.Generator = None,
         use_camera: bool = False,
         use_gimbal: bool = False,
         camera_angle_degrees: int = 0,
@@ -41,7 +41,7 @@ class RocketBrick(DroneClass):
             physics_hz (int): physics_hz.
             drone_model (str): drone_model.
             model_dir (None | str): model_dir.
-            np_random (None | np.random.RandomState): np_random.
+            np_random (None | np.random.Generator): np_random.
             use_camera (bool): use_camera.
             use_gimbal (bool): use_gimbal.
             camera_angle_degrees (int): camera_angle_degrees.

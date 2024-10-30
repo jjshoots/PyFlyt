@@ -309,7 +309,7 @@ def test_custom_wind(model: str):
     # define the wind field
     class MyWindField(WindFieldClass):
         def __init__(
-            self, my_parameter=1.0, np_random: None | np.random.RandomState = None
+            self, my_parameter=1.0, np_random: None | np.random.Generator = None
         ):
             super().__init__(np_random)
             self.strength = my_parameter
@@ -317,7 +317,7 @@ def test_custom_wind(model: str):
         def __call__(self, time: float, position: np.ndarray):
             wind = np.zeros_like(position)
             wind[:, -1] = np.exp(position[:, -1]) * self.strength
-            wind += self.np_random.randn(*wind.shape)
+            wind += self.np_random.normal(*wind.shape)
             return wind
 
     # the starting position and orientations

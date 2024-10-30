@@ -16,7 +16,7 @@ class WindFieldClass(ABC):
         >>>
         >>> # define the wind field
         >>> class MyWindField(WindFieldClass):
-        >>>     def __init__(self, my_parameter=1.0, np_random: None | np.random.RandomState = None):
+        >>>     def __init__(self, my_parameter=1.0, np_random: None | np.random.Generator = None):
         >>>         super().__init__(np_random)
         >>>         self.strength = my_parameter
         >>>
@@ -39,9 +39,9 @@ class WindFieldClass(ABC):
         >>> ...
     """
 
-    def __init__(self, np_random: None | np.random.RandomState = None):
+    def __init__(self, np_random: None | np.random.Generator = None):
         """Initializes the wind_field."""
-        self.np_random = np.random.RandomState() if np_random is None else np_random
+        self.np_random = np.random.default_rng() if np_random is None else np_random
 
     @abstractmethod
     def __call__(self, time: float, position: np.ndarray) -> np.ndarray:

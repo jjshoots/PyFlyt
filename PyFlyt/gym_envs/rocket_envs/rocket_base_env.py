@@ -201,7 +201,7 @@ class RocketBaseEnv(gymnasium.Env):
             drone_type="rocket",
             render=self.render_mode == "human",
             drone_options=drone_options,
-            seed=seed,
+            np_random=self.np_random,
         )
 
         # add the random velocities to our base
@@ -356,7 +356,7 @@ class RocketBaseEnv(gymnasium.Env):
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
 
-        rgbaImg = np.asarray(rgbaImg).reshape(
+        rgbaImg = np.asarray(rgbaImg, dtype=np.uint8).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
         )
 

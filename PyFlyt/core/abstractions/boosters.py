@@ -19,7 +19,7 @@ class Boosters:
     Args:
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
-        np_random (np.random.RandomState): random number generator of the simulation.
+        np_random (np.random.Generator): random number generator of the simulation.
         uav_id (int): ID of the drone.
         booster_ids (np.ndarray | list[int]): list of integers representing the link index that each booster should be attached to.
         fueltank_ids (np.ndarray | list[None | int]): list of integers representing the link index for the fuel tank that each booster is attached to.
@@ -39,7 +39,7 @@ class Boosters:
         self,
         p: bullet_client.BulletClient,
         physics_period: float,
-        np_random: np.random.RandomState,
+        np_random: np.random.Generator,
         uav_id: int,
         booster_ids: np.ndarray | list[int],
         fueltank_ids: np.ndarray | list[None | int],
@@ -58,7 +58,7 @@ class Boosters:
         Args:
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
-            np_random (np.random.RandomState): random number generator of the simulation.
+            np_random (np.random.Generator): random number generator of the simulation.
             uav_id (int): ID of the drone.
             booster_ids (np.ndarray | list[int]): list of integers representing the link index that each booster should be attached to.
             fueltank_ids (np.ndarray | list[None | int]): list of integers representing the link index for the fuel tank that each booster is attached to.
@@ -239,7 +239,7 @@ class Boosters:
 
         # noise in the motor
         self.throttle += (
-            self.np_random.randn(*self.throttle.shape)
+            self.np_random.normal(*self.throttle.shape)
             * self.throttle
             * self.noise_ratio
         )

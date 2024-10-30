@@ -62,6 +62,7 @@ class Aviary(bullet_client.BulletClient):
         physics_hz (int): physics looprate (not recommended to be changed).
         world_scale (float): how big to spawn the floor.
         seed (None | int): optional int for seeding the simulation RNG.
+        np_random (None | np.random.Generator): a numpy random number generator to be used for RNG.
 
     """
 
@@ -78,6 +79,7 @@ class Aviary(bullet_client.BulletClient):
         physics_hz: int = 240,
         world_scale: float = 1.0,
         seed: None | int = None,
+        np_random: None | np.random.Generator = None,
     ):
         """Initializes a PyBullet environment that hosts UAVs and other entities.
 
@@ -96,10 +98,23 @@ class Aviary(bullet_client.BulletClient):
             physics_hz (int): physics looprate (not recommended to be changed).
             world_scale (float): how big to spawn the floor.
             seed (None | int): optional int for seeding the simulation RNG.
+            np_random (None | np.random.Generator): a numpy random number generator to be used for RNG.
 
         """
         super().__init__(p.GUI if render else p.DIRECT)
         print("\033[A                             \033[A")
+
+        # set random state
+        if seed and np_random:
+            raise AviaryInitException(
+                "Cannot set both `seed` and `np_random` arguments together."
+            )
+        elif seed and not np_random:
+            self.np_random = np.random.default_rng(seed)
+        elif not seed and np_random:
+            self.np_random = np_random
+        else:
+            self.np_random = np.random.default_rng()
 
         # check for starting position and orientation shapes
         if len(start_pos.shape) != 2:
@@ -197,9 +212,10 @@ class Aviary(bullet_client.BulletClient):
             text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
         )
 
-        self.reset(seed)
+        # initialize the environment
+        self.reset()
 
-    def reset(self, seed: None | int = None) -> None:
+    def reset(self) -> None:
         """Resets the simulation.
 
         Args:
@@ -219,9 +235,6 @@ class Aviary(bullet_client.BulletClient):
             cameraPitch=-30,
             cameraTargetPosition=[0, 0, 1],
         )
-
-        # define new RNG
-        self.np_random = np.random.RandomState(seed=seed)
 
         # construct the world
         self.planeId = self.loadURDF(
@@ -303,7 +316,6 @@ class Aviary(bullet_client.BulletClient):
 
         Call this when there is an update in the number of bodies in the environment.
         """
-        # the collision array is a scipy sparse, upper triangle array
         num_bodies = (
             np.max([self.getBodyUniqueId(i) for i in range(self.getNumBodies())]) + 1
         )

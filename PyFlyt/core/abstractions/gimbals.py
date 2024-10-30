@@ -19,7 +19,7 @@ class Gimbals:
     Args:
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
-        np_random (np.random.RandomState): random number generator of the simulation.
+        np_random (np.random.Generator): random number generator of the simulation.
         gimbal_unit_1 (np.ndarray): first unit vector that the gimbal rotates around.
         gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around.
         gimbal_tau (np.ndarray): gimbal actuation time constant.
@@ -31,7 +31,7 @@ class Gimbals:
         self,
         p: bullet_client.BulletClient,
         physics_period: float,
-        np_random: np.random.RandomState,
+        np_random: np.random.Generator,
         gimbal_unit_1: np.ndarray,
         gimbal_unit_2: np.ndarray,
         gimbal_tau: np.ndarray,
@@ -42,7 +42,7 @@ class Gimbals:
         Args:
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
-            np_random (np.random.RandomState): random number generator of the simulation.
+            np_random (np.random.Generator): random number generator of the simulation.
             gimbal_unit_1 (np.ndarray): first unit vector that the gimbal rotates around.
             gimbal_unit_2 (np.ndarray): second unit vector that the gimbal rotates around.
             gimbal_tau (np.ndarray): gimbal actuation time constant.

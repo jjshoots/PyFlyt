@@ -118,7 +118,7 @@ class LiftingSurface:
     Args:
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
-        np_random (np.random.RandomState): random number generator of the simulation.
+        np_random (np.random.Generator): random number generator of the simulation.
         uav_id (int): ID of the drone.
         surface_id (int): an integer for the link ID for this lifting surface.
         lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.
@@ -141,7 +141,7 @@ class LiftingSurface:
         self,
         p: bullet_client.BulletClient,
         physics_period: float,
-        np_random: np.random.RandomState,
+        np_random: np.random.Generator,
         uav_id: int,
         surface_id: int,
         lifting_unit: np.ndarray,
@@ -163,7 +163,7 @@ class LiftingSurface:
         Args:
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
-            np_random (np.random.RandomState): random number generator of the simulation.
+            np_random (np.random.Generator): random number generator of the simulation.
             uav_id (int): ID of the drone.
             surface_id (int): an integer for the link ID for this lifting surface.
             lifting_unit (np.ndarray): (3,) unit vector representing the direction of lift.

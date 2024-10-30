@@ -189,7 +189,7 @@ class QuadXBaseEnv(gymnasium.Env):
             drone_type="quadx",
             render=self.render_mode == "human",
             drone_options=drone_options,
-            seed=seed,
+            np_random=self.np_random,
         )
 
         if self.render_mode == "human":
@@ -327,7 +327,7 @@ class QuadXBaseEnv(gymnasium.Env):
                 f"Unknown render mode {self.render_mode}, should not have ended up here"
             )
 
-        rgbaImg = np.asarray(rgbaImg).reshape(
+        rgbaImg = np.asarray(rgbaImg, dtype=np.uint8).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
         )
 

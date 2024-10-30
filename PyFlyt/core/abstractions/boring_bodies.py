@@ -16,7 +16,7 @@ class BoringBodies:
     Args:
         p (bullet_client.BulletClient): PyBullet physics client ID.
         physics_period (float): physics period of the simulation.
-        np_random (np.random.RandomState): random number generator of the simulation.
+        np_random (np.random.Generator): random number generator of the simulation.
         uav_id (int): ID of the drone.
         body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
         drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.
@@ -28,7 +28,7 @@ class BoringBodies:
         self,
         p: bullet_client.BulletClient,
         physics_period: float,
-        np_random: np.random.RandomState,
+        np_random: np.random.Generator,
         uav_id: int,
         body_ids: np.ndarray | Sequence[int],
         drag_coefs: np.ndarray,
@@ -39,7 +39,7 @@ class BoringBodies:
         Args:
             p (bullet_client.BulletClient): PyBullet physics client ID.
             physics_period (float): physics period of the simulation.
-            np_random (np.random.RandomState): random number generator of the simulation.
+            np_random (np.random.Generator): random number generator of the simulation.
             uav_id (int): ID of the drone.
             body_ids (np.ndarray | Sequence[int]): (n,) array of IDs for the links representing the bodies.
             drag_coefs (np.ndarray): (n, 3) array of drag coefficients for each body in the link-referenced XYZ directions.

@@ -26,7 +26,7 @@ class DroneClass(ABC):
         physics_hz (int): an integer representing the physics looprate of the `Aviary`.
         drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
         model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
-        np_random (None | np.random.RandomState = None): random number generator of the simulation.
+        np_random (None | np.random.Generator = None): random number generator of the simulation.
 
     Example Implementation:
         >>> def __init__(
@@ -38,7 +38,7 @@ class DroneClass(ABC):
         >>>     physics_hz: int = 240,
         >>>     drone_model: str = "rocket_brick",
         >>>     model_dir: None | str = os.path.dirname(os.path.realpath(__file__)),
-        >>>     np_random: None | np.random.RandomState = None,
+        >>>     np_random: None | np.random.Generator = None,
         >>>     use_camera: bool = False,
         >>>     use_gimbal: bool = False,
         >>>     camera_angle_degrees: int = 0,
@@ -77,7 +77,7 @@ class DroneClass(ABC):
         physics_hz: int,
         drone_model: str,
         model_dir: None | str = None,
-        np_random: None | np.random.RandomState = None,
+        np_random: None | np.random.Generator = None,
     ):
         """Defines the default configuration for UAVs, to be used in conjunction with the Aviary class.
 
@@ -89,7 +89,7 @@ class DroneClass(ABC):
             physics_hz (int): an integer representing the physics looprate of the `Aviary`.
             drone_model (str): name of the drone itself, must be the same name as the folder where the URDF and YAML files are located.
             model_dir (None | str = None): directory where the drone model folder is located, if none is provided, defaults to the directory of the default drones.
-            np_random (None | np.random.RandomState = None): random number generator of the simulation.
+            np_random (None | np.random.Generator = None): random number generator of the simulation.
 
         """
         if physics_hz % control_hz != 0:
@@ -98,7 +98,7 @@ class DroneClass(ABC):
             )
 
         self.p = p
-        self.np_random = np.random.RandomState() if np_random is None else np_random
+        self.np_random = np.random.default_rng() if np_random is None else np_random
         self.physics_control_ratio = int(physics_hz / control_hz)
         self.physics_period = 1.0 / physics_hz
         self.control_period = 1.0 / control_hz

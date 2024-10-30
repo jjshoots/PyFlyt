@@ -10,14 +10,12 @@ from PyFlyt.core.abstractions import WindFieldClass
 class MyWindField(WindFieldClass):
     """A stateful wind model."""
 
-    def __init__(
-        self, my_parameter=1.0, np_random: None | np.random.RandomState = None
-    ):
+    def __init__(self, my_parameter=1.0, np_random: None | np.random.Generator = None):
         """__init__.
 
         Args:
             my_parameter: supports an arbitrary number of parameters
-            np_random (None | np.random.RandomState): np random state
+            np_random (None | np.random.Generator): np random state
 
         """
         super().__init__(np_random)

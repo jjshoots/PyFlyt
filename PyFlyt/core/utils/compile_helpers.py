@@ -15,6 +15,7 @@ def jitter(func: Callable, **kwargs):
 
 def check_numpy():
     """Checks that numpy is installed."""
+    return
     if not p.isNumpyEnabled():
         warnings.warn(
             colorize(

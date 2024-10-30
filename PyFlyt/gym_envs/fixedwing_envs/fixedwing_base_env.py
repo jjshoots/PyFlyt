@@ -164,7 +164,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             drone_type="fixedwing",
             render=self.render_mode == "human",
             drone_options=drone_options,
-            seed=seed,
+            np_random=self.np_random,
         )
 
         if self.render_mode == "human":
@@ -292,7 +292,7 @@ class FixedwingBaseEnv(gymnasium.Env):
             projectionMatrix=self.env.drones[0].camera.proj_mat,
         )
 
-        rgbaImg = np.asarray(rgbaImg).reshape(
+        rgbaImg = np.asarray(rgbaImg, dtype=np.uint8).reshape(
             self.render_resolution[0], self.render_resolution[1], -1
         )
 
