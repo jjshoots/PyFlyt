@@ -83,4 +83,5 @@ If you use our work in your research and would like to cite it, please use the f
 <p align="center">
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_pole_waypoint.gif?raw=true" height="250px"/>
     <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_waypoint.gif?raw=true" height="250px"/>
+    <img src="https://github.com/jjshoots/PyFlyt/blob/master/readme_assets/quadx_ball_in_cup.gif?raw=true" height="250px"/>
 </p>
