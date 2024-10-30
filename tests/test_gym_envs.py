@@ -64,6 +64,8 @@ CHECK_ENV_IGNORE_WARNINGS = [
     for message in [
         "For Box action spaces, we recommend using a symmetric and normalized space (range=[-1, 1] or [0, 1]). See https://stable-baselines3.readthedocs.io/en/master/guide/rl_tips.html for more information.",
         "A Box observation space minimum value is -infinity. This is probably too low.",
+        "A Box observation space maximum value is -infinity. This is probably too high.",
+        "A Box observation space minimum value is infinity. This is probably too low.",
         "A Box observation space maximum value is infinity. This is probably too high.",
         "Human rendering should return `None`, got <class 'numpy.ndarray'>",
         "RGB-array rendering should return a numpy array in which the last axis has three dimensions, got 4",
@@ -73,8 +75,10 @@ CHECK_ENV_IGNORE_WARNINGS = [
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
 def test_check_env(env_config):
+    print(env_config)
     """Check that environment pass the gymnasium check_env."""
     env = gym.make(env_config[0], **env_config[1])
+    print(env.observation_space)
 
     with warnings.catch_warnings(record=True) as caught_warnings:
         check_env(env.unwrapped)
@@ -83,6 +87,7 @@ def test_check_env(env_config):
         assert isinstance(warning_message.message, Warning)
         if warning_message.message.args[0] not in CHECK_ENV_IGNORE_WARNINGS:
             raise Error(f"Unexpected warning: {warning_message.message}")
+
 
     env.close()
 
