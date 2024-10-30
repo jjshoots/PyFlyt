@@ -75,10 +75,8 @@ CHECK_ENV_IGNORE_WARNINGS = [
 
 @pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
 def test_check_env(env_config):
-    print(env_config)
     """Check that environment pass the gymnasium check_env."""
     env = gym.make(env_config[0], **env_config[1])
-    print(env.observation_space)
 
     with warnings.catch_warnings(record=True) as caught_warnings:
         check_env(env.unwrapped)
