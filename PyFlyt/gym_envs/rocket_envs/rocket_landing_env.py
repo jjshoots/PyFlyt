@@ -97,10 +97,16 @@ class RocketLandingEnv(RocketBaseEnv):
 
         """
         if options is None:
-            options = dict(randomize_drop=True, accelerate_drop=True)
+            options = dict(
+                # TODO: Revert this
+                randomize_drop=False,
+                accelerate_drop=False,
+            )
 
         super().begin_reset(
-            seed=seed, options=options, drone_options=dict(starting_fuel_ratio=0.01)
+            seed=seed,
+            options=options,
+            drone_options=dict(starting_fuel_ratio=0.01),
         )
 
         # reset the tracked parameters
@@ -120,7 +126,8 @@ class RocketLandingEnv(RocketBaseEnv):
         )
         self.landing_pad_id = self.env.loadURDF(
             self.targ_obj_dir,
-            basePosition=self.landing_pad_position,
+            # TODO: Revert this
+            basePosition=self.landing_pad_position * 0.0,
             useFixedBase=True,
         )
 
@@ -198,38 +205,33 @@ class RocketLandingEnv(RocketBaseEnv):
         # compute reward
         if not self.sparse_reward:
             # progress and distance to pad
-            progress_to_pad = float(  # noqa
+            offset_progress_to_pad = float(  # noqa
                 np.linalg.norm(self.previous_distance[:2])
                 - np.linalg.norm(self.distance[:2])
             )
+            height_progress_to_pad = float(
+                self.previous_distance[-1] - self.distance[-1]
+            )
             offset_to_pad = np.linalg.norm(self.distance[:2]) + 0.1  # noqa
+            height_to_pad = np.abs(self.distance[-1]) + 0.1
 
             # deceleration as long as we're still falling
-            deceleration_bonus = (  # noqa
-                max(
-                    (self.lin_vel[-1] < 0.0)
-                    * (self.lin_vel[-1] - self.previous_lin_vel[-1]),
-                    0.0,
-                )
-                / self.distance[-1]
+            deceleration_bonus = (
+                (self.lin_vel[-1] - self.previous_lin_vel[-1])
+                / (self.distance[-1] + 0.1)
             )
 
             # composite reward together
             self.reward += (
-                -5.0  # negative offset to discourage staying in the air
+                -1.0  # negative offset to discourage staying in the air
                 + (2.0 / offset_to_pad)  # encourage being near the pad
-                + (100.0 * progress_to_pad)  # encourage progress to landing pad
+                + (2.0 / height_to_pad)  # encourage being near the pad
+                + (100.0 * offset_progress_to_pad)  # encourage progress to landing pad
+                + (100.0 * height_progress_to_pad)  # encourage progress to landing pad
                 - (1.0 * abs(self.ang_vel[-1]))  # minimize spinning
                 - (3.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-                # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
+                + (3.0 * deceleration_bonus)  # reward deceleration when near pad
             )
-
-            # -5.0  # negative offset to discourage staying in the air
-            # + (2.0 / offset_to_pad)  # encourage being near the pad
-            # + (100.0 * progress_to_pad)  # encourage progress to landing pad
-            # -(1.0 * abs(self.ang_vel[-1]))  # minimize spinning
-            # - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-            # # + (5.0 * deceleration_bonus)  # reward deceleration when near pad
 
         # check if we touched the landing pad
         if self.env.contact_array[self.env.drones[0].Id, self.landing_pad_id]:
@@ -258,7 +260,7 @@ class RocketLandingEnv(RocketBaseEnv):
             and np.linalg.norm(self.previous_lin_vel) < 0.02
             and np.linalg.norm(self.ang_pos[:2]) < 0.1
         ):
-            self.reward += 500.0
+            self.reward += 100.0
             self.info["env_complete"] = True
             self.termination |= True
             return

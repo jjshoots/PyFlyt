@@ -207,8 +207,6 @@ class RocketBaseEnv(gymnasium.Env):
         # add the random velocities to our base
         start_ang_vel = np.array([0.0, 0.0, 0.0])
         start_lin_vel = np.array([0.0, 0.0, 0.0])
-
-        # impart some random velocities if randomize
         if options.get("randoimize_drop", False):
             start_lin_vel += self.np_random.uniform(-5.0, 5.0, size=(3,))
             start_ang_vel += self.np_random.uniform(-0.5, 0.5, size=(3,))
@@ -294,7 +292,6 @@ class RocketBaseEnv(gymnasium.Env):
 
         # fatal collision or below ground
         if np.any(collision_array) or self.env.state(0)[-1, -1] < 0.0:
-            # self.reward = -100.0
             self.info["fatal_collision"] = True
             self.termination |= True
 
@@ -303,7 +300,6 @@ class RocketBaseEnv(gymnasium.Env):
             np.linalg.norm(self.env.state(0)[-1, :2]) > self.max_displacement
             or self.env.state(0)[-1, 2] > self.ceiling
         ):
-            # self.reward = -100.0
             self.info["out_of_bounds"] = True
             self.termination |= True
 
