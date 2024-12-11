@@ -221,22 +221,28 @@ class RocketLandingEnv(RocketBaseEnv):
                 / (self.distance[-1] + 0.1)
             )
 
+            # dictionarize reward components for debugging
+            self.info["env_reward/offset_to_pad"] = + (1.0 / offset_to_pad)  # encourage being near the pad
+            self.info["env_reward/height_to_pad"] = + (0.5 / height_to_pad)  # encourage being near the pad
+            self.info["env_reward/offset_progress_to_pad"] = + (30.0 * offset_progress_to_pad)  # encourage progress to landing pad
+            self.info["env_reward/height_progress_to_pad"] = + (10.0 * height_progress_to_pad)  # encourage progress to landing pad
+            self.info["env_reward/minimize_spinning"] = - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
+            self.info["env_reward/penalize_angles"] = - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
+            self.info["env_reward/deceleration_bonus"] = + (1.0 * deceleration_bonus)  # reward deceleration when near pad
+
             # composite reward together
             self.reward += (
-                -1.0  # negative offset to discourage staying in the air
-                + (2.0 / offset_to_pad)  # encourage being near the pad
-                + (2.0 / height_to_pad)  # encourage being near the pad
-                + (100.0 * offset_progress_to_pad)  # encourage progress to landing pad
-                + (100.0 * height_progress_to_pad)  # encourage progress to landing pad
-                - (1.0 * abs(self.ang_vel[-1]))  # minimize spinning
-                - (3.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-                + (3.0 * deceleration_bonus)  # reward deceleration when near pad
+                -0.3  # negative offset to discourage staying in the air
             )
+            for k, v in self.info.items():
+                if "env_reward/" in self.info:
+                    self.reward += v
 
         # check if we touched the landing pad
         if self.env.contact_array[self.env.drones[0].Id, self.landing_pad_id]:
             self.landing_pad_contact = 1.0
-            self.reward += 20
+            self.info["env_reward/pad_contact"] = 20.0
+            self.reward += 20.0
         else:
             self.landing_pad_contact = 0.0
             return
@@ -260,6 +266,7 @@ class RocketLandingEnv(RocketBaseEnv):
             and np.linalg.norm(self.previous_lin_vel) < 0.02
             and np.linalg.norm(self.ang_pos[:2]) < 0.1
         ):
+            self.info["env_reward/success_reward"] = 100.0
             self.reward += 100.0
             self.info["env_complete"] = True
             self.termination |= True
