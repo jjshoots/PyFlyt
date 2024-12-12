@@ -67,17 +67,12 @@ class RocketLandingEnv(RocketBaseEnv):
         )
 
         """GYMNASIUM STUFF"""
-        # the space is the standard space + pad touch indicator + relative pad location
-        max_offset = max(ceiling, max_displacement)
-        low = self.combined_space.low
-        low = np.concatenate(
-            (low, np.array([0.0, -max_offset, -max_offset, -max_offset]))
+        # the space is the standard space + pad touch indicator
+        self.observation_space = Box(
+            low=np.array([*self.combined_space.low, 0.0]),
+            high=np.array([*self.combined_space.high, 0.0]),
+            dtype=np.float64,
         )
-        high = self.combined_space.high
-        high = np.concatenate(
-            (high, np.array([1.0, max_offset, max_offset, max_offset]))
-        )
-        self.observation_space = Box(low=low, high=high, dtype=np.float64)
 
         # the landing pad
         file_dir = os.path.dirname(os.path.realpath(__file__))
@@ -100,34 +95,31 @@ class RocketLandingEnv(RocketBaseEnv):
             options = dict(
                 # TODO: Revert this
                 randomize_drop=False,
-                accelerate_drop=False,
+                accelerate_drop=True,
             )
 
         super().begin_reset(
             seed=seed,
             options=options,
-            drone_options=dict(starting_fuel_ratio=0.01),
+            drone_options=dict(starting_fuel_ratio=0.05),
         )
 
         # reset the tracked parameters
         self.landing_pad_contact = 0.0
         self.ang_vel = np.zeros((3,))
         self.lin_vel = np.zeros((3,))
-        self.distance = np.zeros((3,))
+        self.lin_pos = np.zeros((3,))
+        self.ground_lin_vel = np.zeros((3,))
+
         self.previous_ang_vel = np.zeros((3,))
         self.previous_lin_vel = np.zeros((3,))
-        self.previous_distance = np.zeros((3,))
+        self.previous_lin_pos = np.zeros((3,))
+        self.previous_ground_lin_vel = np.zeros((3,))
 
         # randomly generate the target landing location
-        theta = self.np_random.uniform(0.0, 2.0 * np.pi)
-        distance = self.np_random.uniform(0.0, 0.05 * self.ceiling)
-        self.landing_pad_position = (
-            np.array([np.cos(theta), np.sin(theta), 0.1]) * distance
-        )
         self.landing_pad_id = self.env.loadURDF(
             self.targ_obj_dir,
-            # TODO: Revert this
-            basePosition=self.landing_pad_position * 0.0,
+            basePosition=np.array([0.0, 0.0, 0.1]),
             useFixedBase=True,
         )
 
@@ -149,22 +141,24 @@ class RocketLandingEnv(RocketBaseEnv):
         # update the previous values to current values
         self.previous_ang_vel = self.ang_vel.copy()
         self.previous_lin_vel = self.lin_vel.copy()
-        self.previous_distance = self.distance.copy()
+        self.previous_lin_pos = self.lin_pos.copy()
+        self.previous_ground_lin_vel = self.ground_lin_vel.copy()
 
         # update current values
         (
             self.ang_vel,
             self.ang_pos,
             self.lin_vel,
-            lin_pos,
+            self.lin_pos,
             quaternion,
         ) = super().compute_attitude()
         aux_state = super().compute_auxiliary()
 
-        # drone to landing pad
+        # compute rotation matrices for converting things
         rotation = np.array(p.getMatrixFromQuaternion(quaternion)).reshape(3, 3)
-        self.distance = lin_pos - self.landing_pad_position
-        rotated_distance = np.matmul(self.distance, rotation)
+
+        # compute ground velocity for reward computation later
+        self.ground_lin_vel = np.matmul(self.lin_vel, rotation.T)
 
         # combine everything
         if self.angle_representation == 0:
@@ -173,11 +167,10 @@ class RocketLandingEnv(RocketBaseEnv):
                     self.ang_vel,
                     self.ang_pos,
                     self.lin_vel,
-                    lin_pos,
+                    self.lin_pos,
                     self.action,
                     aux_state,
                     np.array([self.landing_pad_contact]),
-                    rotated_distance,
                 ],
                 axis=-1,
             )
@@ -187,11 +180,10 @@ class RocketLandingEnv(RocketBaseEnv):
                     self.ang_vel,
                     quaternion,
                     self.lin_vel,
-                    lin_pos,
+                    self.lin_pos,
                     self.action,
                     aux_state,
                     np.array([self.landing_pad_contact]),
-                    rotated_distance,
                 ],
                 axis=-1,
             )
@@ -204,38 +196,48 @@ class RocketLandingEnv(RocketBaseEnv):
 
         # compute reward
         if not self.sparse_reward:
-            # progress and distance to pad
-            offset_progress_to_pad = float(  # noqa
-                np.linalg.norm(self.previous_distance[:2])
-                - np.linalg.norm(self.distance[:2])
+            # progress to the pad
+            lateral_progress = float(  # noqa
+                np.linalg.norm(self.previous_lin_pos[:2])
+                - np.linalg.norm(self.lin_pos[:2])
             )
-            height_progress_to_pad = float(
-                self.previous_distance[-1] - self.distance[-1]
+            vertical_progress = float(
+                self.previous_lin_pos[-1] - self.lin_pos[-1]
             )
-            offset_to_pad = np.linalg.norm(self.distance[:2]) + 0.1  # noqa
-            height_to_pad = np.abs(self.distance[-1]) + 0.1
+
+            # absolute distances to the pad
+            lateral_distance = np.linalg.norm(self.lin_pos[:2]) + 0.1  # noqa
+            vertical_distance = np.abs(self.lin_pos[-1]) + 0.1
 
             # deceleration as long as we're still falling
-            deceleration_bonus = (
-                (self.lin_vel[-1] - self.previous_lin_vel[-1])
-                / (self.distance[-1] + 0.1)
+            deceleration_progress = (
+                (self.ground_lin_vel[-1] - self.previous_ground_lin_vel[-1])
+                / (self.lin_pos[-1] + 0.1)
+                # bonus if still descending, penalty if started to ascend
+                * ((self.ground_lin_vel[-1] < 0.0) - (self.ground_lin_vel[-1] > 0.0))
             )
 
+            # encourage lower speeds nearer to the ground
+            velocity_factor = (
+                -self.ground_lin_vel[-1] * self.lin_pos[-1]
+            ) + 0.1
+
             # dictionarize reward components for debugging
-            self.info["env_reward/offset_to_pad"] = + (1.0 / offset_to_pad)  # encourage being near the pad
-            self.info["env_reward/height_to_pad"] = + (0.5 / height_to_pad)  # encourage being near the pad
-            self.info["env_reward/offset_progress_to_pad"] = + (30.0 * offset_progress_to_pad)  # encourage progress to landing pad
-            self.info["env_reward/height_progress_to_pad"] = + (10.0 * height_progress_to_pad)  # encourage progress to landing pad
-            self.info["env_reward/minimize_spinning"] = - (0.3 * abs(self.ang_vel[-1]))  # minimize spinning
-            self.info["env_reward/penalize_angles"] = - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # penalize aggressive angles
-            self.info["env_reward/deceleration_bonus"] = + (1.0 * deceleration_bonus)  # reward deceleration when near pad
+            self.info["env_reward/lateral"] = + (0.3 / lateral_distance)
+            self.info["env_reward/vertical"] = + (0.3 / vertical_distance)
+            self.info["env_reward/lateral_progress"] = + (10.0 * lateral_progress)
+            self.info["env_reward/vertical_progress"] = + (0.2 * vertical_progress)
+            self.info["env_reward/spinning"] = - (1.0 * abs(self.ang_vel[-1]))
+            self.info["env_reward/angles"] = - (1.0 * np.linalg.norm(self.ang_pos[:2]))
+            self.info["env_reward/deceleration"] = + (3.0 * deceleration_progress)
+            self.info["env_reward/velocity"] = + (0.1 / velocity_factor)
 
             # composite reward together
             self.reward += (
                 -0.3  # negative offset to discourage staying in the air
             )
             for k, v in self.info.items():
-                if "env_reward/" in self.info:
+                if "env_reward/" in k:
                     self.reward += v
 
         # check if we touched the landing pad
