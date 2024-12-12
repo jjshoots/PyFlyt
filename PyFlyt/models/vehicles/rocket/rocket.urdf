@@ -27,6 +27,9 @@
   <material name="yellow">
     <color rgba="1.0 0.8 0.0 1.0"/>
   </material>
+  <material name="clear_grey">
+    <color rgba="1.0 0.8 0.0 0.1"/>
+  </material>
 
   <link name="base_link">
     <inertial>
@@ -275,4 +278,25 @@
     <parent link="base_link"/>
     <child link="leg_3"/>
   </joint>
+
+  <link name="flame">
+    <inertial>
+     <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.00"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <cylinder radius="0.15" length="2.0"/>
+      </geometry>
+      <material name="clear_grey"/>
+    </visual>
+  </link>
+  <joint name="flame_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 -3.4"/>
+    <parent link="base_link"/>
+    <child link="flame"/>
+  </joint>
+</robot>
+
 </robot>

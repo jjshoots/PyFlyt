@@ -172,6 +172,16 @@ class RocketBaseEnv(gymnasium.Env):
         self.info["fatal_collision"] = False
         self.info["env_complete"] = False
 
+        # some tracking variables
+        self.throttle_state = False
+        self.ignition_state = False
+        self.previous_throttle_state = False
+        self.previous_ignition_state = False
+
+        # for rendering
+        self.previous_render_ignition_state = False
+        self.ignition_color = np.array([1.0, 0.3, 0.3, 0.8])
+
         # need to handle Nones
         if options is None:
             options = dict()
@@ -242,7 +252,18 @@ class RocketBaseEnv(gymnasium.Env):
 
     def compute_auxiliary(self):
         """This returns the auxiliary state form the drone."""
-        return self.env.aux_state(0)
+        # rollover tracked values
+        self.previous_throttle_state = self.throttle_state
+        self.previous_ignition_state = self.ignition_state
+
+        # get auxiliary info
+        aux = self.env.aux_state(0)
+
+        # update tracked values
+        self.throttle_state = aux[-4]
+        self.ignition_state = aux[-5]
+
+        return aux
 
     def compute_attitude(self):
         """state.
@@ -334,6 +355,15 @@ class RocketBaseEnv(gymnasium.Env):
 
         # increment step count
         self.step_count += 1
+
+        # render the booster ignition
+        if self.render_mode and (self.ignition_state != self.previous_ignition_state):
+            self.previous_render_ignition_state = self.ignition_state
+            self.env.changeVisualShape(
+                self.env.drones[0].Id,
+                9,
+                rgbaColor=self.ignition_color,
+            )
 
         return self.state, self.reward, self.termination, self.truncation, self.info
 
