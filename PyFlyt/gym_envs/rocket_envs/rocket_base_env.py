@@ -357,7 +357,9 @@ class RocketBaseEnv(gymnasium.Env):
         self.step_count += 1
 
         # render the booster ignition
-        if self.render_mode and (self.ignition_state != self.previous_render_ignition_state):
+        if self.render_mode and (
+            self.ignition_state != self.previous_render_ignition_state
+        ):
             self.previous_render_ignition_state = self.ignition_state
             self.env.changeVisualShape(
                 self.env.drones[0].Id,
