@@ -40,7 +40,7 @@ for env_name, angle_representation, sparse_reward in itertools.product(
         "PyFlyt/QuadX-Hover-v3",
         "PyFlyt/QuadX-Pole-Balance-v3",
         "PyFlyt/QuadX-Ball-In-Cup-v3",
-        "PyFlyt/Rocket-Landing-v3",
+        "PyFlyt/Rocket-Landing-v4",
     ],
     ["euler", "quaternion"],
     [True, False],

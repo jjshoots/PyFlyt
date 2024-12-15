@@ -38,6 +38,6 @@ register(
 
 # Rocket Envs
 register(
-    id="PyFlyt/Rocket-Landing-v3",
+    id="PyFlyt/Rocket-Landing-v4",
     entry_point="PyFlyt.gym_envs.rocket_envs.rocket_landing_env:RocketLandingEnv",
 )
