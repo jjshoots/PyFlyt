@@ -93,8 +93,7 @@ class RocketLandingEnv(RocketBaseEnv):
         """
         if options is None:
             options = dict(
-                # TODO: Revert this
-                randomize_drop=False,
+                randomize_drop=True,
                 accelerate_drop=True,
             )
 
