@@ -1,6 +1,6 @@
 # `PyFlyt/Rocket-Landing-v3`
 
-```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/rocket_landing.gif
+```{figure} https://raw.githubusercontent.com/jjshoots/PyFlyt/master/readme_assets/rocket_landing_2.gif
     :width: 50%
 ```
 
@@ -14,7 +14,7 @@ The goal of this environment is to land a rocket falling at terminal velocity on
 import gymnasium
 import PyFlyt.gym_envs
 
-env = gymnasium.make("PyFlyt/Rocket-Landing-v3", render_mode="human")
+env = gymnasium.make("PyFlyt/Rocket-Landing-v4", render_mode="human")
 
 term, trunc = False, False
 obs, _ = env.reset()

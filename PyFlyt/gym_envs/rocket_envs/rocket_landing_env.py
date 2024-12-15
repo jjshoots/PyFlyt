@@ -201,49 +201,40 @@ class RocketLandingEnv(RocketBaseEnv):
                 np.linalg.norm(self.previous_lin_pos[:2])
                 - np.linalg.norm(self.lin_pos[:2])
             )
-            vertical_progress = float(
-                self.previous_lin_pos[-1] - self.lin_pos[-1]
-            )
+            vertical_progress = float(self.previous_lin_pos[-1] - self.lin_pos[-1])
 
             # absolute distances to the pad
             lateral_distance = np.linalg.norm(self.lin_pos[:2]) + 0.1  # noqa
-            vertical_distance = np.abs(self.lin_pos[-1]) + 0.1
 
             # deceleration as long as we're still falling
+            # (x+1)/(e^x)
             deceleration_progress = (
-                (self.ground_lin_vel[-1] - self.previous_ground_lin_vel[-1])
+                (self.ground_lin_vel[-1] - self.previous_ground_lin_vel[-1] + 1.0)
                 # scale reward to height, lower height more deceleration is better
-                / (self.lin_pos[-1] + 0.1)
+                / np.exp(self.lin_pos[-1])
                 # bonus if still descending, penalty if started to ascend
                 * (1.0 if (self.ground_lin_vel[-1] < 0.0) else -1.0)
             )
 
             # dictionarize reward components for debugging
-            self.info["env_reward/lateral"] = + (0.3 / lateral_distance)
-            self.info["env_reward/vertical"] = + (0.3 / vertical_distance)
-            self.info["env_reward/lateral_progress"] = + (10.0 * lateral_progress)
-            self.info["env_reward/vertical_progress"] = + (0.2 * vertical_progress)
-            self.info["env_reward/spinning"] = - (1.0 * abs(self.ang_vel[-1]))
-            self.info["env_reward/angles"] = - (1.0 * np.linalg.norm(self.ang_pos[:2]))
-            self.info["env_reward/deceleration"] = + (2.0 * deceleration_progress)
-            # self.info["env_reward/ignition"] = - (0.1 * (self.ignition_state != self.previous_ignition_state))
-            # self.info["env_reward/throttle"] = - (0.03 * np.abs(self.throttle_state - self.previous_throttle_state))
 
             # composite reward together
             self.reward += (
                 -0.3  # negative offset to discourage staying in the air
+                + (0.3 / lateral_distance)  # reward for staying over landing pad
+                + (10.0 * lateral_progress)  # reward for making progress to landing pad
+                + (0.2 * vertical_progress)  # reward for descending
+                + (4.0 * deceleration_progress)  # reward for decelerating
+                - (1.0 * abs(self.ang_vel[-1]))  # minimize spinning
+                - (1.0 * np.linalg.norm(self.ang_pos[:2]))  # minimize aggressive angles
             )
-            for k, v in self.info.items():
-                if "env_reward/" in k:
-                    self.reward += v
 
         # check if we touched the landing pad
         if self.env.contact_array[self.env.drones[0].Id, self.landing_pad_id]:
             self.landing_pad_contact = 1.0
 
             # the reward minus collision speed
-            self.info["env_reward/landing_reward"] = 20.0 - (0.3 * abs(self.ground_lin_vel[-1]))
-            self.reward += self.info["env_reward/landing_reward"]
+            self.reward += 5.0 - (0.3 * abs(self.ground_lin_vel[-1]))
         else:
             self.landing_pad_contact = 0.0
             return
@@ -269,4 +260,5 @@ class RocketLandingEnv(RocketBaseEnv):
         ):
             self.truncation |= True
             self.info["env_complete"] = True
+            self.reward += 3.0
             return
