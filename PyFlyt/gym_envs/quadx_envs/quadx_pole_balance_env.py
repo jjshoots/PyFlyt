@@ -184,7 +184,12 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
 
             # how far are we from 0 roll pitch
             angular_distance = np.linalg.norm(self.env.state(0)[1][:2])
-
+    
+            #Negative Reward For High Yaw rate, To prevent high yaw while training
+            yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
+            yaw_rate_penalty = 0.01 * yaw_rate**2# Add penalty for high yaw rate
+            self.reward -= yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
+            
             self.reward -= linear_distance + angular_distance
             self.reward -= self.pole.leaningness
             self.reward += 1.0
