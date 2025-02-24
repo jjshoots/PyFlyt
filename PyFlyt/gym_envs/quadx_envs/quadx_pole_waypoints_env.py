@@ -225,6 +225,12 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
 
+
+        #Negative Reward For High Yaw rate, To prevent high yaw while training
+        yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
+        yaw_rate_penalty = 0.01 * yaw_rate**2# Add penalty for high yaw rate
+        self.reward -= yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
+        
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             self.reward += max(15.0 * self.waypoints.progress_to_next_target, 0.0)
