@@ -261,6 +261,10 @@ class QuadXBallInCupEnv(QuadXBaseEnv):
         ball_rel_lin_pos = self.ball_lin_pos - self.env.state(0)[-1]
         ball_rel_height = ball_rel_lin_pos[2]
         ball_rel_abs_dist = np.linalg.norm(ball_rel_lin_pos)
+        #Negative Reward For High Yaw rate, To prevent high yaw while training
+        yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
+        yaw_rate_penalty = 0.01 * yaw_rate**2# Add penalty for high yaw rate
+        self.reward -= yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
 
         # bonus reward if we are not sparse
         if not self.sparse_reward:
