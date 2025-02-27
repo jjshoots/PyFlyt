@@ -5,10 +5,9 @@ name: linux-tests
 on:
   push:
     branches:
-      - "**"
-  pull_request:
-    branches:
       - master
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
