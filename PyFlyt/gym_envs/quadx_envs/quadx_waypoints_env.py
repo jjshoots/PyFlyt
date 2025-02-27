@@ -182,6 +182,9 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_next_target, 0.0)
             self.reward += 0.1 / self.waypoints.distance_to_next_target
+        yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
+        yaw_rate_penalty = 0.01 * yaw_rate**2# Add penalty for high yaw rate
+        self.reward -= yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
 
         # target reached
         if self.waypoints.target_reached:
