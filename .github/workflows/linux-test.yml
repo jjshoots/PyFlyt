@@ -2,7 +2,13 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 ---
 name: linux-tests
-on: [pull_request, push]
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
 
 permissions:
   contents: read
@@ -12,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v3
       - uses: jurplel/install-qt-action@v3
