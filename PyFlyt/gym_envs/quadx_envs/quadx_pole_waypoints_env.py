@@ -230,6 +230,9 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
             self.reward += max(15.0 * self.waypoints.progress_to_next_target, 0.0)
             self.reward += 0.5 / self.waypoints.distance_to_next_target
             self.reward += 0.5 - self.pole.leaningness
+        yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
+        yaw_rate_penalty = 0.01 * yaw_rate**2# Add penalty for high yaw rate
+        self.reward -= yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
 
         # target reached
         if self.waypoints.target_reached:
