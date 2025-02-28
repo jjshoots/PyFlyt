@@ -182,8 +182,6 @@ class QuadXWaypointsEnv(QuadXBaseEnv):
         if not self.sparse_reward:
             self.reward += max(3.0 * self.waypoints.progress_to_next_target, 0.0)
             self.reward += 0.1 / self.waypoints.distance_to_next_target
-
-    
             # Negative Reward For High Yaw rate, To prevent high yaw while training
             yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
             yaw_rate_penalty = 0.01 * yaw_rate**2  # Add penalty for high yaw rate
