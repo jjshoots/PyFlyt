@@ -224,9 +224,6 @@ class QuadXPoleWaypointsEnv(QuadXBaseEnv):
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
-
-
-
         # bonus reward if we are not sparse
         if not self.sparse_reward:
             self.reward += max(15.0 * self.waypoints.progress_to_next_target, 0.0)
