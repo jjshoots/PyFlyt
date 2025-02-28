@@ -188,8 +188,8 @@ class QuadXPoleBalanceEnv(QuadXBaseEnv):
             self.reward -= self.pole.leaningness
             self.reward += 1.0
     
-            #Negative Reward For High Yaw rate, To prevent high yaw while training
+            # Negative Reward For High Yaw rate, To prevent high yaw while training
             yaw_rate = abs(self.env.state(0)[0][2])  # Assuming z-axis is the last component
-            yaw_rate_penalty = 0.01 * yaw_rate**2# Add penalty for high yaw rate
+            yaw_rate_penalty = 0.01 * yaw_rate**2  # Add penalty for high yaw rate
             self.reward -= yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
             
