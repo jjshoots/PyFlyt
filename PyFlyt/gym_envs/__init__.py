@@ -6,11 +6,11 @@ from PyFlyt.gym_envs.utils.flatten_waypoint_env import FlattenWaypointEnv
 
 # QuadX Envs
 register(
-    id="PyFlyt/QuadX-Hover-v3",
+    id="PyFlyt/QuadX-Hover-v4",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_hover_env:QuadXHoverEnv",
 )
 register(
-    id="PyFlyt/QuadX-Waypoints-v3",
+    id="PyFlyt/QuadX-Waypoints-v4",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_waypoints_env:QuadXWaypointsEnv",
 )
 register(
@@ -18,15 +18,15 @@ register(
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_gates_env:QuadXGatesEnv",
 )
 register(
-    id="PyFlyt/QuadX-Pole-Balance-v3",
+    id="PyFlyt/QuadX-Pole-Balance-v4",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_pole_balance_env:QuadXPoleBalanceEnv",
 )
 register(
-    id="PyFlyt/QuadX-Pole-Waypoints-v3",
+    id="PyFlyt/QuadX-Pole-Waypoints-v4",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_pole_waypoints_env:QuadXPoleWaypointsEnv",
 )
 register(
-    id="PyFlyt/QuadX-Ball-In-Cup-v3",
+    id="PyFlyt/QuadX-Ball-In-Cup-v4",
     entry_point="PyFlyt.gym_envs.quadx_envs.quadx_ball_in_cup_env:QuadXBallInCupEnv",
 )
 

@@ -117,11 +117,18 @@ class QuadXHoverEnv(QuadXBaseEnv):
     def compute_term_trunc_reward(self) -> None:
         """Computes the termination, truncation, and reward of the current timestep."""
         super().compute_base_term_trunc_reward()
-
         if not self.sparse_reward:
             # distance from 0, 0, 1 hover point
             linear_distance = np.linalg.norm(
                 self.env.state(0)[-1] - np.array([0.0, 0.0, 1.0])
+            )
+            # Negative Reward For High Yaw rate, To prevent high yaw while training
+            yaw_rate = abs(
+                self.env.state(0)[0][2]
+            )  # Assuming z-axis is the last component
+            yaw_rate_penalty = 0.01 * yaw_rate**2  # Add penalty for high yaw rate
+            self.reward -= (
+                yaw_rate_penalty  # You can adjust the coefficient (0.01) as needed
             )
 
             # how far are we from 0 roll pitch
