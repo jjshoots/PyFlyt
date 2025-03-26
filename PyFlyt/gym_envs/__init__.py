@@ -32,7 +32,7 @@ register(
 
 # Fixedwing Envs
 register(
-    id="PyFlyt/Fixedwing-Waypoints-v3",
+    id="PyFlyt/Fixedwing-Waypoints-v4",
     entry_point="PyFlyt.gym_envs.fixedwing_envs.fixedwing_waypoints_env:FixedwingWaypointsEnv",
 )
 
