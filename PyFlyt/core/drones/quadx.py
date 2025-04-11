@@ -430,7 +430,7 @@ class QuadX(DroneClass):
 
         # controller -1 means just direct to motor pwm commands
         if mode == -1:
-            self.pwm = np.array([*a_output, z_output])
+            self.pwm = np.array([*a_output, *z_output])
             return
 
         # base level controllers
