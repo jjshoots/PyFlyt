@@ -140,8 +140,8 @@ class Fixedwing(DroneClass):
 
             # mapping for RPYT -> LeftAil, RightAil, HorStab, VertStab, MainWing, Motor
             # signs for each control surface when under assist
-            self.surface_assist_ids = np.array([0, 0, 1, 1, 2, 3])
-            self.surface_assist_signs = np.array([1.0, -1.0, 1.0, -1.0, 0.0, 1.0])
+            self.surface_assist_ids = np.array([0, 0, 1, 2, 1, 3])
+            self.surface_assist_signs = np.array([1.0, -1.0, 1.0, -1.0, -1.0, 1.0])
 
             # motor
             motor_params = all_params["motor_params"]

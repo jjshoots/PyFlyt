@@ -18,7 +18,7 @@ for env_name, angle_representation, sparse_reward in itertools.product(
     [
         "PyFlyt/QuadX-Waypoints-v4",
         "PyFlyt/QuadX-Pole-Waypoints-v4",
-        "PyFlyt/Fixedwing-Waypoints-v3",
+        "PyFlyt/Fixedwing-Waypoints-v4",
     ],
     ["euler", "quaternion"],
     [True, False],
