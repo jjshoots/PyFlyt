@@ -149,7 +149,13 @@ ghost_wing_id = None
 ghost_fin_id = None
 
 def update_ghost_plane(p, drone_id, obs, agent):
+    """
+    Overlays a translucent 'Ghost Plane' on the current drone position
+    to show the AI's commanded attitude (Roll/Pitch intent).
+    """
     global ghost_wing_id, ghost_fin_id
+    
+    # Create Bodies if they don't exist
     if ghost_wing_id is None:
         wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[1.2, 0.3, 0.05], rgbaColor=[0, 1, 0, 0.5])
         ghost_wing_id = p.createMultiBody(baseVisualShapeIndex=wing_shape)
@@ -157,25 +163,37 @@ def update_ghost_plane(p, drone_id, obs, agent):
         ghost_fin_id = p.createMultiBody(baseVisualShapeIndex=fin_shape)
     
     try:
-        ai_action, _ = agent.predict(obs, deterministic=True)
+        # 1. Get Current State
         h_pos, h_orn = p.getBasePositionAndOrientation(drone_id)
         h_euler = p.getEulerFromQuaternion(h_orn)
         
-        target_roll = h_euler[0] + ai_action[0] * 0.8
-        target_pitch = h_euler[1] + ai_action[1] * 0.8
+        # 2. Get AI Prediction
+        ai_action, _ = agent.predict(obs, deterministic=True)
+        
+        # 3. Calculate Target Attitude (Overlay)
+        # Apply the AI's roll/pitch/yaw delta to the current attitude
+        # This visualizes "Where is the AI pulling the stick?"
+        target_roll = h_euler[0] + ai_action[0] * 0.5 
+        target_pitch = h_euler[1] + ai_action[1] * 0.5
         target_yaw = h_euler[2] + ai_action[2] * 0.5
+        
         ghost_orn = p.getQuaternionFromEuler([target_roll, target_pitch, target_yaw])
         
-        lin_vel, _ = p.getBaseVelocity(drone_id)
-        future_pos = [h_pos[0] + lin_vel[0]*1.0, h_pos[1] + lin_vel[1]*1.0, h_pos[2] + lin_vel[2]*1.0]
+        # 4. Position: EXACT OVERLAY (No offset)
+        ghost_pos = [h_pos[0], h_pos[1], h_pos[2]] 
         
-        p.resetBasePositionAndOrientation(ghost_wing_id, future_pos, ghost_orn)
+        # 5. Update Physics Bodies
+        p.resetBasePositionAndOrientation(ghost_wing_id, ghost_pos, ghost_orn)
         
+        # Update Fin relative to wing
         fin_local_pos = [0, 0, 0.3] 
         fin_local_orn = [0, 0, 0, 1]
-        fin_world_pos, fin_world_orn = p.multiplyTransforms(future_pos, ghost_orn, fin_local_pos, fin_local_orn)
+        fin_world_pos, fin_world_orn = p.multiplyTransforms(ghost_pos, ghost_orn, fin_local_pos, fin_local_orn)
         p.resetBasePositionAndOrientation(ghost_fin_id, fin_world_pos, fin_world_orn)
-    except: pass
+        
+    except Exception as e: 
+        # Usually happens during reset/crash transition
+        pass
 
 # --- VISUAL FUNCTIONS ---
 def get_drone_state(env):
@@ -203,81 +221,92 @@ def render_camera(drone_id, pos, orn, mode="chase", w=320, h=240):
 
 def draw_hud_arrow(screen, drone_pos, drone_orn, targets, unordered):
     """
-    Draws 2D floating arrows for ALL remaining targets.
-    - Unordered: Primary Arrow = Closest Target
-    - Ordered:   Primary Arrow = First Target (Index 0)
-    """
+    Draws a SINGLE 3D-style arrow pointing to the active target.
+    - Unordered: Points to Closest Target
+    - Ordered: Points to Next Sequence Target (Index 0)
+    - Rotates on screen to point toward the target     """
     if not targets or len(targets) == 0: return
 
-    # 1. Setup Matrix & Screen
+    # 1. Select the Active Target
+    if unordered:
+        # Find closest
+        min_dist = float('inf')
+        active_target = None
+        for t in targets:
+            d = np.linalg.norm(t) # targets are already relative vectors from env
+            if d < min_dist:
+                min_dist = d
+                active_target = t
+    else:
+        # First in list
+        active_target = targets[0]
+        min_dist = np.linalg.norm(active_target)
+
+    if active_target is None: return
+
+    # 2. Project to Screen
     rot_mat = np.array(p.getMatrixFromQuaternion(drone_orn)).reshape(3, 3)
-    inv_rot = rot_mat.T 
-    cx, cy = WINDOW_W // 2, WINDOW_H // 2
-    MARGIN = 80
-    scale = 800.0 
-
-    # 2. Process Targets (Calculate Distances)
-    arrow_data = []
-    min_dist = float('inf')
+    inv_rot = rot_mat.T
     
-    for i, t_vec in enumerate(targets):
-        local_vector = inv_rot.dot(np.array(t_vec))
-        dist = np.linalg.norm(local_vector)
-        if dist < 0.1: continue
-        
-        # Store data including the ORIGINAL index (essential for Ordered logic)
-        arrow_data.append({"vec": local_vector, "dist": dist, "index": i})
-        if dist < min_dist: 
-            min_dist = dist
+    # Transform target into Drone Body Frame (Forward=X, Right=Y, Up=Z)
+    local_vec = inv_rot.dot(np.array(active_target))
+    
+    # 3. Calculate Screen Position
+    cx, cy = WINDOW_W // 2, WINDOW_H // 2
+    scale = 800.0
+    
+    norm = np.linalg.norm(local_vec)
+    if norm < 0.1: return
+    direction = local_vec / norm
+    
+    # In PyGame: X is Right, Y is Down.
+    # Body Frame: Y is Right, Z is Up.
+    dx = -direction[1] # Screen X (Right) comes from Body -Y (Left)? No, Body Y is Left in PyBullet? 
+    # Actually: PyFlyt Body Frame -> X=Fwd, Y=Left, Z=Up
+    # To Screen: Left=Y, Up=Z. 
+    dx = -direction[1] 
+    dy = -direction[2]
+    
+    # 4. Calculate Angle for Rotation
+    angle = math.atan2(dy, dx) - math.pi/2 
 
-    if not arrow_data: return
+    # 5. Clamp to HUD Box
+    arrow_x = cx + (dx * scale)
+    arrow_y = cy + (dy * scale)
+    
+    hud_radius = 350
+    screen_dist = math.sqrt((arrow_x - cx)**2 + (arrow_y - cy)**2)
+    
+    if screen_dist > hud_radius:
+        ratio = hud_radius / screen_dist
+        arrow_x = cx + (arrow_x - cx) * ratio
+        arrow_y = cy + (arrow_y - cy) * ratio
 
-    # 3. Sort for Painter's Algorithm 
-    # Draw Furthest first (top of list), Closest last (bottom of list)
-    # This ensures the closest arrow sits visually ON TOP of the others.
-    arrow_data.sort(key=lambda x: x["dist"], reverse=True)
+    # 6. Rotate Polygon
+    size = 20
+    points = [
+        (0, -size),      
+        (-size*0.7, size),
+        (size*0.7, size) 
+    ]
+    
+    rot_points = []
+    cos_a = math.cos(angle)
+    sin_a = math.sin(angle)
+    
+    for px, py in points:
+        rx = px * cos_a - py * sin_a
+        ry = px * sin_a + py * cos_a
+        rot_points.append((arrow_x + rx, arrow_y + ry))
 
-    # 4. Draw Loop
-    for item in arrow_data:
-        # --- PRIMARY SELECTION LOGIC ---
-        if unordered:
-            is_primary = (item["dist"] == min_dist)
-        else:
-            is_primary = (item["index"] == 0)
-
-        # Style Config
-        if is_primary:
-            color = (255, 0, 255) # Magenta (Primary)
-            size = 25
-            width = 0 # Fill
-        else:
-            color = (255, 255, 0) # Yellow (Secondary)
-            size = 15 # Smaller
-            width = 0 
-
-        # Map to Screen Coords
-        direction = item["vec"] / item["dist"]
-        off_x = -direction[1] * scale
-        off_y = -direction[2] * scale
-        
-        # Clamp to HUD Box
-        arrow_x = np.clip(cx + off_x, MARGIN, WINDOW_W - MARGIN)
-        arrow_y = np.clip(cy + off_y, MARGIN, WINDOW_H - MARGIN)
-        
-        # Define Triangle Shape
-        p1 = (arrow_x, arrow_y - size)           # Tip
-        p2 = (arrow_x - size*0.8, arrow_y + size) # Bottom Left
-        p3 = (arrow_x + size*0.8, arrow_y + size) # Bottom Right
-        
-        # Draw
-        pygame.draw.polygon(screen, color, [p1, p2, p3], width)
-        
-        # Add Border & Text ONLY for Primary Target
-        if is_primary:
-            pygame.draw.polygon(screen, (255, 255, 255), [p1, p2, p3], 3) # White border
-            lbl = font.render(f"{item['dist']:.0f}m", True, (255, 255, 255))
-            screen.blit(lbl, (arrow_x - 20, arrow_y + 35))
-
+    # 7. Draw
+    color = (255, 0, 255) # Magenta
+    pygame.draw.polygon(screen, color, rot_points)
+    pygame.draw.polygon(screen, (255, 255, 255), rot_points, 2)
+    
+    # Text
+    lbl = font.render(f"{min_dist:.0f}m", True, (255, 255, 255))
+    screen.blit(lbl, (arrow_x - 20, arrow_y + 30))
 
 def draw_shadow_controls(screen, human_act, ai_act):
     BOX_SIZE = 150
@@ -307,12 +336,9 @@ def draw_radar(screen, drone_pos, drone_yaw, targets, zone_radius):
     pygame.draw.circle(screen, (150, 150, 150), CENTER, RADAR_SIZE // 2, 2)
     
     # Drone Arrow
-    points = [(0, -10), (-7, 8), (7, 8)]
-    # We just draw a static arrow pointing UP (since map rotates)
     pygame.draw.polygon(screen, (255, 255, 255), [(CENTER[0], CENTER[1]-10), (CENTER[0]-7, CENTER[1]+8), (CENTER[0]+7, CENTER[1]+8)])
     
     if targets:
-        # Draw Lines between targets
         radar_points = []
         for t in targets:
             tx, ty = t[0] * PX_PER_METER, -t[1] * PX_PER_METER
@@ -330,18 +356,16 @@ def draw_radar(screen, drone_pos, drone_yaw, targets, zone_radius):
         for i, p in enumerate(radar_points):
             color = (0, 255, 255) if i == 0 else (255, 255, 0)
             pygame.draw.circle(screen, color, p, 5)
-            # Number
             n = tiny_font.render(str(i+1), True, (255, 255, 255))
             screen.blit(n, (p[0]+6, p[1]-6))
 
 def save_data(session_data, incomplete_episode, args):
-    # 1. Add the final (incomplete) episode if it has data
     if len(incomplete_episode["observations"]) > 0:
         session_data.append(incomplete_episode)
 
     if len(session_data) == 0: return
 
-    # 2. Save RAW Data (Archival)
+    # Save RAW Data
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = os.path.join("flight_data", f"log_{ts}.npz")
     
@@ -354,13 +378,12 @@ def save_data(session_data, incomplete_episode, args):
     np.savez(filename, **save_dict)
     print(f"\nSession Log Saved to {filename}")
 
-    # 3. AGGREGATE FOR AVERAGE CONSISTENCY
-    # Combine all flights into one "Mega-Flight" record
+    # SESSION REPORT
     combined_buffer = {
         "observations": [], 
         "actions": [], 
         "rewards": [], 
-        "terminals": [] # Not strictly used by analytics, but good for completeness
+        "terminals": [] 
     }
     
     total_crashes = 0
@@ -372,7 +395,6 @@ def save_data(session_data, incomplete_episode, args):
     print("="*50)
 
     for i, ep in enumerate(session_data):
-        # A. Mission Stats (Summing)
         rews = np.array(ep["rewards"])
         crashes = np.sum(rews <= -90.0)
         captures = np.sum(rews >= 90.0)
@@ -382,24 +404,19 @@ def save_data(session_data, incomplete_episode, args):
         total_waypoints += captures
         total_time += duration
         
-        # B. Concatenate Data
         combined_buffer["observations"].extend(ep["observations"])
         combined_buffer["actions"].extend(ep["actions"])
         combined_buffer["rewards"].extend(ep["rewards"])
         
-        # Print mini-summary of the specific run
         result = "CRASH" if crashes > 0 else "OK"
         print(f"Run {i+1}: {duration:.1f}s | {captures} Targets | {result}")
 
-    # 4. RUN ANALYTICS ON AGGREGATED DATA
     print("-" * 50)
     print(f"GLOBAL SESSION TOTALS:")
     print(f"  Total Time:      {total_time:.1f} s")
     print(f"  Total Waypoints: {total_waypoints}")
     print(f"  Total Crashes:   {total_crashes}")
     
-    # This calculates the metrics (Heading Error, Stability, etc.) 
-    # weighted across the entire session duration.
     analytics = FlightAnalytics(combined_buffer)
     analytics.calculate_all()
     
@@ -459,10 +476,7 @@ try:
         else:
             # 2. Human Pilot
             final_action = human_action.copy()
-            
-            # AUTO-THROTTLE CHECK
-            # If an AI assistant is present, let it control the Throttle 
-            # to reduce the human's mental load.
+            # AUTO-THROTTLE
             if agent_model is not None:
                 final_action[3] = ai_action[3]
 
@@ -471,7 +485,6 @@ try:
             if args.assist_ghost and agent_model and drone_id is not None:
                 update_ghost_plane(p, drone_id, obs, agent_model)
 
-            # Record to CURRENT EPISODE buffer
             current_episode["observations"].append(obs)
             current_episode["actions"].append(final_action.copy()) 
             obs, reward, terminated, truncated, _ = env.step(final_action)
@@ -484,12 +497,15 @@ try:
 
             # --- 3. HANDLE CRASH / RESET ---
             if terminated or truncated:
-                # Save this flight to the session list
                 session_data.append(current_episode)
                 print(f"Flight Completed. Waypoints: {np.sum(np.array(current_episode['rewards']) >= 90.0)}")
                 
-                # Reset buffer for the NEXT flight
+                # Reset Buffer
                 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": []}
+
+                # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
+                ghost_wing_id = None
+                ghost_fin_id = None
 
                 obs, _ = env.reset()
                 if hasattr(env.unwrapped, "waypoints"):
@@ -511,7 +527,7 @@ try:
                 
             draw_radar(screen, pos, euler[2], current_targets, ZONE_RADIUS)
             
-            # --- TELEMETRY (RESTORED & ENSURED) ---
+            # --- TELEMETRY ---
             if args.show_data and pos:
                 BOX_X, BOX_Y = 20, 80
                 s = pygame.Surface((300, 160)) 
@@ -547,6 +563,9 @@ try:
             if event.type == pygame.JOYBUTTONDOWN:
                 if event.button == BTN_PAUSE: paused = not paused
                 if event.button == BTN_RESET: 
+                    # Manual Reset also needs ghost reset
+                    ghost_wing_id = None
+                    ghost_fin_id = None
                     obs, _ = env.reset()
                     paused = True
 
