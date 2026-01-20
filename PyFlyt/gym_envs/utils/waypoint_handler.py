@@ -22,6 +22,7 @@ class WaypointHandler:
         flight_dome_size: float,
         min_height: float,
         np_random: np.random.Generator,
+        unordered: bool = False,  # <--- NEW ARGUMENT
     ):
         """__init__.
 
@@ -45,6 +46,8 @@ class WaypointHandler:
         self.flight_dome_size = flight_dome_size
         self.min_height = min_height
         self.np_random = np_random
+        self.unordered = unordered  # <--- STORE IT
+        self.captured_index = -1    # <--- TRACKER FOR UNORDERED CAPTURE
 
         # the target visual
         file_dir = os.path.dirname(os.path.realpath(__file__))
@@ -123,37 +126,48 @@ class WaypointHandler:
         lin_pos: np.ndarray,
         quaternion: np.ndarray,
     ):
-        """distance_to_targets.
-
-        Args:
-            ang_pos (np.ndarray): ang_pos
-            lin_pos (np.ndarray): lin_pos
-            quaternion (np.ndarray): quaternion
-
-        """
         # rotation matrix
         rotation = np.array(self.p.getMatrixFromQuaternion(quaternion)).reshape(3, 3)
 
         # drone to target
         target_deltas = np.matmul((self.targets - lin_pos), rotation)
 
-        # record distance to the next target
-        self.old_distance = self.new_distance
-        self.new_distance = float(np.linalg.norm(target_deltas[0]))
+        # --- MODIFIED SECTION START ---
+        if self.unordered:
+            # UNORDERED: Track distance to the CLOSEST target
+            if len(target_deltas) > 0:
+                dists = np.linalg.norm(target_deltas, axis=1)
+                self.new_distance = float(np.min(dists))
+                
+                # Check if we hit anything
+                hits = np.where(dists < self.goal_reach_distance)[0]
+                if len(hits) > 0:
+                    self.captured_index = hits[0]
+                else:
+                    self.captured_index = -1
+            else:
+                self.new_distance = 0.0
+                self.captured_index = -1
+        else:
+            # ORIGINAL: Track distance to FIRST target only
+            self.new_distance = float(np.linalg.norm(target_deltas[0]))
+            self.captured_index = 0 if self.new_distance < self.goal_reach_distance else -1
+        
+        self.old_distance = self.new_distance # Update old distance for reward calculation
+        # --- MODIFIED SECTION END ---
 
         if self.use_yaw_targets:
+            # ... (keep existing yaw logic, but be careful it usually assumes index 0) ...
+            # For simplicity, calculate yaw error based on the 'active' target
+            target_idx = 0 if not self.unordered else (self.captured_index if self.captured_index != -1 else np.argmin(np.linalg.norm(target_deltas, axis=1)))
+            
             yaw_errors = self.yaw_targets - ang_pos[-1]
-
-            # rollover yaw
             yaw_errors[yaw_errors > math.pi] -= 2.0 * math.pi
             yaw_errors[yaw_errors < -math.pi] += 2.0 * math.pi
             yaw_errors = yaw_errors[..., None]
 
-            # add the yaw delta to the target deltas
             target_deltas = np.concatenate([target_deltas, yaw_errors], axis=-1)
-
-            # compute the yaw error scalar
-            self.yaw_error_scalar = np.abs(yaw_errors[0])
+            self.yaw_error_scalar = np.abs(yaw_errors[target_idx])
 
         return target_deltas
 
@@ -180,27 +194,32 @@ class WaypointHandler:
 
     def advance_targets(self):
         """advance_targets."""
-        if len(self.targets) > 1:
-            # still have targets to go
-            self.targets = self.targets[1:]
-            if self.use_yaw_targets:
-                self.yaw_targets = self.yaw_targets[1:]
-        else:
-            self.targets = []
-            self.yaw_targets = []
+        # Determine which index to remove
+        # If unordered, use the captured one. If ordered, always 0.
+        remove_idx = self.captured_index if self.unordered else 0
+        
+        if remove_idx == -1 or len(self.targets) == 0:
+            return
 
-        # delete the reached target and recolour the others
+        # Delete from numpy arrays
+        self.targets = np.delete(self.targets, remove_idx, axis=0)
+        if self.use_yaw_targets:
+            self.yaw_targets = np.delete(self.yaw_targets, remove_idx, axis=0)
+
+        # Delete visual body
         if self.enable_render and len(self.target_visual) > 0:
-            self.p.removeBody(self.target_visual[0])
-            self.target_visual = self.target_visual[1:]
+            self.p.removeBody(self.target_visual[remove_idx])
+            del self.target_visual[remove_idx]
 
-            # recolour
+            # Recolour remaining
             for i, visual in enumerate(self.target_visual):
                 self.p.changeVisualShape(
                     visual,
                     linkIndex=-1,
-                    rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
+                    rgbaColor=(0, 1 - (i / max(len(self.target_visual), 1)), 0, 1),
                 )
+        
+        self.captured_index = -1
 
     @property
     def num_targets_reached(self):

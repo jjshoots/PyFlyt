@@ -43,6 +43,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
+        unordered: bool = False,  # <--- ADD ARGUMENT HERE
     ):
         """__init__.
 
@@ -69,7 +70,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             render_mode=render_mode,
             render_resolution=render_resolution,
         )
-
+        print(unordered)
         # define waypoints
         self.waypoints = WaypointHandler(
             enable_render=self.render_mode is not None,
@@ -80,6 +81,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
             flight_dome_size=flight_dome_size,
             min_height=0.5,
             np_random=self.np_random,
+            unordered=unordered,  # <--- PASS IT HERE
         )
 
         # Define observation space
