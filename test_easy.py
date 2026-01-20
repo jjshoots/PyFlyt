@@ -148,18 +148,109 @@ if pygame.joystick.get_count() > 0:
 ghost_wing_id = None
 ghost_fin_id = None
 
+def draw_hud_arrow(screen, drone_pos, drone_orn, targets, unordered):
+    """
+    Draws a SINGLE 3D-style arrow pointing to the active target.
+    - Tip points EXACTLY at the target vector.
+    """
+    if not targets or len(targets) == 0: return
+
+    # 1. Select the Active Target
+    if unordered:
+        # Find closest
+        min_dist = float('inf')
+        active_target = None
+        for t in targets:
+            d = np.linalg.norm(t) 
+            if d < min_dist:
+                min_dist = d
+                active_target = t
+    else:
+        # First in list
+        active_target = targets[0]
+        min_dist = np.linalg.norm(active_target)
+
+    if active_target is None: return
+
+    # 2. Project to Screen
+    rot_mat = np.array(p.getMatrixFromQuaternion(drone_orn)).reshape(3, 3)
+    inv_rot = rot_mat.T
+    
+    # Transform target into Drone Body Frame
+    local_vec = inv_rot.dot(np.array(active_target))
+    
+    # 3. Calculate Screen Position
+    cx, cy = WINDOW_W // 2, WINDOW_H // 2
+    scale = 800.0
+    
+    norm = np.linalg.norm(local_vec)
+    if norm < 0.1: return
+    direction = local_vec / norm
+    
+    # PyGame Coords: X=Right, Y=Down
+    # Body Coords: Y=Left (Standard Aero), Z=Up
+    dx = -direction[1] 
+    dy = -direction[2]
+    
+    # 4. Calculate Angle (Standard 2D Rotation)
+    # This aligns 0 radians with the X-axis (Right)
+    angle = math.atan2(dy, dx)
+
+    # 5. Clamp to HUD Box
+    arrow_x = cx + (dx * scale)
+    arrow_y = cy + (dy * scale)
+    
+    hud_radius = 350
+    screen_dist = math.sqrt((arrow_x - cx)**2 + (arrow_y - cy)**2)
+    
+    if screen_dist > hud_radius:
+        ratio = hud_radius / screen_dist
+        arrow_x = cx + (arrow_x - cx) * ratio
+        arrow_y = cy + (arrow_y - cy) * ratio
+
+    # 6. Rotate Polygon (Defined Pointing RIGHT)
+    size = 20
+    # Shape: Tip at (size, 0), Base at (-size, +/- size*0.6)
+    points = [
+        (size, 0),            # The Pointy End
+        (-size, -size * 0.6), # Back Top
+        (-size, size * 0.6)   # Back Bottom
+    ]
+    
+    rot_points = []
+    cos_a = math.cos(angle)
+    sin_a = math.sin(angle)
+    
+    for px, py in points:
+        # Standard 2D Rotation Matrix
+        rx = px * cos_a - py * sin_a
+        ry = px * sin_a + py * cos_a
+        rot_points.append((arrow_x + rx, arrow_y + ry))
+
+    # 7. Draw
+    color = (255, 0, 255) # Magenta
+    pygame.draw.polygon(screen, color, rot_points)
+    pygame.draw.polygon(screen, (255, 255, 255), rot_points, 2)
+    
+    # Text
+    lbl = font.render(f"{min_dist:.0f}m", True, (255, 255, 255))
+    screen.blit(lbl, (arrow_x - 20, arrow_y + 30))
+
 def update_ghost_plane(p, drone_id, obs, agent):
     """
-    Overlays a translucent 'Ghost Plane' on the current drone position
-    to show the AI's commanded attitude (Roll/Pitch intent).
+    Overlays a translucent 'Ghost Plane' to show Control Intent.
+    - Scale increased to 1.05x to prevent Z-fighting (flickering).
+    - Prediction: Shows ~0.5s of extrapolated attitude change.
     """
     global ghost_wing_id, ghost_fin_id
     
     # Create Bodies if they don't exist
     if ghost_wing_id is None:
-        wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[1.2, 0.3, 0.05], rgbaColor=[0, 1, 0, 0.5])
+        # Scale increased slightly (1.2 -> 1.25) to wrap around the real drone
+        wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[1.25, 0.35, 0.1], rgbaColor=[0, 1, 0, 0.5])
         ghost_wing_id = p.createMultiBody(baseVisualShapeIndex=wing_shape)
-        fin_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.05, 0.3, 0.25], rgbaColor=[1, 0, 0, 0.7])
+        
+        fin_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.06, 0.35, 0.3], rgbaColor=[1, 0, 0, 0.7])
         ghost_fin_id = p.createMultiBody(baseVisualShapeIndex=fin_shape)
     
     try:
@@ -170,29 +261,26 @@ def update_ghost_plane(p, drone_id, obs, agent):
         # 2. Get AI Prediction
         ai_action, _ = agent.predict(obs, deterministic=True)
         
-        # 3. Calculate Target Attitude (Overlay)
-        # Apply the AI's roll/pitch/yaw delta to the current attitude
-        # This visualizes "Where is the AI pulling the stick?"
-        target_roll = h_euler[0] + ai_action[0] * 0.5 
-        target_pitch = h_euler[1] + ai_action[1] * 0.5
-        target_yaw = h_euler[2] + ai_action[2] * 0.5
+        # 3. Calculate Prediction (Horizon ~0.5 seconds)
+        # We extrapolate "What if I hold this stick for 0.5s?"
+        PREDICTION_SCALE = 0.5 
+        
+        target_roll = h_euler[0] + ai_action[0] * PREDICTION_SCALE
+        target_pitch = h_euler[1] + ai_action[1] * PREDICTION_SCALE
+        target_yaw = h_euler[2] + ai_action[2] * PREDICTION_SCALE
         
         ghost_orn = p.getQuaternionFromEuler([target_roll, target_pitch, target_yaw])
         
-        # 4. Position: EXACT OVERLAY (No offset)
-        ghost_pos = [h_pos[0], h_pos[1], h_pos[2]] 
-        
-        # 5. Update Physics Bodies
-        p.resetBasePositionAndOrientation(ghost_wing_id, ghost_pos, ghost_orn)
+        # 4. Update Physics Bodies (Exact Overlay)
+        p.resetBasePositionAndOrientation(ghost_wing_id, h_pos, ghost_orn)
         
         # Update Fin relative to wing
         fin_local_pos = [0, 0, 0.3] 
         fin_local_orn = [0, 0, 0, 1]
-        fin_world_pos, fin_world_orn = p.multiplyTransforms(ghost_pos, ghost_orn, fin_local_pos, fin_local_orn)
+        fin_world_pos, fin_world_orn = p.multiplyTransforms(h_pos, ghost_orn, fin_local_pos, fin_local_orn)
         p.resetBasePositionAndOrientation(ghost_fin_id, fin_world_pos, fin_world_orn)
         
     except Exception as e: 
-        # Usually happens during reset/crash transition
         pass
 
 # --- VISUAL FUNCTIONS ---
@@ -219,94 +307,6 @@ def render_camera(drone_id, pos, orn, mode="chase", w=320, h=240):
         return pygame.surfarray.make_surface(np.transpose(np.array(rgb, dtype=np.uint8).reshape(h, w, 4)[:, :, :3], (1, 0, 2)))
     except: return None
 
-def draw_hud_arrow(screen, drone_pos, drone_orn, targets, unordered):
-    """
-    Draws a SINGLE 3D-style arrow pointing to the active target.
-    - Unordered: Points to Closest Target
-    - Ordered: Points to Next Sequence Target (Index 0)
-    - Rotates on screen to point toward the target     """
-    if not targets or len(targets) == 0: return
-
-    # 1. Select the Active Target
-    if unordered:
-        # Find closest
-        min_dist = float('inf')
-        active_target = None
-        for t in targets:
-            d = np.linalg.norm(t) # targets are already relative vectors from env
-            if d < min_dist:
-                min_dist = d
-                active_target = t
-    else:
-        # First in list
-        active_target = targets[0]
-        min_dist = np.linalg.norm(active_target)
-
-    if active_target is None: return
-
-    # 2. Project to Screen
-    rot_mat = np.array(p.getMatrixFromQuaternion(drone_orn)).reshape(3, 3)
-    inv_rot = rot_mat.T
-    
-    # Transform target into Drone Body Frame (Forward=X, Right=Y, Up=Z)
-    local_vec = inv_rot.dot(np.array(active_target))
-    
-    # 3. Calculate Screen Position
-    cx, cy = WINDOW_W // 2, WINDOW_H // 2
-    scale = 800.0
-    
-    norm = np.linalg.norm(local_vec)
-    if norm < 0.1: return
-    direction = local_vec / norm
-    
-    # In PyGame: X is Right, Y is Down.
-    # Body Frame: Y is Right, Z is Up.
-    dx = -direction[1] # Screen X (Right) comes from Body -Y (Left)? No, Body Y is Left in PyBullet? 
-    # Actually: PyFlyt Body Frame -> X=Fwd, Y=Left, Z=Up
-    # To Screen: Left=Y, Up=Z. 
-    dx = -direction[1] 
-    dy = -direction[2]
-    
-    # 4. Calculate Angle for Rotation
-    angle = math.atan2(dy, dx) - math.pi/2 
-
-    # 5. Clamp to HUD Box
-    arrow_x = cx + (dx * scale)
-    arrow_y = cy + (dy * scale)
-    
-    hud_radius = 350
-    screen_dist = math.sqrt((arrow_x - cx)**2 + (arrow_y - cy)**2)
-    
-    if screen_dist > hud_radius:
-        ratio = hud_radius / screen_dist
-        arrow_x = cx + (arrow_x - cx) * ratio
-        arrow_y = cy + (arrow_y - cy) * ratio
-
-    # 6. Rotate Polygon
-    size = 20
-    points = [
-        (0, -size),      
-        (-size*0.7, size),
-        (size*0.7, size) 
-    ]
-    
-    rot_points = []
-    cos_a = math.cos(angle)
-    sin_a = math.sin(angle)
-    
-    for px, py in points:
-        rx = px * cos_a - py * sin_a
-        ry = px * sin_a + py * cos_a
-        rot_points.append((arrow_x + rx, arrow_y + ry))
-
-    # 7. Draw
-    color = (255, 0, 255) # Magenta
-    pygame.draw.polygon(screen, color, rot_points)
-    pygame.draw.polygon(screen, (255, 255, 255), rot_points, 2)
-    
-    # Text
-    lbl = font.render(f"{min_dist:.0f}m", True, (255, 255, 255))
-    screen.blit(lbl, (arrow_x - 20, arrow_y + 30))
 
 def draw_shadow_controls(screen, human_act, ai_act):
     BOX_SIZE = 150
