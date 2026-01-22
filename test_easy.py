@@ -244,26 +244,23 @@ ghost_right_id = None
 ghost_tail_id = None
 smoothed_action = np.zeros(4) # Memory for smoothing
 
-def update_ghost_plane(p, drone_id, obs, agent):
+def update_ghost_plane(p, drone_id, ai_action):
     """
-    Overlays a smooth, multi-colored 'Ghost Plane' to show Control Intent.
-    - SMOOTHED: Filters raw AI jitter to mimic real physics inertia.
-    - COLORED: Red=Left, Green=Right, Blue=Tail.
-    - RELATIVE: Applies rotation to the drone's current body frame.
+    Overlays a smooth 'Wingman' plane.
+    - VISUAL ONLY: Maps Stick Input directly to Bank Angle.
+    - Full Stick (1.0) = 45 Degrees Bank (0.78 Rads).
+    - No time prediction, no physics lookahead.
     """
     global ghost_left_id, ghost_right_id, ghost_tail_id, smoothed_action
     
-    # 1. Create Bodies (One-time setup with Navigation Colors)
+    # 1. Create Bodies (One-time setup)
     if ghost_left_id is None:
-        # Left Wing (Red)
         l_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.25, 1.0, 0.05], rgbaColor=[1, 0, 0, 0.6])
         ghost_left_id = p.createMultiBody(baseVisualShapeIndex=l_shape)
         
-        # Right Wing (Green)
         r_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.25, 1.0, 0.05], rgbaColor=[0, 1, 0, 0.6])
         ghost_right_id = p.createMultiBody(baseVisualShapeIndex=r_shape)
         
-        # Tail (Blue)
         t_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.25, 0.05, 0.3], rgbaColor=[0.2, 0.2, 1, 0.8])
         ghost_tail_id = p.createMultiBody(baseVisualShapeIndex=t_shape)
     
@@ -271,48 +268,38 @@ def update_ghost_plane(p, drone_id, obs, agent):
         # 2. Get Current State
         h_pos, h_orn = p.getBasePositionAndOrientation(drone_id)
         
-        # 3. Get AI Prediction & Apply Smoothing
-        raw_action, _ = agent.predict(obs, deterministic=True)
-        
-        # Smooth Factor: 0.1 = Very Smooth/Slow, 0.9 = Raw/Jittery
-        # 0.15 gives a nice "heavy plane" feel
+        # 3. Apply Smoothing (Keeps it from jittering)
         alpha = 0.15 
-        smoothed_action = (smoothed_action * (1 - alpha)) + (raw_action * alpha)
+        smoothed_action = (smoothed_action * (1 - alpha)) + (ai_action * alpha)
         
-        # 4. Calculate Relative Rotation (Body Frame)
-        PREDICTION_SCALE = 1.0 
+        # 4. DIRECT VISUAL MAPPING
+        # We simply say: "Full Stick = 45 Degree Bank"
+        # 45 Degrees is approx 0.78 Radians.
+        MAX_VISUAL_ANGLE = 0.78 
         
-        # Map Actions: Roll (Right+), Pitch (Up+), Yaw (Right+)
-        # Note: We invert Pitch because PyBullet +Pitch is Nose Down
-        d_roll  = smoothed_action[0] * PREDICTION_SCALE
-        d_pitch = -smoothed_action[1] * PREDICTION_SCALE 
-        d_yaw   = smoothed_action[2] * PREDICTION_SCALE
+        d_roll  = smoothed_action[0] * MAX_VISUAL_ANGLE
+        d_pitch = -smoothed_action[1] * MAX_VISUAL_ANGLE 
+        d_yaw   = 0.0 # Locked to drone heading
         
-        # Create Delta Quaternion from smoothed input
         delta_orn = p.getQuaternionFromEuler([d_roll, d_pitch, d_yaw])
         
-        # 5. Apply Delta to Current Orientation (Relative Rotation)
+        # 5. Apply Delta
         _, ghost_orn = p.multiplyTransforms([0,0,0], h_orn, [0,0,0], delta_orn)
         
-        # 6. Update Parts (With Offsets for Left/Right wings)
-        # Center Position
+        # 6. Update Parts
         center_pos = h_pos 
 
-        # Helper to place parts relative to the new Ghost Orientation
         def place_part(body_id, local_offset):
-            # Rotate the offset by the Ghost's new orientation
             p_pos, p_orn = p.multiplyTransforms(center_pos, ghost_orn, local_offset, [0,0,0,1])
             p.resetBasePositionAndOrientation(body_id, p_pos, p_orn)
 
-        # PyFlyt Frame: X=Forward, Y=Right, Z=Up (Standard Check)
-        # If wings are inverted, swap the Y signs below.
-        place_part(ghost_left_id,  [0, -0.5, 0])  # Left Wing (Offset -Y)
-        place_part(ghost_right_id, [0, 0.5, 0])   # Right Wing (Offset +Y)
-        place_part(ghost_tail_id,  [-0.5, 0, 0.1]) # Tail (Back)
+        place_part(ghost_left_id,  [0, -0.5, 0])
+        place_part(ghost_right_id, [0, 0.5, 0])
+        place_part(ghost_tail_id,  [-0.5, 0, 0.1])
         
     except Exception: 
         pass
-   
+
 # --- VISUAL FUNCTIONS ---
 def get_drone_state(env):
     try:
@@ -522,7 +509,7 @@ try:
         # --- 2. STEP & RECORD ---
         if not paused:
             if args.assist_ghost and agent_model and drone_id is not None:
-                update_ghost_plane(p, drone_id, obs, agent_model)
+                update_ghost_plane(p, drone_id, ai_action)
 
             current_episode["observations"].append(obs)
             current_episode["actions"].append(final_action.copy()) 
