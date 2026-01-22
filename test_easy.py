@@ -48,10 +48,10 @@ AXIS_ROLL, AXIS_PITCH, AXIS_YAW, AXIS_THROTTLE = 0, 1, 2, 3
 BTN_PAUSE, BTN_PIP, BTN_RADAR, BTN_RESET = 1, 2, 3, 7 
 INVERT_PITCH, INVERT_THROTTLE = True, True
 
-EXPO_VALUE = 0.6  
-MAX_ROLL_RATE = 0.5
-MAX_PITCH_RATE = 0.5
-MAX_YAW_RATE = 0.3
+EXPO_VALUE = 0.0 
+MAX_ROLL_RATE = 1.0
+MAX_PITCH_RATE = 1.0
+MAX_YAW_RATE = 1.0
 
 # --- DATA RECORDING & SESSION SETUP ---
 output_dir = "flight_data"
@@ -145,8 +145,10 @@ if pygame.joystick.get_count() > 0:
     joystick.init()
 
 # --- GHOST PLANE LOGIC ---
-ghost_wing_id = None
-ghost_fin_id = None
+ghost_left_id = None
+ghost_right_id = None
+ghost_tail_id = None
+smoothed_action = np.zeros(4) # Reset smoothing filter
 
 def draw_hud_arrow(screen, drone_pos, drone_orn, targets, unordered):
     """
@@ -236,53 +238,81 @@ def draw_hud_arrow(screen, drone_pos, drone_orn, targets, unordered):
     lbl = font.render(f"{min_dist:.0f}m", True, (255, 255, 255))
     screen.blit(lbl, (arrow_x - 20, arrow_y + 30))
 
+# --- GHOST PLANE LOGIC ---
+ghost_left_id = None
+ghost_right_id = None
+ghost_tail_id = None
+smoothed_action = np.zeros(4) # Memory for smoothing
+
 def update_ghost_plane(p, drone_id, obs, agent):
     """
-    Overlays a translucent 'Ghost Plane' to show Control Intent.
-    - Scale increased to 1.05x to prevent Z-fighting (flickering).
-    - Prediction: Shows ~0.5s of extrapolated attitude change.
+    Overlays a smooth, multi-colored 'Ghost Plane' to show Control Intent.
+    - SMOOTHED: Filters raw AI jitter to mimic real physics inertia.
+    - COLORED: Red=Left, Green=Right, Blue=Tail.
+    - RELATIVE: Applies rotation to the drone's current body frame.
     """
-    global ghost_wing_id, ghost_fin_id
+    global ghost_left_id, ghost_right_id, ghost_tail_id, smoothed_action
     
-    # Create Bodies if they don't exist
-    if ghost_wing_id is None:
-        # Scale increased slightly (1.2 -> 1.25) to wrap around the real drone
-        wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[1.25, 0.35, 0.1], rgbaColor=[0, 1, 0, 0.5])
-        ghost_wing_id = p.createMultiBody(baseVisualShapeIndex=wing_shape)
+    # 1. Create Bodies (One-time setup with Navigation Colors)
+    if ghost_left_id is None:
+        # Left Wing (Red)
+        l_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.25, 1.0, 0.05], rgbaColor=[1, 0, 0, 0.6])
+        ghost_left_id = p.createMultiBody(baseVisualShapeIndex=l_shape)
         
-        fin_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.06, 0.35, 0.3], rgbaColor=[1, 0, 0, 0.7])
-        ghost_fin_id = p.createMultiBody(baseVisualShapeIndex=fin_shape)
+        # Right Wing (Green)
+        r_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.25, 1.0, 0.05], rgbaColor=[0, 1, 0, 0.6])
+        ghost_right_id = p.createMultiBody(baseVisualShapeIndex=r_shape)
+        
+        # Tail (Blue)
+        t_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.25, 0.05, 0.3], rgbaColor=[0.2, 0.2, 1, 0.8])
+        ghost_tail_id = p.createMultiBody(baseVisualShapeIndex=t_shape)
     
     try:
-        # 1. Get Current State
+        # 2. Get Current State
         h_pos, h_orn = p.getBasePositionAndOrientation(drone_id)
-        h_euler = p.getEulerFromQuaternion(h_orn)
         
-        # 2. Get AI Prediction
-        ai_action, _ = agent.predict(obs, deterministic=True)
+        # 3. Get AI Prediction & Apply Smoothing
+        raw_action, _ = agent.predict(obs, deterministic=True)
         
-        # 3. Calculate Prediction (Horizon ~0.5 seconds)
-        # We extrapolate "What if I hold this stick for 0.5s?"
-        PREDICTION_SCALE = 0.5 
+        # Smooth Factor: 0.1 = Very Smooth/Slow, 0.9 = Raw/Jittery
+        # 0.15 gives a nice "heavy plane" feel
+        alpha = 0.15 
+        smoothed_action = (smoothed_action * (1 - alpha)) + (raw_action * alpha)
         
-        target_roll = h_euler[0] + ai_action[0] * PREDICTION_SCALE
-        target_pitch = h_euler[1] + ai_action[1] * PREDICTION_SCALE
-        target_yaw = h_euler[2] + ai_action[2] * PREDICTION_SCALE
+        # 4. Calculate Relative Rotation (Body Frame)
+        PREDICTION_SCALE = 1.0 
         
-        ghost_orn = p.getQuaternionFromEuler([target_roll, target_pitch, target_yaw])
+        # Map Actions: Roll (Right+), Pitch (Up+), Yaw (Right+)
+        # Note: We invert Pitch because PyBullet +Pitch is Nose Down
+        d_roll  = smoothed_action[0] * PREDICTION_SCALE
+        d_pitch = -smoothed_action[1] * PREDICTION_SCALE 
+        d_yaw   = smoothed_action[2] * PREDICTION_SCALE
         
-        # 4. Update Physics Bodies (Exact Overlay)
-        p.resetBasePositionAndOrientation(ghost_wing_id, h_pos, ghost_orn)
+        # Create Delta Quaternion from smoothed input
+        delta_orn = p.getQuaternionFromEuler([d_roll, d_pitch, d_yaw])
         
-        # Update Fin relative to wing
-        fin_local_pos = [0, 0, 0.3] 
-        fin_local_orn = [0, 0, 0, 1]
-        fin_world_pos, fin_world_orn = p.multiplyTransforms(h_pos, ghost_orn, fin_local_pos, fin_local_orn)
-        p.resetBasePositionAndOrientation(ghost_fin_id, fin_world_pos, fin_world_orn)
+        # 5. Apply Delta to Current Orientation (Relative Rotation)
+        _, ghost_orn = p.multiplyTransforms([0,0,0], h_orn, [0,0,0], delta_orn)
         
-    except Exception as e: 
-        pass
+        # 6. Update Parts (With Offsets for Left/Right wings)
+        # Center Position
+        center_pos = h_pos 
 
+        # Helper to place parts relative to the new Ghost Orientation
+        def place_part(body_id, local_offset):
+            # Rotate the offset by the Ghost's new orientation
+            p_pos, p_orn = p.multiplyTransforms(center_pos, ghost_orn, local_offset, [0,0,0,1])
+            p.resetBasePositionAndOrientation(body_id, p_pos, p_orn)
+
+        # PyFlyt Frame: X=Forward, Y=Right, Z=Up (Standard Check)
+        # If wings are inverted, swap the Y signs below.
+        place_part(ghost_left_id,  [0, -0.5, 0])  # Left Wing (Offset -Y)
+        place_part(ghost_right_id, [0, 0.5, 0])   # Right Wing (Offset +Y)
+        place_part(ghost_tail_id,  [-0.5, 0, 0.1]) # Tail (Back)
+        
+    except Exception: 
+        pass
+   
 # --- VISUAL FUNCTIONS ---
 def get_drone_state(env):
     try:
@@ -450,6 +480,9 @@ try:
         
         # INPUTS
         human_action = np.array([0.0, 0.0, 0.0, 0.0])
+        ai_action = np.array([0.0, 0.0, 0.0, 0.0])
+
+        # 1. Get Human Input (With Safety Clip)
         if joystick:
             r_roll = joystick.get_axis(AXIS_ROLL)
             r_pitch = joystick.get_axis(AXIS_PITCH)
@@ -457,16 +490,22 @@ try:
             r_thr = joystick.get_axis(AXIS_THROTTLE)
             
             def expo(v, e): return (v**3 * e) + (v * (1-e))
-            human_action = np.array([
+            
+            raw_human = np.array([
                 expo(r_roll, EXPO_VALUE) * MAX_ROLL_RATE,
                 expo(-r_pitch if INVERT_PITCH else r_pitch, EXPO_VALUE) * MAX_PITCH_RATE,
                 expo(r_yaw, EXPO_VALUE) * MAX_YAW_RATE,
                 np.clip((-r_thr + 1.0)/2.0 if INVERT_THROTTLE else r_thr, 0, 1)
             ])
+            # CLIP HUMAN ACTION
+            human_action = np.clip(raw_human, -1.0, 1.0)
             
-        ai_action = np.array([0.0, 0.0, 0.0, 0.0])
+        # 2. Get AI Input (With Safety Clip)
         if agent_model:
-            ai_action, _ = agent_model.predict(obs, deterministic=True)
+            raw_ai, _ = agent_model.predict(obs, deterministic=True)
+            # CLIP AI ACTION
+            ai_action = np.clip(raw_ai, -1.0, 1.0)
+        
         
         # --- 3. SELECT CONTROL SOURCE ---
         if args.pilot == "agent":
@@ -477,8 +516,8 @@ try:
             # 2. Human Pilot
             final_action = human_action.copy()
             # AUTO-THROTTLE
-            if agent_model is not None:
-                final_action[3] = ai_action[3]
+            # if agent_model is not None:
+            #     final_action[3] = ai_action[3]
 
         # --- 2. STEP & RECORD ---
         if not paused:
@@ -504,8 +543,10 @@ try:
                 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": []}
 
                 # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
-                ghost_wing_id = None
-                ghost_fin_id = None
+                ghost_left_id = None
+                ghost_right_id = None
+                ghost_tail_id = None
+                smoothed_action = np.zeros(4) # Reset smoothing filter
 
                 obs, _ = env.reset()
                 if hasattr(env.unwrapped, "waypoints"):
@@ -564,8 +605,10 @@ try:
                 if event.button == BTN_PAUSE: paused = not paused
                 if event.button == BTN_RESET: 
                     # Manual Reset also needs ghost reset
-                    ghost_wing_id = None
-                    ghost_fin_id = None
+                    ghost_left_id = None
+                    ghost_right_id = None
+                    ghost_tail_id = None
+                    smoothed_action = np.zeros(4) # Reset smoothing filter
                     obs, _ = env.reset()
                     paused = True
 
