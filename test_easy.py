@@ -63,8 +63,8 @@ session_data = []
 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": []}
 
 # 5-Minute Timer Setup
-TIME_LIMIT_SECONDS = 300 
-start_ticks = pygame.time.get_ticks()
+TARGET_FLIGHT_TIME = 300.0  # 5 Minutes of ACTIVE flying
+accumulated_time = 0.0      # Counts up only when flying
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -75,9 +75,9 @@ class NumpyEncoder(json.JSONEncoder):
 if args.train:
     print(f"\n=== TRAINING MODE ===")
     try:
-        env = gym.make("PyFlyt/Fixedwing-Waypoints-v4", render_mode=None, unordered=args.unordered)
+        env = gym.make("PyFlyt/Fixedwing-Waypoints-v4", render_mode=None, unordered=args.unordered, max_duration_seconds=3600.0)
     except:
-        env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=None, unordered=args.unordered)
+        env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=None, unordered=args.unordered, max_duration_seconds=3600.0)
     
     env = FlattenWaypointEnv(env, context_length=2)
     ModelClass = SAC if args.algo == "SAC" else PPO
@@ -91,9 +91,9 @@ if args.train:
 # --- 2. FLIGHT MODE ---
 render_mode = args.render_mode if args.render_mode != "none" else None
 try:
-    env = gym.make("PyFlyt/Fixedwing-Waypoints-v4", render_mode=render_mode, unordered=args.unordered)
+    env = gym.make("PyFlyt/Fixedwing-Waypoints-v4", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0)
 except:
-    env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=render_mode, unordered=args.unordered)
+    env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0)
 
 env = FlattenWaypointEnv(env, context_length=2)
 
@@ -453,14 +453,13 @@ current_targets = []
 last_target_count = 0
 paused = True 
 running = True
-
+FPS = 60.0
 try:
     while running:
-        clock.tick(30)
-        # --- 1. TIME LIMIT CHECK ---
-        elapsed_sec = (pygame.time.get_ticks() - start_ticks) / 1000.0
-        if elapsed_sec > TIME_LIMIT_SECONDS:
-            print(f">>> TIME LIMIT REACHED ({elapsed_sec:.1f}s). ENDING SESSION. <<<")
+        clock.tick(FPS)
+        # 1. NEW TIME CHECK (Active Time Only)
+        if accumulated_time > TARGET_FLIGHT_TIME:
+            print(f">>> TARGET FLIGHT TIME REACHED ({accumulated_time:.1f}s). ENDING SESSION. <<<")
             running = False
         drone_id, pos, orn, euler = get_drone_state(env)
         pygame.event.pump() 
@@ -508,6 +507,7 @@ try:
 
         # --- 2. STEP & RECORD ---
         if not paused:
+            accumulated_time += (1.0 / FPS)
             if args.assist_ghost and agent_model and drone_id is not None:
                 update_ghost_plane(p, drone_id, ai_action)
 
