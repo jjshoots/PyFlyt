@@ -1,7 +1,7 @@
 # vim
 .vim/
 Scripts/
-pyenv.cfg
+pyvenv.cfg
 flight_data/
 *.zip
 wandb/
