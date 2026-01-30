@@ -144,6 +144,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
         self.info["env_complete"] = False
+        self.info["boundary_hit"] = False
 
         # need to handle Nones
         if options is None:
@@ -248,6 +249,7 @@ class FixedwingBaseEnv(gymnasium.Env):
 
             # NEW BEHAVIOR: "The Invisible Wall"
             # 1. Calculate vector pointing back to center (0,0,0)
+            self.info["boundary_hit"] = True
             to_center = -pos / dist  # Normalized vector pointing home
             
             # 2. Get current speed
@@ -282,14 +284,15 @@ class FixedwingBaseEnv(gymnasium.Env):
 
         """
         action = np.clip(action, -1.0, 1.0)
+        self.info["boundary_hit"] = False
         # reset the reward
         self.reward = -0.1
 
         # pass the action, but clip the throttle
         self.action = action.copy()
         aviary_action = action.copy()
-        # aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
-        aviary_action[..., -1] = 0.5
+        aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
+        # aviary_action[..., -1] = 0.5
         self.env.set_setpoint(0, aviary_action)
 
         # step through env, the internal env updates a few steps before the outer env
