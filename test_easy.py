@@ -449,39 +449,41 @@ smoothed_action = np.zeros(4) # Memory for smoothing
 def update_ghost_plane(p, drone_id, ai_action):
     """
     Overlays a sleek 'Ghost Drone' anchored to your position.
-    - VISUAL: Semi-transparent White body with Gold wingtips.
+    - VISUAL: High-Vis White Body with Safety Orange tips.
     - LOGIC: Banks 45 degrees to show AI intent.
     """
     global ghost_left_id, ghost_right_id, ghost_tail_id, smoothed_action
     
-    # --- CONFIGURATION ---
-    # Ghostly White (Body)
-    MAIN_COLOR = [0.9, 0.9, 1.0, 0.4] 
-    # Gold/Yellow (Wingtips for visibility)
-    TIP_COLOR  = [1.0, 0.8, 0.0, 0.6]
+    # --- CONFIGURATION: HIGH VISIBILITY SCHEME ---
+    # Bright White Body (85% Opacity - stands out against dark ground)
+    MAIN_COLOR = [1.0, 1.0, 1.0, 0.85] 
+    # Safety Orange Wingtips (High contrast against blue sky)
+    TIP_COLOR  = [1.0, 0.2, 0.0, 0.9]
     
     # 1. Create Bodies (One-time setup)
     if ghost_left_id is None:
         # A. Main Wing (White)
         wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 1.0, 0.03], rgbaColor=MAIN_COLOR)
         
-        # B. Wing Tips (Gold - helps see rotation against sky)
-        tip_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.21, 0.1, 0.04], rgbaColor=TIP_COLOR)
+        # B. Wing Tips (Orange - helps see rotation instantly)
+        tip_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.21, 0.15, 0.04], rgbaColor=TIP_COLOR)
         
-        # C. Fuselage/Tail (White)
+        # C. Fuselage (White)
         fuse_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.6, 0.1, 0.1], rgbaColor=MAIN_COLOR)
-        tail_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 0.02, 0.25], rgbaColor=MAIN_COLOR)
+        
+        # D. Tail (Orange - for directional clarity)
+        tail_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 0.02, 0.25], rgbaColor=TIP_COLOR)
         
         # Create MultiBodies
-        # 1. Main Wing + Fuselage
-        ghost_left_id = p.createMultiBody(baseVisualShapeIndex=wing_shape)
-        ghost_right_id = p.createMultiBody(baseVisualShapeIndex=fuse_shape) # Using 'right_id' for fuselage to save vars
-        ghost_tail_id  = p.createMultiBody(baseVisualShapeIndex=tail_shape)
+        ghost_left_id  = p.createMultiBody(baseVisualShapeIndex=wing_shape)
+        ghost_right_id = p.createMultiBody(baseVisualShapeIndex=fuse_shape) # Fuselage
+        ghost_tail_id  = p.createMultiBody(baseVisualShapeIndex=tail_shape) # Tail
         
-        # Create Tips (Optional extra bodies for detail)
-        # For simplicity in this script, we'll stick to the 3 main parts but color the wings distinctly if needed.
-        # To keep it robust, we'll just use the sleek white shapes defined above.
-        
+        # Note: We aren't creating a separate body for tips in this simplified version to save performance,
+        # but the orange tail serves the same orientation purpose. 
+        # If you really want orange wingtips, we would need 2 more bodies. 
+        # For now, let's make the TAIL orange, which is very effective for orientation.
+
         # Disable collisions
         p.setCollisionFilterGroupMask(ghost_left_id, -1, 0, 0)
         p.setCollisionFilterGroupMask(ghost_right_id, -1, 0, 0)
@@ -504,22 +506,21 @@ def update_ghost_plane(p, drone_id, ai_action):
         delta_orn = p.getQuaternionFromEuler([d_roll, d_pitch, d_yaw])
         _, ghost_orn = p.multiplyTransforms([0,0,0], h_orn, [0,0,0], delta_orn)
         
-        # 5. Position Parts (Relative to Drone Center)
+        # 5. Position Parts
         center_pos = h_pos 
 
         def place_part(body_id, local_offset, local_euler=[0,0,0]):
             local_orn = p.getQuaternionFromEuler(local_euler)
-            # Combine: Ghost Center -> Offset -> Rotation
             p_pos, p_orn = p.multiplyTransforms(center_pos, ghost_orn, local_offset, local_orn)
             p.resetBasePositionAndOrientation(body_id, p_pos, p_orn)
 
-        # Place Main Wing (Centered)
+        # Main Wing
         place_part(ghost_left_id,  [0, 0, 0])  
         
-        # Place Fuselage (Slightly lower)
+        # Fuselage (Body)
         place_part(ghost_right_id, [0, 0, -0.05]) 
         
-        # Place Tail (Back and Up)
+        # Tail (Orange!)
         place_part(ghost_tail_id,  [-0.5, 0, 0.15])
         
     except Exception: 
