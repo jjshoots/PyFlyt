@@ -48,6 +48,7 @@ parser.add_argument("--experiment", action="store_true", help="Run Experiment Mo
 parser.add_argument("--subject-id", type=str, default="test", help="Subject ID (e.g. abc_123)")
 parser.add_argument("--session", type=int, choices=[1, 2], default=1, help="Session Number (1 or 2)")
 parser.add_argument("--break-time", type=float, default=30.0, help="time in seconds between tasks")
+parser.add_argument("--monitor", type=int, default=0, help="External monitor to use")
 
 
 args = parser.parse_args()
@@ -177,7 +178,7 @@ pygame.init()
 pygame.joystick.init()
 MAIN_RENDER_W, MAIN_RENDER_H = 960, 540
 WINDOW_W, WINDOW_H = 1920, 1080 
-screen = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+screen = pygame.display.set_mode((WINDOW_W, WINDOW_H), display=args.monitor)
 pygame.display.set_caption(f"Pilot: {args.pilot.upper()} | Algo: {args.algo}")
 
 # PIP Settings
