@@ -160,3 +160,4 @@ cython_debug/
 
 checkpoints/
 logs/
+*.pkl

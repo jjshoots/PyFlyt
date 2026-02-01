@@ -10,6 +10,7 @@ import sys
 import json
 import datetime
 from flight_analytics import FlightAnalytics
+from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 
 # --- RL IMPORTS ---
 try:
@@ -27,6 +28,7 @@ parser.add_argument("--algo", type=str, choices=["PPO", "SAC"], default="PPO", h
 parser.add_argument("--pilot", type=str, choices=["human", "agent"], default="human", help="Who flies?")
 parser.add_argument("--model-path", type=str, default="fixedwing_agent", help="Agent file path (no ext)")
 parser.add_argument("--render-mode", type=str, choices=["human", "none"], default="human", help="Render Mode")
+parser.add_argument("--vec-norm", action="store_true", help="Enable Vector Normalization")
 
 # Assist Args
 parser.add_argument("--assist-shadow", action="store_true", help="Show AI 'Shadow Inputs' on HUD")
@@ -38,10 +40,10 @@ parser.add_argument("--zone", type=float, default=0.0, help="Zone Radius (0 = Au
 parser.add_argument("--disable-hud", action="store_true", help="Disable ALL HUD")
 parser.add_argument("--no-horizon", action="store_true", help="Disable Artificial Horizon")
 parser.add_argument("--show-data", action="store_true", help="Show text telemetry")
-parser.add_argument("--unordered", action="store_true", default=True, help="Use unordered waypoints")
+parser.add_argument("--unordered", action="store_true", help="Use unordered waypoints")
 
 # experiment settings
-parser.add_argument("--time-per-task", type=float, default=300.0, help="Time per task in seconds, default=300s")
+parser.add_argument("--time-per-task", type=float, default=60.0, help="Time per task in seconds, default=300s")
 parser.add_argument("--target-throttle", type=float, default=0.5, help="Target throttle for human pilots, default 0.5 (50%)")
 parser.add_argument("--waypoint-dist", type=float, default=4.0, help="Distance to collect waypoint (default: 4.0m)")
 parser.add_argument("--experiment", action="store_true", help="Run Experiment Mode")
@@ -148,6 +150,25 @@ except:
     env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0, goal_reach_distance=args.waypoint_dist)
 
 env = FlattenWaypointEnv(env, context_length=2)
+
+if args.vec_norm:
+    stats_path = args.model_path + "_vecnorm.pkl"
+    # 1. SB3 requires a VecEnv to use VecNormalize
+    # We wrap our single env in a DummyVecEnv
+    env = DummyVecEnv([lambda: env])
+    
+    # 2. Load the statistics (Mean/Variance)
+    env = VecNormalize.load(stats_path, env)
+    
+    # 3. CRITICAL: Turn off training updates! 
+    # We only want to USE the stats, not change them.
+    env.training = False
+    env.norm_reward = False
+    
+    # Flag to handle the shape difference later
+    is_vectorized = True
+else:
+    is_vectorized = False
 
 # Load Agent
 agent_model = None
@@ -541,12 +562,39 @@ def force_pygame_focus():
             pass
 
 def get_drone_state(env):
+    """Safely extracts the drone state from Standard OR Vectorized environments."""
     try:
-        drone = env.unwrapped.env.drones[0]
+        # 1. Unwrap if it's a Vectorized Environment (Guided Agent)
+        if hasattr(env, 'envs'):
+            # Grab the actual environment from inside the list
+            target_env = env.envs[0]
+        else:
+            target_env = env
+            
+        # 2. Access the internal PyFlyt structure
+        # We need to dig down to .env.drones[0]
+        if hasattr(target_env, 'unwrapped'):
+            core = target_env.unwrapped
+        else:
+            core = target_env
+            
+        # 3. Find the drone
+        if hasattr(core, 'env') and hasattr(core.env, 'drones'):
+             drone = core.env.drones[0]
+        elif hasattr(core, 'drones'):
+             drone = core.drones[0]
+        else:
+            return None, None, None, None
+
+        # 4. Get PyBullet ID
+        # Note: If accessing 'p' directly here is hard, use drone.Id
         pos, orn = p.getBasePositionAndOrientation(drone.Id)
         euler = p.getEulerFromQuaternion(orn)
         return drone.Id, pos, orn, euler
-    except: return None, None, None, None
+        
+    except Exception as e:
+        # print(f"Drone State Error: {e}") # Uncomment for debug
+        return None, None, None, None
 
 def render_camera(drone_id, pos, orn, mode="chase", w=320, h=240):
     if drone_id is None: return None
@@ -688,8 +736,12 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
 # --- MAIN LOOP ---
 clock = pygame.time.Clock()
 print("Resetting environment...")
-obs, _ = env.reset()
-force_pygame_focus()
+if is_vectorized:
+    obs = env.reset()
+else:
+    obs, _ = env.reset()
+
+# force_pygame_focus()
 print("Env Ready.")
 
 # Count Targets
@@ -771,8 +823,11 @@ try:
                 total_waypoints_in_task = 0
                 
                 # Reset Env & Ghost
-                obs, _ = env.reset()
-                force_pygame_focus()
+                if is_vectorized:
+                    obs = env.reset()
+                else:
+                    obs, _ = env.reset()
+                # force_pygame_focus()
                 ghost_left_id = None # Reset Ghost Bodies
                 ghost_right_id = None
                 ghost_tail_id = None
@@ -807,6 +862,9 @@ try:
         if agent_model:
             raw_ai, _ = agent_model.predict(obs, deterministic=True)
             # CLIP AI ACTION
+            if is_vectorized:
+                # The AI returns [[roll, pitch...]], we need just [roll, pitch...]
+                raw_ai = raw_ai[0]
             ai_action = np.clip(raw_ai, -1.0, 1.0)
         
         
@@ -830,7 +888,21 @@ try:
 
             current_episode["observations"].append(obs)
             current_episode["actions"].append(final_action.copy()) 
-            obs, reward, terminated, truncated, info = env.step(final_action)
+            # --- STEP 4 FIX: Handle Environment Type ---
+            if is_vectorized:
+                # VecEnv expects a LIST of actions: [action]
+                # It returns LISTS of results: ([obs], [rews], [dones], [infos])
+                obs, rewards, dones, infos = env.step([final_action])
+                
+                # Extract the single values for our script
+                reward = rewards[0]
+                terminated = dones[0]
+                truncated = False  # VecEnv handles truncation internally
+                info = infos[0]
+            else:
+                # Standard Environment (Old Style)
+                obs, reward, terminated, truncated, info = env.step(final_action)
+            # obs, reward, terminated, truncated, info = env.step(final_action)
             current_episode["rewards"].append(reward)
             current_episode["terminals"].append(terminated or truncated)
             current_episode["human_actions"].append(human_action.copy())
@@ -871,8 +943,11 @@ try:
                 ghost_tail_id = None
                 smoothed_action = np.zeros(4) # Reset smoothing filter
 
-                obs, _ = env.reset()
-                force_pygame_focus()
+                if is_vectorized:
+                    obs = env.reset()
+                else:
+                    obs, _ = env.reset()
+                # force_pygame_focus()
                 if hasattr(env.unwrapped, "waypoints"):
                     total_targets = len(env.unwrapped.waypoints.targets)
                 paused = True
