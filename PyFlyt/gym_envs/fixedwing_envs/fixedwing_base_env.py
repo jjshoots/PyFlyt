@@ -291,8 +291,8 @@ class FixedwingBaseEnv(gymnasium.Env):
         # pass the action, but clip the throttle
         self.action = action.copy()
         aviary_action = action.copy()
-        # aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
-        aviary_action[..., -1] = 0.5
+        aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
+        # aviary_action[..., -1] = 0.5
         self.env.set_setpoint(0, aviary_action)
 
         # step through env, the internal env updates a few steps before the outer env

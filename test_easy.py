@@ -36,7 +36,7 @@ parser.add_argument("--assist-ghost", action="store_true", help="Show AI 'Ghost 
 parser.add_argument("--assist-arrow", action="store_true", help="Show HUD 'Navigation Arrow' to target")
 
 # Visual & Sim Args
-parser.add_argument("--zone", type=float, default=0.0, help="Zone Radius (0 = Auto)")
+parser.add_argument("--zone", type=float, default=100.0, help="Zone Radius (0 = Auto)")
 parser.add_argument("--disable-hud", action="store_true", help="Disable ALL HUD")
 parser.add_argument("--no-horizon", action="store_true", help="Disable Artificial Horizon")
 parser.add_argument("--show-data", action="store_true", help="Show text telemetry")
@@ -81,6 +81,21 @@ TARGET_THROTTLE = args.target_throttle
 experiment_phases = []
 
 if args.experiment:
+    config_path = "config.json"
+    if os.path.exists(config_path):
+        print(f"Loading Experiment Config from {config_path}...")
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            
+        # Overwrite CLI args with JSON values
+        for key, value in config.items():
+            if hasattr(args, key):
+                setattr(args, key, value)
+            else:
+                print(f"Warning: Config key '{key}' not found in arguments.")
+    else:
+        print("Error: config.json not found! Using defaults.")
+
     # Phase 0: Pretest (No assists, No waypoints shown)
     experiment_phases.append({
         "tag": "pretest", 
@@ -99,24 +114,29 @@ if args.experiment:
         "ghost": False,
         "show_hud": True
     })
-    # Phase 2: Arrow
-    experiment_phases.append({
-        "tag": "task2", 
-        "name": "Task 2 (Arrow Assist)", 
-        "duration": args.time_per_task, 
-        "arrow": True, 
-        "ghost": False,
-        "show_hud": True
-    })
-    # Phase 3: Ghost
-    experiment_phases.append({
-        "tag": "task3", 
-        "name": "Task 3 (Ghost Assist)", 
-        "duration": args.time_per_task, 
-        "arrow": False, 
-        "ghost": True,
-        "show_hud": True
-    })
+    try:
+        subj_num = int(''.join(filter(str.isdigit, args.subject_id)))
+    except ValueError:
+        subj_num = 0 # Default to Odd if no numbers
+    
+    # Define the two conditions
+    condition_arrow = {
+        "tag": "task_arrow", "name": "Task: Arrow Assist", "duration": args.time_per_task, 
+        "arrow": True, "ghost": False, "show_hud": True
+    }
+    condition_ghost = {
+        "tag": "task_ghost", "name": "Task: Ghost Assist", "duration": args.time_per_task, 
+        "arrow": False, "ghost": True, "show_hud": True
+    }
+
+    if subj_num % 2 == 0:
+        print(f"Subject {args.subject_id} is EVEN: Arrow -> Ghost")
+        experiment_phases.append(condition_arrow)
+        experiment_phases.append(condition_ghost)
+    else:
+        print(f"Subject {args.subject_id} is ODD: Ghost -> Arrow")
+        experiment_phases.append(condition_ghost)
+        experiment_phases.append(condition_arrow)
 else:
     # Default Mode (Just runs once based on command line args)
     experiment_phases.append({
@@ -145,9 +165,9 @@ class NumpyEncoder(json.JSONEncoder):
 # --- 2. FLIGHT MODE ---
 render_mode = args.render_mode if args.render_mode != "none" else None
 try:
-    env = gym.make("PyFlyt/Fixedwing-Waypoints-v4", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0, goal_reach_distance=args.waypoint_dist)
+    env = gym.make("PyFlyt/Fixedwing-Waypoints-v4", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0, goal_reach_distance=args.waypoint_dist, flight_dome_size=args.zone)
 except:
-    env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0, goal_reach_distance=args.waypoint_dist)
+    env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=render_mode, unordered=args.unordered, max_duration_seconds=3600.0, goal_reach_distance=args.waypoint_dist, flight_dome_size=args.zone)
 
 env = FlattenWaypointEnv(env, context_length=2)
 
@@ -466,84 +486,142 @@ ghost_left_id = None
 ghost_right_id = None
 ghost_tail_id = None
 smoothed_action = np.zeros(4) # Memory for smoothing
+arrow_body_id = None
 
+
+def update_3d_arrow(p, drone_id, targets, active):
+    """
+    Spawns a physical 3D Arrow in PyBullet that points to the target.
+    Attached 2 meters in front of the drone.
+    """
+    global arrow_body_id
+    
+    # 1. Cleanup if disabled
+    if not active:
+        if arrow_body_id is not None:
+            p.removeBody(arrow_body_id)
+            arrow_body_id = None
+        return
+
+    # 2. Create Body (Once)
+    if arrow_body_id is None:
+        visual_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.5, 0.1, 0.05], rgbaColor=[1, 0, 1, 1]) # Magenta Pointer
+        arrow_body_id = p.createMultiBody(baseVisualShapeIndex=visual_shape)
+        p.setCollisionFilterGroupMask(arrow_body_id, -1, 0, 0) # No collision
+
+    # 3. Calculate Position & Orientation
+    if targets and len(targets) > 0:
+        # Get Drone State
+        pos, orn = p.getBasePositionAndOrientation(drone_id)
+        pos = np.array(pos)
+        
+        # Get Target Vector (World Frame)
+        # Note: 'targets' in env are usually relative. We need Global.
+        # But 'current_targets' in loop is relative. 
+        # Let's rely on the relative vector we have in the loop.
+        
+        # Find closest target vector (relative to drone)
+        closest_rel = targets[0] # Assuming sorted or simple list
+        dist = np.linalg.norm(closest_rel)
+        
+        if dist > 0.1:
+            # Direction vector
+            direction = closest_rel / dist
+            
+            # Calculate Yaw/Pitch to point at target
+            # Simple math: Look at vector
+            yaw = math.atan2(direction[1], direction[0])
+            pitch = math.atan2(direction[2], math.sqrt(direction[0]**2 + direction[1]**2))
+            
+            # Arrow Position: 2.0m in front of drone + 0.5m up (so it doesn't block view)
+            # We need to rotate the "forward" offset by the drone's orientation?
+            # actually, let's just place it relative to the drone body
+            rot_mat = np.array(p.getMatrixFromQuaternion(orn)).reshape(3, 3)
+            offset = rot_mat.dot([2.0, 0, 0.3]) 
+            arrow_pos = pos + offset
+            
+            # Arrow Orientation: Point at target
+            # PyBullet expects Quaternion. We calculated Euler (Roll=0, Pitch, Yaw)
+            arrow_orn = p.getQuaternionFromEuler([0, -pitch, yaw]) # -pitch because PyBullet Z-up
+            
+            p.resetBasePositionAndOrientation(arrow_body_id, arrow_pos, arrow_orn)
 
 def update_ghost_plane(p, drone_id, ai_action):
     """
-    Overlays a sleek 'Ghost Drone' anchored to your position.
-    - VISUAL: High-Vis White Body with Safety Orange tips.
-    - LOGIC: Banks 45 degrees to show AI intent.
+    Overlays a sleek 'Ghost Drone' projected AHEAD of the user (Rabbit Strategy).
+    - VISUAL: High-Vis White Body with Safety Orange Tail.
+    - LOGIC: Projects 3.0m forward. Banks to show AI intent relative to horizon.
     """
     global ghost_left_id, ghost_right_id, ghost_tail_id, smoothed_action
     
     # --- CONFIGURATION: HIGH VISIBILITY SCHEME ---
-    # Bright White Body (85% Opacity - stands out against dark ground)
-    MAIN_COLOR = [1.0, 1.0, 1.0, 0.85] 
-    # Safety Orange Wingtips (High contrast against blue sky)
-    TIP_COLOR  = [1.0, 0.2, 0.0, 0.9]
+    MAIN_COLOR = [1.0, 1.0, 1.0, 0.85]   # Bright White
+    TIP_COLOR  = [1.0, 0.2, 0.0, 0.9]    # Safety Orange
     
     # 1. Create Bodies (One-time setup)
     if ghost_left_id is None:
         # A. Main Wing (White)
         wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 1.0, 0.03], rgbaColor=MAIN_COLOR)
-        
-        # B. Wing Tips (Orange - helps see rotation instantly)
-        tip_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.21, 0.15, 0.04], rgbaColor=TIP_COLOR)
-        
-        # C. Fuselage (White)
+        # B. Fuselage (White)
         fuse_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.6, 0.1, 0.1], rgbaColor=MAIN_COLOR)
-        
-        # D. Tail (Orange - for directional clarity)
+        # C. Tail (Orange - visual anchor)
         tail_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 0.02, 0.25], rgbaColor=TIP_COLOR)
         
         # Create MultiBodies
         ghost_left_id  = p.createMultiBody(baseVisualShapeIndex=wing_shape)
-        ghost_right_id = p.createMultiBody(baseVisualShapeIndex=fuse_shape) # Fuselage
-        ghost_tail_id  = p.createMultiBody(baseVisualShapeIndex=tail_shape) # Tail
+        ghost_right_id = p.createMultiBody(baseVisualShapeIndex=fuse_shape)
+        ghost_tail_id  = p.createMultiBody(baseVisualShapeIndex=tail_shape)
         
-        # Note: We aren't creating a separate body for tips in this simplified version to save performance,
-        # but the orange tail serves the same orientation purpose. 
-        # If you really want orange wingtips, we would need 2 more bodies. 
-        # For now, let's make the TAIL orange, which is very effective for orientation.
-
         # Disable collisions
-        p.setCollisionFilterGroupMask(ghost_left_id, -1, 0, 0)
-        p.setCollisionFilterGroupMask(ghost_right_id, -1, 0, 0)
-        p.setCollisionFilterGroupMask(ghost_tail_id, -1, 0, 0)
+        for body in [ghost_left_id, ghost_right_id, ghost_tail_id]:
+            p.setCollisionFilterGroupMask(body, -1, 0, 0)
     
     try:
-        # 2. Get State
+        # 2. Get User Drone State
         h_pos, h_orn = p.getBasePositionAndOrientation(drone_id)
         
-        # 3. Smooth Input
-        alpha = 0.15 
+        # 3. Smooth Input (Low-pass filter for visual stability)
+        alpha = 0.1 
         smoothed_action = (smoothed_action * (1 - alpha)) + (ai_action * alpha)
         
-        # 4. Calculate Orientation
-        MAX_BANK = 0.78 # 45 degrees
-        d_roll  = smoothed_action[0] * MAX_BANK
-        d_pitch = -smoothed_action[1] * MAX_BANK 
-        d_yaw   = 0.0 
+        # 4. Calculate "Rabbit" Position (Project Forward)
+        # We want the ghost to be 3.0 meters in front of the USER's nose.
+        rot_mat = np.array(p.getMatrixFromQuaternion(h_orn)).reshape(3, 3)
+        forward_offset = rot_mat.dot([3.0, 0, 0]) # 3m Forward in Body Frame
+        ghost_pos = np.array(h_pos) + forward_offset
         
-        delta_orn = p.getQuaternionFromEuler([d_roll, d_pitch, d_yaw])
-        _, ghost_orn = p.multiplyTransforms([0,0,0], h_orn, [0,0,0], delta_orn)
+        # 5. Calculate "Rabbit" Orientation (Horizon Lock)
+        # The Ghost should NOT roll/pitch with the user. It should stay level 
+        # to the horizon and only show the AI's requested Roll/Pitch.
         
-        # 5. Position Parts
-        center_pos = h_pos 
-
-        def place_part(body_id, local_offset, local_euler=[0,0,0]):
-            local_orn = p.getQuaternionFromEuler(local_euler)
-            p_pos, p_orn = p.multiplyTransforms(center_pos, ghost_orn, local_offset, local_orn)
-            p.resetBasePositionAndOrientation(body_id, p_pos, p_orn)
-
+        # Get User's current heading (Yaw)
+        user_euler = p.getEulerFromQuaternion(h_orn)
+        user_yaw = user_euler[2]
+        
+        # Convert AI Action (-1 to 1) to Angles
+        MAX_BANK = 0.78  # 45 degrees
+        MAX_PITCH = 0.52 # 30 degrees
+        
+        ai_roll  = smoothed_action[0] * MAX_BANK
+        ai_pitch = -smoothed_action[1] * MAX_PITCH # Negative because pitch-down is usually positive in array
+        
+        # Create Rotation: AI Roll/Pitch + User Yaw
+        # This makes the ghost look like it's flying "straight and level" relative to the world,
+        # but turning where the AI wants to go.
+        ghost_orn = p.getQuaternionFromEuler([ai_roll, ai_pitch, user_yaw])
+        
+        # 6. Apply to Bodies
         # Main Wing
-        place_part(ghost_left_id,  [0, 0, 0])  
+        p.resetBasePositionAndOrientation(ghost_left_id, ghost_pos, ghost_orn)
         
-        # Fuselage (Body)
-        place_part(ghost_right_id, [0, 0, -0.05]) 
+        # Fuselage (Slightly offset to center it)
+        p.resetBasePositionAndOrientation(ghost_right_id, ghost_pos, ghost_orn)
         
-        # Tail (Orange!)
-        place_part(ghost_tail_id,  [-0.5, 0, 0.15])
+        # Tail (Offset backwards relative to the Ghost's new orientation)
+        # We need to rotate the tail offset by the GHOST'S orientation, not the user's
+        ghost_rot_mat = np.array(p.getMatrixFromQuaternion(ghost_orn)).reshape(3,3)
+        tail_offset = ghost_rot_mat.dot([-0.5, 0, 0.15])
+        p.resetBasePositionAndOrientation(ghost_tail_id, ghost_pos + tail_offset, ghost_orn)
         
     except Exception: 
         pass
@@ -858,15 +936,42 @@ try:
             # CLIP HUMAN ACTION
             human_action = np.clip(raw_human, -1.0, 1.0)
             
-        # 2. Get AI Input (With Safety Clip)
+        # 2. Get AI Input
         if agent_model:
-            raw_ai, _ = agent_model.predict(obs, deterministic=True)
-            # CLIP AI ACTION
-            if is_vectorized:
-                # The AI returns [[roll, pitch...]], we need just [roll, pitch...]
-                raw_ai = raw_ai[0]
-            ai_action = np.clip(raw_ai, -1.0, 1.0)
-        
+            raw_obs_data = obs[0] if is_vectorized else obs
+            
+            # B. Smart Adapter: Translate Unordered Env -> Ordered AI
+            if args.unordered and hasattr(env.unwrapped, "waypoints"):
+                # 1. Physics State (First 21 vars)
+                plane_state = raw_obs_data[:21]
+                
+                # 2. Find Closest Target Vector
+                targets = env.unwrapped.waypoints.targets
+                if len(targets) > 0:
+                    _, my_pos, _, _ = get_drone_state(env)
+                    best_vec = np.zeros(3)
+                    min_dist = float('inf')
+                    for t in targets:
+                        t_vec = t - my_pos
+                        dist = np.linalg.norm(t_vec)
+                        if dist < min_dist:
+                            min_dist = dist
+                            best_vec = t_vec
+                    final_obs = np.concatenate([plane_state, best_vec])
+                else:
+                    final_obs = np.concatenate([plane_state, np.zeros(3)])
+            else:
+                final_obs = raw_obs_data
+
+            # C. Predict
+            # Reshape to (1, -1) to force a batch dimension
+            raw_ai, _ = agent_model.predict(final_obs.reshape(1, -1), deterministic=True)
+
+            # D. SHAPE FIX (The fix for the crash)
+            # This ensures we always get a 1D array of 4 floats: [roll, pitch, yaw, throttle]
+            # It fixes the issue where raw_ai[0] was selecting a single float number
+            ai_action = np.array(raw_ai).reshape(-1)
+            ai_action = np.clip(ai_action, -1.0, 1.0)
         
         # --- 3. SELECT CONTROL SOURCE ---
         if args.pilot == "agent":
@@ -885,6 +990,9 @@ try:
             accumulated_time += dt_sec
             if current_phase["ghost"] and agent_model and drone_id is not None:
                 update_ghost_plane(p, drone_id, ai_action)
+            
+            if current_phase["arrow"] and drone_id is not None:
+                update_3d_arrow(p, drone_id, current_targets, current_phase["arrow"])
 
             current_episode["observations"].append(obs)
             current_episode["actions"].append(final_action.copy()) 
