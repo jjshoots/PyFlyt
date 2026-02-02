@@ -30,7 +30,8 @@ def train():
     env_kwargs = {
         "unordered": args.unordered,
         "flight_dome_size": args.zone, 
-        "goal_reach_distance": args.waypoint_dist
+        "goal_reach_distance": args.waypoint_dist,
+        "max_duration_seconds": 30.0
     }
 
     # Distributed Environment (SubprocVecEnv = True Parallelism)
