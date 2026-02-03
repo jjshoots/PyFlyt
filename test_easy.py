@@ -753,15 +753,16 @@ def update_ghost_plane(p, drone_id, ai_action):
 # --- VISUAL FUNCTIONS ---
 
 def force_pygame_focus():
-    """Forces the Pygame window to the front (Windows Only)."""
-    if sys.platform.startswith('win'):
-        try:
-            import ctypes
-            hwnd = pygame.display.get_wm_info()['window']
-            # Force the window to the foreground
-            ctypes.windll.user32.SetForegroundWindow(hwnd)
-        except:
-            pass
+    """Forces the Pygame window to the front (Ubuntu/Linux version)."""
+    try:
+        # Construct the exact window title defined in your script
+        caption = f"Pilot: {args.pilot.upper()} | Algo: {args.algo}"
+        
+        # 'wmctrl -a' switches focus to the window with this title
+        # We wrap it in a system call
+        os.system(f"wmctrl -a '{caption}'")
+    except Exception:
+        pass
 
 def get_drone_state(env):
     """Safely extracts the drone state from Standard OR Vectorized environments."""
@@ -941,7 +942,7 @@ print("Resetting environment...")
 
 obs, _ = env.reset()
 
-# force_pygame_focus()
+force_pygame_focus()
 print("Env Ready.")
 
 # Count Targets
@@ -1036,7 +1037,7 @@ try:
                 
                 # Reset Env & Ghost
                 obs, _ = env.reset()
-                # force_pygame_focus()
+                force_pygame_focus()
                 ghost_left_id = None # Reset Ghost Bodies
                 ghost_right_id = None
                 ghost_tail_id = None
@@ -1190,7 +1191,7 @@ try:
 
                 
                 obs, _ = env.reset()
-                # force_pygame_focus()
+                force_pygame_focus()
                 if hasattr(env.unwrapped, "waypoints"):
                     total_targets = len(env.unwrapped.waypoints.targets)
                 paused = True
