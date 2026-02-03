@@ -256,9 +256,9 @@ if args.pilot == "agent" or args.assist_shadow or args.assist_ghost or args.expe
 
 # Detect Zone
 ZONE_RADIUS = args.zone
-if ZONE_RADIUS == 0.0:
-    try: ZONE_RADIUS = env.unwrapped.env.flight_dome_size
-    except: ZONE_RADIUS = 100.0
+# if ZONE_RADIUS == 0.0:
+#     try: ZONE_RADIUS = env.unwrapped.env.flight_dome_size
+#     except: ZONE_RADIUS = 100.0
 
 # Physics Client
 try:
@@ -752,6 +752,30 @@ def update_ghost_plane(p, drone_id, ai_action):
 
 # --- VISUAL FUNCTIONS ---
 
+
+import pybullet_data  # <--- Make sure to add this import at the top
+
+
+def ensure_safety_floor(p):
+    """
+    1. Loads the standard 'plane.urdf' (The OG Checkerboard).
+    2. Spawns it at Z = 0.01m to COVER the internal PyFlyt floor (hiding the seam).
+    3. Disables collision so PyFlyt doesn't crash.
+    """
+    # Access PyBullet standard assets
+    p.setAdditionalSearchPath(pybullet_data.getDataPath())
+    
+    # --- LOAD THE OG PLANE ---
+    # Position: [0, 0, 0.01] -> Lifts it 1cm up to hide the default 100m circle.
+    # globalScaling: Optional. 1.0 is default. 10.0 makes giant checks.
+    floor_id = p.loadURDF("plane.urdf", [0, 0, 0.02], useFixedBase=True, globalScaling=1.5)
+
+    # --- DISABLE COLLISION ---
+    # Prevents "IndexError" in PyFlyt.
+    p.setCollisionFilterGroupMask(floor_id, -1, 0, 0)
+    
+    # No custom texture code needed. It will use the default grey/white tile.Matte (No reflection)
+
 def force_pygame_focus():
     """
     1. Forces PyBullet debug window to Monitor 0 (0,0).
@@ -948,6 +972,7 @@ clock = pygame.time.Clock()
 print("Resetting environment...")
 
 obs, _ = env.reset()
+ensure_safety_floor(p)
 
 force_pygame_focus()
 print("Env Ready.")
@@ -1044,6 +1069,7 @@ try:
                 
                 # Reset Env & Ghost
                 obs, _ = env.reset()
+                ensure_safety_floor(p)
                 force_pygame_focus()
                 ghost_left_id = None # Reset Ghost Bodies
                 ghost_right_id = None
@@ -1154,7 +1180,27 @@ try:
             current_episode["actions"].append(final_action.copy()) 
             # --- STEP 4 FIX: Handle Environment Type ---
             obs, reward, terminated, truncated, info = env.step(final_action)
-            # obs, reward, terminated, truncated, info = env.step(final_action)
+            # ... env.step(final_action) is above ...
+
+            # --- GROUND CRASH LOGIC ---
+            # If the plane hits the visual floor, KILL the run.
+            if drone_id is not None:
+                d_pos, _ = p.getBasePositionAndOrientation(drone_id)
+                
+                # Check altitude (Z). If we touch the "Visual Floor" (approx 0.0 to 0.2)...
+                if d_pos[2] < 0.2:
+                    print(f"CRASH: Ground Impact (Alt: {d_pos[2]:.2f})")
+                    
+                    # 1. Force Terminal State
+                    terminated = True
+                    
+                    # 2. Apply Crash Penalty
+                    reward = -100.0
+                    
+                    # 3. Mark as Crash for Analytics
+                    # (Overrides any 'Boundary Hit' info from the walls)
+                    info["boundary_hit"] = True 
+                    current_episode["boundary_hits"][-1] = 1.0 # Ensure log catches it
             current_episode["rewards"].append(reward)
             current_episode["terminals"].append(terminated or truncated)
             current_episode["human_actions"].append(human_action.copy())
@@ -1198,6 +1244,7 @@ try:
 
                 
                 obs, _ = env.reset()
+                ensure_safety_floor(p)
                 force_pygame_focus()
                 if hasattr(env.unwrapped, "waypoints"):
                     total_targets = len(env.unwrapped.waypoints.targets)
@@ -1395,6 +1442,7 @@ try:
             #         ghost_tail_id = None
             #         smoothed_action = np.zeros(4) # Reset smoothing filter
             #         obs, _ = env.reset()
+            #         ensure_safety_floor(p)
             #         paused = True
 
 except KeyboardInterrupt:
