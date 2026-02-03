@@ -753,13 +753,20 @@ def update_ghost_plane(p, drone_id, ai_action):
 # --- VISUAL FUNCTIONS ---
 
 def force_pygame_focus():
-    """Forces the Pygame window to the front (Ubuntu/Linux version)."""
+    """
+    1. Forces PyBullet debug window to Monitor 0 (0,0).
+    2. Forces PyGame window to Monitor 1 (Focus).
+    """
     try:
-        # Construct the exact window title defined in your script
-        caption = f"Pilot: {args.pilot.upper()} | Algo: {args.algo}"
+        # --- A. MOVE PYBULLET TO MONITOR 0 ---
+        # "Bullet" is the substring usually found in the PyBullet window title.
+        # -e 0,0,0,-1,-1  => Gravity, X=0, Y=0, W=Keep, H=Keep
+        os.system("wmctrl -r 'Bullet' -e 0,0,0,-1,-1")
         
-        # 'wmctrl -a' switches focus to the window with this title
-        # We wrap it in a system call
+        # --- B. FOCUS PYGAME ON MONITOR 1 ---
+        # (PyGame handles its own position via the 'display' arg, 
+        # we just ensure it is on top of the stack)
+        caption = f"Pilot: {args.pilot.upper()} | Algo: {args.algo}"
         os.system(f"wmctrl -a '{caption}'")
     except Exception:
         pass
