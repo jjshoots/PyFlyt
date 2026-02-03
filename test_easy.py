@@ -137,25 +137,46 @@ if args.experiment:
         print("Error: config.json not found! Using defaults.")
 
     # 0. Pretest (Warmup - usually not logged in manifest as a "Task")
+    # 0. Pretest (Warmup - 1 Minute, Unordered)
     phase_pretest = {
-        "tag": "pretest", "name": "Pretest (Free Flight)", "duration": args.time_per_task, 
-        "arrow": False, "ghost": False, "show_hud": False
+        "tag": "pretest", 
+        "name": "Pretest (Free Flight)", 
+        "duration": 60.0,       # <--- FIXED: 1 Minute
+        "arrow": False, 
+        "ghost": False, 
+        "show_hud": False,
+        "unordered": True       # <--- NEW: Random collection
     }
     
-    # 1. Task 1 (Always Fixed: Solo)
+    # 1. Task 1 (Fixed: Solo, Ordered)
     phase_task1 = {
-        "tag": "task1", "name": "Task 1 (No Assist)", "duration": args.time_per_task, 
-        "arrow": False, "ghost": False, "show_hud": True
+        "tag": "task1", 
+        "name": "Task 1 (No Assist)", 
+        "duration": args.time_per_task, 
+        "arrow": False, 
+        "ghost": False, 
+        "show_hud": True,
+        "unordered": False      # <--- NEW: Ordered path
     }
 
-    # 2. Randomized Conditions (Task 2 & 3)
+    # 2. Randomized Conditions (Ordered)
     condition_arrow = {
-        "tag": "task_arrow", "name": "Task: Arrow Assist", "duration": args.time_per_task, 
-        "arrow": True, "ghost": False, "show_hud": True
+        "tag": "task_arrow", 
+        "name": "Task: Arrow Assist", 
+        "duration": args.time_per_task, 
+        "arrow": True, 
+        "ghost": False, 
+        "show_hud": True,
+        "unordered": False      # <--- NEW: Ordered path
     }
     condition_ghost = {
-        "tag": "task_ghost", "name": "Task: Ghost Assist", "duration": args.time_per_task, 
-        "arrow": False, "ghost": True, "show_hud": True
+        "tag": "task_ghost", 
+        "name": "Task: Ghost Assist", 
+        "duration": args.time_per_task, 
+        "arrow": False, 
+        "ghost": True, 
+        "show_hud": True,
+        "unordered": False      # <--- NEW: Ordered path
     }
 
     # 3. Determine Randomization
@@ -196,6 +217,8 @@ else:
 # Experiment State
 phase_idx = 0
 current_phase = experiment_phases[phase_idx]
+# --- SYNC INITIAL PHASE SETTINGS ---
+args.unordered = current_phase.get("unordered", False)
 TARGET_FLIGHT_TIME = current_phase["duration"]
 accumulated_time = 0.0
 total_crashes_in_task = 0
@@ -215,6 +238,9 @@ except:
     env = gym.make("PyFlyt/Fixedwing-Waypoints-v0", render_mode=render_mode, max_duration_seconds=3600.0, goal_reach_distance=args.waypoint_dist, flight_dome_size=args.zone)
 
 env = FlattenWaypointEnv(env, context_length=2)
+
+if hasattr(env.unwrapped, "waypoints"):
+    env.unwrapped.waypoints.unordered = args.unordered
 
 
 # Load Agent
@@ -991,13 +1017,24 @@ try:
                 # E. Setup Next Phase
                 current_phase = experiment_phases[phase_idx]
                 TARGET_FLIGHT_TIME = current_phase["duration"]
+                
+                # --- APPLY NEW SETTINGS (CRITICAL CHANGE) ---
+                # 1. Update CLI arg so HUD/AI know what mode we are in
+                args.unordered = current_phase.get("unordered", False)
+
+                # 2. Force Environment to switch modes
+                if hasattr(env.unwrapped, "waypoints"):
+                    env.unwrapped.waypoints.unordered = args.unordered
+                    # Reset capture index so Ordered mode starts at Target 0
+                    env.unwrapped.waypoints.captured_index = -1 
+                # ---------------------------------------------
+
                 accumulated_time = 0.0
                 last_capture_time = -100.0
-                total_crashes_in_task = 0 # Reset counters
+                total_crashes_in_task = 0 
                 total_waypoints_in_task = 0
                 
                 # Reset Env & Ghost
-                
                 obs, _ = env.reset()
                 # force_pygame_focus()
                 ghost_left_id = None # Reset Ghost Bodies
