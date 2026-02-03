@@ -161,3 +161,4 @@ cython_debug/
 checkpoints/
 logs/
 *.pkl
+experiment_manifest.csv
