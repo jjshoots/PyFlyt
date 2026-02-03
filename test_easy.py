@@ -113,7 +113,7 @@ os.makedirs(output_dir, exist_ok=True)
 session_data = []
 # Buffer for the current specific flight
 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
-    "ai_actions": [], "boundary_hits": []}
+    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0}
 
 # Experiment setup
 TARGET_THROTTLE = args.target_throttle
@@ -897,18 +897,23 @@ def draw_radar(screen, drone_pos, drone_yaw, targets, zone_radius):
             n = tiny_font.render(str(i+1), True, (255, 255, 255))
             screen.blit(n, (p[0]+6, p[1]-6))
 
+
 def save_data(session_data, incomplete_episode, args, phase_tag):
-    """Saves data to a structured experiment folder."""
+    # 1. Handle the incomplete episode (The one active when time ran out)
     if len(incomplete_episode["observations"]) > 0:
+        if "real_duration" not in incomplete_episode:
+             # Default to 0.0 if not set (though your main loop sets it correctly now)
+             incomplete_episode["real_duration"] = 0.0 
         session_data.append(incomplete_episode)
+        
     if len(session_data) == 0: return
 
-    # Construct Path: flight_data / subject_id / sessionX / taskY / log.npz
+    # ... (Path setup code remains the same) ...
     if args.experiment:
         base_path = os.path.join("flight_data", args.subject_id, f"session{args.session}", phase_tag)
     else:
         base_path = "flight_data"
-        
+    
     os.makedirs(base_path, exist_ok=True)
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = os.path.join(base_path, f"log_{ts}.npz")
@@ -920,17 +925,23 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
         save_dict[f"ep_{i}_human_act"] = ep["human_actions"]
         save_dict[f"ep_{i}_ai_act"] = ep["ai_actions"]
         save_dict[f"ep_{i}_rew"] = ep["rewards"]
-        save_dict[f"ep_{i}_wall"] = ep.get("boundary_hits", []) # Handle legacy
+        save_dict[f"ep_{i}_wall"] = ep.get("boundary_hits", [])
+
+        # --- SAVE REAL DURATION ---
+        save_dict[f"ep_{i}_real_duration"] = ep.get("real_duration", 0.0)
+        
+        # --- SAVE PHYSICS DURATION ---
+        phys_dur = len(ep["rewards"]) / FPS
+        save_dict[f"ep_{i}_phys_duration"] = phys_dur
     
     np.savez(filename, **save_dict)
     print(f"\nSaved Task Data to: {filename}")
 
-    # SESSION REPORT
+    # ==========================================
+    #           SESSION REPORT FIX
+    # ==========================================
     combined_buffer = {
-        "observations": [], 
-        "actions": [], 
-        "rewards": [], 
-        "terminals": [] 
+        "observations": [], "actions": [], "rewards": [], "terminals": [] 
     }
     
     total_crashes = 0
@@ -938,14 +949,19 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
     total_time = 0.0
 
     print("\n" + "="*50)
-    print(f"       SESSION REPORT (Average Consistency)")
+    print(f"       SESSION REPORT (Real Time)")
     print("="*50)
 
     for i, ep in enumerate(session_data):
         rews = np.array(ep["rewards"])
         crashes = np.sum(rews <= -90.0)
         captures = np.sum(rews >= 90.0)
-        duration = len(rews) / 30.0
+        
+        # --- THE FIX IS HERE ---
+        # Old Code: duration = len(rews) / FPS
+        # New Code: Use the stored real_duration if it exists!
+        duration = ep.get("real_duration", len(rews) / FPS)
+        # -----------------------
         
         total_crashes += crashes
         total_waypoints += captures
@@ -960,13 +976,17 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
 
     print("-" * 50)
     print(f"GLOBAL SESSION TOTALS:")
-    print(f"  Total Time:      {total_time:.1f} s")
+    print(f"  Total Time:      {total_time:.1f} s") # This will now equal ~60s
     print(f"  Total Waypoints: {total_waypoints}")
     print(f"  Total Crashes:   {total_crashes}")
     
+    # NOTE: FlightAnalytics likely re-calculates time internally based on frames.
+    # We cannot fix FlightAnalytics output here without modifying that file,
+    # but the Session Report above will now be accurate.
     analytics = FlightAnalytics(combined_buffer)
     analytics.calculate_all()
-    
+
+
 # --- MAIN LOOP ---
 clock = pygame.time.Clock()
 print("Resetting environment...")
@@ -990,6 +1010,7 @@ running = True
 FPS = 60.0
 last_capture_time = -100.0
 BREAK_TIME = args.break_time
+current_ep_duration = 0.0
 
 try:
     while running:
@@ -998,7 +1019,7 @@ try:
         # 1. TIME CHECK & PHASE TRANSITION
         if accumulated_time > TARGET_FLIGHT_TIME:
             print(f">>> {current_phase['name']} COMPLETE. SAVING... <<<")
-            
+            current_episode["real_duration"] = current_ep_duration
             # A. Save Current Task Data
             save_data(session_data, current_episode, args, current_phase["tag"])
             
@@ -1007,9 +1028,11 @@ try:
             current_episode = {
                 "observations": [], "actions": [], 
                 "human_actions": [], "ai_actions": [], 
-                "rewards": [], "terminals": [], "boundary_hits": []
+                "rewards": [], "terminals": [], "boundary_hits": [], 
+                "real_duration": 0.0
             }
             
+            current_ep_duration = 0.0
             # C. Show "Break" Screen
             waiting_for_next = True
             break_start_time = pygame.time.get_ticks()
@@ -1170,6 +1193,7 @@ try:
         # --- 2. STEP & RECORD ---
         if not paused:
             accumulated_time += dt_sec
+            current_ep_duration += dt_sec
             if current_phase["ghost"] and agent_model and drone_id is not None:
                 update_ghost_plane(p, drone_id, ai_action)
             
@@ -1200,7 +1224,7 @@ try:
                     # 3. Mark as Crash for Analytics
                     # (Overrides any 'Boundary Hit' info from the walls)
                     info["boundary_hit"] = True 
-                    current_episode["boundary_hits"][-1] = 1.0 # Ensure log catches it
+                    # current_episode["boundary_hits"][-1] = 1.0 # Ensure log catches it
             current_episode["rewards"].append(reward)
             current_episode["terminals"].append(terminated or truncated)
             current_episode["human_actions"].append(human_action.copy())
@@ -1227,13 +1251,13 @@ try:
                 # Update Experiment Totals
                 total_crashes_in_task += crashes
                 total_waypoints_in_task += captures
-
+                current_episode["real_duration"] = current_ep_duration
                 session_data.append(current_episode)
                 print(f"Flight Completed. Waypoints: {np.sum(np.array(current_episode['rewards']) >= 90.0)}")
                 
                 # Reset Buffer
                 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
-                    "ai_actions": [], "boundary_hits": []}
+                    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0}
 
                 # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
                 ghost_left_id = None
@@ -1241,7 +1265,7 @@ try:
                 ghost_tail_id = None
                 compass_arrow_id = None
                 smoothed_action = np.zeros(4) # Reset smoothing filter
-
+                current_ep_duration = 0.0
                 
                 obs, _ = env.reset()
                 ensure_safety_floor(p)
