@@ -78,7 +78,7 @@ class SACBCWrapper(nn.Module):
 # ==============================================================================
 # 2. DATA LOADER
 # ==============================================================================
-def load_expert_trajectories(data_root, session_num, allowed_tasks):
+def load_expert_trajectories(data_root, session_num, allowed_tasks, algo):
     print(f"\n--- LOADING EXPERT DATA (Session {session_num}) ---")
     trajectories = []
     total_transitions = 0
@@ -109,24 +109,29 @@ def load_expert_trajectories(data_root, session_num, allowed_tasks):
                 for i in ep_indices:
                     obs = data[f"ep_{i}_obs"]
                     acts = data[f"ep_{i}_human_act"]
-                    
-                    min_len = min(len(obs), len(acts))
-                    obs = obs[:min_len]
-                    acts = acts[:min_len]
-                    if min_len < 10: continue 
+                    infos = data[f"ep_{i}_info"]
+                    completed = infos[-1]["env_completed"]
+                    crashed = infos[-1]["collision"]
+                    incomplete = not(completed or crashed)
+                    if (algo == "BC" and completed) or algo in ["AIRL", "SQIL"]:
 
-                    if len(obs) == len(acts):
-                        obs = np.concatenate([obs, obs[-1][None]], axis=0)
-                    
-                    new_traj = types.Trajectory(
-                        obs=np.array(obs),
-                        acts=np.array(acts),
-                        infos=None,
-                        terminal=True
-                    )
-                    trajectories.append(new_traj)
-                    total_transitions += len(acts)
-                    valid_eps += 1
+                        min_len = min(len(obs), len(acts))
+                        obs = obs[:min_len]
+                        acts = acts[:min_len]
+                        if min_len < 10: continue 
+
+                        if len(obs) == len(acts):
+                            obs = np.concatenate([obs, obs[-1][None]], axis=0)
+                        
+                        new_traj = types.Trajectory(
+                            obs=np.array(obs),
+                            acts=np.array(acts),
+                            infos=np.array(infos),
+                            terminal= (completed or crashed)
+                        )
+                        trajectories.append(new_traj)
+                        total_transitions += len(acts)
+                        valid_eps += 1
                 
                 if valid_eps > 0: files_loaded += 1
 
@@ -155,7 +160,7 @@ def train():
     rng = np.random.default_rng(0) 
 
     # 1. Load Data
-    expert_trajectories = load_expert_trajectories(args.data_dir, args.session, args.tasks)
+    expert_trajectories = load_expert_trajectories(args.data_dir, args.session, args.tasks, args.algo)
 
     # 2. Setup Env
     env_kwargs = {
