@@ -1,6 +1,7 @@
 # vim
 .vim/
-
+Scripts/
+pyvenv.cfg
 flight_data/
 *.zip
 wandb/
@@ -153,3 +154,13 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+
+# custom files
+
+checkpoints/
+logs/
+*.pkl
+experiment_manifest.csv
+csv_export/
+csv_logs/

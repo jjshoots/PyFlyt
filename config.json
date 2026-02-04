@@ -1,0 +1,13 @@
+{
+    "pilot": "human",
+    "algo": "PPO",
+    "model_path": "fw-ppo-v4",
+    "time_per_task": 300.0,
+    "target_throttle": 0.7,
+    "waypoint_dist": 4.0,
+    "render_mode": "human",
+    "session": 1,
+    "break_time": 30.0, 
+    "monitor": 1,
+    "zone": 150.0
+}

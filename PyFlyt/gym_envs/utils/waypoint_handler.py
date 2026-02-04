@@ -105,10 +105,16 @@ class WaypointHandler:
                 )
 
             for i, visual in enumerate(self.target_visual):
+                # If Ordered: Index 0 is CURRENT (Green), others are FUTURE (Red)
+                if i == 0:
+                    color = (0, 1, 0, 1) # Green
+                else:
+                    color = (1, 0, 0, 1) # Red
+
                 self.p.changeVisualShape(
                     visual,
                     linkIndex=-1,
-                    rgbaColor=(0, 1 - (i / len(self.target_visual)), 0, 1),
+                    rgbaColor=color,
                 )
 
     @property
@@ -213,10 +219,16 @@ class WaypointHandler:
 
             # Recolour remaining
             for i, visual in enumerate(self.target_visual):
+                # The list has shifted, so the new index 0 is the new active target
+                if i == 0:
+                    color = (0, 1, 0, 1) # Green
+                else:
+                    color = (1, 0, 0, 1) # Red
+
                 self.p.changeVisualShape(
                     visual,
                     linkIndex=-1,
-                    rgbaColor=(0, 1 - (i / max(len(self.target_visual), 1)), 0, 1),
+                    rgbaColor=color,
                 )
         
         self.captured_index = -1

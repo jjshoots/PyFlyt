@@ -144,6 +144,7 @@ class FixedwingBaseEnv(gymnasium.Env):
         self.info["out_of_bounds"] = False
         self.info["collision"] = False
         self.info["env_complete"] = False
+        self.info["boundary_hit"] = False
 
         # need to handle Nones
         if options is None:
@@ -229,17 +230,48 @@ class FixedwingBaseEnv(gymnasium.Env):
         if self.step_count > self.max_steps:
             self.truncation |= True
 
-        # collision
+        # collision (GROUND HIT - KEEPS CRASHING)
         if np.any(self.env.contact_array):
             self.reward = -100.0
             self.info["collision"] = True
             self.termination |= True
 
-        # exceed flight dome
-        if np.linalg.norm(self.env.state(0)[-1]) > self.flight_dome_size:
-            self.reward = -100.0
-            self.info["out_of_bounds"] = True
-            self.termination |= True
+        # exceed flight dome (BOUNDARY - TURN AROUND LOGIC)
+        state = self.env.state(0)
+        pos = state[-1]
+        dist = np.linalg.norm(pos)
+
+        if dist > self.flight_dome_size:
+            # OLD BEHAVIOR:
+            # self.reward = -100.0
+            # self.info["out_of_bounds"] = True
+            # self.termination |= True
+
+            # NEW BEHAVIOR: "The Invisible Wall"
+            # 1. Calculate vector pointing back to center (0,0,0)
+            self.info["boundary_hit"] = True
+            to_center = -pos / dist  # Normalized vector pointing home
+            
+            # 2. Get current speed
+            lin_vel = state[2]
+            speed = np.linalg.norm(lin_vel)
+            
+            # 3. Calculate New Velocity (Redirect momentum towards center)
+            new_vel = to_center * speed
+            
+            # 4. Calculate New Orientation (Point nose at center, level wings)
+            # Yaw = atan2(y, x) of the direction vector
+            target_yaw = np.arctan2(to_center[1], to_center[0])
+            new_orn = p.getQuaternionFromEuler([0.0, 0.0, target_yaw])
+            
+            # 5. Push plane slightly inside so it doesn't trigger again immediately
+            new_pos = pos * 0.98 
+            
+            # 6. Apply Physics Override
+            # We access the PyBullet ID directly from the first drone
+            drone_id = self.env.drones[0].Id
+            p.resetBasePositionAndOrientation(drone_id, new_pos, new_orn)
+            p.resetBaseVelocity(drone_id, new_vel, [0.0, 0.0, 0.0]) # Zero out spin (angular vel)
 
     def step(self, action: np.ndarray) -> tuple[Any, float, bool, bool, dict]:
         """Steps the environment.
@@ -251,13 +283,16 @@ class FixedwingBaseEnv(gymnasium.Env):
             state, reward, termination, truncation, info
 
         """
+        action = np.clip(action, -1.0, 1.0)
+        self.info["boundary_hit"] = False
         # reset the reward
         self.reward = -0.1
 
         # pass the action, but clip the throttle
         self.action = action.copy()
         aviary_action = action.copy()
-        aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
+        # aviary_action[..., -1] = (aviary_action[..., -1] / 2.0) + 0.5
+        aviary_action[..., -1] = 0.7
         self.env.set_setpoint(0, aviary_action)
 
         # step through env, the internal env updates a few steps before the outer env
