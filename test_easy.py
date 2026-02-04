@@ -1046,7 +1046,7 @@ try:
                 msg1 = font.render(f"{current_phase['name']} COMPLETED", True, (0, 255, 0))
 
                 if can_continue:
-                    msg2 = font.render("Press TRIGGER or SPACE to Start Next Task", True, (255, 255, 255))
+                    msg2 = font.render("Press SPACE to Start Next Task", True, (255, 255, 255))
                 else:
                     msg2 = font.render(f"Please rest... {BREAK_TIME - wait_time:.0f}", True, (150, 150, 150))
 
@@ -1312,18 +1312,29 @@ try:
 
                 # 2. Text Info (Bottom Left)
                 time_left = max(0.0, TARGET_FLIGHT_TIME - accumulated_time)
+                raw_env = env.unwrapped
+                wps_left = len(raw_env.waypoints.targets)
                 lines = [
                     f"TASK:     {current_phase['name']}",
-                    f"TIME:     {time_left:.0f} s",
-                    f"GOALS:    {total_waypoints_in_task}",
-                    f"CRASHES:  {total_crashes_in_task}"
+                    f"TIME LEFT:     {time_left:.0f} s",
+                    f"WAYPOINTS LEFT: {wps_left}",
+                    # f"WAYPOINTS   {total_waypoints_in_task}",
+                    # f"CRASHES:  {total_crashes_in_task}"
                 ]
-                
+                def draw_text_with_shadow(surface, text, font, pos, color=(255, 255, 0)):
+                    # 1. Draw Shadow (Black, offset by 2px)
+                    shadow_lbl = font.render(text, True, (0, 0, 0))
+                    surface.blit(shadow_lbl, (pos[0] + 2, pos[1] + 2))
+                    
+                    # 2. Draw Main Text (Color, centered on top)
+                    lbl = font.render(text, True, color)
+                    surface.blit(lbl, pos)
                 # Draw Text Box
                 BOX_X, BOX_Y = 20, WINDOW_H - 150
                 for i, line in enumerate(lines):
-                    txt = font.render(line, True, (255, 255, 255))
-                    screen.blit(txt, (BOX_X, BOX_Y + (i * 30)))
+                    draw_text_with_shadow(screen, line, font, (BOX_X, BOX_Y + (i * 30)), color=(255, 255, 0))
+                    # txt = font.render(line, True, (255, 191, 0))
+                    # screen.blit(txt, (BOX_X, BOX_Y + (i * 30)))
                 
                 # 3. Assistants (Only if allowed in this phase)
                 if current_phase["show_hud"] and drone_id is not None:
@@ -1378,7 +1389,7 @@ try:
                             dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
                             
                             # Draw White Text
-                            lbl = font.render(f"{dist:.0f}m", True, (255, 255, 255))
+                            lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0))
                             
                             # Center text 60 pixels ABOVE the ghost plane
                             draw_x = screen_pos[0] - lbl.get_width() // 2
