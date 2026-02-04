@@ -1474,4 +1474,9 @@ except KeyboardInterrupt:
 finally:
     env.close()
     pygame.quit()
-    save_data(session_data, current_episode, args, current_phase["tag"])
+
+    if len(current_episode["observations"]) > 0:  # OR check: if len(obs_buffer) > 0:
+        print("Saving remaining data...")
+        save_data(session_data, current_episode, args, current_phase["tag"])
+    else:
+        print("No remaining data to save. Skipping.")
