@@ -114,7 +114,7 @@ session_data = []
 # Buffer for the current specific flight
 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
     "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
-    "infos": []    # <--- ADD THIS
+    "infos": [], "global_targets": []   # <--- ADD THIS
     }
 
 # Experiment setup
@@ -930,7 +930,7 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
         save_dict[f"ep_{i}_wall"] = ep.get("boundary_hits", [])
         save_dict[f"ep_{i}_done"] = np.array(ep["dones"], dtype=bool)
         save_dict[f"ep_{i}_info"] = np.array(ep["infos"], dtype=object) # Must be object type for dicts
-
+        save_dict[f"ep_{i}_global_targets"] = ep["global_targets"]
         # --- SAVE REAL DURATION ---
         save_dict[f"ep_{i}_real_duration"] = ep.get("real_duration", 0.0)
         
@@ -1001,6 +1001,8 @@ ensure_safety_floor(p)
 force_pygame_focus()
 print("Env Ready.")
 
+current_episode["global_targets"] = env.unwrapped.waypoints.targets.copy()
+
 # Count Targets
 total_targets = 0
 if hasattr(env.unwrapped, "waypoints") and hasattr(env.unwrapped.waypoints, "targets"):
@@ -1029,14 +1031,6 @@ try:
             
             # B. Clear Data Buffers
             session_data = []
-            current_episode = {
-                "observations": [], "actions": [], 
-                "human_actions": [], "ai_actions": [], 
-                "rewards": [], "terminals": [], "boundary_hits": [], 
-                "real_duration": 0.0,
-                "dones": [],   # <--- ADD THIS
-    "infos": []    # <--- ADD THIS
-            }
             
             current_ep_duration = 0.0
             # C. Show "Break" Screen
@@ -1100,6 +1094,14 @@ try:
                 obs, _ = env.reset()
                 ensure_safety_floor(p)
                 force_pygame_focus()
+                current_episode = {
+                    "observations": [], "actions": [], 
+                    "human_actions": [], "ai_actions": [], 
+                    "rewards": [], "terminals": [], "boundary_hits": [], 
+                    "real_duration": 0.0,
+                    "dones": [],   # <--- ADD THIS
+                    "infos": [],"global_targets": env.unwrapped.waypoints.targets.copy()   # <--- ADD THIS
+                }
                 ghost_left_id = None # Reset Ghost Bodies
                 ghost_right_id = None
                 ghost_tail_id = None
@@ -1262,11 +1264,7 @@ try:
                 session_data.append(current_episode)
                 print(f"Flight Completed. Waypoints: {np.sum(np.array(current_episode['rewards']) >= 90.0)}")
                 
-                # Reset Buffer
-                current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
-                    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
-    "infos": []    # <--- ADD THIS
-    }
+                # Reset Buffer   
 
                 # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
                 ghost_left_id = None
@@ -1277,6 +1275,10 @@ try:
                 current_ep_duration = 0.0
                 
                 obs, _ = env.reset()
+                current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
+                    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
+                    "infos": [], "global_targets": env.unwrapped.waypoints.targets.copy()   # <--- ADD THIS
+                }
                 ensure_safety_floor(p)
                 force_pygame_focus()
                 if hasattr(env.unwrapped, "waypoints"):
