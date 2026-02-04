@@ -113,7 +113,8 @@ os.makedirs(output_dir, exist_ok=True)
 session_data = []
 # Buffer for the current specific flight
 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
-    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0}
+    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
+    "infos": []    # <--- ADD THIS}
 
 # Experiment setup
 TARGET_THROTTLE = args.target_throttle
@@ -926,6 +927,8 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
         save_dict[f"ep_{i}_ai_act"] = ep["ai_actions"]
         save_dict[f"ep_{i}_rew"] = ep["rewards"]
         save_dict[f"ep_{i}_wall"] = ep.get("boundary_hits", [])
+        data_to_save[f"ep_{i}_done"] = np.array(ep["dones"], dtype=bool)
+        data_to_save[f"ep_{i}_info"] = np.array(ep["infos"], dtype=object) # Must be object type for dicts
 
         # --- SAVE REAL DURATION ---
         save_dict[f"ep_{i}_real_duration"] = ep.get("real_duration", 0.0)
@@ -1029,7 +1032,9 @@ try:
                 "observations": [], "actions": [], 
                 "human_actions": [], "ai_actions": [], 
                 "rewards": [], "terminals": [], "boundary_hits": [], 
-                "real_duration": 0.0
+                "real_duration": 0.0,
+                "dones": [],   # <--- ADD THIS
+    "infos": []    # <--- ADD THIS
             }
             
             current_ep_duration = 0.0
@@ -1231,6 +1236,8 @@ try:
             current_episode["ai_actions"].append(ai_action.copy())
             hit = 1.0 if info.get("boundary_hit", False) else 0.0
             current_episode["boundary_hits"].append(hit)
+            current_episode["dones"].append(done)  # <--- ADD THIS
+            current_episode["infos"].append(info)  # <--- ADD THIS
 
             if reward >= 90.0: # Waypoint captured
                 last_capture_time = accumulated_time
@@ -1257,7 +1264,8 @@ try:
                 
                 # Reset Buffer
                 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
-                    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0}
+                    "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
+    "infos": []    # <--- ADD THIS}
 
                 # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
                 ghost_left_id = None
