@@ -7,7 +7,7 @@
     "waypoint_dist": 4.0,
     "render_mode": "human",
     "session": 1,
-    "break_time": 1.0, 
-    "monitor": 0,
+    "break_time": 30.0, 
+    "monitor": 1,
     "zone": 150.0
 }
