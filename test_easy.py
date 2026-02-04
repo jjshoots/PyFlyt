@@ -928,8 +928,8 @@ def save_data(session_data, incomplete_episode, args, phase_tag):
         save_dict[f"ep_{i}_ai_act"] = ep["ai_actions"]
         save_dict[f"ep_{i}_rew"] = ep["rewards"]
         save_dict[f"ep_{i}_wall"] = ep.get("boundary_hits", [])
-        data_to_save[f"ep_{i}_done"] = np.array(ep["dones"], dtype=bool)
-        data_to_save[f"ep_{i}_info"] = np.array(ep["infos"], dtype=object) # Must be object type for dicts
+        save_dict[f"ep_{i}_done"] = np.array(ep["dones"], dtype=bool)
+        save_dict[f"ep_{i}_info"] = np.array(ep["infos"], dtype=object) # Must be object type for dicts
 
         # --- SAVE REAL DURATION ---
         save_dict[f"ep_{i}_real_duration"] = ep.get("real_duration", 0.0)
@@ -1232,12 +1232,11 @@ try:
                     info["boundary_hit"] = True 
                     # current_episode["boundary_hits"][-1] = 1.0 # Ensure log catches it
             current_episode["rewards"].append(reward)
-            current_episode["terminals"].append(terminated or truncated)
+            current_episode["dones"].append(terminated or truncated)
             current_episode["human_actions"].append(human_action.copy())
             current_episode["ai_actions"].append(ai_action.copy())
             hit = 1.0 if info.get("boundary_hit", False) else 0.0
             current_episode["boundary_hits"].append(hit)
-            current_episode["dones"].append(done)  # <--- ADD THIS
             current_episode["infos"].append(info)  # <--- ADD THIS
 
             if reward >= 90.0: # Waypoint captured
@@ -1485,8 +1484,8 @@ finally:
     env.close()
     pygame.quit()
 
-    if len(current_episode["observations"]) > 0:  # OR check: if len(obs_buffer) > 0:
+    if running:  # OR check: if len(obs_buffer) > 0:
         print("Saving remaining data...")
-        save_data(session_data, current_episode, args, current_phase["tag"])
+        save_data(session_data, current_episode, args, current_phase["tag"]+"interrupted")
     else:
         print("No remaining data to save. Skipping.")
