@@ -114,7 +114,8 @@ session_data = []
 # Buffer for the current specific flight
 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
     "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
-    "infos": []    # <--- ADD THIS}
+    "infos": []    # <--- ADD THIS
+    }
 
 # Experiment setup
 TARGET_THROTTLE = args.target_throttle
@@ -1265,7 +1266,8 @@ try:
                 # Reset Buffer
                 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
                     "ai_actions": [], "boundary_hits": [], "real_duration": 0.0, "dones": [],   # <--- ADD THIS
-    "infos": []    # <--- ADD THIS}
+    "infos": []    # <--- ADD THIS
+    }
 
                 # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
                 ghost_left_id = None
