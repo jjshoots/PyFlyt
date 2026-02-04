@@ -162,3 +162,5 @@ checkpoints/
 logs/
 *.pkl
 experiment_manifest.csv
+csv_export/
+csv_logs/
