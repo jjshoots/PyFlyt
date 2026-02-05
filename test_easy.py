@@ -292,11 +292,6 @@ if pygame.joystick.get_count() > 0:
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
 
-# --- GHOST PLANE LOGIC ---
-ghost_left_id = None
-ghost_right_id = None
-ghost_tail_id = None
-smoothed_action = np.zeros(4) # Reset smoothing filter
 
 
 def get_screen_coords(pos_3d, view_matrix, proj_matrix, width, height):
@@ -563,12 +558,7 @@ def draw_hud_arrow(screen, drone_pos, drone_orn, targets, unordered):
     lbl = font.render(f"{min_dist:.0f}m", True, (255, 255, 255))
     screen.blit(lbl, (arrow_x - 20, arrow_y + 30))
 
-# --- GHOST PLANE LOGIC ---
-ghost_left_id = None
-ghost_right_id = None
-ghost_tail_id = None
-smoothed_action = np.zeros(4) # Memory for smoothing
-arrow_body_id = None
+
 compass_arrow_id = None
 
 
@@ -671,85 +661,74 @@ def update_3d_arrow(p, drone_id, targets, active):
         
         p.resetBasePositionAndOrientation(compass_arrow_id, arrow_pos, arrow_orn)
 
+# Add this global variable at the top if not already there
+ghost_urdf_id = None 
 
 def update_ghost_plane(p, drone_id, ai_action):
     """
-    Overlays a sleek 'Ghost Drone' projected AHEAD of the user.
-    - VISUAL: High-Vis White Body with Safety Orange Tail.
-    - LOGIC: Projects 3.0m forward. 
-    - FIXED: Tail positioned at -0.8m to sit FLUSH against the fuselage back.
-             (Fuselage ends at -0.6, Tail extends -0.6 to -1.0)
+    Overlays the 'fixedwing.urdf' directly ON TOP of the user.
+    - VISUAL: Transparent White Body, Orange Tips (Restored).
+    - LOGIC: PHANTOM (No Collisions) + Nudged Forward to fix lag.
     """
-    global ghost_left_id, ghost_right_id, ghost_tail_id, smoothed_action
-    
-    # --- CONFIGURATION ---
-    MAIN_COLOR = [1.0, 1.0, 1.0, 0.85]   # Bright White
-    TIP_COLOR  = [1.0, 0.2, 0.0, 0.9]    # Safety Orange
-    GHOST_PITCH_TRIM = -0.1              # Bias Ghost 5-6 deg UP (Negative=Up)
-    
-    # 1. Create Bodies (One-time setup)
-    if ghost_left_id is None:
-        # Wing
-        wing_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 1.0, 0.03], rgbaColor=MAIN_COLOR)
-        # Fuselage (Length 1.2m, ends at +/- 0.6)
-        fuse_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.6, 0.1, 0.1], rgbaColor=MAIN_COLOR)
-        # Tail (Length 0.4m)
-        tail_shape = p.createVisualShape(p.GEOM_BOX, halfExtents=[0.2, 0.02, 0.25], rgbaColor=TIP_COLOR)
-        
-        # Creation Order: Wing -> Fuse -> Tail (Draws Tail last, though Z-buffer dominates)
-        ghost_left_id  = p.createMultiBody(baseVisualShapeIndex=wing_shape)
-        ghost_right_id = p.createMultiBody(baseVisualShapeIndex=fuse_shape)
-        ghost_tail_id  = p.createMultiBody(baseVisualShapeIndex=tail_shape)
-        
-        for body in [ghost_left_id, ghost_right_id, ghost_tail_id]:
-            p.setCollisionFilterGroupMask(body, -1, 0, 0)
-    
+    global ghost_urdf_id
+
+    # 2. Initialize URDF Ghost (One-time setup)
+    if ghost_urdf_id is None:
+        try:
+            ghost_urdf_id = p.loadURDF("PyFlyt/models/vehicles/fixedwing/fixedwing.urdf", useFixedBase=True, globalScaling=0.9)
+            
+            # --- COLORS (Transparent) ---
+            WHITE_GHOST  = [1.0, 1.0, 1.0, 0.5]
+            ORANGE_GHOST = [1.0, 0.4, 0.0, 0.5]
+            
+            # A. Base Link (Fuselage) -> White
+            p.changeVisualShape(ghost_urdf_id, -1, rgbaColor=WHITE_GHOST)
+            p.setCollisionFilterGroupMask(ghost_urdf_id, -1, 0, 0)
+            
+            # B. Child Links (Smart Coloring)
+            num_joints = p.getNumJoints(ghost_urdf_id)
+            for i in range(num_joints):
+                # Get Link Name (e.g., "ail_left_link", "main_wing_link")
+                link_name = p.getJointInfo(ghost_urdf_id, i)[12].decode("utf-8")
+                
+                # Default to White
+                color = WHITE_GHOST
+                
+                # Check for "Tips" or "Tail" parts
+                if "ail" in link_name or "tail" in link_name or "rudder" in link_name or "elev" in link_name:
+                    color = ORANGE_GHOST
+                
+                p.changeVisualShape(ghost_urdf_id, i, rgbaColor=color)
+                p.setCollisionFilterGroupMask(ghost_urdf_id, i, 0, 0)
+            
+        except Exception as e:
+            print(f"Error loading ghost URDF: {e}")
+            return
+
     try:
-        # 2. Get User Drone State
+        # 3. Get User Drone State
         h_pos, h_orn = p.getBasePositionAndOrientation(drone_id)
         
-        # 3. Smooth Input
-        alpha = 0.1 
-        smoothed_action = (smoothed_action * (1 - alpha)) + (ai_action * alpha)
+        # 4. Calculate Rotation (Scaled)
+        cmd_roll = ai_action[0] * 0.5
+        cmd_pitch = ai_action[1] * 0.5 
+        cmd_yaw = 0.0 
         
-        # 4. Calculate "Rabbit" Position (3.0m Forward)
-
-        rot_mat = np.array(p.getMatrixFromQuaternion(h_orn)).reshape(3, 3)
-        forward_offset = 3.5
-        forward_offset = rot_mat.dot([forward_offset, 0, 0]) 
-        ghost_pos = np.array(h_pos) + forward_offset
+        cmd_orn = p.getQuaternionFromEuler([cmd_roll, cmd_pitch, cmd_yaw])
+        _, ghost_orn = p.multiplyTransforms([0,0,0], h_orn, [0,0,0], cmd_orn)
         
-        # 5. Calculate "Rabbit" Orientation (RELATIVE TO COCKPIT)
-        VISUAL_SCALE_ROLL = 0.78  
-        VISUAL_SCALE_PITCH = 0.52 
-        
-        ai_local_euler = [
-            smoothed_action[0] * VISUAL_SCALE_ROLL, 
-            (smoothed_action[1] * VISUAL_SCALE_PITCH) + GHOST_PITCH_TRIM, 
-            0.0 
-        ]
-        
-        ai_local_orn = p.getQuaternionFromEuler(ai_local_euler)
-        
-        # Apply Rotation
-        _, ghost_orn = p.multiplyTransforms([0,0,0], h_orn, [0,0,0], ai_local_orn)
-        
-        # 6. Apply to Bodies
-        p.resetBasePositionAndOrientation(ghost_left_id, ghost_pos, ghost_orn)
-        p.resetBasePositionAndOrientation(ghost_right_id, ghost_pos, ghost_orn)
-        
-        # Update Tail
+        # 5. Position Fix (The "Forward Nudge")
+        # We push the ghost 5cm forward relative to the plane. 
+        # This counteracts the visual lag caused by the camera rendering order.
         ghost_rot_mat = np.array(p.getMatrixFromQuaternion(ghost_orn)).reshape(3,3)
+        nudge_offset = ghost_rot_mat.dot([0.45, 0, 0]) # +0.05m Forward
         
-        # --- OFFSET FIX: -0.8 ---
-        # Fuselage Ends: -0.6
-        # Tail Starts:   -0.6 (Center -0.8 + HalfExtent 0.2 = -0.6)
-        # This makes it flush without clipping.
-        tail_offset = ghost_rot_mat.dot([-0.7, 0, 0.15])
+        final_pos = np.array(h_pos) + nudge_offset
         
-        p.resetBasePositionAndOrientation(ghost_tail_id, ghost_pos + tail_offset, ghost_orn)
+        # 6. Apply
+        p.resetBasePositionAndOrientation(ghost_urdf_id, final_pos, ghost_orn)
         
-    except Exception: 
+    except Exception:
         pass
 
 # --- VISUAL FUNCTIONS ---
@@ -1102,10 +1081,8 @@ try:
                     "dones": [],   # <--- ADD THIS
                     "infos": [],"global_targets": env.unwrapped.waypoints.targets.copy()   # <--- ADD THIS
                 }
-                ghost_left_id = None # Reset Ghost Bodies
-                ghost_right_id = None
-                ghost_tail_id = None
                 compass_arrow_id = None
+                ghost_urdf_id = None
                 paused = True # Auto-start next task? Or keep True to wait.
 
         drone_id, pos, orn, euler = get_drone_state(env)
@@ -1132,7 +1109,7 @@ try:
             ])
             # CLIP HUMAN ACTION
             human_action = np.clip(raw_human, -1.0, 1.0)
-            
+            human_action[2] = 0.0
         # 2. Get AI Input
         if agent_model:
             raw_obs_data = obs
@@ -1183,6 +1160,7 @@ try:
             # This ensures the "Ghost" projects a path that is possible at 50% speed.
             fixed_throttle_cmd = (TARGET_THROTTLE * 2.0) - 1.0
             ai_action[3] = fixed_throttle_cmd
+            ai_action[2] = 0.0  # No Yaw from AI
 
             ai_action = np.clip(ai_action, -1.0, 1.0)
         
@@ -1267,11 +1245,8 @@ try:
                 # Reset Buffer   
 
                 # RESET GHOST IDS (FIX FOR DISAPPEARING GHOST)
-                ghost_left_id = None
-                ghost_right_id = None
-                ghost_tail_id = None
                 compass_arrow_id = None
-                smoothed_action = np.zeros(4) # Reset smoothing filter
+                ghost_urdf_id = None
                 current_ep_duration = 0.0
                 
                 obs, _ = env.reset()
@@ -1377,24 +1352,24 @@ try:
                             screen.blit(lbl, (draw_x, draw_y))
 
                     # --- C. DRAW GHOST DISTANCE ---
-                    if current_phase["ghost"] and agent_model and ghost_left_id is not None:
-                        # 1. Get 3D Position of ghost
-                        ghost_pos_3d, _ = p.getBasePositionAndOrientation(ghost_left_id)
+                    # if current_phase["ghost"] and agent_model and ghost_left_id is not None:
+                    #     # 1. Get 3D Position of ghost
+                    #     ghost_pos_3d, _ = p.getBasePositionAndOrientation(ghost_left_id)
                         
-                        # 2. Project to 2D Screen
-                        screen_pos = get_screen_coords(ghost_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
+                    #     # 2. Project to 2D Screen
+                    #     screen_pos = get_screen_coords(ghost_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
                         
-                        # 3. Draw Text
-                        if screen_pos:
-                            dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
+                    #     # 3. Draw Text
+                    #     if screen_pos:
+                    #         dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
                             
-                            # Draw White Text
-                            lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0))
+                    #         # Draw White Text
+                    #         lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0))
                             
-                            # Center text 60 pixels ABOVE the ghost plane
-                            draw_x = screen_pos[0] - lbl.get_width() // 2
-                            draw_y = screen_pos[1] - 60
-                            screen.blit(lbl, (draw_x, draw_y))
+                    #         # Center text 60 pixels ABOVE the ghost plane
+                    #         draw_x = screen_pos[0] - lbl.get_width() // 2
+                    #         draw_y = screen_pos[1] - 60
+                    #         screen.blit(lbl, (draw_x, draw_y))
 
             # --- STANDARD HUD (Non-Experiment) ---
             else:    
@@ -1461,14 +1436,14 @@ try:
                             screen.blit(lbl, (screen_pos[0] - lbl.get_width()//2, screen_pos[1] - 60))
 
                     # --- C. GHOST TEXT ---
-                    if args.assist_ghost and agent_model and ghost_left_id is not None:
-                        ghost_pos_3d, _ = p.getBasePositionAndOrientation(ghost_left_id)
-                        screen_pos = get_screen_coords(ghost_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
+                    # if args.assist_ghost and agent_model and ghost_left_id is not None:
+                    #     ghost_pos_3d, _ = p.getBasePositionAndOrientation(ghost_left_id)
+                    #     screen_pos = get_screen_coords(ghost_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
                         
-                        if screen_pos:
-                            dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
-                            lbl = font.render(f"{dist:.0f}m", True, (255, 255, 255)) # White
-                            screen.blit(lbl, (screen_pos[0] - lbl.get_width()//2, screen_pos[1] - 60))
+                    #     if screen_pos:
+                    #         dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
+                    #         lbl = font.render(f"{dist:.0f}m", True, (255, 255, 255)) # White
+                    #         screen.blit(lbl, (screen_pos[0] - lbl.get_width()//2, screen_pos[1] - 60))
 
                 
         if paused:
