@@ -1332,24 +1332,24 @@ try:
                     proj_mat = p.computeProjectionMatrixFOV(fov, float(MAIN_RENDER_W)/MAIN_RENDER_H, 0.1, 1000.0)
 
                     # --- B. DRAW ARROW DISTANCE ---
-                    if current_phase["arrow"] and compass_arrow_id is not None:
-                        # 1. Get 3D Position of the arrow
-                        arrow_pos_3d, _ = p.getBasePositionAndOrientation(compass_arrow_id)
+                    # if current_phase["arrow"] and compass_arrow_id is not None:
+                    #     # 1. Get 3D Position of the arrow
+                    #     arrow_pos_3d, _ = p.getBasePositionAndOrientation(compass_arrow_id)
                         
-                        # 2. Project to 2D Screen
-                        screen_pos = get_screen_coords(arrow_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
+                    #     # 2. Project to 2D Screen
+                    #     screen_pos = get_screen_coords(arrow_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
                         
-                        # 3. Draw Text (Same logic as 2D arrow)
-                        if screen_pos:
-                            dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
+                    #     # 3. Draw Text (Same logic as 2D arrow)
+                    #     if screen_pos:
+                    #         dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
                             
-                            # Draw Yellow Text
-                            lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0)) 
+                    #         # Draw Yellow Text
+                    #         lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0)) 
                             
-                            # Center text 60 pixels ABOVE the arrow
-                            draw_x = screen_pos[0] - lbl.get_width() // 2
-                            draw_y = screen_pos[1] - 60
-                            screen.blit(lbl, (draw_x, draw_y))
+                    #         # Center text 60 pixels ABOVE the arrow
+                    #         draw_x = screen_pos[0] - lbl.get_width() // 2
+                    #         draw_y = screen_pos[1] - 60
+                    #         screen.blit(lbl, (draw_x, draw_y))
 
                     # --- C. DRAW GHOST DISTANCE ---
                     # if current_phase["ghost"] and agent_model and ghost_left_id is not None:
@@ -1426,14 +1426,14 @@ try:
                     proj_mat = p.computeProjectionMatrixFOV(60, float(MAIN_RENDER_W)/MAIN_RENDER_H, 0.1, 1000.0)
 
                     # --- B. ARROW TEXT ---
-                    if args.assist_arrow and compass_arrow_id is not None:
-                        arrow_pos_3d, _ = p.getBasePositionAndOrientation(compass_arrow_id)
-                        screen_pos = get_screen_coords(arrow_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
+                    # if args.assist_arrow and compass_arrow_id is not None:
+                    #     arrow_pos_3d, _ = p.getBasePositionAndOrientation(compass_arrow_id)
+                    #     screen_pos = get_screen_coords(arrow_pos_3d, view_mat, proj_mat, WINDOW_W, WINDOW_H)
                         
-                        if screen_pos:
-                            dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
-                            lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0)) # Yellow
-                            screen.blit(lbl, (screen_pos[0] - lbl.get_width()//2, screen_pos[1] - 60))
+                    #     if screen_pos:
+                    #         dist = np.linalg.norm(current_targets[0]) if len(current_targets) > 0 else 0
+                    #         lbl = font.render(f"{dist:.0f}m", True, (255, 255, 0)) # Yellow
+                    #         screen.blit(lbl, (screen_pos[0] - lbl.get_width()//2, screen_pos[1] - 60))
 
                     # --- C. GHOST TEXT ---
                     # if args.assist_ghost and agent_model and ghost_left_id is not None:
