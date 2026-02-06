@@ -110,7 +110,7 @@ def load_expert_trajectories(data_root, session_num, allowed_tasks, algo):
                     obs = data[f"ep_{i}_obs"]
                     acts = data[f"ep_{i}_human_act"]
                     infos = data[f"ep_{i}_info"]
-                    completed = infos[-1]["env_completed"]
+                    completed = infos[-1]["env_complete"]
                     crashed = infos[-1]["collision"]
                     incomplete = not(completed or crashed)
                     if (algo == "BC" and completed) or algo in ["AIRL", "SQIL"]:
