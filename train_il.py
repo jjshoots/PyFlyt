@@ -22,7 +22,8 @@ parser.add_argument("--device", type=str, default="auto", help="Compute device")
 parser.add_argument("--algo", type=str, choices=["BC", "AIRL", "SQIL"], default="BC", help="Imitation Algorithm")
 parser.add_argument("--base-algo", type=str, choices=["PPO", "SAC"], default="PPO", help="Base RL Agent")
 parser.add_argument("--steps", type=int, default=500_000, help="Timesteps (AIRL/SQIL) or Epochs (BC)")
-parser.add_argument("--save-path", type=str, default="models", help="Folder to save models") # Changed to folder
+parser.add_argument("--save-path", type=str, default="models", help="Folder to save models") 
+parser.add_argument("--load-path", type=str, default=None, help="Path to existing model to fine-tune (Optional)") # <--- RESTORED
 parser.add_argument("--num-envs", type=int, default=4, help="CPU cores")
 parser.add_argument("--unordered", action="store_true", help="Use unordered waypoints")
 parser.add_argument("--waypoint-dist", type=float, default=4.0, help="Goal reach distance")
@@ -32,8 +33,8 @@ parser.add_argument("--session", type=int, default=1, help="Session to pull data
 
 # NEW ARGUMENTS
 parser.add_argument("--auto-experiment", action="store_true", help="Run all 14 experimental conditions automatically")
-parser.add_argument("--tasks", nargs="+", default=["task1", "task_arrow", "task_ghost"], help="Manual task list (ignored if auto-experiment is on)")
-parser.add_argument("--success-only", action="store_true", help="Manual quality filter (ignored if auto-experiment is on)")
+parser.add_argument("--tasks", nargs="+", default=["task1", "task_arrow", "task_ghost"], help="Manual task list")
+parser.add_argument("--success-only", action="store_true", help="Manual quality filter")
 
 args = parser.parse_args()
 
@@ -103,22 +104,17 @@ def load_expert_trajectories(data_root, session_num, allowed_tasks, success_only
                     acts = data[f"ep_{i}_human_act"]
                     infos = data[f"ep_{i}_info"]
                     
-                    # Check completion status
                     completed = infos[-1]["env_complete"]
                     crashed = infos[-1]["collision"]
                     
-                    # FILTER: If success_only is True, SKIP non-completed eps
-                    if success_only and not completed:
-                        continue
+                    if success_only and not completed: continue
 
-                    # Filter short eps
                     min_len = min(len(obs), len(acts))
                     if min_len < 10: continue 
 
                     obs = obs[:min_len]
                     acts = acts[:min_len]
                     
-                    # Pad observation for Gym (T+1)
                     if len(obs) == len(acts):
                         obs = np.concatenate([obs, obs[-1][None]], axis=0)
                     
@@ -182,6 +178,10 @@ def run_training(task_list, success_flag, save_name, device):
             venv.close()
             return
             
+        # For SQIL, loading is handled differently as it wraps the Algo
+        # We initialize new, but if load_path exists, we could manually load weights.
+        # However, SQIL usually trains from scratch or wraps a policy. 
+        # Standard SQIL implementation in `imitation` creates its own buffer.
         trainer = sqil.SQIL(
             venv=venv,
             demonstrations=expert_trajectories,
@@ -189,6 +189,8 @@ def run_training(task_list, success_flag, save_name, device):
             rl_algo_class=SAC, 
             rl_kwargs=dict(policy_kwargs=dict(net_arch=[400, 300]), device=device, seed=0)
         )
+        # Note: Fine-tuning SQIL from a loaded model is complex in this lib, 
+        # so we default to training fresh. If you need fine-tuning, use BC/AIRL.
         trainer.train(total_timesteps=args.steps)
         trainer.rl_algo.save(save_name)
 
@@ -197,7 +199,13 @@ def run_training(task_list, success_flag, save_name, device):
         ModelClass = SAC if args.base_algo == "SAC" else PPO
         policy_kwargs = dict(activation_fn=torch.nn.Tanh, net_arch=dict(pi=[400, 300], qf=[400, 300]) if args.base_algo=="SAC" else dict(pi=[256, 256], vf=[256, 256]))
         
-        learner = ModelClass("MlpPolicy", venv, policy_kwargs=policy_kwargs, device=device)
+        # --- RESTORED LOAD LOGIC ---
+        if args.load_path:
+            print(f"      [INFO] Loading Pretrained Weights: {args.load_path}")
+            learner = ModelClass.load(args.load_path, env=venv, device=device)
+        else:
+            learner = ModelClass("MlpPolicy", venv, policy_kwargs=policy_kwargs, device=device)
+        # ---------------------------
 
         if args.algo == "BC":
             transitions = rollout.flatten_trajectories(expert_trajectories)
