@@ -164,3 +164,8 @@ logs/
 experiment_manifest.csv
 csv_export/
 csv_logs/
+.DS_Store
+*.png
+results/
+*.csv
+temp/
