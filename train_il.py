@@ -13,8 +13,10 @@ import glob
 from imitation.data import types, rollout
 from imitation.algorithms import bc, sqil
 from imitation.algorithms.adversarial import airl
-from imitation.rewards.reward_nets import BasicShapedRewardNet
+from imitation.rewards.reward_nets import BasicRewardNet
 from imitation.util.networks import RunningNorm
+from stable_baselines3.common.evaluation import evaluate_policy
+
 
 # --- ARGUMENTS ---
 parser = argparse.ArgumentParser(description="Imitation Learning Training Script (Batch Mode)")
@@ -203,6 +205,9 @@ def run_training(task_list, success_flag, save_name, device):
         if args.load_path:
             print(f"      [INFO] Loading Pretrained Weights: {args.load_path}")
             learner = ModelClass.load(args.load_path, env=venv, device=device)
+            print("------Before--------")
+            print(evaluate_policy(learner, venv, n_eval_episodes=10))
+            print("-----------------")
         else:
             learner = ModelClass("MlpPolicy", venv, policy_kwargs=policy_kwargs, device=device)
         # ---------------------------
@@ -225,11 +230,17 @@ def run_training(task_list, success_flag, save_name, device):
             learner.save(save_name)
 
         elif args.algo == "AIRL":
-            reward_net = BasicShapedRewardNet(
+            reward_net = BasicRewardNet(
                 observation_space=venv.observation_space,
                 action_space=venv.action_space,
                 normalize_input_layer=RunningNorm,
+                hid_sizes=(256, 256)
             ).to(device)
+            learner.learning_rate = 3e-6
+            learner.ent_coef = 0.0
+            if args.base_algo == "PPO":
+                learner.clip_range = 0.1
+                learner.target_kl = 0.01
             
             demo_batch_size = min(128, len(rollout.flatten_trajectories(expert_trajectories)))
             
@@ -243,6 +254,9 @@ def run_training(task_list, success_flag, save_name, device):
             )
             trainer.train(total_timesteps=args.steps)
             trainer.gen_algo.save(save_name)
+            print("--------After-------")
+            print(evaluate_policy(learner, venv, n_eval_episodes=10))
+            print("--------------------")
 
     print(f"   -> Saved: {save_name}.zip")
     venv.close()
