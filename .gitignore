@@ -171,3 +171,5 @@ results/
 temp/
 training_logs/
 pilot_flight_data/
+*.pth
+*.joblib
