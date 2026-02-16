@@ -169,3 +169,5 @@ csv_logs/
 results/
 *.csv
 temp/
+training_logs/
+pilot_flight_data/
