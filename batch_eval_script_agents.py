@@ -4,190 +4,178 @@ import subprocess
 import glob
 import os
 import time
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import ttest_ind
+import sys
+
+# --- IMPORTS FROM METRICS.PY ---
+try:
+    from metrics import *
+except ImportError:
+    print("[Error] metrics.py not found. Please ensure it is in the same directory.")
+    sys.exit(1)
 
 # --- CONFIGURATION ---
-# List the filenames of the agents you want to test (NO .zip extension)
-AGENTS_TO_TEST = ["fixedwing_agent", "airl_agent_v1"] 
-HUMAN_DATA_PATH = "metrics_per_flight.csv"
-NUM_EPISODES = 30  # Episodes per agent
-RENDER_MODE = "none" # 'human' to watch, 'none' for speed
+AGENTS_TO_TEST = ["fw-ppo-v4", "fw-ppo-v4-/AIRL_ALL_ALLData", "fw-ppo-v4-/AIRL_ALL_SuccessOnly", "fw-ppo-v4-/AIRL_Alone_ALLData", "fw-ppo-v4-/AIRL_Alone_SuccessOnly", "fw-ppo-v4-/AIRL_AloneArrow_ALLData", "fw-ppo-v4-/AIRL_AloneArrow_SuccessOnly", "fw-ppo-v4-/AIRL_AloneGhost_ALLData", "fw-ppo-v4-/AIRL_AloneGhost_SuccessOnly", "fw-ppo-v4-/AIRL_Arrow_ALLData", "fw-ppo-v4-/AIRL_Arrow_SuccessOnly", "fw-ppo-v4-/AIRL_ArrowGhost_ALLData", "fw-ppo-v4-/AIRL_ArrowGhost_SuccessOnly", "fw-ppo-v4-/AIRL_Ghost_ALLData", "fw-ppo-v4-/AIRL_Ghost_SuccessOnly", ] 
+RENDER_MODE = "human"
+FPS = 60.0
 
-# --- METRIC CALCULATOR ---
-def calculate_flight_metrics(npz_file):
-    """
-    Reads the raw .npz data from test_easy.py and calculates metrics.
-    """
-    try:
-        data = np.load(npz_file, allow_pickle=True)
-        
-        # Extract Arrays (Robust get)
-        # Note: Adjust keys if your npz structure differs (e.g. 'obs', 'actions')
-        actions = data.get('action', [])
-        rewards = data.get('reward', [])
-        
-        if len(actions) == 0: return None
 
-        # 1. Waypoints (Score)
-        # Estimate based on reward spikes (assuming +10 for waypoint)
-        waypoints = np.sum(rewards > 5.0)
-        
-        # 2. Crash Detection (Large negative reward at end)
-        crashed = 1 if rewards[-1] < -10 else 0 
-        
-        # 3. Energy Variance (Physical Effort)
-        energy_variance = np.var(actions, axis=0).mean()
-            
-        # 4. Action Volatility (Jerky Inputs)
-        action_vol = np.sum(np.abs(np.diff(actions, axis=0))) / len(actions)
-            
-        # 5. PIO (Pilot Induced Oscillation) - Pitch Reversals
-        pitch_actions = actions[:, 1] # Assuming Index 1 is Pitch
-        reversals = np.sum(np.diff(np.sign(np.diff(pitch_actions))) != 0)
-        pio_score = reversals / (len(actions) / 30.0) # Reversals per second
-
-        return {
-            "Waypoints": waypoints,
-            "Crashed": crashed,
-            "Energy_Variance": energy_variance,
-            "Action_Vol_Bang": action_vol,
-            "PIO_Count_Pitch": pio_score,
-            "Duration_Sec": len(actions) / 30.0
-        }
-        
-    except Exception as e:
-        print(f"[Error] Could not process {npz_file}: {e}")
+# --- PROCESSING LOOP ---
+def process_agent(agent_name):
+    print(f"\n>>> Processing Agent: {agent_name}")
+    
+    # 1. Run test_easy.py (5 Minute Endurance)
+    print("    Running 5-minute flight test...")
+    start_time_sys = time.time()
+    
+    cmd = [
+        "python", "test_easy.py",
+        "--pilot", "agent",
+        "--algo", "PPO",
+        "--model-path", agent_name,
+        "--render-mode", RENDER_MODE,
+        "--time-per-task", "300.0",
+        "--target-throttle", "0.7",
+        "--waypoint-dist", "4.0",
+        "--break-time", "0.0",
+        "--zone", "150.0",
+        "--eval",
+    ]
+    
+    subprocess.run(cmd, capture_output=True) 
+    
+    # 2. Find the Output File
+    list_of_files = glob.glob('flight_data/*.npz') 
+    if not list_of_files:
+        print("    [Error] No .npz file generated.")
         return None
-
-# --- BATCH RUNNER ---
-def run_multi_agent_batch():
-    all_results = []
+    latest_file = max(list_of_files, key=os.path.getctime)
     
-    print(f">>> Starting Evaluation for {len(AGENTS_TO_TEST)} Agents...")
-    print(f">>> Config: {NUM_EPISODES} Episodes per Agent. Mode: {RENDER_MODE}\n")
-    
-    for agent_name in AGENTS_TO_TEST:
-        print(f"--- Testing Agent: {agent_name} ---")
-        
-        for i in range(NUM_EPISODES):
-            print(f"   [Ep {i+1}/{NUM_EPISODES}] Flying...", end="\r")
-            
-            # Capture start time to identify the new file
-            start_time = time.time()
-            
-            # Run test_easy.py
-            cmd = [
-                "python", "test_easy.py", 
-                "--pilot", "agent", 
-                "--model-path", agent_name,
-                "--render-mode", RENDER_MODE
-            ]
-            
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            
-            if result.returncode != 0:
-                print(f"\n[!] Error in Ep {i+1}: {result.stderr}")
-                continue
-                
-            # Find the newest .npz file
-            list_of_files = glob.glob('*.npz') 
-            if not list_of_files:
-                print("\n[!] No NPZ file found.")
-                continue
-                
-            latest_file = max(list_of_files, key=os.path.getctime)
-            
-            # Verify file is new
-            if os.path.getctime(latest_file) < start_time:
-                print(f"\n[!] Warning: Latest file {latest_file} seems old. Skipping.")
-                continue
-                
-            # Calculate Metrics
-            metrics = calculate_flight_metrics(latest_file)
-            if metrics:
-                metrics['Episode'] = i + 1
-                metrics['Condition'] = agent_name # Tag with Agent Name
-                all_results.append(metrics)
-        
-        print(f"\n   -> Agent {agent_name} Complete.\n")
-            
-    # Save Combined Results
-    if all_results:
-        final_df = pd.DataFrame(all_results)
-        final_df.to_csv("multi_agent_metrics.csv", index=False)
-        print(f">>> All Evaluations Complete. Saved to 'multi_agent_metrics.csv'.")
-        return final_df
-    else:
-        print("[!] No data collected.")
+    if os.path.getctime(latest_file) < start_time_sys:
+        print("    [Error] Latest .npz file is old. Script didn't save new data.")
         return None
-
-# --- COMPARISON ---
-def compare_all_groups(agent_df):
-    print("\n>>> Comparing Humans vs. All Agents...")
+        
+    print(f"    Parsing {latest_file}...")
+    data = np.load(latest_file, allow_pickle=True)
+    keys = list(data.keys())
     
-    # 1. Load Human Data
-    try:
-        human_df = pd.read_csv(HUMAN_DATA_PATH)
-        # Standardize Condition Name
-        human_baseline = human_df[human_df['Condition'].astype(str).str.contains('Alone', case=False)].copy()
-        human_baseline['Condition'] = 'Human (Alone)'
-        
-        # Filter for relevant columns
-        cols = ['Condition', 'Waypoints', 'Energy_Variance', 'PIO_Count_Pitch', 'Action_Vol_Bang']
-        human_data = human_baseline[cols]
-        
-    except FileNotFoundError:
-        print(f"[!] Human data file '{HUMAN_DATA_PATH}' not found. Plotting agents only.")
-        human_data = pd.DataFrame()
-
-    # 2. Combine Data
-    # Ensure agent_df has the same columns
-    if not human_data.empty:
-        combined_df = pd.concat([human_data, agent_df[cols]], ignore_index=True)
-    else:
-        combined_df = agent_df[cols]
-
-    # 3. Statistical Analysis (T-Test against Human)
-    if not human_data.empty:
-        print(f"\n{'Agent':<20} | {'Metric':<15} | {'Diff (Agent-Human)':<20} | {'P-Value':<10}")
-        print("-" * 75)
-        
-        human_means = human_data.mean(numeric_only=True)
-        
-        for agent in AGENTS_TO_TEST:
-            agent_sub = agent_df[agent_df['Condition'] == agent]
-            if agent_sub.empty: continue
+    # 3. Iterate Episodes
+    episode_metrics = []
+    
+    ep_indices = [int(k.split('_')[1]) for k in keys if '_obs' in k and k.startswith('ep_')]
+    ep_indices = sorted(list(set(ep_indices)))
+    
+    print(f"    Found {len(ep_indices)} episodes.")
+    
+    for i in ep_indices:
+        try:
+            # Extract Data
+            obs = data[f"ep_{i}_obs"]
+            act = data[f"ep_{i}_act"] # Agent actions
+            rew = data[f"ep_{i}_rew"]
+            info = data[f"ep_{i}_info"]
+            targets = data[f"ep_{i}_global_targets"]
             
-            for m in ['Waypoints', 'Energy_Variance']:
-                t, p = ttest_ind(agent_sub[m], human_data[m], equal_var=False)
-                diff = agent_sub[m].mean() - human_means[m]
-                print(f"{agent:<20} | {m:<15} | {diff:+.4f}             | {p:.4f}")
+            # Physics Extraction
+            pos = obs[:, 10:13] # Index 10-12 is Pos XYZ
+            vel = obs[:, 7:10]  # Index 7-9 is Vel XYZ
+            ang_vel = obs[:, 0:3]     # P, Q, R
+            quat = obs[:, 3:7]        # X, Y, Z, W (Fixed Mapping)
+            
+            # Calculate Basic Stats
+            duration = data[f"ep_{i}_real_duration"] if f"ep_{i}_real_duration" in data else len(rew)/FPS
+            completed = calculate_success(info)
+            crashed = calculate_crashes(info)
+            flight_path = calculate_flight_distance(pos)
+            
+            # Metric Dictionary
+            m = {
+                # Performance
+                "Waypoints": calculate_waypoints_captured(rew),
+                "Crashed": crashed,
+                "Success": completed,
+                "Failures": 0 if completed else 1,
+                "Time_Total": duration,
+                "Time_Success": duration if completed else np.nan,
+                "Near_Misses": calculate_near_misses(pos, targets, rew), 
+                "Near_Crashes": calculate_near_crashes(pos), 
+                "Flight_Path_Length": flight_path,
+                "Flight_Path_Length_Success": flight_path if completed else np.nan,
+                "Inversion": calculate_inverted_time(quat),
+                "Action_Vol_Bang": calculate_volatility(act),
+                
+                # Advanced
+                "CTE_Avg": calculate_cte(pos, targets, rew),
+                "Control_Entropy": calculate_control_entropy(act), # Imported from metrics.py
+                "Max_G_Force": calculate_max_g_force(vel, ang_vel),
+                "Energy_Variance": calculate_energy_variance(pos, vel), # Imported from metrics.py
+                "PIO_Count_Pitch": calculate_pio(act[:, 1]), # Imported from metrics.py
+                "PIO_Count_Roll": calculate_pio(act[:, 0]),  # Imported from metrics.py
+            }
+            episode_metrics.append(m)
+            
+        except KeyError as e:
+            print(f"    [Warning] Skipping Ep {i}, missing key: {e}")
+            continue
 
-    # 4. Plotting
-    plt.figure(figsize=(14, 6))
+    if not episode_metrics: return None
+
+    # 4. Aggregation
+    df_ep = pd.DataFrame(episode_metrics)
     
-    # Plot 1: Performance (Waypoints)
-    plt.subplot(1, 2, 1)
-    sns.barplot(data=combined_df, x='Condition', y='Waypoints', errorbar='se', palette='magma')
-    plt.title("Performance Comparison (Score)")
-    plt.xticks(rotation=15)
+    # Aggregation Rules (Trust metrics removed)
+    agg_rules = {
+        "Waypoints": "sum",
+        "Crashed": "sum",
+        "Success": "sum",
+        "Failures": "sum",
+        "Time_Total": "mean",
+        "Time_Success": "mean",
+        "Near_Misses": "sum",
+        "Near_Crashes": "sum",
+        "Flight_Path_Length": "mean",
+        "Flight_Path_Length_Success": "mean",
+        "Inversion": "sum",
+        "Action_Vol_Bang": "mean",
+        "CTE_Avg": "mean",
+        "Control_Entropy": "mean",
+        "Max_G_Force": "mean",
+        "Energy_Variance": "mean",
+        "PIO_Count_Pitch": "sum",
+        "PIO_Count_Roll": "sum"
+    }
     
-    # Plot 2: Control Style (Energy)
-    plt.subplot(1, 2, 2)
-    sns.barplot(data=combined_df, x='Condition', y='Energy_Variance', errorbar='se', palette='viridis')
-    plt.title("Control Strategy (Energy Variance)")
-    plt.xticks(rotation=15)
+    # Aggregate only existing columns
+    valid_rules = {k: v for k, v in agg_rules.items() if k in df_ep.columns}
+    summary = df_ep.agg(valid_rules)
     
-    plt.tight_layout()
-    plt.savefig("multi_agent_comparison.png")
-    print("\n-> Saved plot 'multi_agent_comparison.png'")
+    # Add Identity
+    summary["Agent_Name"] = agent_name
+    summary["Episodes_Completed"] = len(df_ep)
+    
+    return summary
+
+# --- MAIN RUNNER ---
+def run_benchmark():
+    all_summaries = []
+    
+    for agent in AGENTS_TO_TEST:
+        res = process_agent(agent)
+        if res is not None:
+            all_summaries.append(res)
+            
+    if not all_summaries:
+        print("No data collected.")
+        return
+        
+    final_df = pd.DataFrame(all_summaries)
+    
+    # Reorder columns
+    cols = ["Agent_Name", "Episodes_Completed"] + [c for c in final_df.columns if c not in ["Agent_Name", "Episodes_Completed"]]
+    final_df = final_df[cols]
+    
+    output_file = "agent_benchmark_results.csv"
+    final_df.to_csv(output_file, index=False)
+    print(f"\n>>> Benchmark Complete. Saved to {output_file}")
 
 if __name__ == "__main__":
-    # 1. Run Batch
-    results_df = run_multi_agent_batch()
-    
-    # 2. Compare
-    if results_df is not None:
-        compare_all_groups(results_df)
+    run_benchmark()
