@@ -51,6 +51,7 @@ parser.add_argument("--subject-id", type=str, default="test", help="Subject ID (
 parser.add_argument("--session", type=int, choices=[1, 2], default=1, help="Session Number (1 or 2)")
 parser.add_argument("--break-time", type=float, default=30.0, help="time in seconds between tasks")
 parser.add_argument("--monitor", type=int, default=0, help="External monitor to use")
+parser.add_argument("--eval", action="store_true", help="Evaluate Agent automatically")
 
 
 args = parser.parse_args()
@@ -990,7 +991,7 @@ if hasattr(env.unwrapped, "waypoints") and hasattr(env.unwrapped.waypoints, "tar
 action = np.array([0.0, 0.0, 0.0, 0.0])
 current_targets = []
 last_target_count = 0
-paused = True 
+paused = not(args.eval) and True 
 running = True
 FPS = 60.0
 last_capture_time = -100.0
@@ -1013,7 +1014,7 @@ try:
             
             current_ep_duration = 0.0
             # C. Show "Break" Screen
-            waiting_for_next = True
+            waiting_for_next = not(args.eval) and True
             break_start_time = pygame.time.get_ticks()
             while waiting_for_next:
                 screen.fill((0,0,0))
@@ -1083,7 +1084,7 @@ try:
                 }
                 compass_arrow_id = None
                 ghost_urdf_id = None
-                paused = True # Auto-start next task? Or keep True to wait.
+                paused = not(args.eval) and True # Auto-start next task? Or keep True to wait.
 
         drone_id, pos, orn, euler = get_drone_state(env)
         pygame.event.pump() 
@@ -1258,7 +1259,7 @@ try:
                 force_pygame_focus()
                 if hasattr(env.unwrapped, "waypoints"):
                     total_targets = len(env.unwrapped.waypoints.targets)
-                paused = True
+                paused = not (args.eval) and True
 
         # RENDER
         screen.fill((0, 0, 0))
