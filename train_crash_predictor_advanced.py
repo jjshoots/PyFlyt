@@ -12,10 +12,10 @@ import matplotlib.pyplot as plt
 
 # --- CONFIGURATION ---
 DATA_ROOT = "flight_data"
-FPS = 30
-PREDICTION_WINDOW_SEC = 1.5  # Increased to 1.5s to make it "predict into the future" harder/more useful
+FPS = 60
+PREDICTION_WINDOW_SEC = 1.0  # Increased to 1.5s to make it "predict into the future" harder/more useful
 PREDICTION_STEPS = int(PREDICTION_WINDOW_SEC * FPS)
-SEQ_LEN = 45                 # Look at past 1.5s to predict next 1.5s
+SEQ_LEN = 60                 # Look at past 1.5s to predict next 1.5s
 BATCH_SIZE = 2048            # Bigger batch for faster training
 MAX_EPOCHS = 100
 PATIENCE = 10                # Early stopping patience
