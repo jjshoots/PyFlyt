@@ -39,7 +39,7 @@ parser.add_argument("--assist-arrow", action="store_true", help="Show HUD 'Navig
 parser.add_argument("--assist-adaptive", action="store_true", help="Enable adaptive ghost assist")
 parser.add_argument("--assist-mode", type=str, choices=["heuristic", "learned"], default="heuristic")
 parser.add_argument("--assist-disagree-thresh", type=float, default=0.3, help="||ai - human|| threshold")
-parser.add_argument("--assist-out-of-view-time", type=float, default=12.0, help="Seconds waypoint not in view")
+parser.add_argument("--assist-out-of-view-time", type=float, default=30.0, help="Seconds waypoint not in view")
 parser.add_argument("--assist-duration", type=float, default=7.0, help="Ghost visible duration")
 parser.add_argument("--assist-cooldown", type=float, default=2.0, help="Cooldown after assist")
 parser.add_argument("--assist-model-path", type=str, default="assist_model", help="Learned assist model path")
