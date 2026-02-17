@@ -239,20 +239,20 @@ if args.experiment:
         # 2. Define Session 2 Conditions
         # Condition A: Default Ghost (Always On)
         condition_ghost_default = {
-            "tag": "task_ghost_adaptive_og",
-            "name": "Task: Adaptive Ghost ",
+            "tag": "task_ghost_fixed_airl",
+            "name": "Task: Continuous Ghost ",
             "duration": args.time_per_task,
             "arrow": False,
             "ghost": True,      # Render Ghost
-            "adaptive": True,  # No hiding/cooldown logic
+            "adaptive": False,  # No hiding/cooldown logic
             "show_hud": True,
             "unordered": False,
-            "model_path": "fw-ppo-v4"
+            "model_path": "fw-ppo-v4-AIRL-v0/AIRL_ArrowGhost_SuccessOnly"
         }
 
         # Condition B: Adaptive Ghost (Triggered)
         condition_ghost_adaptive = {
-            "tag": "task_ghost_adaptive_new",
+            "tag": "task_ghost_adaptive_airl",
             "name": "Task: Adaptive Ghost",
             "duration": args.time_per_task,
             "arrow": False,
