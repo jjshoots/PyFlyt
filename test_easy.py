@@ -35,6 +35,18 @@ parser.add_argument("--assist-shadow", action="store_true", help="Show AI 'Shado
 parser.add_argument("--assist-ghost", action="store_true", help="Show AI 'Ghost Plane' future prediction")
 parser.add_argument("--assist-arrow", action="store_true", help="Show HUD 'Navigation Arrow' to target")
 
+# --- Adaptive Assist Args ---
+parser.add_argument("--assist-adaptive", action="store_true", help="Enable adaptive ghost assist")
+parser.add_argument("--assist-mode", type=str, choices=["heuristic", "learned"], default="heuristic")
+parser.add_argument("--assist-disagree-thresh", type=float, default=0.3, help="||ai - human|| threshold")
+parser.add_argument("--assist-out-of-view-time", type=float, default=12.0, help="Seconds waypoint not in view")
+parser.add_argument("--assist-duration", type=float, default=7.0, help="Ghost visible duration")
+parser.add_argument("--assist-cooldown", type=float, default=2.0, help="Cooldown after assist")
+parser.add_argument("--assist-model-path", type=str, default="assist_model", help="Learned assist model path")
+parser.add_argument("--assist-fov-deg", type=float, default=20.0, help="Forward cone half-angle")
+parser.add_argument("--use-crash-model", action="store_true", help="Use crash model")
+
+
 # Visual & Sim Args
 parser.add_argument("--zone", type=float, default=100.0, help="Zone Radius (0 = Auto)")
 parser.add_argument("--disable-hud", action="store_true", help="Disable ALL HUD")
@@ -124,7 +136,7 @@ TARGET_THROTTLE = args.target_throttle
 experiment_phases = []
 
 if args.experiment:
-    config_path = "config.json"
+    config_path = "config-session2.json"
     if os.path.exists(config_path):
         print(f"Loading Experiment Config from {config_path}...")
         with open(config_path, 'r') as f:
@@ -139,82 +151,146 @@ if args.experiment:
     else:
         print("Error: config.json not found! Using defaults.")
 
-    # 0. Pretest (Warmup - usually not logged in manifest as a "Task")
-    # 0. Pretest (Warmup - 1 Minute, Unordered)
-    phase_pretest = {
-        "tag": "pretest", 
-        "name": "Pretest (Free Flight)", 
-        "duration": 60.0,       # <--- FIXED: 1 Minute
-        "arrow": False, 
-        "ghost": False, 
-        "show_hud": False,
-        "unordered": True       # <--- NEW: Random collection
-    }
-    
-    # 1. Task 1 (Fixed: Solo, Ordered)
-    phase_task1 = {
-        "tag": "task1", 
-        "name": "Task 1 (No Assist)", 
-        "duration": args.time_per_task, 
-        "arrow": False, 
-        "ghost": False, 
-        "show_hud": True,
-        "unordered": False      # <--- NEW: Ordered path
-    }
 
-    # 2. Randomized Conditions (Ordered)
-    condition_arrow = {
-        "tag": "task_arrow", 
-        "name": "Task: Arrow Assist", 
-        "duration": args.time_per_task, 
-        "arrow": True, 
-        "ghost": False, 
-        "show_hud": True,
-        "unordered": False      # <--- NEW: Ordered path
-    }
-    condition_ghost = {
-        "tag": "task_ghost", 
-        "name": "Task: Ghost Assist", 
-        "duration": args.time_per_task, 
-        "arrow": False, 
-        "ghost": True, 
-        "show_hud": True,
-        "unordered": False      # <--- NEW: Ordered path
-    }
+    if args.session == 1:
+        
+        # 0. Pretest (Warmup - usually not logged in manifest as a "Task")
+        # 0. Pretest (Warmup - 1 Minute, Unordered)
+        phase_pretest = {
+            "tag": "pretest", 
+            "name": "Pretest (Free Flight)", 
+            "duration": 60.0,       # <--- FIXED: 1 Minute
+            "arrow": False, 
+            "ghost": False, 
+            "show_hud": False,
+            "unordered": True       # <--- NEW: Random collection
+        }
+        
+        # 1. Task 1 (Fixed: Solo, Ordered)
+        phase_task1 = {
+            "tag": "task1", 
+            "name": "Task 1 (No Assist)", 
+            "duration": args.time_per_task, 
+            "arrow": False, 
+            "ghost": False, 
+            "show_hud": True,
+            "unordered": False      # <--- NEW: Ordered path
+        }
 
-    # 3. Determine Randomization
-    try:
-        subj_num = int(''.join(filter(str.isdigit, args.subject_id)))
-    except ValueError:
-        subj_num = 0 
+        # 2. Randomized Conditions (Ordered)
+        condition_arrow = {
+            "tag": "task_arrow", 
+            "name": "Task: Arrow Assist", 
+            "duration": args.time_per_task, 
+            "arrow": True, 
+            "ghost": False, 
+            "show_hud": True,
+            "unordered": False      # <--- NEW: Ordered path
+        }
+        condition_ghost = {
+            "tag": "task_ghost", 
+            "name": "Task: Ghost Assist", 
+            "duration": args.time_per_task, 
+            "arrow": False, 
+            "ghost": True, 
+            "show_hud": True,
+            "unordered": False      # <--- NEW: Ordered path
+        }
 
-    # --- REMOVED INCREMENT LOGIC AS REQUESTED ---
-    # if args.session == 2: subj_num += 1 
+        # 3. Determine Randomization
+        try:
+            subj_num = int(''.join(filter(str.isdigit, args.subject_id)))
+        except ValueError:
+            subj_num = 0 
 
-    variable_tasks = []
-    if subj_num % 2 == 0:
-        print(f"Subject {args.subject_id}: Even -> Arrow First")
-        variable_tasks = [condition_arrow, condition_ghost]
-    else:
-        print(f"Subject {args.subject_id}: Odd -> Ghost First")
-        variable_tasks = [condition_ghost, condition_arrow]
+        # --- REMOVED INCREMENT LOGIC AS REQUESTED ---
+        # if args.session == 2: subj_num += 1 
 
-    # 4. Build Final List
-    # We run Pretest -> Task 1 -> Variable 1 -> Variable 2
-    experiment_phases.append(phase_pretest)
-    experiment_phases.append(phase_task1)
-    experiment_phases.extend(variable_tasks)
-    
-    # 5. UPDATE MANIFEST
-    # We only want to log the "Real" tasks: Task 1 + the 2 Variable ones
-    tasks_to_log = [phase_task1] + variable_tasks
-    update_manifest(args, tasks_to_log)
+        variable_tasks = []
+        if subj_num % 2 == 0:
+            print(f"Subject {args.subject_id}: Even -> Arrow First")
+            variable_tasks = [condition_arrow, condition_ghost]
+        else:
+            print(f"Subject {args.subject_id}: Odd -> Ghost First")
+            variable_tasks = [condition_ghost, condition_arrow]
 
+        # 4. Build Final List
+        # We run Pretest -> Task 1 -> Variable 1 -> Variable 2
+        experiment_phases.append(phase_pretest)
+        experiment_phases.append(phase_task1)
+        experiment_phases.extend(variable_tasks)
+        
+        # 5. UPDATE MANIFEST
+        # We only want to log the "Real" tasks: Task 1 + the 2 Variable ones
+        tasks_to_log = [phase_task1] + variable_tasks
+        update_manifest(args, tasks_to_log)
+    elif args.session == 2:
+        args.use_crash_model = True
+        phase_task1 = {
+            "tag": "task1",
+            "name": "Task 1 (No Assist)",
+            "duration": args.time_per_task,
+            "arrow": False,
+            "ghost": False,
+            "adaptive": False,
+            "show_hud": True,
+            "unordered": False 
+        }
+        # 2. Define Session 2 Conditions
+        # Condition A: Default Ghost (Always On)
+        condition_ghost_default = {
+            "tag": "task_ghost_adaptive_og",
+            "name": "Task: Adaptive Ghost ",
+            "duration": args.time_per_task,
+            "arrow": False,
+            "ghost": True,      # Render Ghost
+            "adaptive": True,  # No hiding/cooldown logic
+            "show_hud": True,
+            "unordered": False,
+            "model_path": "fw-ppo-v4"
+        }
+
+        # Condition B: Adaptive Ghost (Triggered)
+        condition_ghost_adaptive = {
+            "tag": "task_ghost_adaptive_new",
+            "name": "Task: Adaptive Ghost",
+            "duration": args.time_per_task,
+            "arrow": False,
+            "ghost": True,      # Render Ghost
+            "adaptive": True,   # Active Logic (Idle -> Active -> Cooldown)
+            "show_hud": True,
+            "unordered": False,
+            "model_path": "fw-ppo-v4-AIRL-v0/AIRL_ArrowGhost_SuccessOnly"
+        }
+
+        # 3. Determine Randomization
+        try:
+            subj_num = int(''.join(filter(str.isdigit, args.subject_id)))
+        except ValueError:
+            subj_num = 0 
+
+        variable_tasks = []
+        if subj_num % 2 == 0:
+            print("Order: Even -> Fixed Ghost First")
+            variable_tasks = [condition_ghost_default, condition_ghost_adaptive]
+        else:
+            print("Order: Odd -> Adaptive Ghost First")
+            variable_tasks = [condition_ghost_adaptive, condition_ghost_default]
+
+        # 4. Build Final List (NO PRETEST)
+        experiment_phases = []
+        experiment_phases.append(phase_task1) # Baseline first
+        experiment_phases.extend(variable_tasks) # Then randomized conditions
+        
+        # 5. Update Manifest
+        # Log all 3 tasks
+        tasks_to_log = [phase_task1] + variable_tasks
+        update_manifest(args, tasks_to_log)
 else:
     # Default Mode
     experiment_phases.append({
         "tag": "flight", "name": "Free Flight", "duration": args.time_per_task, 
-        "arrow": args.assist_arrow, "ghost": args.assist_ghost, "show_hud": True
+        "arrow": args.assist_arrow, "ghost": args.assist_ghost, "show_hud": True, "adaptive": args.assist_adaptive
     })
 
 # Experiment State
@@ -248,7 +324,7 @@ if hasattr(env.unwrapped, "waypoints"):
 
 # Load Agent
 agent_model = None
-if args.pilot == "agent" or args.assist_shadow or args.assist_ghost or args.experiment:
+if args.pilot == "agent" or args.assist_shadow or args.assist_ghost or args.experiment or args.assist_adaptive:
     path = f"{args.model_path}.zip"
     if os.path.exists(path):
         print(f"Loading Agent from {path}...")
@@ -294,6 +370,96 @@ if pygame.joystick.get_count() > 0:
     joystick.init()
 
 
+
+import joblib
+import torch
+import torch.nn as nn
+
+# --- CONFIGURATION (MATCHING YOUR BEST RUN) ---
+CRASH_MODEL_PATH = "best_crash_rnn.pth" 
+SCALER_PATH = "crash_scaler.joblib"
+INPUT_DIM = 21   
+HIDDEN_DIM = 128    # Updated to 128
+LAYERS = 2
+THRESHOLD = 0.3     # The sweet spot from your results
+SEQ_LEN = 30        # 0.5 seconds * 60 FPS
+
+# --- MODEL DEFINITION ---
+class CrashRNN(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers):
+        super(CrashRNN, self).__init__()
+        # Note: Dropout is only used during training, but we define it to load weights correctly
+        self.rnn = nn.GRU(input_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=0.2)
+        self.fc = nn.Linear(hidden_dim, 1)
+        
+    def forward(self, x):
+        out, _ = self.rnn(x)
+        last_out = out[:, -1, :] 
+        return self.fc(last_out)
+
+
+if args.use_crash_model:
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    scaler = joblib.load(SCALER_PATH)
+    checkpoint = torch.load(CRASH_MODEL_PATH, map_location=device)
+    
+    # Extract config from saved model to be safe
+    config = checkpoint.get('config', {})
+    h_dim = config.get('hidden_dim', HIDDEN_DIM)
+    n_layers = config.get('num_layers', LAYERS)
+    
+    crash_model = CrashRNN(INPUT_DIM, h_dim, n_layers).to(device)
+    crash_model.load_state_dict(checkpoint['model_state_dict'])
+    crash_model.eval()
+    print(f"✅ Crash Model Loaded. Config: {config}")
+else:
+    crash_model, scaler, device = None, None, None
+
+from collections import deque
+import time
+history_buffer = deque(maxlen=SEQ_LEN)
+
+def predict_crash(crash_model, obs, action, device, scaler, buffer):
+    """
+    Args:
+        obs: Current observation (shape 29,)
+        action: Current action (shape 4,)
+        buffer: The global deque history_buffer
+    """
+    # 1. PREPROCESS SINGLE FRAME
+    # Select specific features
+    KEEP_OBS_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+
+    obs_filtered = obs[KEEP_OBS_INDICES]
+    
+    # Combine (Result: shape (21,))
+    features = np.hstack([obs_filtered, action])
+    
+    # 2. UPDATE HISTORY
+    buffer.append(features)
+
+    
+    # 3. CHECK IF WE HAVE ENOUGH HISTORY
+    if len(buffer) < SEQ_LEN:
+        # Not enough data yet (e.g., first 0.5s of flight)
+        return False, 0.0
+    
+    # 4. PREPARE BATCH
+    # Convert buffer to numpy array: shape (30, 21)
+    sequence = np.array(buffer)
+    
+    # Scale: transform expects (N, 21)
+    sequence_scaled = scaler.transform(sequence)
+    
+    # Convert to Tensor: Add Batch Dim -> (1, 30, 21)
+    X_tensor = torch.FloatTensor(sequence_scaled).unsqueeze(0).to(device)
+    
+    # 5. INFERENCE
+
+    with torch.no_grad():
+        logits = crash_model(X_tensor)
+        prob = torch.sigmoid(logits).item()
+    return prob > THRESHOLD, prob  # Using your optimal threshold 0.3
 
 def get_screen_coords(pos_3d, view_matrix, proj_matrix, width, height):
     """
@@ -665,6 +831,16 @@ def update_3d_arrow(p, drone_id, targets, active):
 # Add this global variable at the top if not already there
 ghost_urdf_id = None 
 
+def hide_ghost_plane(p):
+    """
+    Removes the ghost plane from the PyBullet world if it exists.
+    """
+    global ghost_urdf_id
+    
+    if ghost_urdf_id is not None:
+        p.removeBody(ghost_urdf_id)
+        ghost_urdf_id = None
+
 def update_ghost_plane(p, drone_id, ai_action):
     """
     Overlays the 'fixedwing.urdf' directly ON TOP of the user.
@@ -880,6 +1056,37 @@ def draw_radar(screen, drone_pos, drone_yaw, targets, zone_radius):
             screen.blit(n, (p[0]+6, p[1]-6))
 
 
+def waypoint_in_view(drone_orn, target_vec, fov_deg):
+    if target_vec is None or np.linalg.norm(target_vec) < 1e-6:
+        return True
+    rot_mat = np.array(p.getMatrixFromQuaternion(drone_orn)).reshape(3, 3)
+    forward = rot_mat.dot([1, 0, 0])
+    target_dir = target_vec / np.linalg.norm(target_vec)
+    dot = np.dot(forward, target_dir)
+    angle = math.degrees(math.acos(np.clip(dot, -1.0, 1.0)))
+    return angle <= fov_deg
+
+
+def heuristic_needs_help(human_action, ai_action, drone_orn, target_vec, dt, thresh, out_of_view_time, fov_deg):
+    global time_not_in_view
+    
+    in_view = waypoint_in_view(drone_orn, target_vec, fov_deg)
+    if in_view:
+        time_not_in_view = 0.0
+    else:
+        time_not_in_view += dt
+    
+    # disagreement = np.linalg.norm(human_action[:2] - ai_action[:2])
+    
+    return (time_not_in_view >= out_of_view_time)
+
+def learned_needs_help(model, obs, action):
+    x = np.concatenate([obs, action])
+    pred, _ = model.predict(x.reshape(1, -1), deterministic=True)
+    return bool(pred.reshape(-1)[0] > 0.5)
+
+
+
 def save_data(session_data, incomplete_episode, args, phase_tag):
     # 1. Handle the incomplete episode (The one active when time ran out)
     if len(incomplete_episode["observations"]) > 0:
@@ -998,6 +1205,16 @@ last_capture_time = -100.0
 BREAK_TIME = args.break_time
 current_ep_duration = 0.0
 
+# --- Adaptive Assist State ---
+ASSIST_IDLE = 0
+ASSIST_ACTIVE = 1
+ASSIST_COOLDOWN = 2
+
+assist_state = ASSIST_IDLE
+assist_timer = 0.0
+time_not_in_view = 0.0
+
+
 try:
     while running:
         dt_ms = clock.tick(FPS) 
@@ -1053,6 +1270,19 @@ try:
                 # E. Setup Next Phase
                 current_phase = experiment_phases[phase_idx]
                 TARGET_FLIGHT_TIME = current_phase["duration"]
+
+                # --- NEW CODE: RELOAD GHOST AGENT ---
+                if "model_file" in current_phase:
+                    new_path = f"{current_phase['model_file']}.zip"
+                    
+                    if os.path.exists(new_path):
+                        print(f"\n>>> LOADING NEW GHOST: {current_phase['model_file']} <<<")
+                        
+                        # Select Class based on your global args (or add 'algo' to phase config)
+                        ModelClass = SAC if args.algo == "SAC" else PPO
+                        
+                        # Overwrite the global agent_model
+                        agent_model = ModelClass.load(new_path)
                 
                 # --- APPLY NEW SETTINGS (CRITICAL CHANGE) ---
                 # 1. Update CLI arg so HUD/AI know what mode we are in
@@ -1176,13 +1406,59 @@ try:
             # AUTO-THROTTLE
             # if agent_model is not None:
             #     final_action[3] = ai_action[3]
+        # --- Move this logic ABOVE the 'if not paused' block ---
+        logic_dt = dt_sec if not paused else 0.0
+        crash_warning = False
+        crash_prob = 0.0
+        waypoint_guidance_trigger = False
+        if drone_id is not None and agent_model is not None:
+            target_vec = current_targets[0] if len(current_targets) > 0 else None
+            if crash_model and not paused:
+                crash_warning, crash_prob = predict_crash(crash_model, obs, final_action, device, scaler, history_buffer)
+            if assist_state == ASSIST_IDLE:
+                # Heuristic calculation
+                waypoint_guidance_trigger = heuristic_needs_help(
+                    human_action, ai_action, orn, target_vec, logic_dt,
+                    args.assist_disagree_thresh, 
+                    args.assist_out_of_view_time, 
+                    args.assist_fov_deg
+                )
 
+                
+                trigger = crash_warning or waypoint_guidance_trigger
+
+                
+                if trigger:
+                    assist_state = ASSIST_ACTIVE
+                    assist_timer = 0.0
+                    
+            elif assist_state == ASSIST_ACTIVE:
+                assist_timer += dt_sec
+                if assist_timer >= args.assist_duration:
+                    assist_state = ASSIST_COOLDOWN
+                    assist_timer = 0.0
+                    
+            elif assist_state == ASSIST_COOLDOWN:
+                assist_timer += dt_sec
+                if assist_timer >= args.assist_cooldown:
+                    assist_state = ASSIST_IDLE
+                    assist_timer = 0.0
         # --- 2. STEP & RECORD ---
         if not paused:
             accumulated_time += dt_sec
             current_ep_duration += dt_sec
-            if current_phase["ghost"] and agent_model and drone_id is not None:
-                update_ghost_plane(p, drone_id, ai_action)
+            if agent_model and drone_id is not None:
+                if current_phase.get("ghost") and not current_phase.get("adaptive", False):
+                    # Standard ghost: always on
+                    update_ghost_plane(p, drone_id, ai_action)
+                elif current_phase.get("adaptive", False):
+                    # Case B: Adaptive Ghost
+                    if assist_state == ASSIST_ACTIVE:
+                        # Show/Update it
+                        update_ghost_plane(p, drone_id, ai_action)
+                    else:
+                        # Idle or Cooldown -> HIDE IT
+                        hide_ghost_plane(p)
             
             if current_phase["arrow"] and drone_id is not None:
                 update_3d_arrow(p, drone_id, current_targets, current_phase["arrow"])
@@ -1212,13 +1488,20 @@ try:
                     # (Overrides any 'Boundary Hit' info from the walls)
                     info["boundary_hit"] = True 
                     # current_episode["boundary_hits"][-1] = 1.0 # Ensure log catches it
+
+            info["crash_warning"] = crash_warning
+            info["crash_prob"] = crash_prob
+            info["waypoint_guidance_trigger"] = waypoint_guidance_trigger
+            info["time_not_in_view"] = time_not_in_view
+            info["assist_state"] = assist_state
+            info["assist_timer"] = assist_timer
             current_episode["rewards"].append(reward)
             current_episode["dones"].append(terminated or truncated)
             current_episode["human_actions"].append(human_action.copy())
             current_episode["ai_actions"].append(ai_action.copy())
             hit = 1.0 if info.get("boundary_hit", False) else 0.0
             current_episode["boundary_hits"].append(hit)
-            current_episode["infos"].append(info)  # <--- ADD THIS
+            current_episode["infos"].append(info.copy())  # <--- ADD THIS
 
             if reward >= 90.0: # Waypoint captured
                 last_capture_time = accumulated_time
@@ -1374,9 +1657,43 @@ try:
 
             # --- STANDARD HUD (Non-Experiment) ---
             else:    
-                if args.assist_arrow:
-                    # draw_hud_arrow(screen, pos, orn, current_targets, args.unordered)
-                    pass
+                # if current_phase.get("adaptive", False) and drone_id is not None and agent_model is not None:
+                #     assist_timer += dt_sec
+                    
+                #     # Determine active target vector
+                #     target_vec = current_targets[0] if len(current_targets) > 0 else None
+                    
+                #     if assist_state == ASSIST_IDLE:
+                #         if args.assist_mode == "heuristic":
+                #             trigger = heuristic_needs_help(
+                #                 human_action,
+                #                 ai_action,
+                #                 orn,
+                #                 target_vec,
+                #                 dt_sec,
+                #                 args.assist_disagree_thresh,
+                #                 args.assist_out_of_view_time,
+                #                 args.assist_fov_deg
+                #             )
+                #         else:
+                #             # trigger = learned_needs_help(assist_model, obs, human_action)
+                #             trigger = False
+                        
+                #         if trigger:
+                #             assist_state = ASSIST_ACTIVE
+                #             assist_timer = 0.0
+                    
+                #     elif assist_state == ASSIST_ACTIVE:
+                #         update_ghost_plane(p, drone_id, ai_action)
+                #         if assist_timer >= args.assist_duration:
+                #             assist_state = ASSIST_COOLDOWN
+                #             assist_timer = 0.0
+                    
+                #     elif assist_state == ASSIST_COOLDOWN:
+                #         if assist_timer >= args.assist_cooldown:
+                #             assist_state = ASSIST_IDLE
+                #             assist_timer = 0.0
+
                 
                 if args.assist_shadow and agent_model:
                     draw_shadow_controls(screen, human_action, ai_action)
