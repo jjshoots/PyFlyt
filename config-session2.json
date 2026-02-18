@@ -1,7 +1,7 @@
 {
     "pilot": "human",
     "algo": "PPO",
-    "model_path": "fw-ppo-v4",
+    "model_path": "fw-ppo-v4-AIRL-v0/AIRL_Alone_SuccessOnly",
     "time_per_task": 300.0,
     "target_throttle": 0.7,
     "waypoint_dist": 4.0,
@@ -10,6 +10,6 @@
     "break_time": 30.0, 
     "monitor": 1,
     "zone": 150.0,
-    "assist_duration": 15.0,
-    "assist_cooldown": 5.0
+    "assist_duration": 10.0,
+    "assist_cooldown": 15.0
 }

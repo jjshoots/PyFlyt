@@ -247,7 +247,7 @@ if args.experiment:
             "adaptive": False,  # No hiding/cooldown logic
             "show_hud": True,
             "unordered": False,
-            "model_path": "fw-ppo-v4-AIRL-v0/AIRL_ArrowGhost_SuccessOnly"
+            "model_path": "fw-ppo-v4-AIRL-v0/AIRL_Alone_SuccessOnly"
         }
 
         # Condition B: Adaptive Ghost (Triggered)
@@ -260,7 +260,7 @@ if args.experiment:
             "adaptive": True,   # Active Logic (Idle -> Active -> Cooldown)
             "show_hud": True,
             "unordered": False,
-            "model_path": "fw-ppo-v4-AIRL-v0/AIRL_ArrowGhost_SuccessOnly"
+            "model_path": "fw-ppo-v4-AIRL-v0/AIRL_Alone_SuccessOnly"
         }
 
         # 3. Determine Randomization
@@ -1230,6 +1230,10 @@ try:
             session_data = []
             
             current_ep_duration = 0.0
+            time_not_in_view = 0.0
+            assist_state = ASSIST_IDLE
+            assist_timer = 0.0
+            
             # C. Show "Break" Screen
             waiting_for_next = not(args.eval) and True
             break_start_time = pygame.time.get_ticks()
@@ -1532,6 +1536,9 @@ try:
                 compass_arrow_id = None
                 ghost_urdf_id = None
                 current_ep_duration = 0.0
+                time_not_in_view = 0.0
+                assist_state = ASSIST_IDLE
+                assist_timer = 0.0
                 
                 obs, _ = env.reset()
                 current_episode = {"observations": [], "actions": [], "rewards": [], "terminals": [], "human_actions": [],
