@@ -29,6 +29,7 @@ class QuadXBaseEnv(gymnasium.Env):
         agent_hz: int = 30,
         render_mode: None | Literal["human", "rgb_array"] = None,
         render_resolution: tuple[int, int] = (480, 480),
+        world_scale: int = 1,
     ):
         """__init__.
 
@@ -125,6 +126,8 @@ class QuadXBaseEnv(gymnasium.Env):
         elif angle_representation == "quaternion":
             self.angle_representation = 1
 
+        self.world_scale = world_scale
+
     def close(self) -> None:
         """Disconnects the internal Aviary."""
         # if we already have an env, disconnect from it
@@ -189,6 +192,7 @@ class QuadXBaseEnv(gymnasium.Env):
             drone_type="quadx",
             render=self.render_mode == "human",
             drone_options=drone_options,
+            world_scale=self.world_scale,
             np_random=self.np_random,
         )
 

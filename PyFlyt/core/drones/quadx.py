@@ -36,6 +36,7 @@ class QuadX(DroneClass):
         camera_position_offset: np.ndarray = np.array([0.0, 0.0, 0.0]),
         camera_resolution: tuple[int, int] = (128, 128),
         camera_fps: None | int = None,
+        camera_link_id: int = 0,
     ):
         """Creates a drone in the QuadX configuration and handles all relevant control and physics.
 
@@ -202,7 +203,7 @@ class QuadX(DroneClass):
             self.camera = Camera(
                 p=self.p,
                 uav_id=self.Id,
-                camera_id=0,
+                camera_id=camera_link_id,
                 use_gimbal=use_gimbal,
                 camera_FOV_degrees=camera_FOV_degrees,
                 camera_angle_degrees=camera_angle_degrees,
