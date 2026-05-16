@@ -9,6 +9,7 @@ abstractions/camera
 abstractions/gimbals
 abstractions/lifting_surfaces
 abstractions/motors
+abstractions/obstacle
 ```
 
 ## Description

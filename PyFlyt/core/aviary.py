@@ -12,7 +12,7 @@ import pybullet as p
 import pybullet_data
 from pybullet_utils import bullet_client
 
-from PyFlyt.core.abstractions import DroneClass, WindFieldClass
+from PyFlyt.core.abstractions import DroneClass, Obstacle, WindFieldClass
 from PyFlyt.core.drones import Fixedwing, QuadX, Rocket
 
 DroneIndex = int
@@ -212,6 +212,10 @@ class Aviary(bullet_client.BulletClient):
             text="RTF here", textPosition=[0, 0, 0], textColorRGB=[1, 0, 0]
         )
 
+        # obstacles registered with the aviary; respawned on every reset()
+        self._obstacle_specs: list[dict[str, Any]] = []
+        self.obstacles: list[Obstacle] = []
+
         # initialize the environment
         self.reset()
 
@@ -261,6 +265,11 @@ class Aviary(bullet_client.BulletClient):
                     **drone_options,
                 )
             )
+
+        # respawn any obstacles that were registered before reset
+        self.obstacles = []
+        for spec in self._obstacle_specs:
+            self.obstacles.append(Obstacle(p=self, **spec))
 
         # initialize the wind field
         self.wind_field: None | WindFieldClass | Callable
@@ -331,6 +340,48 @@ class Aviary(bullet_client.BulletClient):
         assert callable(wind_field), "`wind_field` function must be callable."
         WindFieldClass._check_wind_field_validity(wind_field)
         self.wind_field = wind_field
+
+    def add_obstacle(
+        self,
+        urdf: str,
+        position: np.ndarray,
+        orientation: np.ndarray | None = None,
+        scale: float = 1.0,
+    ) -> Obstacle:
+        """Spawns a static obstacle in the simulation that drones may collide with.
+
+        The obstacle is loaded from a URDF and pinned in place with `useFixedBase=True`.
+        The obstacle is also remembered by the `Aviary`, so subsequent calls to `reset()`
+        will respawn it at the same pose. After spawning, collision tracking for the new
+        body is automatically (re-)registered via `register_all_new_bodies()`.
+
+        Args:
+            urdf (str): either the name of a built-in obstacle
+                (`"cube"`, `"cylinder"`, `"sphere"`) or a path to a URDF file.
+            position (np.ndarray): `(3,)` array for the X, Y, Z spawn position.
+            orientation (np.ndarray): `(3,)` array of Euler angles (roll, pitch, yaw)
+                in radians. Defaults to zero rotation.
+            scale (float): uniform scaling factor applied to the URDF. Defaults to 1.0.
+
+        Returns:
+            Obstacle: the spawned obstacle. Its PyBullet body ID is available as `.Id`.
+
+        """
+        spec: dict[str, Any] = dict(
+            urdf=urdf,
+            position=np.asarray(position, dtype=np.float64),
+            orientation=(
+                None if orientation is None else np.asarray(orientation, dtype=np.float64)
+            ),
+            scale=float(scale),
+        )
+        obstacle = Obstacle(p=self, **spec)
+        self.obstacles.append(obstacle)
+        self._obstacle_specs.append(spec)
+
+        # ensure the new body is tracked for collisions
+        self.register_all_new_bodies()
+        return obstacle
 
     def state(self, index: DroneIndex) -> np.ndarray:
         """Returns the state for the indexed drone.
