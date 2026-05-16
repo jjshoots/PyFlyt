@@ -9,4 +9,5 @@ from .camera import Camera
 from .gimbals import Gimbals
 from .lifting_surfaces import LiftingSurface, LiftingSurfaces
 from .motors import Motors
+from .obstacle import Obstacle
 from .pid import PID
