@@ -39,7 +39,7 @@ To define custom wind models, refer the the example provided by the `WindFieldCl
 ```{eval-rst}
 .. property:: PyFlyt.core.abstractions.WindFieldClass.np_random
 
-  **dtype** - `np.random.RandomState`
+  **dtype** - `np.random.Generator`
 ```
 
 ### Required Methods
