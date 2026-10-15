@@ -13,7 +13,7 @@
 ```{eval-rst}
 .. property:: PyFlyt.core.abstractions.DroneClass.np_random
 
-  **dtype** - `np.random.RandomState`
+  **dtype** - `np.random.Generator`
 
 .. property:: PyFlyt.core.abstractions.DroneClass.physics_period
 
