@@ -116,7 +116,7 @@ class FixedwingWaypointsEnv(FixedwingBaseEnv):
         self.info["num_targets_reached"] = 0
         super().end_reset()
 
-        return self.state, self.info
+        return self.state, self.info.copy()
 
     def compute_state(self) -> None:
         """Computes the state of the current timestep.

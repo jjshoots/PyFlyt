@@ -275,7 +275,13 @@ class FixedwingBaseEnv(gymnasium.Env):
         # increment step count
         self.step_count += 1
 
-        return self.state, self.reward, self.termination, self.truncation, self.info
+        return (
+            self.state,
+            self.reward,
+            self.termination,
+            self.truncation,
+            self.info.copy(),
+        )
 
     def render(self) -> np.ndarray:
         """Render."""

@@ -367,7 +367,13 @@ class RocketBaseEnv(gymnasium.Env):
                 rgbaColor=self.ignition_color,
             )
 
-        return self.state, self.reward, self.termination, self.truncation, self.info
+        return (
+            self.state,
+            self.reward,
+            self.termination,
+            self.truncation,
+            self.info.copy(),
+        )
 
     def render(self):
         """Render."""
