@@ -28,7 +28,7 @@ class WindFieldClass(ABC):
         >>>         wind[:, -1] = np.log(position[:, -1]) * self.strength
         >>>
         >>>         # plus some noise,
-        >>>         wind += self.np_random.randn(*wind.shape)
+        >>>         wind += self.np_random.standard_normal(wind.shape)
         >>>
         >>>         return wind
         >>>
