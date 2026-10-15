@@ -112,6 +112,27 @@ def test_seeding(env_config):
     env_2.close()
 
 
+@pytest.mark.parametrize("env_config", _ALL_ENV_CONFIGS)
+def test_infos_not_shared(env_config):
+    """Test that each reset and step returns its own info dict, so kept infos don't change."""
+    env = gym.make(env_config[0], **env_config[1])
+
+    _, info = env.reset(seed=42)
+    infos = [info]
+    snapshots = [dict(info)]
+    for _ in range(100):
+        _, _, term, trunc, info = env.step(env.action_space.sample())
+        infos.append(info)
+        snapshots.append(dict(info))
+        if term or trunc:
+            break
+
+    assert len({id(info) for info in infos}) == len(infos)
+    assert infos == snapshots
+
+    env.close()
+
+
 @pytest.mark.parametrize("env_config", _WAYPOINT_ENV_CONFIGS)
 @pytest.mark.parametrize("context_length", [2, 8])
 def test_flatten_env(env_config, context_length):
