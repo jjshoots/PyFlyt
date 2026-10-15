@@ -17,7 +17,7 @@ env = Aviary(
     drone_type="quadx",
     drone_options=dict(
         use_camera=True,
-        camera_angle=30,
+        camera_angle_degrees=30,
         camera_FOV_degrees=110,
         camera_fps=30,
         # by default, camera_fps=control_hz,
@@ -29,7 +29,7 @@ env = Aviary(
 # set to velocity control
 env.set_mode(6)
 
-# simulate for 1000 steps (1000/120 ~= 8 seconds)
+# simulate for 100 steps (100/120 ~= 1 second)
 for i in range(100):
     env.step()
 
@@ -38,9 +38,12 @@ RGBA_img = env.drones[0].rgbaImg
 DEPTH_img = env.drones[0].depthImg
 SEG_img = env.drones[0].segImg
 
-plt.imshow(RGBA_img)
-# plt.show()
-plt.imshow(DEPTH_img)
-# plt.show()
-plt.imshow(SEG_img)
+# show the three images side by side
+fig, axes = plt.subplots(1, 3)
+for ax, img, title in zip(
+    axes, [RGBA_img, DEPTH_img, SEG_img], ["RGBA", "Depth", "Segmentation"]
+):
+    ax.imshow(img)
+    ax.set_title(title)
+    ax.axis("off")
 plt.show()
