@@ -124,7 +124,7 @@ class RocketLandingEnv(RocketBaseEnv):
 
         super().end_reset(seed, options)
 
-        return self.state, self.info
+        return self.state, self.info.copy()
 
     def compute_state(self) -> None:
         """Computes the state of the current timestep.
