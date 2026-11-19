@@ -6,6 +6,7 @@ core/aviary
 core/wind
 core/drones
 core/abstractions
+core/camera_recorder
 ```
 
 ## Core API
